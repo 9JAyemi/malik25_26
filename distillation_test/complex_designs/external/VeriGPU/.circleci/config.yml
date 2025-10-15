@@ -1,0 +1,117 @@
+version: 2.1
+
+jobs:
+  behavioral:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run behavioral tests"
+          command: |
+            cicd/run-behav.sh
+          no_output_timeout: 2m
+
+  behavioral-verilator:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run behavioral tests using verilator"
+          command: |
+            cicd/run-behav-verilator.sh
+          no_output_timeout: 2m
+
+  py:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run python tests"
+          command: |
+            cicd/run-py.sh
+          no_output_timeout: 2m
+
+  gls:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run GLS tests"
+          command: |
+            cicd/run-gls.sh
+          no_output_timeout: 2m
+
+  gls-verilator:
+    resource_class: medium
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run GLS tests using verilator"
+          command: |
+            cicd/run-gls-verilator.sh
+          no_output_timeout: 4m
+
+  timing:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run timing measurements"
+          command: |
+            cicd/run-timing.sh
+          no_output_timeout: 2m
+      - store_artifacts:
+          path: build/timing-core.txt
+      - store_artifacts:
+          path: build/timing-gpu-die.txt
+      - store_artifacts:
+          path: build/clock-cycles.txt
+
+  run-single-source:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run single source smoke tests"
+          command: |
+            cicd/run-single-source.sh
+          no_output_timeout: 1m
+
+  check-markdown-links:
+    resource_class: small
+    docker:
+      - image: cimg/node:17.8.0
+    steps:
+      - checkout
+      - run:
+          name: "Run check markdown links"
+          command: |
+            npm i --global -D markdown-link-check@3.9.3
+            bash cicd/check_markdown.sh
+          no_output_timeout: 2m
+
+workflows:
+  test-workflow:
+    jobs:
+      - check-markdown-links
+      - py
+      - behavioral
+      - behavioral-verilator
+      - gls
+      - gls-verilator
+      - run-single-source
+      - timing
