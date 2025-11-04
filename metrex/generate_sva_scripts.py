@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # loads OPENAI_API_KEY from .env
-
 from datasets import load_dataset
 from openai import OpenAI
 import random
@@ -9,11 +6,14 @@ import json
 import hashlib
 import os
 
+from dotenv import load_dotenv
+load_dotenv()  # loads OPENAI_API_KEY from .env
+
 # Initialize client using key from .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # === Configuration ===
-TARGET_MODULES = 100
+TARGET_MODULES = 5
 MAX_ASSERTS_PER_MODULE = 25
 MAX_TOKENS_PER_INPUT = 200_000
 CHARS_PER_TOKEN = 4

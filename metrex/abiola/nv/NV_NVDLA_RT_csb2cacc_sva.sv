@@ -1,3 +1,39 @@
+/*
+ * SVA QUALITY EVALUATION
+ * ======================
+ * The pipeline assertions have fundamental correctness issues. Property `p_req_pd_propagate` has
+ * broken logic: the antecedent checks if `csb2cacc_req_src_pd == csb2cacc_req_dst_pd` at cycle 0,
+ * but these are input and output of a 3-stage pipeline, so they should NOT be equal until after
+ * propagation - this makes the antecedent almost never trigger. The consequent then checks if
+ * dst_pd equals src_pd at cycle 3, but src_pd may have changed by then, so it should capture the
+ * original value using `$past(csb2cacc_req_src_pd, 3)`. The prdy tie-high check is procedural and
+ * should be a property. The reset assertion fires on both posedge and negedge, creating conflicting
+ * evaluation contexts and potential race conditions with the actual reset logic. Critical gaps:
+ * no verification of ready/valid handshaking protocol, no checks that data remains stable when
+ * valid is asserted but not ready, no backpressure handling (prdy is forced high), and no overflow
+ * protection if source produces data faster than pipeline can drain. The 3-cycle latency assumption
+ * is hardcoded without verifying it matches actual DUT behavior.
+ *
+ * Most Significant Flaw: Property `p_req_pd_propagate` contains logically impossible antecedent
+ * conditions (checking if pipeline input equals output before propagation occurs), making it
+ * effectively non-functional for verification.
+ *
+ * Final Score: 4/10 - Basic pipeline latency checking exists but data propagation verification
+ * is mathematically incorrect and handshaking protocol is not verified at all.
+ */
+
+/*
+ * SECOND SVA QUALITY EVALUATION
+ * =============================
+ * The assertions contain severe logical and methodological flaws. The data propagation property, `p_req_pd_propagate`, is fundamentally broken; its antecedent `(csb2cacc_req_src_pd == csb2cacc_req_dst_pd)` requires the pipeline's input and output to be equal *before* propagation, making the check useless. Furthermore, the consequent compares the final output to the *current* input, not the original input from three cycles prior, failing to verify data integrity through the pipe. The reset check is a procedural assertion in a mixed-edge `always` block (`posedge clk or negedge rstn`), which is poor practice and can lead to simulation races.
+ *
+ * The verification is critically incomplete. It completely ignores the ready/valid handshaking protocol by simply asserting `csb2cacc_req_src_prdy` is tied high. This fails to check backpressure scenarios where `prdy` is low, a primary source of bugs in pipelined interfaces. There are no assertions to ensure that data remains stable when `pvld` is high but `prdy` is low, or that the pipeline correctly stalls and resumes. The fixed 3-cycle latency is assumed but not verified as a property of the DUT itself.
+ *
+ * Most Significant Flaw: The `p_req_pd_propagate` property is logically incorrect in both its trigger condition (antecedent) and its check (consequent), rendering it completely ineffective for verifying data propagation.
+ *
+ * Final Score: 3/10 - The assertions fail to correctly verify the core data-path and completely ignore the critical handshaking protocol, making them unsuitable for production verification.
+ */
+
 `timescale 1ns/1ps
 
 module NV_NVDLA_RT_csb2cacc_sva();

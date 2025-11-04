@@ -1,3 +1,39 @@
+/*
+ * SVA QUALITY EVALUATION
+ * ======================
+ * The FIFO assertions have race conditions and incomplete corner case coverage. Properties
+ * `p_write_level` and `p_read_level` assume level increments/decrements by exactly 1, but
+ * don't account for simultaneous read+write operations where level might stay constant or
+ * change differently. Property `p_read_data_correct` uses `##1` delay but checks against
+ * `$past(dut.rd_ptr)` which creates a timing mismatch - it should verify the data was
+ * written at that location previously, not just that it matches current storage. The pointer
+ * wrapping behavior is not verified - properties only check range [0:7] but don't assert
+ * that ptr resets to 0 after reaching 7. Critical gaps: no empty/full condition checks
+ * (attempting to read from empty or write to full FIFO), no verification of the 64-bit to
+ * 16-bit data transformation beyond just the lower bits, and no ordering guarantees (FIFO
+ * property: first-in-first-out sequence preservation). The storage array content persistence
+ * is never verified - writes could be lost and assertions wouldn't catch it if pointers
+ * happen to increment correctly.
+ *
+ * Most Significant Flaw: Missing assertions for simultaneous read/write operations and
+ * empty/full boundary conditions, which are the most common sources of FIFO bugs in production.
+ *
+ * Final Score: 6/10 - Basic pointer and level mechanics are checked, but critical FIFO
+ * correctness properties (ordering, boundary conditions, concurrent operations) are absent.
+ */
+
+/*
+ * SECOND SVA QUALITY EVALUATION
+ * =============================
+ * The assertions are logically incomplete and contain correctness flaws. The properties for `p_write_level` and `p_read_level` are naive; they check for `level` incrementing or decrementing on `wr_en` or `rd_en` respectively, but completely fail to account for the critical case of simultaneous read and write, where the level should remain unchanged. The `p_read_data_correct` property is flawed, as it checks that `rd_data` matches the content of `storage` at the location pointed to by `$past(dut.rd_ptr)`, creating a potential race condition and failing to verify the fundamental FIFO data-ordering property.
+ *
+ * The verification coverage is critically insufficient for a FIFO. There are no assertions to check for illegal operations, such as writing when the FIFO is full or reading when it is empty. The pointer wrapping logic is not verified; the properties only check that the pointers stay within range but not that they correctly wrap from 7 to 0. Furthermore, the core First-In-First-Out behavior is not verified; a proper check would involve tracking a written data value and ensuring it is the one read out after all preceding data has been read.
+ *
+ * Most Significant Flaw: The complete absence of assertions for FIFO full/empty conditions and the failure to correctly model pointer/level behavior during simultaneous read/write operations.
+ *
+ * Final Score: 3/10 - The suite checks only the simplest, non-concurrent operations and misses all the critical boundary conditions that define a correct FIFO.
+ */
+
 `timescale 1ns/1ps
 
 module tb_fifo;
