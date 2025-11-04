@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()  # loads OPENAI_API_KEY from .env
-
 from datasets import load_dataset
 from openai import OpenAI
 import random
@@ -8,6 +5,9 @@ import re
 import json
 import hashlib
 import os
+
+from dotenv import load_dotenv
+load_dotenv()  # loads OPENAI_API_KEY from .env
 
 # Initialize client using key from .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
