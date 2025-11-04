@@ -1,3 +1,41 @@
+/*
+ * SVA QUALITY EVALUATION
+ * ======================
+ * The assertions mix proper SVA properties with procedural checks in problematic ways. Property
+ * `p_reset_clears_regs` uses `!$past(reset)` to detect reset deassertion, but the consequent checks
+ * registers at the SAME cycle, not one cycle after, creating timing confusion - it should be `|=> `
+ * (non-overlapping) not `|->` (overlapping). Property `p_pipeline_update` uses `$rose(clk)` redundantly
+ * within `@(posedge clk)` and checks if registers equal `$past(next_*)` signals, but this creates a
+ * sampling race: next_* are combinational and may change within the clock cycle. The combinational
+ * assertion `next_alph == (al ^ ah)` is an immediate always @(*) check that could fire mid-evaluation
+ * during simulation glitches. The decrypt_i check only validates one path but doesn't verify encrypt
+ * mode correctness or the actual S-box lookup table values. Critical gaps: no verification of the
+ * S-box substitution table correctness (are mappings cryptographically correct?), no inverse relationship
+ * check between encrypt and decrypt operations (decrypt(encrypt(X)) should equal X), no verification of
+ * multi-stage pipeline data flow, and the stability check using negedge is unreliable for catching
+ * glitches in complex combinational paths.
+ *
+ * Most Significant Flaw: The S-box functional correctness is never verified - no assertions check
+ * that the substitution table implements the correct cryptographic mapping or that encrypt/decrypt
+ * are true inverses, making these assertions verify only timing, not functionality.
+ *
+ * Final Score: 5/10 - Pipeline timing checks are structurally present but have temporal operator
+ * errors, and the complete absence of substitution table correctness verification means the core
+ * cryptographic function remains unverified.
+ */
+
+/*
+ * SECOND SVA QUALITY EVALUATION
+ * =============================
+ * The assertions exhibit a mix of poor SVA practices and logical errors. The reset property `p_reset_clears_regs` incorrectly uses an overlapping implication (`|->`) to check registers on the same cycle that reset is deasserted, which is temporally ambiguous. The pipeline update property `p_pipeline_update` is flawed; it compares registered values to the `$past` of combinational `next_*` signals, creating a race condition and failing to properly verify the synchronous transfer. The immediate assertion in the `always @(*)` block is susceptible to glitches and is not a robust way to check combinational logic.
+ *
+ * The verification is critically incomplete as it fails to validate the core cryptographic function of the S-box. There are no assertions to confirm that `data_o` is the correct substitution for `data_i` based on the S-box table for either encryption or decryption. The check for the decrypt path only confirms that `data_o` matches an internal signal (`inva`) but never verifies that `inva` itself is the correct inverse substitution. The crucial property that `decrypt(encrypt(x)) == x` is completely untested.
+ *
+ * Most Significant Flaw: The complete absence of any check to validate the functional correctness of the S-box lookup/substitution itself. The assertions verify pipeline timing but not whether the cryptographic transformation is correct.
+ *
+ * Final Score: 3/10 - The assertions contain temporal logic errors and, most importantly, fail to verify the fundamental cryptographic function of the S-box.
+ */
+
 `timescale 1ns/1ps
 
 module sbox_sva();

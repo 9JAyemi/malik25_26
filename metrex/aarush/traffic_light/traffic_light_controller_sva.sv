@@ -1,3 +1,38 @@
+/*
+ * SVA QUALITY EVALUATION
+ * ======================
+ * The state machine assertions are structurally flawed and incomplete. Property `p_state_transition`
+ * uses chained `|=>` operators incorrectly - the sequence `(state==00) |=> (state==01) ##1 (state==01) |=>...`
+ * doesn't create a continuous chain but rather separate implications that never trigger together.
+ * Property `p_valid_transitions` uses `or` to connect multiple implications, which always evaluates
+ * true as long as ANY transition is valid, not checking if the ACTUAL transition matches expectations.
+ * The critical flaw: `state_in` input is never used or verified - the FSM appears to have an input
+ * signal that might affect transitions, but no assertions check its behavior. Property `p_output_correctness`
+ * lumps states 00 and 11 together with identical outputs, but doesn't verify WHY state 11 exists or
+ * what triggers it versus 00. Missing coverage: no timing requirements for state duration (traffic
+ * lights should stay in each state for minimum time), no verification of transition conditions beyond
+ * sequence, and no liveness properties ensuring the FSM doesn't deadlock in a state.
+ *
+ * Most Significant Flaw: The transition checking logic is fundamentally broken - using `or` between
+ * separate implications means the assertion passes even when invalid transitions occur, as long as
+ * at least one valid transition type exists somewhere in the trace.
+ *
+ * Final Score: 4/10 - Reset and mutual exclusion checks work, but core FSM transition verification
+ * is logically incorrect and would miss most state machine bugs.
+ */
+
+/*
+ * SECOND SVA QUALITY EVALUATION
+ * =============================
+ * The assertions for state transitions are logically flawed and ineffective. The property `p_valid_transitions` uses an `or` chain of implications, which is a critical error; this property will pass as long as the machine is in any valid state, as one of the clauses will be true, but it fails to enforce that the *correct* next state is reached. For example, if the state is `2'b00`, the assertion does not fail if the next state is `2'b10` instead of the expected `2'b01`. The `p_state_transition` property is also syntactically confused and would not enforce a sequential path.
+ *
+ * The verification is critically incomplete because it completely ignores the `state_in` input. The DUT has an input that presumably controls its behavior (e.g., forcing a state change), but no assertions verify its effect on the state transitions. This leaves a significant part of the DUT's logic untested. Furthermore, there are no liveness properties to ensure the FSM does not get stuck, nor are there any checks on the duration of each state, which is a key requirement for a real-world traffic light.
+ *
+ * Most Significant Flaw: The `p_valid_transitions` property is logically incorrect, as its use of `or` prevents it from actually constraining state transitions, allowing illegal state changes to pass verification.
+ *
+ * Final Score: 2/10 - The core FSM transition logic is not correctly verified, and a key input is completely ignored, making the assertion suite fundamentally unreliable.
+ */
+
 `timescale 1ns/1ps
 
 module tb_traffic_light_controller;
