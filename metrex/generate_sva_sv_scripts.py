@@ -1,8 +1,4 @@
 # generate_sva_sv_scripts.py
-
-from dotenv import load_dotenv
-load_dotenv()  # loads OPENAI_API_KEY from .env
-
 from datasets import load_dataset
 from openai import OpenAI
 import random
@@ -12,21 +8,28 @@ import hashlib
 import os
 from pathlib import Path
 
-# Initialize client using key from .env
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from dotenv import load_dotenv
+load_dotenv()  # loads OPENAI_API_KEY from .env
 
 # === Configuration ===
-TARGET_MODULES = 100
-MAX_ASSERTS_PER_MODULE = 25        # upper bound per module
-MAX_TOKENS_PER_INPUT = 200_000     # safety limit
-CHARS_PER_TOKEN = 4                # heuristic: ~4 chars/token
+TARGET_MODULES = 1
+MAX_ASSERTS_PER_MODULE = 25
+MAX_TOKENS_PER_INPUT = 200_000
+CHARS_PER_TOKEN = 4
 MAX_CHARS = MAX_TOKENS_PER_INPUT * CHARS_PER_TOKEN
 
-# === Load dataset ===
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Load MetRex dataset
 ds = load_dataset("scale-lab/MetRex", split="train")
-TOTAL_ROWS = len(ds)
 
+# Make paths relative to this script, not CWD
+SCRIPT_DIR = Path(__file__).resolve().parent
+jsonl_path = SCRIPT_DIR / "metrex_modules_sv.jsonl"
+out_dir = SCRIPT_DIR / "sva_sv_files"
 
+# --- helpers ---
 def truncate_verilog(src: str) -> str:
     """Keep total text length under the character cap (~200k tokens)."""
     if len(src) <= MAX_CHARS:
@@ -35,13 +38,32 @@ def truncate_verilog(src: str) -> str:
     tail = src[-20_000:]
     return head + "\n// ... truncated for token limit ...\n" + tail
 
+def get_verilog_from_row(row: dict) -> str:
+    """Return Verilog/SystemVerilog text from common MetRex fields."""
+    for key in ("rtl", "RTL", "verilog", "sv", "code", "text"):
+        v = row.get(key)
+        if isinstance(v, str) and "module" in v:
+            return v
+    return ""
+
+MODULE_BLOCK_RE = re.compile(r"\bmodule\b.*?\bendmodule\b", re.S | re.I)
+
+def extract_first_module_block(src: str) -> str | None:
+    m = MODULE_BLOCK_RE.search(src)
+    return m.group(0).strip() if m else None
+
+# Looser port list capture: handle parameterized headers `#(...) ( ... );`
+PORTS_RE = re.compile(
+    r"module\s+[A-Za-z_]\w*(?:\s*#\s*\([^)]*\))?\s*\((.*?)\)\s*;",
+    re.S | re.I,
+)
 
 def guess_top_and_ports(verilog_src: str):
-    """Infer top module name, clock, and reset signals."""
-    m = re.search(r"\bmodule\s+([A-Za-z_]\w*)", verilog_src)
+    """Infer top, clock, reset (more tolerant of parameter lists)."""
+    m = re.search(r"\bmodule\s+([A-Za-z_]\w*)", verilog_src, re.I)
     top = m.group(1) if m else "top"
 
-    ports = re.search(r"module\s+[A-Za-z_]\w*\s*\((.*?)\);", verilog_src, re.S)
+    ports = PORTS_RE.search(verilog_src)
     text = (ports.group(1) if ports else "") + "\n" + verilog_src
 
     clk_candidates = re.findall(r"\b([A-Za-z_]\w*clk\w*|\w*clock\w*)\b", text, re.I)
@@ -49,9 +71,7 @@ def guess_top_and_ports(verilog_src: str):
 
     clk = clk_candidates[0] if clk_candidates else "clk"
     rst = rst_candidates[0] if rst_candidates else "reset"
-
     rst_active_low = rst.lower().endswith("n") or rst.lower().startswith("n")
-
     return top, clk, rst, rst_active_low
 
 
@@ -110,88 +130,62 @@ Here is the Verilog module:
 """
 
 
-results = []
-used_indices = set()
+# === Collect a pool of valid, unique modules first ===
+candidates = []
 seen_hashes = set()
-
-while len(results) < TARGET_MODULES and len(used_indices) < TOTAL_ROWS:
-    idx = random.randrange(TOTAL_ROWS)
-    if idx in used_indices:
+for i, row in enumerate(ds):
+    raw = get_verilog_from_row(row)
+    if not raw:
         continue
-    used_indices.add(idx)
-
-    row = ds[idx]
-    text = row.get("text", "")
-    if not text:
+    block = extract_first_module_block(raw)
+    if not block:
         continue
-
-    # Extract the first module ... endmodule block
-    m_mod = re.search(r"(module\b.*?endmodule)", text, re.S)
-    if not m_mod:
+    h = hashlib.md5(block.encode("utf-8")).hexdigest()
+    if h in seen_hashes:
         continue
+    seen_hashes.add(h)
+    candidates.append((i, block))
 
-    verilog_src = m_mod.group(1).strip()
+if not candidates:
+    raise RuntimeError("No valid 'rtl' modules found in MetRex; check dataset columns.")
 
-    # Uniqueness by module text hash
-    module_hash = hashlib.md5(verilog_src.encode("utf-8")).hexdigest()
-    if module_hash in seen_hashes:
-        continue
-    seen_hashes.add(module_hash)
+random.shuffle(candidates)
+picked = candidates[:TARGET_MODULES]
 
+results = []
+for idx, verilog_src in picked:
     verilog_src = truncate_verilog(verilog_src)
     top, clk, rst, rst_active_low = guess_top_and_ports(verilog_src)
+    prompt = build_prompt(verilog_src, top, clk, rst, rst_active_low, MAX_ASSERTS_PER_MODULE)
 
-    prompt = build_prompt(
-        verilog_src=verilog_src,
-        top=top,
-        clk=clk,
-        rst=rst,
-        rst_active_low=rst_active_low,
-        max_asserts=MAX_ASSERTS_PER_MODULE,
-    )
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-5",
+            messages=[
+                {"role": "system", "content": "You output only SystemVerilog SVA code (no TCL, no Markdown)."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.2,
+            max_tokens=4096,
+        )
+        sva_sv_text = resp.choices[0].message.content or ""
+    except Exception as e:
+        print(f"✖ Skipping idx={idx} due to API error: {e}")
+        continue
 
-    response = client.chat.completions.create(
-        model="gpt-5-thinking",
-        messages=[
-            {
-                "role": "system",
-                "content": "You output only SystemVerilog SVA code (no TCL, no Markdown)."
-            },
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.2,
-    )
+    if not sva_sv_text.strip():
+        print(f"✖ Empty response for idx={idx} ({top}); skipping.")
+        continue
 
-    sva_sv_text = response.choices[0].message.content
+    results.append({"metrex_index": idx, "top": top, "sva_sv": sva_sv_text})
+    print(f"✔ {len(results):3d}/{TARGET_MODULES}  {top}  ({len(verilog_src)} chars)")
 
-    results.append({
-        "metrex_index": idx,
-        "top": top,
-        "sva_sv": sva_sv_text,
-    })
+# === Save outputs ===
+jsonl_path.write_text("\n".join(json.dumps(r) for r in results))
+print(f"✅ Saved combined SV JSONL: {jsonl_path} ({len(results)} entries)")
 
-    print(f"✔ {len(results):3d}/100  {top}  ({len(verilog_src)} chars)")
-
-# === Save combined JSONL ===
-jsonl_path = "metrex_100_unique_modules_sv.jsonl"
-with open(jsonl_path, "w") as f:
-    for r in results:
-        f.write(json.dumps(r) + "\n")
-
-print(f"✅ Saved combined SV JSONL: {jsonl_path}")
-
-# === Save individual .sv files per module ===
-out_dir = Path("sva_sv_files")
 out_dir.mkdir(exist_ok=True)
-
 for i, entry in enumerate(results):
-    top = entry["top"]
-    sva_sv_text = entry["sva_sv"]
-
-    safe_top = re.sub(r"[^A-Za-z0-9_]", "_", top)
-    fname = out_dir / f"{i:03d}_{safe_top}_sva.sv"
-
-    fname.write_text(sva_sv_text)
-    print(f"💾 Wrote {fname}")
-
-print("🎉 Done: 100 SVA .sv files in 'sva_sv_files/' and JSONL summary.")
+    safe_top = re.sub(r"[^A-Za-z0-9_]", "_", entry["top"])
+    (out_dir / f"{i:03d}_{safe_top}_sva.sv").write_text(entry["sva_sv"])
+print(f"🎉 Done: {len(results)} SVA .sv files in '{out_dir}/' and JSONL summary.")
