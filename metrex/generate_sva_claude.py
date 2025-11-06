@@ -58,7 +58,7 @@ def generate_sva(rtl_code, api_key):
             model="gpt-5",
             input=prompt
         )
-        return response.output.content
+        return response.output_text
     except Exception as e:
         print(f"Error calling GPT-5 Responses API: {e}")
         exit(1)
