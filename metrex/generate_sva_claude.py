@@ -56,7 +56,11 @@ def generate_sva(rtl_code, api_key):
     try:
         response = client.responses.create(
             model="gpt-5",
-            input=prompt
+            input=prompt,
+            text={
+                "verbosity": "low"
+            },
+            reasoning={"effort": "medium"}
         )
         return response.output_text
     except Exception as e:
