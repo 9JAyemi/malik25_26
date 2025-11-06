@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-MAX_TOKENS = 20000
+MAX_TOKENS = 5000
 CHARS_PER_TOKEN = 4  # Rough estimate: 1 token ≈ 4 characters
 
 def estimate_tokens(text):
@@ -48,8 +48,14 @@ def save_verilog_module(rtl_code, module_name):
 def generate_sva(rtl_code, api_key):
     """Generate SVA assertions using GPT-5 Responses API."""
     client = OpenAI(api_key=api_key)
-    
-    prompt = f"""Generate SVA assertions for the following verilog module. Make sure it has full coverage and checks all important signals and functions: 
+
+    prompt = f"""You are a verification engineer. 
+            Generate SVA assertions for the following verilog module.
+            Make sure it has full coverage and checks all important
+            signals and functions, but make sure it is also concise. We
+            mostly care about quality over quantity and also mostly care
+            about SVA, not DUT or testbench code, the SVA is the most
+            important part of what you generate.:
 
 {rtl_code}"""
     
