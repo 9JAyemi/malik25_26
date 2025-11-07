@@ -201,39 +201,74 @@ def download_batch_results(client, batch):
 def process_batch_results(results, modules_metadata, processed_modules):
     """Process batch results and save module pairs."""
     for result in results:
-        custom_id = result['custom_id']
-        
-        if custom_id not in modules_metadata:
-            print(f"Warning: Unknown custom_id {custom_id}")
-            continue
-        
-        metadata = modules_metadata[custom_id]
-        
-        # Extract SVA code from response
         try:
-            sva_code = result['response']['body']['output'][0]['content'][0]['text']
-            
-            # Save the module pair
+            custom_id = result.get("custom_id")
+            if not custom_id or custom_id not in modules_metadata:
+                print(f"⚠️ Unknown or missing custom_id: {custom_id}")
+                continue
+
+            metadata = modules_metadata[custom_id]
+
+            # --- Navigate into response body ---
+            response = result.get("response", {})
+            body = response.get("body", {})
+
+            sva_code = None
+            output = body.get("output", [])
+
+            # Look for the assistant message with actual text content
+            for item in output:
+                if (
+                    item.get("type") == "message"
+                    and isinstance(item.get("content"), list)
+                ):
+                    for content_item in item["content"]:
+                        if (
+                            content_item.get("type") == "output_text"
+                            and isinstance(content_item.get("text"), str)
+                        ):
+                            sva_code = content_item["text"].strip()
+                            break
+                if sva_code:
+                    break
+
+            # Fallback: try top-level output_text if any
+            if not sva_code:
+                sva_code = (
+                    body.get("output_text")
+                    or body.get("text")
+                )
+                if isinstance(sva_code, dict):
+                    sva_code = next(
+                        (v for v in sva_code.values() if isinstance(v, str)), str(sva_code)
+                    )
+                if isinstance(sva_code, str):
+                    sva_code = sva_code.strip()
+
+            if not sva_code or not isinstance(sva_code, str):
+                raise KeyError("No valid text field found in response body")
+
+            # --- Save .v / .sv pair ---
             saved_name = save_module_pair(
-                metadata['rtl_code'],
+                metadata["rtl_code"],
                 sva_code,
-                metadata['module_name'],
-                metadata['module_hash']
+                metadata["module_name"],
+                metadata["module_hash"]
             )
-            
-            # Mark as processed
-            processed_modules[metadata['module_hash']] = {
-                'module_name': metadata['module_name'],
-                'saved_as': saved_name,
-                'processed_date': datetime.now().isoformat(),
-                'custom_id': custom_id
+
+            # --- Mark as processed ---
+            processed_modules[metadata["module_hash"]] = {
+                "module_name": metadata["module_name"],
+                "saved_as": saved_name,
+                "processed_date": datetime.now().isoformat(),
+                "custom_id": custom_id
             }
-            
+
             print(f"✓ Processed: {metadata['module_name']}")
-            
+
         except Exception as e:
-            print(f"✗ Error processing result for {metadata['module_name']}: {e}")
-    
+            print(f"✗ Error processing result for {metadata.get('module_name', 'unknown')}: {e}")
+
     save_processed_modules(processed_modules)
 
 def collect_modules_for_batch(dataset, processed_modules, batch_size):
