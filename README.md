@@ -1,0 +1,2 @@
+This repo contains code and experiments for independent work/senior thesis with Professor Sharad Malik at Princeton University for the 2025-26 Academic Year. The code is to create a dataset of SystemVerilog
+Assertions.
