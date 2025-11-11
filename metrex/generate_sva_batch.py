@@ -112,7 +112,7 @@ def write_dataset_sample(rtl_code: str, sva_code: str, metadata: dict) -> dict:
 
     # Write files
     verilog_file = os.path.join(sample_dir, "module.v")
-    sva_file = os.path.join(sample_dir, "properties.sv")
+    sva_file = os.path.join(sample_dir, "sva.sv")  # changed from properties.sv
     with open(verilog_file, "w") as f:
         f.write(rtl_code)
     with open(sva_file, "w") as f:
@@ -123,12 +123,12 @@ def write_dataset_sample(rtl_code: str, sva_code: str, metadata: dict) -> dict:
         "id": sample_id,
         "version": CURRENT_VERSION,
         "verilog_file": "module.v",
-        "sva_file": "properties.sv",
+        "sva_file": "sva.sv",  # changed from properties.sv
         "created_at": datetime.now().isoformat(),
         **metadata,
         "judging": {
-            "status": "unjudged",   # unjudged | judged
-            "llm_scores": [],       # [{"model":"claude-3.5", "score":0.82, "notes":"..."}]
+            "status": "unjudged",
+            "llm_scores": [],
             "aggregate_score": None,
             "accepted": None
         }
