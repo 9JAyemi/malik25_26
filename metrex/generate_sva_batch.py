@@ -13,7 +13,7 @@ load_dotenv()
 # Configuration
 MAX_TOKENS = 2500
 CHARS_PER_TOKEN = 4
-BATCH_SIZE = 5  # Number of modules to process in one batch
+BATCH_SIZE = 500  # Number of modules to process in one batch
 OUTPUT_DIR = "generated_modules"  # Single folder for all .v and .sv files
 TRACKING_FILE = "processed_modules.json"  # Track what's been processed
 BATCH_REQUESTS_DIR = "batch_requests"  # Store batch request files
@@ -358,6 +358,13 @@ def process_batch_results(results, modules_metadata, processed_modules):
             # --- Write to dataset layout ---
             rtl_code = metadata["rtl_code"]
             module_name = metadata["module_name"]
+
+            # Skip if we've already processed this RTL hash (e.g., from another batch)
+            module_hash = metadata.get("module_hash")
+            if module_hash and module_hash in processed_modules:
+                print(f"↷ Skipping duplicate across batches: {module_name}")
+                continue
+
             prompt_text = compute_prompt_text(rtl_code)
 
             meta_obj = {
