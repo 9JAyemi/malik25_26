@@ -3,7 +3,7 @@ import json
 import time
 import argparse
 from datetime import datetime
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, Tuple
 
 # Optional: load .env at repo root
 try:
@@ -20,8 +20,8 @@ DATASET_ROOT = os.environ.get("DATASET_ROOT", "dataset")
 CURRENT_VERSION = os.environ.get("DATASET_VERSION", "version_1")
 
 # Models can be overridden via ENV
-CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-1.5-pro-latest")
+CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-5-20250929")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-pro")
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
