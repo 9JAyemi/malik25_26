@@ -1,6 +1,13 @@
 # ============================================================
 # JasperGold SystemVerilog/SVA Syntax Checker (env-driven)
-# Compatible with Jasper 2021.x and later
+# No Tcl redirect; rely on shell redirection for logs.
+# Env:
+#   JG_DIR          : dir with *.sv/*.svh/*.v (required)
+#   JG_STD          : sv12 | sv11 | sv09 (default: sv12)
+#   JG_TOP          : optional top to elaborate
+#   JG_HALT_ON_WARN : 1 to fail if warnings exist (default: 0)
+#   JG_INCDIRS      : colon/space-separated include dirs (optional)
+#   JG_DEFINES      : space-separated defines NAME or NAME=VAL (optional)
 # ============================================================
 
 proc split_env_list {s} {
@@ -22,7 +29,7 @@ set HALT_ON_WARN [expr {[info exists ::env(JG_HALT_ON_WARN)] ? $::env(JG_HALT_ON
 set INCDIRS      [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
 set DEFINES_KV   [expr {[info exists ::env(JG_DEFINES)] ? [split_env_list $::env(JG_DEFINES)] : {}}]
 
-# ---- Collect files ----
+# ---- Collect files in JG_DIR ----
 proc collect_files {dir} {
   if {![file isdirectory $dir]} { error "Directory not found: $dir" }
   set patterns {*.sv *.svh *.v}
@@ -37,34 +44,31 @@ proc collect_files {dir} {
 }
 set FILES [collect_files $DIR]
 
-# ---- Logging ----
-file mkdir .jasper_logs
-set LOGF ".jasper_logs/syntax_check.log"
-redirect start file $LOGF
-
 puts "INFO: Syntax check starting"
 puts "  DIR      : $DIR"
 puts "  STD      : $STD"
-puts "  TOP      : [expr {$TOP eq \"\" ? \"(none)\" : $TOP}]"
+puts "  TOP      : [expr {$TOP eq "" ? "(none)" : $TOP}]"
 puts "  INCDIRS  : $INCDIRS"
 puts "  DEFINES  : $DEFINES_KV"
 puts "  NFILES   : [llength $FILES]"
 
-# ---- Make parsing/elab errors fatal ----
+# Promote common message groups to errors if available
 if {[llength [info commands set_msg_config]]} {
   set_msg_config -id COMP*  -severity error
   set_msg_config -id PARSE* -severity error
   set_msg_config -id ELAB*  -severity error
 }
 
-# ---- Build analyze command ----
+# ---- Build analyze options ----
 set analyze_opts [list analyze -$STD]
-if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+if {[llength $INCDIRS] > 0} {
+  lappend analyze_opts -incdir $INCDIRS
+}
 if {[llength $DEFINES_KV] > 0} {
   foreach d $DEFINES_KV { lappend analyze_opts -define $d }
 }
 
-# ---- Run analyze ----
+# ---- Analyze ----
 set err 0
 if {[catch {eval $analyze_opts $FILES} msg]} {
   puts "ERROR: analyze failed:\n$msg"
@@ -73,7 +77,7 @@ if {[catch {eval $analyze_opts $FILES} msg]} {
   puts "INFO: analyze completed."
 }
 
-# ---- Optional elaborate ----
+# ---- Elaborate (optional) ----
 if {!$err && $TOP ne ""} {
   puts "INFO: elaborate $TOP"
   if {[catch {elaborate $TOP} emsg]} {
@@ -84,9 +88,7 @@ if {!$err && $TOP ne ""} {
   }
 }
 
-redirect stop
-
-# ---- Count warnings ----
+# ---- Warning count (best-effort) ----
 set warn_count 0
 if {[llength [info commands get_messages]]} {
   set warns [get_messages -severity WARNING]
@@ -94,11 +96,11 @@ if {[llength [info commands get_messages]]} {
 }
 
 if {$err} {
-  puts "\n❌ FAILED: Syntax/elaboration errors detected (see $LOGF)"
+  puts "\n❌ FAILED: Syntax/elaboration errors detected"
   exit 1
 }
 if {$HALT_ON_WARN && $warn_count > 0} {
-  puts "\n⚠️  FAILED: $warn_count warnings detected (HALT_ON_WARN=1) — see $LOGF"
+  puts "\n⚠️  FAILED: $warn_count warnings detected (HALT_ON_WARN=1)"
   exit 1
 }
 
