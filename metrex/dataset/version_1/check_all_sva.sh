@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ============================================================
-# Batch JasperGold Syntax Checker for all dataset entries
+# Batch JasperGold Syntax Checker for all dataset subdirs
+# Relies on jaspergold being in PATH via your ~/.bashrc
 # ============================================================
 
-# Root where numbered subdirectories (00000, 00001, …) live
-ROOT="."
-# Path to jasper_syntax_check.tcl (same dir or one level up)
+ROOT="${ROOT:-.}"
+
 if [[ -f "./jasper_syntax_check.tcl" ]]; then
   JASPER_TCL="./jasper_syntax_check.tcl"
 elif [[ -f "../jasper_syntax_check.tcl" ]]; then
@@ -18,13 +18,20 @@ else
 fi
 
 mkdir -p syntax_results
+: > syntax_results/summary.csv
+echo "id,status" >> syntax_results/summary.csv
 
 echo "=============================="
 echo "Running Jasper syntax checks..."
+echo "TCL : $JASPER_TCL"
+echo "Root: $ROOT"
 echo "=============================="
 
+shopt -s nullglob
 for dir in "$ROOT"/*/; do
-  id=$(basename "$dir")
+  id="$(basename "$dir")"
+  [[ "$id" == "syntax_results" ]] && continue
+
   module_file="$dir/module.v"
   sva_file="$dir/sva.sv"
 
@@ -33,15 +40,21 @@ for dir in "$ROOT"/*/; do
     out_dir="syntax_results/$id"
     mkdir -p "$out_dir"
 
-    # Run Jasper syntax check
-    if jaspergold -batch -tcl "$JASPER_TCL" -- -dir "$dir" -std sv12 -halt_on_warn \
-        >"$out_dir/log.txt" 2>&1; then
-      echo "✅ $id PASSED"
-      echo "$id,ok" >> syntax_results/summary.csv
-    else
-      echo "❌ $id FAILED"
-      echo "$id,fail" >> syntax_results/summary.csv
-    fi
+    # Run JasperGold (syntax only)
+    JG_DIR="$dir" \
+    JG_STD="${JG_STD:-sv12}" \
+    JG_HALT_ON_WARN="${JG_HALT_ON_WARN:-1}" \
+    JG_INCDIRS="${JG_INCDIRS:-}" \
+    JG_DEFINES="${JG_DEFINES:-}" \
+    JG_TOP="${JG_TOP:-}" \
+    jaspergold -batch -allow_unsupported_OS -tcl "$JASPER_TCL" \
+      >"$out_dir/log.txt" 2>&1 && {
+        echo "✅ $id PASSED"
+        echo "$id,ok" >> syntax_results/summary.csv
+      } || {
+        echo "❌ $id FAILED"
+        echo "$id,fail" >> syntax_results/summary.csv
+      }
   else
     echo "⚠️  Skipping $id (missing module.v or sva.sv)"
   fi

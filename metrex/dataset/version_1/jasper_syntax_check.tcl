@@ -1,101 +1,113 @@
 # ============================================================
-# JasperGold SystemVerilog/SVA Syntax Checker
+# JasperGold SystemVerilog/SVA Syntax Checker (env-driven)
 # ============================================================
-# Usage example:
-#   jaspergold -batch -tcl jasper_syntax_check.tcl -- -dir ./00000
-#   jaspergold -batch -tcl jasper_syntax_check.tcl -- -dir ./00000 -top top_module
-#
-# Parameters:
-#   -dir <directory> : directory containing *.sv/*.v files
-#   -std <sv12|sv11|sv09> : SystemVerilog standard (default: sv12)
-#   -top <module> : optional, to run elaboration on top module
-#   -halt_on_warn : fail run if warnings exist
+# Env vars:
+#   JG_DIR          : directory with *.sv/*.svh/*.v (required)
+#   JG_STD          : sv12 | sv11 | sv09 (default: sv12)
+#   JG_TOP          : optional top module to elaborate
+#   JG_HALT_ON_WARN : 1 to fail if warnings exist (default: 0)
+#   JG_INCDIRS      : colon/space-separated include dirs (optional)
+#   JG_DEFINES      : space-separated defines NAME or NAME=VAL (optional)
 # ============================================================
 
-proc parse_args {argv} {
-  array set opts {
-    -dir ""
-    -std "sv12"
-    -top ""
-    -halt_on_warn 0
-  }
-
-  for {set i 0} {$i < [llength $argv]} {incr i} {
-    set a [lindex $argv $i]
-    switch -- $a {
-      -dir { incr i; set opts(-dir) [lindex $argv $i] }
-      -std { incr i; set opts(-std) [lindex $argv $i] }
-      -top { incr i; set opts(-top) [lindex $argv $i] }
-      -halt_on_warn { set opts(-halt_on_warn) 1 }
-      default { puts "Ignoring unknown arg: $a" }
-    }
-  }
-  return [array get opts]
+proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
 }
 
+# ---- Read config from environment ----
+if {![info exists ::env(JG_DIR)] || $::env(JG_DIR) eq ""} {
+  puts "ERROR: JG_DIR not set. Export JG_DIR to the RTL directory."
+  exit 2
+}
+set DIR          $::env(JG_DIR)
+set STD          [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+set TOP          [expr {[info exists ::env(JG_TOP)] ? $::env(JG_TOP) : ""}]
+set HALT_ON_WARN [expr {[info exists ::env(JG_HALT_ON_WARN)] ? $::env(JG_HALT_ON_WARN) : 0}]
+set INCDIRS      [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+set DEFINES_KV   [expr {[info exists ::env(JG_DEFINES)] ? [split_env_list $::env(JG_DEFINES)] : {}}]
+
+# ---- Collect files in JG_DIR ----
 proc collect_files {dir} {
-  if {![file isdirectory $dir]} {
-    error "Directory not found: $dir"
-  }
-  set patterns [list *.sv *.svh *.v]
+  if {![file isdirectory $dir]} { error "Directory not found: $dir" }
+  set patterns {*.sv *.svh *.v}
   set flist {}
   foreach p $patterns {
     foreach f [glob -nocomplain -types f -directory $dir -tails -- $p] {
       lappend flist [file join $dir $f]
     }
   }
-  if {[llength $flist] == 0} {
-    error "No SV/V files found in $dir"
-  }
+  if {[llength $flist] == 0} { error "No SV/V files found in $dir" }
   return $flist
 }
+set FILES [collect_files $DIR]
 
-set opts [parse_args $::argv]
-array set o $opts
-set files [collect_files $o(-dir)]
-
+# ---- Logging ----
 file mkdir .jasper_logs
-set logf ".jasper_logs/syntax_check.log"
-set jsonf ".jasper_logs/syntax_check.json"
-redirect file $logf
+set LOGF ".jasper_logs/syntax_check.log"
+redirect file $LOGF
 
-set err 0
+puts "INFO: Syntax check starting"
+puts "  DIR      : $DIR"
+puts "  STD      : $STD"
+puts "  TOP      : [expr {$TOP eq "" ? "(none)" : $TOP}]"
+puts "  INCDIRS  : $INCDIRS"
+puts "  DEFINES  : $DEFINES_KV"
+puts "  NFILES   : [llength $FILES]"
 
-puts "INFO: Analyzing directory $o(-dir)"
-set cmd [list analyze -$o(-std)]
-foreach f $files { lappend cmd $f }
-
-if {[catch {eval $cmd} msg]} {
-  puts "ERROR: Analyze failed:\n$msg"
-  set err 1
-} else {
-  puts "INFO: Analyze completed."
+# Promote message groups to errors if supported
+if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
 }
 
-# Optional: elaborate if top provided
-if {!$err && [string length $o(-top)]} {
-  puts "INFO: Elaborating top $o(-top)"
-  if {[catch {elaborate $o(-top)} emsg]} {
-    puts "ERROR: Elaborate failed:\n$emsg"
+# ---- Build analyze options ----
+set analyze_opts [list analyze -$STD]
+if {[llength $INCDIRS] > 0} {
+  lappend analyze_opts -incdir $INCDIRS
+}
+if {[llength $DEFINES_KV] > 0} {
+  foreach d $DEFINES_KV { lappend analyze_opts -define $d }
+}
+
+# ---- Analyze ----
+set err 0
+if {[catch {eval $analyze_opts $FILES} msg]} {
+  puts "ERROR: analyze failed:\n$msg"
+  set err 1
+} else {
+  puts "INFO: analyze completed."
+}
+
+# ---- Elaborate (optional) ----
+if {!$err && $TOP ne ""} {
+  puts "INFO: elaborate $TOP"
+  if {[catch {elaborate $TOP} emsg]} {
+    puts "ERROR: elaborate failed:\n$emsg"
     set err 1
   } else {
-    puts "INFO: Elaborate completed."
+    puts "INFO: elaborate completed."
   }
 }
 
 redirect off
 
-# Check for failures
+# ---- Warning count ----
 set warn_count 0
-catch {set warn_count [get_warning_count]}
-
-if {$err} {
-  puts "\n❌ FAILED: Syntax/elaboration errors detected"
-  exit 1
+if {[llength [info commands get_messages]]} {
+  set warns [get_messages -severity WARNING]
+  set warn_count [llength $warns]
 }
 
-if {$o(-halt_on_warn) && $warn_count > 0} {
-  puts "\n⚠️  FAILED: $warn_count warnings detected (halt_on_warn enabled)"
+if {$err} {
+  puts "\n❌ FAILED: Syntax/elaboration errors detected (see $LOGF)"
+  exit 1
+}
+if {$HALT_ON_WARN && $warn_count > 0} {
+  puts "\n⚠️  FAILED: $warn_count warnings detected (HALT_ON_WARN=1) — see $LOGF"
   exit 1
 }
 
