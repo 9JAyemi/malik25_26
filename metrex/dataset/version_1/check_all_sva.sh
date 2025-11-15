@@ -40,7 +40,7 @@ for dir in "$ROOT"/*/; do
     out_dir="syntax_results/$id"
     mkdir -p "$out_dir"
 
-    # Run JasperGold (syntax only)
+    # Env → Tcl; log via shell redirection
     JG_DIR="$dir" \
     JG_STD="${JG_STD:-sv12}" \
     JG_HALT_ON_WARN="${JG_HALT_ON_WARN:-1}" \
