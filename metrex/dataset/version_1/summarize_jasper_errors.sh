@@ -16,6 +16,9 @@ CATALOG="$OUTDIR/error_catalog.csv"
 CODE_HIST="$OUTDIR/error_code_hist.txt"
 ROOTCAUSE="$OUTDIR/error_rootcause_counts.txt"
 
+VERI_TOTAL="$OUTDIR/veri_counts_total.txt"
+VERI_BY_ID="$OUTDIR/veri_counts_by_id.csv"
+
 echo "==> Collecting failing IDs..."
 awk -F, 'NR>1 && $2=="fail"{print $1}' "$SUMMARY" | sort > "$FAILS"
 echo "Wrote: $FAILS  (count: $(wc -l < "$FAILS"))"
@@ -33,9 +36,6 @@ while read -r id; do
     continue
   fi
 
-  # ------------------------------------------------------------
-  # Extract summary block as MULTI-LINE (no flattening)
-  # ------------------------------------------------------------
   block="$(
     awk '
       /^Summary of errors detected:/ {print; grab=1; next}
@@ -43,36 +43,28 @@ while read -r id; do
         if ($0 ~ /^[[:space:]]*\[ERROR \(/) {print; next}
         if ($0 ~ /^ERROR: analyze failed:/) {print; next}
         if ($0 ~ /^ERROR \(ENL[0-9]+\):/) {print; exit}
-        # stop once we hit a non-empty line not part of this block
         if ($0 !~ /^[[:space:]]*$/) exit
       }
     ' "$log"
   )"
-
-  # Fallback: if no summary block, grab first bracket error line
   if [[ -z "$block" ]]; then
     block="$(grep -m1 -E '^\[ERROR \([A-Z]+-[0-9]+\)\]' "$log" || true)"
   fi
   [[ -z "$block" ]] && block="NO_ERROR_BLOCK_FOUND"
 
-  # ------------------------------------------------------------
-  # Extract codes in order of appearance (unique, ordered)
-  # ------------------------------------------------------------
+  # ordered unique codes
   codes_ordered="$(
     printf '%s\n' "$block" |
       grep -oE '\[ERROR \([A-Z]+-[0-9]+\)\]' |
       sed -E 's/\[ERROR \(|\)\]//g' |
       awk '!seen[$0]++' || true
   )"
-
   codes="$(printf '%s\n' "$codes_ordered" | paste -sd ';' - 2>/dev/null || true)"
   primary_code="$(printf '%s\n' "$codes_ordered" | sed -n '1p' || true)"
   secondary_code="$(printf '%s\n' "$codes_ordered" | sed -n '2p' || true)"
   tertiary_code="$(printf '%s\n' "$codes_ordered" | sed -n '3p' || true)"
 
-  # ------------------------------------------------------------
-  # Error count: prefer ENLxxx "N errors detected", else count [ERROR(...)] lines
-  # ------------------------------------------------------------
+  # error count
   errcount="$(
     printf '%s\n' "$block" |
       grep -oE 'ERROR \(ENL[0-9]+\): [0-9]+ errors detected' |
@@ -83,9 +75,6 @@ while read -r id; do
   fi
   [[ -z "$errcount" ]] && errcount="0"
 
-  # ------------------------------------------------------------
-  # Write CSV row with multiline quoted block
-  # ------------------------------------------------------------
   esc_block="$(printf '%s\n' "$block" | csv_escape_multiline)"
 
   printf '%s,%s,%s,%s,%s,%s,"%s"\n' \
@@ -136,10 +125,87 @@ echo "==> Root-cause bucketing..."
 } > "$ROOTCAUSE"
 echo "Wrote: $ROOTCAUSE"
 
+# ============================================================
+# NEW: VERI-* counts per ID + totals
+# ============================================================
+
+echo "==> Computing total VERI-* histogram across failing IDs..."
+# This counts VERI-xxxx occurrences across ALL failing logs (from the summary block lines).
+awk -F, 'NR>1 && $2=="fail"{print $1}' "$SUMMARY" |
+while read -r id; do
+  log="$OUTDIR/$id/log.txt"
+  [[ -f "$log" ]] || continue
+  awk '
+    /^Summary of errors detected:/ {grab=1; next}
+    grab && /^[[:space:]]*\[ERROR \(/ {
+      if (match($0, /\[ERROR \((VERI-[0-9]+)\)\]/, m)) print m[1]
+      next
+    }
+    grab && /^ERROR: analyze failed:/ {exit}
+  ' "$log"
+done | sort | uniq -c | sort -nr > "$VERI_TOTAL"
+echo "Wrote: $VERI_TOTAL"
+
+# Choose top N VERI codes to make the per-ID CSV wide but manageable
+TOPN=25
+mapfile -t TOP_CODES < <(awk '{print $2}' "$VERI_TOTAL" | head -n "$TOPN")
+
+echo "==> Computing per-ID VERI-* counts (top $TOPN codes) ..."
+# Header
+{
+  printf "id,total_veri_errors"
+  for c in "${TOP_CODES[@]}"; do printf ",%s" "$c"; done
+  printf "\n"
+} > "$VERI_BY_ID"
+
+# Rows
+while read -r id; do
+  log="$OUTDIR/$id/log.txt"
+  if [[ ! -f "$log" ]]; then
+    # still emit a row for missing logs
+    {
+      printf "%s,0" "$id"
+      for _ in "${TOP_CODES[@]}"; do printf ",0"; done
+      printf "\n"
+    } >> "$VERI_BY_ID"
+    continue
+  fi
+
+  # Count VERI occurrences in this ID’s summary block
+  # Outputs lines like: "VERI-1137 6"
+  counts="$(
+    awk '
+      /^Summary of errors detected:/ {grab=1; next}
+      grab && /^[[:space:]]*\[ERROR \(/ {
+        if (match($0, /\[ERROR \((VERI-[0-9]+)\)\]/, m)) print m[1]
+        next
+      }
+      grab && /^ERROR: analyze failed:/ {exit}
+    ' "$log" | sort | uniq -c | awk '{print $2" "$1}'
+  )"
+
+  # total across all VERI codes for this id
+  total_veri="$(printf "%s\n" "$counts" | awk '{s+=$2} END{print s+0}')"
+
+  # Build row with top codes
+  {
+    printf "%s,%s" "$id" "$total_veri"
+    for c in "${TOP_CODES[@]}"; do
+      v="$(printf "%s\n" "$counts" | awk -v code="$c" '$1==code{print $2; found=1} END{if(!found) print 0}')"
+      printf ",%s" "$v"
+    done
+    printf "\n"
+  } >> "$VERI_BY_ID"
+
+done < "$FAILS"
+
+echo "Wrote: $VERI_BY_ID"
+
 echo
 echo "================ DONE ================"
 echo "Top files to open:"
 echo "  - $CATALOG"
-echo "  - $CODE_HIST"
+echo "  - $VERI_TOTAL"
+echo "  - $VERI_BY_ID"
 echo "  - $ROOTCAUSE"
 echo "======================================"
