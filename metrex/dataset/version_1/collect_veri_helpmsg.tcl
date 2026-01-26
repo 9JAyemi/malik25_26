@@ -47,11 +47,11 @@ while {[gets $fin line] >= 0} {
   puts $fout ""
   puts $fout "==== $code ================================================"
 
-  # Get helpmsg output directly
-  set rc [catch {helpmsg $code} result]
+  # Get help message output directly
+  set rc [catch {help -message $code} result]
 
   if {$rc} {
-    puts $fout "ERROR: helpmsg failed for $code"
+    puts $fout "ERROR: help -message failed for $code"
     puts $fout "DETAIL: $result"
     incr n_fail
   } else {
