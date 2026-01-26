@@ -1,4 +1,5 @@
 # collect_veri_helpmsg.tcl
+set_engine_mode batch
 # Reads inputs from environment variables:
 #   VERI_CODES_FILE : path to file with one VERI-#### per line
 #   VERI_OUT_FILE   : output dump file path
