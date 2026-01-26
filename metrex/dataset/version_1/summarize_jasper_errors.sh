@@ -17,7 +17,9 @@ CODE_HIST="$OUTDIR/error_code_hist.txt"
 ROOTCAUSE="$OUTDIR/error_rootcause_counts.txt"
 
 VERI_TOTAL="$OUTDIR/veri_counts_total.txt"
-VERI_BY_ID="$OUTDIR/veri_counts_by_id.csv"
+VERI_BY_ID_LONG="$OUTDIR/veri_counts_by_id_long.csv"
+VERI_BY_ID_SUMMARY="$OUTDIR/veri_counts_by_id_summary.csv"
+VERI_IDS_DIR="$OUTDIR/veri_ids_by_code"
 
 echo "==> Collecting failing IDs..."
 awk -F, 'NR>1 && $2=="fail"{print $1}' "$SUMMARY" | sort > "$FAILS"
@@ -26,7 +28,6 @@ echo "Wrote: $FAILS  (count: $(wc -l < "$FAILS"))"
 echo "==> Building per-ID error catalog CSV (multiline error_block)..."
 echo "id,error_codes,primary_code,secondary_code,tertiary_code,error_count,error_block" > "$CATALOG"
 
-# CSV-escape a multiline string (keep newlines; double quotes inside)
 csv_escape_multiline() { sed 's/"/""/g'; }
 
 while read -r id; do
@@ -52,7 +53,6 @@ while read -r id; do
   fi
   [[ -z "$block" ]] && block="NO_ERROR_BLOCK_FOUND"
 
-  # ordered unique codes
   codes_ordered="$(
     printf '%s\n' "$block" |
       grep -oE '\[ERROR \([A-Z]+-[0-9]+\)\]' |
@@ -64,7 +64,6 @@ while read -r id; do
   secondary_code="$(printf '%s\n' "$codes_ordered" | sed -n '2p' || true)"
   tertiary_code="$(printf '%s\n' "$codes_ordered" | sed -n '3p' || true)"
 
-  # error count
   errcount="$(
     printf '%s\n' "$block" |
       grep -oE 'ERROR \(ENL[0-9]+\): [0-9]+ errors detected' |
@@ -76,7 +75,6 @@ while read -r id; do
   [[ -z "$errcount" ]] && errcount="0"
 
   esc_block="$(printf '%s\n' "$block" | csv_escape_multiline)"
-
   printf '%s,%s,%s,%s,%s,%s,"%s"\n' \
     "$id" \
     "${codes:-}" \
@@ -126,11 +124,10 @@ echo "==> Root-cause bucketing..."
 echo "Wrote: $ROOTCAUSE"
 
 # ============================================================
-# NEW: VERI-* counts per ID + totals
+# ALL VERI CODES PER ID (LONG FORMAT) + TOTALS + IDS PER CODE
 # ============================================================
 
 echo "==> Computing total VERI-* histogram across failing IDs..."
-# This counts VERI-xxxx occurrences across ALL failing logs (from the summary block lines).
 awk -F, 'NR>1 && $2=="fail"{print $1}' "$SUMMARY" |
 while read -r id; do
   log="$OUTDIR/$id/log.txt"
@@ -146,34 +143,20 @@ while read -r id; do
 done | sort | uniq -c | sort -nr > "$VERI_TOTAL"
 echo "Wrote: $VERI_TOTAL"
 
-# Choose top N VERI codes to make the per-ID CSV wide but manageable
-TOPN=25
-mapfile -t TOP_CODES < <(awk '{print $2}' "$VERI_TOTAL" | head -n "$TOPN")
+echo "==> Computing ALL VERI-* counts per ID (long format)..."
+echo "id,veri_code,count" > "$VERI_BY_ID_LONG"
 
-echo "==> Computing per-ID VERI-* counts (top $TOPN codes) ..."
-# Header
-{
-  printf "id,total_veri_errors"
-  for c in "${TOP_CODES[@]}"; do printf ",%s" "$c"; done
-  printf "\n"
-} > "$VERI_BY_ID"
+echo "==> Computing per-ID VERI summary..."
+echo "id,total_veri_errors,distinct_veri_codes" > "$VERI_BY_ID_SUMMARY"
 
-# Rows
 while read -r id; do
   log="$OUTDIR/$id/log.txt"
   if [[ ! -f "$log" ]]; then
-    # still emit a row for missing logs
-    {
-      printf "%s,0" "$id"
-      for _ in "${TOP_CODES[@]}"; do printf ",0"; done
-      printf "\n"
-    } >> "$VERI_BY_ID"
+    echo "$id,0,0" >> "$VERI_BY_ID_SUMMARY"
     continue
   fi
 
-  # Count VERI occurrences in this ID’s summary block
-  # Outputs lines like: "VERI-1137 6"
-  counts="$(
+  codes_list="$(
     awk '
       /^Summary of errors detected:/ {grab=1; next}
       grab && /^[[:space:]]*\[ERROR \(/ {
@@ -181,31 +164,59 @@ while read -r id; do
         next
       }
       grab && /^ERROR: analyze failed:/ {exit}
-    ' "$log" | sort | uniq -c | awk '{print $2" "$1}'
+    ' "$log"
   )"
 
-  # total across all VERI codes for this id
-  total_veri="$(printf "%s\n" "$counts" | awk '{s+=$2} END{print s+0}')"
+  if [[ -z "$codes_list" ]]; then
+    echo "$id,0,0" >> "$VERI_BY_ID_SUMMARY"
+    continue
+  fi
 
-  # Build row with top codes
-  {
-    printf "%s,%s" "$id" "$total_veri"
-    for c in "${TOP_CODES[@]}"; do
-      v="$(printf "%s\n" "$counts" | awk -v code="$c" '$1==code{print $2; found=1} END{if(!found) print 0}')"
-      printf ",%s" "$v"
-    done
-    printf "\n"
-  } >> "$VERI_BY_ID"
+  total_veri="$(printf '%s\n' "$codes_list" | wc -l | tr -d ' ')"
+  distinct_veri="$(printf '%s\n' "$codes_list" | sort -u | wc -l | tr -d ' ')"
+  echo "$id,$total_veri,$distinct_veri" >> "$VERI_BY_ID_SUMMARY"
+
+  printf '%s\n' "$codes_list" | sort | uniq -c | while read -r cnt code; do
+    echo "$id,$code,$cnt" >> "$VERI_BY_ID_LONG"
+  done
 
 done < "$FAILS"
 
-echo "Wrote: $VERI_BY_ID"
+echo "Wrote: $VERI_BY_ID_LONG"
+echo "Wrote: $VERI_BY_ID_SUMMARY"
+
+echo "==> Creating per-VERI-code ID lists..."
+rm -rf "$VERI_IDS_DIR"
+mkdir -p "$VERI_IDS_DIR"
+
+# Each file contains: id,count  (only for ids that hit that VERI code)
+# This will create files like syntax_results/veri_ids_by_code/VERI-1137.txt
+tail -n +2 "$VERI_BY_ID_LONG" | awk -F, '
+  { print $1","$3 >> (dir "/" $2 ".csv") }
+' dir="$VERI_IDS_DIR"
+
+# Optional: also create .txt versions (space-separated) for quick grepping
+for f in "$VERI_IDS_DIR"/*.csv; do
+  base="$(basename "$f" .csv)"
+  {
+    echo "id,count"
+    cat "$f" | sort -t, -k2,2nr
+  } > "$VERI_IDS_DIR/$base.csv.tmp"
+  mv "$VERI_IDS_DIR/$base.csv.tmp" "$VERI_IDS_DIR/$base.csv"
+
+  # .txt (just ids, sorted by count desc)
+  tail -n +2 "$VERI_IDS_DIR/$base.csv" | sort -t, -k2,2nr | awk -F, '{print $1" "$2}' > "$VERI_IDS_DIR/$base.txt"
+done
+
+echo "Wrote: $VERI_IDS_DIR/VERI-*.csv and .txt"
 
 echo
 echo "================ DONE ================"
 echo "Top files to open:"
 echo "  - $CATALOG"
 echo "  - $VERI_TOTAL"
-echo "  - $VERI_BY_ID"
+echo "  - $VERI_BY_ID_SUMMARY"
+echo "  - $VERI_BY_ID_LONG"
+echo "  - $VERI_IDS_DIR/VERI-*.txt"
 echo "  - $ROOTCAUSE"
 echo "======================================"
