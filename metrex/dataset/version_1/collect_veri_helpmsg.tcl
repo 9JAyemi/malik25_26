@@ -4,8 +4,12 @@
 #   VERI_OUT_FILE   : output dump file path
 
 # Load a minimal design to avoid "No design modules" error
-catch {analyze -sv empty.v}
-catch {elaborate}
+if {[catch {analyze -verilog empty.v} err]} {
+  puts "Warning: Could not analyze empty.v: $err"
+}
+if {[catch {elaborate -top empty_design} err]} {
+  puts "Warning: Could not elaborate: $err"
+}
 
 proc getenv_or_die {name} {
   if {![info exists ::env($name)] || [string trim $::env($name)] eq ""} {
