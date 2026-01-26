@@ -47,27 +47,15 @@ while {[gets $fin line] >= 0} {
   puts $fout ""
   puts $fout "==== $code ================================================"
 
-  set tmp ".helpmsg_tmp.txt"
-  catch {file delete -force $tmp}
-
-  # Capture helpmsg output
-  redirect file $tmp
-  set rc [catch {helpmsg $code} emsg]
-  redirect off
+  # Get helpmsg output directly
+  set rc [catch {helpmsg $code} result]
 
   if {$rc} {
     puts $fout "ERROR: helpmsg failed for $code"
-    puts $fout "DETAIL: $emsg"
+    puts $fout "DETAIL: $result"
     incr n_fail
   } else {
-    if {[file exists $tmp]} {
-      set t [open $tmp r]
-      while {[gets $t l] >= 0} { puts $fout $l }
-      close $t
-      catch {file delete -force $tmp}
-    } else {
-      puts $fout "(No output captured for $code)"
-    }
+    puts $fout "$result"
     incr n_ok
   }
 }
