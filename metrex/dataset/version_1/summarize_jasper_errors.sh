@@ -21,6 +21,10 @@ VERI_BY_ID_LONG="$OUTDIR/veri_counts_by_id_long.csv"
 VERI_BY_ID_SUMMARY="$OUTDIR/veri_counts_by_id_summary.csv"
 VERI_IDS_DIR="$OUTDIR/veri_ids_by_code"
 
+# NEW: definitions file (copy the one I generated into this location)
+VERI_DEFS="${VERI_DEFS:-$OUTDIR/veri_error_definitions_present.csv}"
+DEF_MAP_TSV="$OUTDIR/.veri_def_map.tsv"   # internal
+
 echo "==> Collecting failing IDs..."
 awk -F, 'NR>1 && $2=="fail"{print $1}' "$SUMMARY" | sort > "$FAILS"
 echo "Wrote: $FAILS  (count: $(wc -l < "$FAILS"))"
@@ -185,28 +189,84 @@ done < "$FAILS"
 echo "Wrote: $VERI_BY_ID_LONG"
 echo "Wrote: $VERI_BY_ID_SUMMARY"
 
-echo "==> Creating per-VERI-code ID lists..."
+# ============================================================
+# NEW: Load VERI definitions (CSV) into a simple TSV map
+# ============================================================
+
+if [[ -f "$VERI_DEFS" ]]; then
+  echo "==> Loading VERI definitions from: $VERI_DEFS"
+  # expects columns including: error_code,definition  (like the file I generated)
+  # build TSV: VERI-xxxx<TAB>definition
+  awk -F, '
+    NR==1 { for(i=1;i<=NF;i++){h[$i]=i} }
+    NR>1  {
+      code=$(h["error_code"])
+      def=$(h["definition"])
+      if(code=="") next
+      # strip surrounding quotes if any (basic)
+      gsub(/^"/,"",def); gsub(/"$/,"",def); gsub(/""/,"\"",def)
+      print code "\t" def
+    }
+  ' "$VERI_DEFS" > "$DEF_MAP_TSV"
+else
+  echo "⚠️  VERI definitions file not found: $VERI_DEFS"
+  echo "    Per-code CSVs will include definition=UNKNOWN."
+  : > "$DEF_MAP_TSV"
+fi
+
+get_def() {
+  local code="$1"
+  local def
+  def="$(awk -F'\t' -v c="$code" '$1==c{print $2; exit}' "$DEF_MAP_TSV" 2>/dev/null || true)"
+  if [[ -z "${def:-}" ]]; then
+    echo "UNKNOWN"
+  else
+    echo "$def"
+  fi
+}
+
+# ============================================================
+# Create per-VERI-code CSVs with definitions embedded
+# ============================================================
+
+echo "==> Creating per-VERI-code ID lists (with definitions)..."
 rm -rf "$VERI_IDS_DIR"
 mkdir -p "$VERI_IDS_DIR"
 
-# Each file contains: id,count  (only for ids that hit that VERI code)
-# This will create files like syntax_results/veri_ids_by_code/VERI-1137.txt
-tail -n +2 "$VERI_BY_ID_LONG" | awk -F, '
-  { print $1","$3 >> (dir "/" $2 ".csv") }
-' dir="$VERI_IDS_DIR"
+# Build raw per-code CSVs from the long format (id,count)
+tail -n +2 "$VERI_BY_ID_LONG" | awk -F, '{ print $1","$3 >> (dir "/" $2 ".raw.csv") }' dir="$VERI_IDS_DIR"
 
-# Optional: also create .txt versions (space-separated) for quick grepping
-for f in "$VERI_IDS_DIR"/*.csv; do
-  base="$(basename "$f" .csv)"
+# Convert each *.raw.csv → final *.csv and *.txt, adding definitions
+shopt -s nullglob
+for raw in "$VERI_IDS_DIR"/*.raw.csv; do
+  code="$(basename "$raw" .raw.csv)"      # e.g., VERI-1137
+  def="$(get_def "$code")"
+
+  final_csv="$VERI_IDS_DIR/$code.csv"
+  final_txt="$VERI_IDS_DIR/$code.txt"
+
+  # CSV-escape definition once
+  esc_def="$(printf '%s' "$def" | sed 's/"/""/g')"
+
+  # ✅ SINGLE TABLE CSV (Excel-friendly)
   {
-    echo "id,count"
-    cat "$f" | sort -t, -k2,2nr
-  } > "$VERI_IDS_DIR/$base.csv.tmp"
-  mv "$VERI_IDS_DIR/$base.csv.tmp" "$VERI_IDS_DIR/$base.csv"
+    echo "id,count,veri_code,definition"
+    sort -t, -k2,2nr "$raw" \
+      | awk -F, -v c="$code" -v d="$esc_def" \
+          '{print $1","$2","c",\""d"\""}'
+  } > "$final_csv"
 
-  # .txt (just ids, sorted by count desc)
-  tail -n +2 "$VERI_IDS_DIR/$base.csv" | sort -t, -k2,2nr | awk -F, '{print $1" "$2}' > "$VERI_IDS_DIR/$base.txt"
+  # Keep txt for quick grepping
+  {
+    echo "$code"
+    echo "$def"
+    echo "----------------"
+    sort -t, -k2,2nr "$raw" | awk -F, '{print $1" "$2}'
+  } > "$final_txt"
+
+  rm -f "$raw"
 done
+
 
 echo "Wrote: $VERI_IDS_DIR/VERI-*.csv and .txt"
 
@@ -217,6 +277,6 @@ echo "  - $CATALOG"
 echo "  - $VERI_TOTAL"
 echo "  - $VERI_BY_ID_SUMMARY"
 echo "  - $VERI_BY_ID_LONG"
-echo "  - $VERI_IDS_DIR/VERI-*.txt"
+echo "  - $VERI_IDS_DIR/VERI-*.csv"
 echo "  - $ROOTCAUSE"
 echo "======================================"
