@@ -22,7 +22,7 @@ if ! command -v jaspergold >/dev/null 2>&1; then
   echo "   Try: which jaspergold"
   exit 1
 fi
-ENGINE=(jaspergold -batch -allow_unsupported_OS -tcl "$TCL_SCRIPT" -- -codes_file "$CODES_FILE" -out_file "$OUT_FILE")
+ENGINE=(jaspergold -batch -allow_unsupported_OS -tcl "$TCL_SCRIPT" -codes_file "$CODES_FILE" -out_file "$OUT_FILE")
 
 echo "============================================"
 echo "Running Jasper helpmsg collection"
