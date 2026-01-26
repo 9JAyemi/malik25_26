@@ -30,8 +30,9 @@ if {![file exists $codes_file]} {
 set fin  [open $codes_file r]
 set fout [open $out_file w]
 
+set timestamp [clock format [clock seconds]]
 puts $fout "Jasper helpmsg dump"
-puts $fout "Generated: [clock format [clock seconds]]"
+puts $fout "Generated: $timestamp"
 puts $fout "Codes file: $codes_file"
 puts $fout "============================================================"
 
