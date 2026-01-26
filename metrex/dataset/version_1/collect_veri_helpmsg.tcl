@@ -1,8 +1,11 @@
 # collect_veri_helpmsg.tcl
-set_engine_mode batch
 # Reads inputs from environment variables:
 #   VERI_CODES_FILE : path to file with one VERI-#### per line
 #   VERI_OUT_FILE   : output dump file path
+
+# Load a minimal design to avoid "No design modules" error
+catch {analyze -sv empty.v}
+catch {elaborate}
 
 proc getenv_or_die {name} {
   if {![info exists ::env($name)] || [string trim $::env($name)] eq ""} {
