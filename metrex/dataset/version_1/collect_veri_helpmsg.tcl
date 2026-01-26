@@ -47,15 +47,8 @@ while {[gets $fin line] >= 0} {
   puts $fout ""
   puts $fout "==== $code ================================================"
 
-  # Extract numeric part from VERI-#### format
-  if {[regexp {VERI-(\d+)} $code match num]} {
-    set msg_code $num
-  } else {
-    set msg_code $code
-  }
-
-  # Get help message output directly
-  set rc [catch {help -message $msg_code} result]
+  # Get help message output directly using full code
+  set rc [catch {help -message $code} result]
 
   if {$rc} {
     puts $fout "ERROR: help -message failed for $code"
