@@ -20,6 +20,7 @@ VERI_TOTAL="$OUTDIR/veri_counts_total.txt"
 VERI_BY_ID_LONG="$OUTDIR/veri_counts_by_id_long.csv"
 VERI_BY_ID_SUMMARY="$OUTDIR/veri_counts_by_id_summary.csv"
 VERI_IDS_DIR="$OUTDIR/veri_ids_by_code"
+VERI_COUNTS_TOTAL_CSV="$OUTDIR/veri_error_counts_total.csv"
 
 # NEW: definitions file (copy the one I generated into this location)
 VERI_DEFS="${VERI_DEFS:-$OUTDIR/veri_error_definitions_present.csv}"
@@ -266,6 +267,23 @@ for raw in "$VERI_IDS_DIR"/*.raw.csv; do
 
   rm -f "$raw"
 done
+# ============================================================
+# NEW: Simple total count per VERI code (CSV for plotting)
+# ============================================================
+
+echo "==> Writing total VERI error counts CSV for plotting..."
+echo "veri_code,total_count,definition" > "$VERI_COUNTS_TOTAL_CSV"
+
+# VERI_TOTAL format: "<count> <VERI-####>"
+# Example line: "18234 VERI-1137"
+while read -r cnt code; do
+  [[ -z "${code:-}" ]] && continue
+  def="$(get_def "$code")"
+  esc_def="$(printf '%s' "$def" | sed 's/"/""/g')"
+  echo "$code,$cnt,\"$esc_def\"" >> "$VERI_COUNTS_TOTAL_CSV"
+done < "$VERI_TOTAL"
+
+echo "Wrote: $VERI_COUNTS_TOTAL_CSV"
 
 
 echo "Wrote: $VERI_IDS_DIR/VERI-*.csv and .txt"
