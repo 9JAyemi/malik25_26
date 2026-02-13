@@ -1,1 +1,216 @@
-./run_collect_veri_helpmsg.sh: line 28: jg_console: command not found
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # collect_veri_helpmsg.tcl
+% # Reads inputs from environment variables:
+% #   VERI_CODES_FILE : path to file with one VERI-#### per line
+% #   VERI_OUT_FILE   : output dump file path
+% 
+% # Load a minimal design to avoid "No design modules" error
+% if {[catch {analyze -verilog empty.v} err]} {
+  puts "Warning: Could not analyze empty.v: $err"
+}
+[-- (VERI-1482)] Analyzing Verilog file 'empty.v'
+% if {[catch {elaborate -top empty_design} err]} {
+  puts "Warning: Could not elaborate: $err"
+}
+INFO (ISW003): Top module name is "empty_design".
+[INFO (HIER-8002)] empty.v(3): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] empty.v(2): compiling module 'empty_design'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          1 (0 packages)
+  Single run mode                         On
+  Pipeline                                On (1 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      1 (1 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % proc getenv_or_die {name} {
+  if {![info exists ::env($name)] || [string trim $::env($name)] eq ""} {
+    puts "ERROR: environment variable $name is not set"
+    exit 2
+  }
+  return [string trim $::env($name)]
+}
+[<embedded>] % 
+[<embedded>] % set codes_file [getenv_or_die "VERI_CODES_FILE"]
+syntax_results/veri_codes.txt
+[<embedded>] % set out_file   [getenv_or_die "VERI_OUT_FILE"]
+syntax_results/veri_helpmsg_dump.txt
+[<embedded>] % 
+[<embedded>] % if {![file exists $codes_file]} {
+  puts "ERROR: codes_file not found: $codes_file"
+  exit 2
+}
+[<embedded>] % 
+[<embedded>] % set fin  [open $codes_file r]
+file43
+[<embedded>] % set fout [open $out_file w]
+file44
+[<embedded>] % 
+[<embedded>] % puts $fout "Jasper helpmsg dump"
+[<embedded>] % puts $fout "Codes file: $codes_file"
+[<embedded>] % puts $fout "============================================================"
+[<embedded>] % 
+[<embedded>] % set n_ok 0
+0
+[<embedded>] % set n_fail 0
+0
+[<embedded>] % 
+[<embedded>] % while {[gets $fin line] >= 0} {
+  set code [string trim $line]
+  if {$code eq ""} { continue }
+
+  puts "DEBUG: Processing $code"
+  flush stdout
+
+  puts $fout ""
+  puts $fout "==== $code ================================================"
+
+  # Get help message output directly using full code
+  set rc [catch {help -message $code} result]
+
+  if {$rc} {
+    puts $fout "ERROR: help -message failed for $code"
+    puts $fout "DETAIL: $result"
+    incr n_fail
+  } else {
+    puts $fout "$result"
+    incr n_ok
+  }
+}
+DEBUG: Processing VERI-1011
+DEBUG: Processing VERI-1020
+DEBUG: Processing VERI-1038
+DEBUG: Processing VERI-1042
+DEBUG: Processing VERI-1068
+DEBUG: Processing VERI-1072
+DEBUG: Processing VERI-1075
+DEBUG: Processing VERI-1078
+DEBUG: Processing VERI-1100
+DEBUG: Processing VERI-1116
+DEBUG: Processing VERI-1120
+DEBUG: Processing VERI-1121
+DEBUG: Processing VERI-1126
+DEBUG: Processing VERI-1128
+DEBUG: Processing VERI-1130
+DEBUG: Processing VERI-1137
+DEBUG: Processing VERI-1138
+DEBUG: Processing VERI-1140
+DEBUG: Processing VERI-1158
+DEBUG: Processing VERI-1171
+DEBUG: Processing VERI-1180
+DEBUG: Processing VERI-1188
+DEBUG: Processing VERI-1243
+DEBUG: Processing VERI-1245
+DEBUG: Processing VERI-1266
+DEBUG: Processing VERI-1281
+DEBUG: Processing VERI-1311
+DEBUG: Processing VERI-1314
+DEBUG: Processing VERI-1315
+DEBUG: Processing VERI-1321
+DEBUG: Processing VERI-1343
+DEBUG: Processing VERI-1363
+DEBUG: Processing VERI-1371
+DEBUG: Processing VERI-1413
+DEBUG: Processing VERI-1419
+DEBUG: Processing VERI-1446
+DEBUG: Processing VERI-1465
+DEBUG: Processing VERI-1586
+DEBUG: Processing VERI-1620
+DEBUG: Processing VERI-1691
+DEBUG: Processing VERI-1823
+DEBUG: Processing VERI-1836
+DEBUG: Processing VERI-1841
+DEBUG: Processing VERI-1906
+DEBUG: Processing VERI-1952
+DEBUG: Processing VERI-1976
+The error message VERI-1976 appears when a sampled value system function is
+passed a clocking argument that is not a clocking event. According to IEEE
+1800-2017 LRM, Section 16.9.3, the value of the expression argument is sampled
+in the clocking event argument, which must be an event control expression
+preceded by "@".
+
+Example:
+    # property.v
+    property p(sig, clk);
+        @(clk) $changed(sig, clk);
+    endproperty
+
+    # run.tcl
+    % analyze -sv property.v
+
+    [ERROR (VERI-1976)] property.v(2): clocking argument for changed is not of type event control
+
+NOTE:
+This message does not appear if an event control expression is passed as
+argument, for example:
+
+    # property.v
+    property p(sig, clk);
+        @(clk) $changed(sig, @(posedge clk));
+    endproperty
+
+    # run.tcl
+    % analyze -sv property.v
+
+    (No errors)
+
+DEBUG: Processing VERI-2079
+DEBUG: Processing VERI-2127
+DEBUG: Processing VERI-2344
+DEBUG: Processing VERI-2369
+DEBUG: Processing VERI-2425
+DEBUG: Processing VERI-2515
+DEBUG: Processing VERI-9011
+DEBUG: Processing VERI-9023
+[<embedded>] % 
+[<embedded>] % close $fin
+[<embedded>] % puts $fout ""
+[<embedded>] % puts $fout "============================================================"
+[<embedded>] % puts $fout "DONE: ok=$n_ok fail=$n_fail"
+[<embedded>] % close $fout
+[<embedded>] % 
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.
