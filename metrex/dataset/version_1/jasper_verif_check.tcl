@@ -4,11 +4,11 @@
 #
 # Env:
 #   DESIGN_ID     : required (subfolder name)
-#   JG_TOP        : required top module name
 #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
 #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
 #
 # Optional:
+#   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
 #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
 #   JG_INCDIRS    : colon/space-separated include dirs (optional)
 #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
@@ -21,6 +21,13 @@ proc split_env_list {s} {
   if {$s eq ""} {return {}}
   set out {}
   foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+
+proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
   return $out
 }
 
@@ -52,6 +59,15 @@ proc strip_comments {text} {
   regsub -all {(?s)/\*.*?\*/} $out "" out
   regsub -all {(?m)//.*$} $out "" out
   return $out
+}
+
+proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
 }
 
 proc find_reset_signal {top files} {
@@ -92,10 +108,6 @@ if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
   puts "ERROR: DESIGN_ID not set."
   exit 2
 }
-if {![info exists ::env(JG_TOP)] || $::env(JG_TOP) eq ""} {
-  puts "ERROR: JG_TOP not set."
-  exit 2
-}
 if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
   puts "ERROR: JG_DESIGN not set."
   exit 2
@@ -106,11 +118,18 @@ if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
 }
 
 set DESIGN_ID $::env(DESIGN_ID)
-set TOP       $::env(JG_TOP)
-set STD       [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
-set INCDIRS   [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
-set DEFINES   [expr {[info exists ::env(JG_DEFINES)] ? [split_env_list $::env(JG_DEFINES)] : {}}]
-set NO_CLOCK  [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+
+# JG_TOP is optional: if missing, infer from RTL
+set TOP ""
+if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+
+set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+# Defines should be space-separated (do NOT split on ':')
+set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
 
 # JG_DESIGN/JG_SVA can be:
 # - a directory
@@ -121,6 +140,19 @@ set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
 
 set DESIGN_FILES {}
 foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+
+# Infer TOP if not provided
+if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+puts "INFO: Using TOP = $TOP"
 
 set SVA_FILES {}
 foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
@@ -158,6 +190,9 @@ if {[llength $DEFINES] > 0} {
 
 # ---- Analyze + Elaborate ----
 set err 0
+puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+puts "DEBUG: SVA_FILES    = $SVA_FILES"
+
 if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
   puts "ERROR: analyze design failed:\n$msg"
   set err 1
@@ -166,6 +201,8 @@ if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
   puts "ERROR: analyze SVA failed:\n$msg2"
   set err 1
 }
+
+puts "DEBUG: Elaborating TOP='$TOP'"
 if {!$err && [catch {elaborate -top $TOP} emsg]} {
   puts "ERROR: elaborate failed:\n$emsg"
   set err 1
@@ -208,8 +245,8 @@ if {$RESET_EXPR ne ""} {
   puts "INFO: No reset signal found; using reset -none"
   catch { reset -none }
 }
+
 # ---- Property discovery (bind sanity check) ----
-# Some Jasper builds support: assert -list / cover -list
 set ASSERTS {}
 set COVERS  {}
 catch { set ASSERTS [assert -list -silent] }
@@ -217,7 +254,7 @@ catch { set COVERS  [cover  -list -silent] }
 
 puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
 
-# Write property names (even if empty)
+# Write property names
 set fp [open $PROP_LIST_TXT "w"]
 puts $fp "ASSERT PROPERTIES:"
 foreach a $ASSERTS { puts $fp $a }
@@ -232,8 +269,6 @@ if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
 }
 
 # ---- Prove all assertions ----
-# If any assertion FAILS, Jasper will typically set a non-proved status.
-# We keep it simple: run prove and rely on Jasper exit status + log parsing later.
 puts "INFO: Running prove -all"
 if {[catch { prove -all } pmsg]} {
   puts "ERROR: prove command failed:\n$pmsg"

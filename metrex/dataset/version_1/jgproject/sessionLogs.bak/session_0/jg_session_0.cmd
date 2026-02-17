@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-13 16:48:11 EST
+# started   : 2026-02-17 00:59:35 EST
 # hostname  : della9.princeton.edu.(none)
-# pid       : 3156080
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:45841' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAAjnicY2RgYLCp////PwMYMFcBCQEGHwZfhiAGVyDpzxAGpOGA8QGUYcMIUg3EPAy6DEkMiQwlDMkMGUA+B5APYucA2ToMWUCZYoYChlSGIoZ4hjIwncmQBmSDVKcCyWwGPbh6BgCUaBR8' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/.tmp/.initCmds.tcl' 'jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/.tmp/.postCmds.tcl'
+# pid       : 756917
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:37269' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAAknicY2RgYLCp////PwMYMFcBCQEGHwZfhiAGVyDpzxAGpOGA8QGUYcMIUg3EPAy6DEkMiQwlDMkMGUA+B5APYucA2QYMegz6DFlA2WKGAoZUhiKGeIYyMJ3JkAZkg3SkAslsoDqYHgYA1h0U3Q==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/
@@ -24,6 +24,8 @@
 #   JG_INCDIRS    : colon/space-separated include dirs (optional)
 #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
 #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+#   JG_RESET      : explicit reset signal name (optional)
+#   JG_RESET_EXPR : explicit reset expression (optional)
 # ============================================================
 
 proc split_env_list {s} {
@@ -47,6 +49,53 @@ proc collect_files_any {path} {
   }
   if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
   return $flist
+}
+
+proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+
+proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+
+proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
 }
 
 # ---- Read config from environment ----
@@ -141,36 +190,4 @@ if {!$err && $NO_CLOCK} {
 if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
-}
-
-# ---- Property discovery (bind sanity check) ----
-# Some Jasper builds support: assert -list / cover -list
-set ASSERTS {}
-set COVERS  {}
-catch { set ASSERTS [assert -list -silent] }
-catch { set COVERS  [cover  -list -silent] }
-
-puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
-
-# Write property names (even if empty)
-set fp [open $PROP_LIST_TXT "w"]
-puts $fp "ASSERT PROPERTIES:"
-foreach a $ASSERTS { puts $fp $a }
-puts $fp ""
-puts $fp "COVER PROPERTIES:"
-foreach c $COVERS { puts $fp $c }
-close $fp
-
-if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
-  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
-  exit 3
-}
-
-# ---- Prove all assertions ----
-# If any assertion FAILS, Jasper will typically set a non-proved status.
-# We keep it simple: run prove and rely on Jasper exit status + log parsing later.
-puts "INFO: Running prove -all"
-if {[catch { prove -all } pmsg]} {
-  puts "ERROR: prove command failed:\n$pmsg"
-  exit 4
 }
