@@ -1,107 +1,68 @@
-Below is a concise SVA bind file that checks and covers the key functionality of each module and the end-to-end behavior of the top. It uses immediate assertions with X-guards for combinational correctness and focused coverage on meaningful cases.
+module v144728_sva (
+    // Clock for sampling combinational assertions
+    input  logic clk,
 
+    // DUT ports
+    input  logic v6dda25,
+    input  logic v27dec4,
+    input  logic v92a149,
+    input  logic v4642b6
+);
 
-// SVA binds for the provided DUTs
+    ////////////////////////////////////////////////////////////////////////////////
+    // v144728 is purely combinational and implements:
+    //   v4642b6 = v6dda25 & v27dec4 & v92a149
+    // No reset is present in the RTL. All properties are sampled on posedge clk.
+    ////////////////////////////////////////////////////////////////////////////////
 
-// v053dc2: 2-input AND
-module v053dc2_asserts;
-  always_comb begin
-    if (!$isunknown({vf54559, va4102a}))
-      assert (ve8318d == (vf54559 & va4102a))
-        else $error("v053dc2 AND mismatch");
-  end
-  // Truth table coverage
-  always_comb begin
-    cover ({vf54559,va4102a} == 2'b00);
-    cover ({vf54559,va4102a} == 2'b01);
-    cover ({vf54559,va4102a} == 2'b10);
-    cover ({vf54559,va4102a} == 2'b11);
-  end
+    // Functional equivalence: Output equals the 3-input AND of the inputs.
+    check_and3_equivalence: assert property (
+        @(posedge clk) v4642b6 == (v6dda25 & v27dec4 & v92a149)
+    );
+
+    // Dominance of zeros: If v6dda25 is 0, the output must be 0.
+    check_zero_if_v6dda25_zero: assert property (
+        @(posedge clk) (v6dda25 == 1'b0) |-> (v4642b6 == 1'b0)
+    );
+
+    // Dominance of zeros: If v27dec4 is 0, the output must be 0.
+    check_zero_if_v27dec4_zero: assert property (
+        @(posedge clk) (v27dec4 == 1'b0) |-> (v4642b6 == 1'b0)
+    );
+
+    // Dominance of zeros: If v92a149 is 0, the output must be 0.
+    check_zero_if_v92a149_zero: assert property (
+        @(posedge clk) (v92a149 == 1'b0) |-> (v4642b6 == 1'b0)
+    );
+
+    // High implies all inputs high: If output is 1, all three inputs must be 1.
+    check_output_implies_inputs_high: assert property (
+        @(posedge clk) (v4642b6 == 1'b1) |-> (v6dda25 == 1'b1) && (v27dec4 == 1'b1) && (v92a149 == 1'b1)
+    );
+
+    // All inputs high implies output high.
+    check_all_inputs_high_implies_output_high: assert property (
+        @(posedge clk) (v6dda25 == 1'b1) && (v27dec4 == 1'b1) && (v92a149 == 1'b1) |-> (v4642b6 == 1'b1)
+    );
+
+    // When v92a149 and v27dec4 are high, output tracks v6dda25.
+    check_tracks_v6dda25_when_other_two_high: assert property (
+        @(posedge clk) (v92a149 == 1'b1) && (v27dec4 == 1'b1) |-> (v4642b6 == v6dda25)
+    );
+
+    // When v6dda25 and v92a149 are high, output tracks v27dec4.
+    check_tracks_v27dec4_when_other_two_high: assert property (
+        @(posedge clk) (v6dda25 == 1'b1) && (v92a149 == 1'b1) |-> (v4642b6 == v27dec4)
+    );
+
+    // When v6dda25 and v27dec4 are high, output tracks v92a149.
+    check_tracks_v92a149_when_other_two_high: assert property (
+        @(posedge clk) (v6dda25 == 1'b1) && (v27dec4 == 1'b1) |-> (v4642b6 == v92a149)
+    );
+
+    // Conditional reduction via mux structure: If v92a149==1 and v27dec4==0, output must be 0.
+    check_mux_path_v92a149_1_v27dec4_0: assert property (
+        @(posedge clk) (v92a149 == 1'b1) && (v27dec4 == 1'b0) |-> (v4642b6 == 1'b0)
+    );
+
 endmodule
-bind v053dc2 v053dc2_asserts b_v053dc2_asserts();
-
-
-// vd0c4e5: 2:1 mux (vb192d0 = v27dec4 ? v030ad0 : v2d3366)
-module vd0c4e5_asserts;
-  always_comb begin
-    if (!$isunknown({v030ad0, v27dec4, v2d3366}))
-      assert (vb192d0 == (v27dec4 ? v030ad0 : v2d3366))
-        else $error("vd0c4e5 mux mismatch");
-  end
-  // Selection coverage (both arms, and meaningful select when inputs differ)
-  always_comb begin
-    cover (v27dec4==0 && vb192d0===v2d3366);
-    cover (v27dec4==1 && vb192d0===v030ad0);
-    cover (v27dec4==0 && (v030ad0!==v2d3366));
-    cover (v27dec4==1 && (v030ad0!==v2d3366));
-  end
-endmodule
-bind vd0c4e5 vd0c4e5_asserts b_vd0c4e5_asserts();
-
-
-// vfebcfe: buffer
-module vfebcfe_asserts;
-  always_comb begin
-    if (!$isunknown(v9fb85f))
-      assert (v9fb85f_out === v9fb85f)
-        else $error("vfebcfe buffer mismatch");
-  end
-  always_comb begin
-    cover (v9fb85f==0 && v9fb85f_out==0);
-    cover (v9fb85f==1 && v9fb85f_out==1);
-  end
-endmodule
-bind vfebcfe vfebcfe_asserts b_vfebcfe_asserts();
-
-
-// vd30ca9: inverter
-module vd30ca9_asserts;
-  always_comb begin
-    if (!$isunknown(v9fb85f))
-      assert (v9fb85f_out === ~v9fb85f)
-        else $error("vd30ca9 inverter mismatch");
-  end
-  // Edge-based coverage to see both transitions
-  always @(posedge v9fb85f) cover (v9fb85f_out==0);
-  always @(negedge v9fb85f) cover (v9fb85f_out==1);
-endmodule
-bind vd30ca9 vd30ca9_asserts b_vd30ca9_asserts();
-
-
-// v144728: end-to-end and internal wiring simplifications
-module v144728_asserts;
-  // End-to-end function: v4642b6 = v6dda25 & v27dec4 & v92a149
-  always_comb begin
-    if (!$isunknown({v6dda25,v27dec4,v92a149}))
-      assert (v4642b6 == (v6dda25 & v27dec4 & v92a149))
-        else $error("v144728 E2E mismatch");
-  end
-
-  // Internal relations (when known)
-  always_comb begin
-    if (!$isunknown(w1))                         assert (w6 === w1) else $error("w6!=w1");
-    if (!$isunknown({w1,v27dec4}))              assert (w3 === (v27dec4 ? w1 : v27dec4)) else $error("w3 mux mismatch");
-    if (!$isunknown({w1,v27dec4}))              assert (w3 === (w1 & v27dec4)) else $error("w3!=w1&v27dec4");
-    if (!$isunknown({w3,v92a149}))              assert (w7 === (v92a149 ? w3 : v92a149)) else $error("w7 mux mismatch");
-    if (!$isunknown({w3,v92a149}))              assert (w7 === (w3 & v92a149)) else $error("w7!=w3&v92a149");
-    if (!$isunknown(w7))                         assert (v4642b6 === w7) else $error("v4642b6!=w7");
-  end
-
-  // Functional coverage: key cubes and gating responsibility
-  always_comb begin
-    cover ({v6dda25,v27dec4,v92a149} == 3'b000 && v4642b6==0);
-    cover ({v6dda25,v27dec4,v92a149} == 3'b111 && v4642b6==1);
-    cover ({v6dda25,v27dec4,v92a149} == 3'b011 && v4642b6==0); // v6dda25 gates
-    cover ({v6dda25,v27dec4,v92a149} == 3'b101 && v4642b6==0); // v27dec4 gates
-    cover ({v6dda25,v27dec4,v92a149} == 3'b110 && v4642b6==0); // v92a149 gates
-  end
-
-  // Edge coverage: rising edges turn output on if other gates are 1; any falling edge turns it off
-  always @(posedge v6dda25) cover (v27dec4 && v92a149 && v4642b6);
-  always @(posedge v27dec4) cover (v6dda25 && v92a149 && v4642b6);
-  always @(posedge v92a149) cover (v6dda25 && v27dec4 && v4642b6);
-  always @(negedge v6dda25) cover (v4642b6==0);
-  always @(negedge v27dec4) cover (v4642b6==0);
-  always @(negedge v92a149) cover (v4642b6==0);
-endmodule
-bind v144728 v144728_asserts b_v144728_asserts();

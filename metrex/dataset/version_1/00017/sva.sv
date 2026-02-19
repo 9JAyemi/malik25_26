@@ -1,52 +1,91 @@
-// SVA for myDFF: concise, high-quality checks and coverage
-// Bind these assertions to the DUT
+module myDFF_sva (
+    input logic CK,
+    input logic D,
+    input logic RN,
+    input logic SN,
+    input logic Q,
+    input logic QN
+);
 
-module myDFF_sva (input logic CK, D, RN, SN, Q, QN);
+    /*
+    Analysis summary for myDFF:
+    - Clock: CK (posedge)
+    - Resets/sets (synchronous, active-high):
+        * RN: synchronous reset-to-0 with highest priority
+        * SN: synchronous set-to-1 with lower priority than RN
+    - Logic type: Sequential flip-flop with synchronous control; QN is purely combinational as ~Q
+    - Behavior on posedge CK:
+        * if (RN)        Q <= 0;
+        * else if (SN)   Q <= 1;
+        * else           Q <= D;
+      Continuous assignment: QN = ~Q
 
-  default clocking cb @(posedge CK); endclocking
+    Note: There is no asynchronous reset in this RTL. Assertions below are clocked on posedge CK.
+    For consistency with the style guideline, disable iff(1'b0) is used to indicate no async reset gating.
+    */
 
-  // Enable checks after the first sampled edge
-  logic started;
-  initial started = 0;
-  always @(posedge CK) started <= 1;
+    ///// Core functional mapping from previous cycle to current Q /////
+    // When RN was asserted in the previous cycle, Q must be 0 in the current cycle.
+    check_rn_forces_zero_next: assert property (
+        @(posedge CK) disable iff (1'b0)
+            $past(RN) |-> (Q == 1'b0)
+    );
 
-  // Functional correctness: Q equals function of previous-cycle controls/data
-  a_func_update: assert property (cb
-    started |-> Q == ( $past(RN) ? 1'b0 : ($past(SN) ? 1'b1 : $past(D)) )
-  );
+    // When SN was asserted (and RN was deasserted) in the previous cycle, Q must be 1 in the current cycle.
+    check_sn_sets_one_next: assert property (
+        @(posedge CK) disable iff (1'b0)
+            ($past(SN) && !$past(RN)) |-> (Q == 1'b1)
+    );
 
-  // Priority when both RN and SN are 1: reset dominates set
-  a_priority: assert property (cb
-    started && $past(RN) && $past(SN) |-> Q == 1'b0
-  );
+    // When neither RN nor SN was asserted in the previous cycle, Q must capture D from the previous cycle.
+    check_data_captured_when_no_ctrl: assert property (
+        @(posedge CK) disable iff (1'b0)
+            (!$past(RN) && !$past(SN)) |-> (Q == $past(D))
+    );
 
-  // Q only changes on a rising CK edge (no glitches between clocks)
-  a_q_changes_only_on_clk: assert property (
-    $changed(Q) |-> $rose(CK)
-  );
+    // If both RN and SN were asserted in the previous cycle, RN has priority and forces Q to 0.
+    check_rn_priority_over_sn: assert property (
+        @(posedge CK) disable iff (1'b0)
+            ($past(RN) && $past(SN)) |-> (Q == 1'b0)
+    );
 
-  // Complementary output must always match
-  a_qn_is_complement: assert property (
-    QN === ~Q
-  );
+    ///// Complementary output /////
+    // QN is always the bitwise inversion of Q (continuous assign).
+    check_qn_is_complement: assert property (
+        @(posedge CK) disable iff (1'b0)
+            (QN == ~Q)
+    );
 
-  // No X on Q after first update; controls/data used are known
-  a_no_x_q: assert property (cb
-    started |-> !$isunknown(Q)
-  );
-  a_no_x_ctrl_data: assert property (cb
-    started |-> !$isunknown({$past(RN), $past(SN), $past(D)})
-  );
+    // Whenever Q changes between cycles, QN must change as well (since QN == ~Q).
+    check_qn_changes_with_q: assert property (
+        @(posedge CK) disable iff (1'b0)
+            $changed(Q) |-> ($changed(QN) && (QN == ~Q))
+    );
 
-  // Coverage: exercise each path and key transitions
-  c_reset_path:  cover property (cb started && $past(RN) && !$past(SN) && Q==1'b0);
-  c_set_path:    cover property (cb started && !$past(RN) && $past(SN) && Q==1'b1);
-  c_both_high:   cover property (cb started && $past(RN) && $past(SN) && Q==1'b0);
-  c_data_0_to_1: cover property (cb started && !$past(RN) && !$past(SN) &&
-                                 $past(Q)==1'b0 && $past(D)==1'b1 && Q==1'b1);
-  c_data_1_to_0: cover property (cb started && !$past(RN) && !$past(SN) &&
-                                 $past(Q)==1'b1 && $past(D)==1'b0 && Q==1'b0);
+    // If Q does not change between cycles, QN must also remain unchanged.
+    check_qn_stable_when_q_stable: assert property (
+        @(posedge CK) disable iff (1'b0)
+            !$changed(Q) |-> !$changed(QN)
+    );
+
+    ///// Useful corollaries (follow from core mapping) /////
+    // If RN was asserted in the previous cycle, QN must be 1 in the current cycle (since Q is 0).
+    check_qn_after_rn_prev: assert property (
+        @(posedge CK) disable iff (1'b0)
+            $past(RN) |-> (QN == 1'b1)
+    );
+
+    // If SN was asserted (and RN deasserted) in the previous cycle, QN must be 0 in the current cycle (since Q is 1).
+    check_qn_after_sn_prev: assert property (
+        @(posedge CK) disable iff (1'b0)
+            ($past(SN) && !$past(RN)) |-> (QN == 1'b0)
+    );
+
+    // If neither RN nor SN was asserted in the previous cycle and D matched Q in the previous cycle,
+    // then Q remains unchanged in the current cycle (stability corollary of data capture).
+    check_q_stability_when_data_matches_prev: assert property (
+        @(posedge CK) disable iff (1'b0)
+            (!$past(RN) && !$past(SN) && ($past(D) == $past(Q))) |-> (Q == $past(Q))
+    );
 
 endmodule
-
-bind myDFF myDFF_sva sva_inst (.CK(CK), .D(D), .RN(RN), .SN(SN), .Q(Q), .QN(QN));

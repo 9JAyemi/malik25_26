@@ -1,27 +1,41 @@
-// SVA for bw_clk_cclk_inv_128x
-module bw_clk_cclk_inv_128x_sva (input logic clkin, clkout);
+module bw_clk_cclk_inv_128x_sva (
+    input logic clkout,
+    input logic clkin
+);
+    // Analysis summary:
+    // - Clocks: No dedicated clock in RTL; assertions sample on edges of clkin and clkout.
+    // - Reset: None present in RTL.
+    // - Logic type: Purely combinational (clkout is the inversion of clkin).
+    // - Behavior: clkout = ~clkin at all times.
 
-  // Functional equivalence on any change (allowing #0 propagation)
-  property p_inverse_rel;
-    @(posedge clkin or negedge clkin or posedge clkout or negedge clkout)
-      ##0 (clkout === ~clkin);
-  endproperty
-  a_inverse_rel: assert property (p_inverse_rel);
+    // Inversion must hold when sampled on the rising edge of clkin.
+    check_inversion_on_clkin_posedge: assert property (
+        @(posedge clkin) clkout == ~clkin
+    );
 
-  // Input edges must cause opposite output edges in the same timestep
-  a_in_rise_out_fall: assert property (@(posedge clkin)  ##0 $fell(clkout));
-  a_in_fall_out_rise: assert property (@(negedge clkin)  ##0 $rose(clkout));
+    // Inversion must hold when sampled on the falling edge of clkin.
+    check_inversion_on_clkin_negedge: assert property (
+        @(negedge clkin) clkout == ~clkin
+    );
 
-  // Output edges must correspond to opposite input edges (no spurious output toggles)
-  a_out_rise_in_fall: assert property (@(posedge clkout) ##0 $fell(clkin));
-  a_out_fall_in_rise: assert property (@(negedge clkout) ##0 $rose(clkin));
+    // Inversion must hold when sampled on the rising edge of clkout.
+    check_inversion_on_clkout_posedge: assert property (
+        @(posedge clkout) clkin == ~clkout
+    );
 
-  // Coverage: see both edge mappings
-  c_in_rise_out_fall: cover property (@(posedge clkin)  ##0 $fell(clkout));
-  c_in_fall_out_rise: cover property (@(negedge clkin)  ##0 $rose(clkout));
-  c_out_rise_in_fall: cover property (@(posedge clkout) ##0 $fell(clkin));
-  c_out_fall_in_rise: cover property (@(negedge clkout) ##0 $rose(clkin));
+    // Inversion must hold when sampled on the falling edge of clkout.
+    check_inversion_on_clkout_negedge: assert property (
+        @(negedge clkout) clkin == ~clkout
+    );
+
+    // Input and output must be complementary when sampled on clkin posedges.
+    check_complement_on_clkin_posedge: assert property (
+        @(posedge clkin) clkin != clkout
+    );
+
+    // Input and output must be complementary when sampled on clkout posedges.
+    check_complement_on_clkout_posedge: assert property (
+        @(posedge clkout) clkin != clkout
+    );
 
 endmodule
-
-bind bw_clk_cclk_inv_128x bw_clk_cclk_inv_128x_sva (.*);

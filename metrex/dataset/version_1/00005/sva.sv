@@ -1,82 +1,136 @@
-// SVA for this design. Bind these to the DUT files.
+module top_module_assertions (
+    input  logic        clk,
+    input  logic        reset,    // Top-level reset
+    input  logic [7:0]  a,
+    input  logic [7:0]  b,
+    input  logic [3:0]  data,
+    input  logic        select,
+    input  logic [7:0]  s,
+    input  logic        overflow
+);
+    //==========================================================================
+    // Analysis summary:
+    // - Clock: clk
+    // - Reset: The only sequential block in the hierarchy is shift_register,
+    //           which uses an ASYNCHRONOUS ACTIVE-LOW reset driven by 'reset'.
+    //           Therefore, assertions are disabled when reset==0.
+    // - Logic type: Mixed
+    //     * Combinational: sign-magnitude conversion (a_mag/b_mag), carry_select_adder
+    //     * Sequential: 4-bit shift_register (enable=1, load=0, shifts left when select=1)
+    // - Key behaviors:
+    //     * a_mag/b_mag: convert two's-complement to sign-magnitude with MSB forced to 0.
+    //     * Adder (cin=0): s_adder8 = (a_mag + b_mag) + ((a_mag & b_mag) << 1)
+    //       overflow_adder = (a_mag[7] == b_mag[7]) && (s_adder8[7] != a_mag[7]).
+    //       Since a_mag[7]==b_mag[7]==0 always, overflow simplifies to s_adder8[7].
+    //     * Output mux: if select==0 -> s = s_adder8; if select==1 -> s = {4'b0, shift_q}
+    //       Hence when select==1, s[7:4]==4'b0 always. With shift_left active, s[0]==0.
+    //==========================================================================
 
-// Top-level checks
-module top_module_sva;
-  default clocking cb @(posedge clk); endclocking
+    // Helper: two's-complement to sign-magnitude (matches RTL width behavior)
+    function automatic logic [7:0] to_sm8 (input logic [7:0] x);
+        logic [6:0] mag7;
+        begin
+            mag7   = (~x[6:0]) + 7'd1;
+            to_sm8 = x[7] ? {1'b0, mag7} : x;
+        end
+    endfunction
 
-  // Sign-magnitude conversion checks
-  a_mag_pos: assert property (a[7]==0 |-> a_mag == a);
-  a_mag_neg: assert property (a[7]==1 |-> (a_mag[7]==0 && a_mag[6:0] == (~a[6:0] + 1)));
+    // Helper: adder result for cin==0 (matches carry_select_adder RTL path)
+    function automatic logic [7:0] adder_u8 (input logic [7:0] aa, input logic [7:0] bb);
+        logic [7:0] p, g;
+        begin
+            p       = aa + bb;
+            g       = aa & bb;
+            adder_u8 = p + (g << 1);
+        end
+    endfunction
 
-  b_mag_pos: assert property (b[7]==0 |-> b_mag == b);
-  b_mag_neg: assert property (b[7]==1 |-> (b_mag[7]==0 && b_mag[6:0] == (~b[6:0] + 1)));
+    // Helper: expected 8-bit adder output from top-level inputs a,b
+    function automatic logic [7:0] adder_expected_sum8 (input logic [7:0] a_in, input logic [7:0] b_in);
+        logic [7:0] aa, bb;
+        begin
+            aa = to_sm8(a_in);
+            bb = to_sm8(b_in);
+            adder_expected_sum8 = adder_u8(aa, bb);
+        end
+    endfunction
 
-  // Output selection and tie-offs
-  cin_tied_low: assert property (adder_inst.cin == 1'b0);
-  ovf_wire:     assert property (overflow == adder_overflow);
-  sel_add:      assert property (select==0 |-> s == adder_out[7:0]);
-  sel_shift:    assert property (select==1 |-> (s == {4'b0, shift_out} && s[7:4]==4'b0));
+    // Helper: expected overflow from top-level inputs a,b (matches carry_select_adder)
+    function automatic logic overflow_expected (input logic [7:0] a_in, input logic [7:0] b_in);
+        logic [7:0] aa, bb, sum8;
+        begin
+            aa = to_sm8(a_in);
+            bb = to_sm8(b_in);
+            sum8 = adder_u8(aa, bb);
+            overflow_expected = (aa[7] == bb[7]) && (sum8[7] != aa[7]); // simplifies to sum8[7]
+        end
+    endfunction
 
-  // Shift register interface constants from top
-  en_const:   assert property (shift_inst.enable == 1'b1);
-  load_const: assert property (shift_inst.load   == 1'b0);
+    ///// Output mux rules /////
+    // When select==0, s must equal the adder's 8-bit result computed from sign-magnitude inputs.
+    check_mux_select0_adder_value: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b0) |-> (s == adder_expected_sum8(a, b))
+    );
 
-  // Shift behavior (active-low reset from shift_register)
-  left_shift:  assert property (disable iff (!reset)  select && shift_inst.enable && !shift_inst.load |=> shift_out == {$past(shift_out)[2:0],1'b0});
-  right_shift: assert property (disable iff (!reset) !select && shift_inst.enable && !shift_inst.load |=> shift_out == {1'b0,$past(shift_out)[3:1]});
-  hold_in_reset: assert property (@(posedge clk) !reset |-> shift_out == 4'b0);
+    // When select==1, upper nibble of s is always zero due to {4'b0, shift_out}.
+    check_shift_path_upper_zero: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b1) |-> (s[7:4] == 4'b0000)
+    );
 
-  // Basic functional coverage
-  cover_sel_01: cover property (select==0 ##1 select==1);
-  cover_sel_10: cover property (select==1 ##1 select==0);
-  cover_ovf:    cover property (overflow);
-  cover_a_neg:  cover property (a[7]);
-  cover_b_neg:  cover property (b[7]);
+    // When select==1, the LSB of s is always zero because shift_left inserts 0.
+    check_shift_path_lsb_zero: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b1) |-> (s[0] == 1'b0)
+    );
+
+    ///// Shift register dynamic behavior (observed through s when select==1) /////
+    // If select stays 1 for two consecutive cycles, the low nibble of s left-shifts by 1 with zero fill.
+    // Note: Consequent is checked on the 2nd cycle; $past(s[2:0]) refers to the prior cycle's low 3 bits.
+    check_shift_left_single_step: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select ##1 select) |-> (s[7:4] == 4'b0000 && s[3:0] == {$past(s[2:0]), 1'b0})
+    );
+
+    // If select stays 1 for 5 consecutive cycles, the 4-bit shift register must have shifted out all bits to zero.
+    // (We check on the 5th cycle so the updated state is observable at the sampled edge.)
+    check_shift_clears_in_five: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select [*5]) |-> (s[7:4] == 4'b0000 && s[3:0] == 4'b0000)
+    );
+
+    ///// Adder/overflow rules /////
+    // Overflow output must match the adder's definition from the RTL (with a_mag/b_mag inputs and cin=0).
+    check_overflow_definition: assert property (
+        @(posedge clk) disable iff (!reset)
+            overflow == overflow_expected(a, b)
+    );
+
+    // Since a_mag[7]==b_mag[7]==0 for this design, overflow reduces to the adder sum bit7.
+    // Therefore, when the adder path is selected, overflow equals s[7].
+    check_overflow_equals_s7_when_select0: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b0) |-> (overflow == s[7])
+    );
+
+    // In adder mode, if inputs a and b are stable across cycles, s must remain stable (independent of data/select history).
+    check_adder_mode_stability_when_ab_stable: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b0 && $past(select) == 1'b0 && $stable(a) && $stable(b)) |-> $stable(s)
+    );
+
+    // In adder mode, s does not depend on 'data'. If a and b are stable but data toggles, s must remain stable.
+    check_no_data_dependency_in_adder_mode: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b0 && $past(select) == 1'b0 && $stable(a) && $stable(b) && !$stable(data)) |-> $stable(s)
+    );
+
+    // Commutativity sanity for the specific adder path used by the DUT:
+    // Swapping a and b (with select==0 in consecutive cycles) yields the same s.
+    check_adder_commutativity_observed: assert property (
+        @(posedge clk) disable iff (!reset)
+            (select == 1'b0 && $past(select) == 1'b0 && (a == $past(b)) && (b == $past(a))) |-> (s == $past(s))
+    );
+
 endmodule
-
-// Adder-local checks (combinational)
-module carry_select_adder_sva;
-  // Core relation (using recomputed p/g to avoid hierarchy to internal wires)
-  always @* begin
-    assert ((cin==1'b0 && s == ((a+b) + ((a&b)<<1))) ||
-            (cin==1'b1 && s == ((a+b) - ((a&b)<<1))))
-      else $error("carry_select_adder: s mismatch");
-    assert (cout == (((a&b)[6]) | ((a&b)[5] & cin)))
-      else $error("carry_select_adder: cout mismatch");
-    assert (overflow == ((a[7]==b[7]) && (s[7] != a[7])))
-      else $error("carry_select_adder: overflow mismatch");
-    assert (s[8] == 1'b0) // zero-extended assignment to 9-bit s
-      else $error("carry_select_adder: s[8] not zero");
-  end
-
-  // Minimal coverage
-  cover_cin0: cover property (@(posedge $root.top_module.clk) cin==0);
-  cover_cin1: cover property (@(posedge $root.top_module.clk) cin==1);
-  cover_ovf:  cover property (@(posedge $root.top_module.clk) overflow);
-endmodule
-
-// Shift-register-local checks
-module shift_register_sva;
-  default clocking cb @(posedge clk); endclocking
-
-  // Asynchronous active-low reset behavior
-  async_reset_clears: assert property (@(negedge reset) ##[0:1] q == 4'b0);
-  while_in_reset:     assert property (!reset |-> q == 4'b0);
-
-  // One-cycle next-state behavior
-  hold_when_disabled:       assert property (disable iff (!reset) !enable |=> q == $past(q));
-  load_when_enabled:        assert property (disable iff (!reset)  enable && load |=> q == $past(data));
-  shift_left_when_enabled:  assert property (disable iff (!reset)  enable && !load && shift_left |=> q == {$past(q)[2:0],1'b0});
-  shift_right_when_enabled: assert property (disable iff (!reset)  enable && !load && !shift_left |=> q == {1'b0,$past(q)[3:1]});
-
-  // Coverage of key modes
-  cover_load:  cover property (disable iff (!reset) enable && load);
-  cover_lsh:   cover property (disable iff (!reset) enable && !load && shift_left);
-  cover_rsh:   cover property (disable iff (!reset) enable && !load && !shift_left);
-  cover_arst:  cover property (@(negedge reset) 1);
-endmodule
-
-// Binds
-bind top_module         top_module_sva        top_module_sva_i();
-bind carry_select_adder carry_select_adder_sva csa_sva_i();
-bind shift_register     shift_register_sva     sh_sva_i();

@@ -1,94 +1,101 @@
-// SVA for full_adder_1bit and nand_adder_4bit
-// Concise, functional correctness, internal connectivity, X-checks, and key coverage.
+module nand_adder_4bit_sva (
+    // External clock for sampling assertions (DUT is purely combinational)
+    input  logic        CLK,
 
-module sva_full_adder_1bit (
-  input sum, carry, a, b, c,
-  input w1, w2, w3
+    // DUT ports (treated as inputs to this checker)
+    input  logic [3:0]  S,
+    input  logic        C_out,
+    input  logic [3:0]  A,
+    input  logic [3:0]  B,
+    input  logic        C_in
 );
-  default clocking cb @(*); endclocking
+    ////////////////////////////////////////////////////////////////////////////////
+    // Analysis summary:
+    // - Clocks/Resets in RTL: None. The DUT is purely combinational; no reset.
+    // - Logic type: Combinational (a chain of 1-bit full adders built from NANDs).
+    // - Key behavior: 4-bit ripple-carry addition of A and B with carry-in C_in.
+    //   Outputs are S (sum[3:0]) and C_out (final carry).
+    // - This SVA module introduces an external CLK for property sampling only.
+    ////////////////////////////////////////////////////////////////////////////////
 
-  // No X on outputs when inputs are 0/1
-  assert property ( !$isunknown({a,b,c}) |-> !$isunknown({sum,carry,w1,w2,w3}) );
+    // Reference computations for assertions
+    function automatic logic carry_next (input logic x, input logic y, input logic cin);
+        carry_next = (x & y) | (x & cin) | (y & cin);
+    endfunction
 
-  // Gate connectivity (matches intended NAND logic)
-  assert property ( !$isunknown({a,b,c}) |-> w1 == ~(a & b & c) );
-  assert property ( !$isunknown({a,b,c}) |-> w2 == ~(w1 & c & b) );
-  assert property ( !$isunknown({a,b,c}) |-> w3 == ~(w1 & c & a) );
-  assert property ( !$isunknown({a,b,c}) |-> sum == ~(w2 & w3 & c) );
-  assert property ( !$isunknown({a,b,c}) |-> carry == ~(w1 & c & a) );
+    // Derived carry chain from inputs (pure combinational reference model)
+    logic c0_ref, c1_ref, c2_ref, c3_ref;
+    assign c0_ref = carry_next(A[0], B[0], C_in);
+    assign c1_ref = carry_next(A[1], B[1], c0_ref);
+    assign c2_ref = carry_next(A[2], B[2], c1_ref);
+    assign c3_ref = carry_next(A[3], B[3], c2_ref);
 
-  // Functional correctness (1-bit full adder)
-  assert property ( !$isunknown({a,b,c}) |-> sum   == (a ^ b ^ c) );
-  assert property ( !$isunknown({a,b,c}) |-> carry == ((a & b) | (a & c) | (b & c)) );
+    // 5-bit reference sum (explicitly sized to avoid truncation)
+    logic [4:0] sum5_ref;
+    assign sum5_ref = {1'b0, A} + {1'b0, B} + {4'b0000, C_in};
 
-  // Coverage: all 8 input combinations
-  genvar i;
-  generate
-    for (i=0; i<8; i++) begin : cov_fa_inputs
-      cover property ( {a,b,c} == i[2:0] );
-    end
-  endgenerate
+    ///// Functional correctness /////
+    // The 5-bit output {C_out,S} must equal the 5-bit addition of A, B, and C_in.
+    check_addition_equivalence: assert property (
+        @(posedge CLK) {C_out, S} == sum5_ref
+    );
 
-  // Coverage: output activity
-  cover property ( !$isunknown({a,b,c,sum})   && $changed(sum) );
-  cover property ( !$isunknown({a,b,c,carry}) && $changed(carry) );
+    // The carry-out must equal the MSB of the 5-bit addition result.
+    check_cout_matches_addition_msb: assert property (
+        @(posedge CLK) C_out == sum5_ref[4]
+    );
+
+    // The 4-bit sum S must equal the low 4 bits of the 5-bit addition result.
+    check_sum_matches_addition_low4: assert property (
+        @(posedge CLK) S == sum5_ref[3:0]
+    );
+
+    ///// Bit-level ripple-carry structure checks /////
+    // Bit 0 sum is XOR of A[0], B[0], and C_in.
+    check_sum_bit0_xor: assert property (
+        @(posedge CLK) S[0] == (A[0] ^ B[0] ^ C_in)
+    );
+
+    // Bit 1 sum is XOR of A[1], B[1], and carry from bit 0.
+    check_sum_bit1_xor_with_c0: assert property (
+        @(posedge CLK) S[1] == (A[1] ^ B[1] ^ c0_ref)
+    );
+
+    // Bit 2 sum is XOR of A[2], B[2], and carry from bit 1.
+    check_sum_bit2_xor_with_c1: assert property (
+        @(posedge CLK) S[2] == (A[2] ^ B[2] ^ c1_ref)
+    );
+
+    // Bit 3 sum is XOR of A[3], B[3], and carry from bit 2.
+    check_sum_bit3_xor_with_c2: assert property (
+        @(posedge CLK) S[3] == (A[3] ^ B[3] ^ c2_ref)
+    );
+
+    // Final carry-out equals the carry generated from bit 3.
+    check_cout_matches_c3: assert property (
+        @(posedge CLK) C_out == c3_ref
+    );
+
+    ///// Stability (combinational behavior) /////
+    // If inputs are stable across a cycle, outputs must also be stable.
+    check_outputs_stable_when_inputs_stable: assert property (
+        @(posedge CLK) $stable({A, B, C_in}) |-> $stable({S, C_out})
+    );
+
+    ///// Useful corner cases /////
+    // Adding zero B with C_in=0 passes A through to S and keeps C_out=0.
+    check_passthrough_when_B_zero_cin0: assert property (
+        @(posedge CLK) ((B == 4'b0000) && (C_in == 1'b0)) |-> ((S == A) && (C_out == 1'b0))
+    );
+
+    // Adding zero A with C_in=0 passes B through to S and keeps C_out=0.
+    check_passthrough_when_A_zero_cin0: assert property (
+        @(posedge CLK) ((A == 4'b0000) && (C_in == 1'b0)) |-> ((S == B) && (C_out == 1'b0))
+    );
+
+    // When both A and B are zero, S equals C_in in bit[0] and zeros elsewhere; C_out is zero.
+    check_when_A_B_zero: assert property (
+        @(posedge CLK) ((A == 4'b0000) && (B == 4'b0000)) |-> ((S == {3'b000, C_in}) && (C_out == 1'b0))
+    );
+
 endmodule
-
-
-module sva_nand_adder_4bit (
-  input [3:0] S, A, B,
-  input C_out, C_in,
-  input c0, c1, c2, c3,
-  input s0, s1, s2, s3
-);
-  default clocking cb @(*); endclocking
-
-  // No X on outputs when inputs are 0/1
-  assert property ( !$isunknown({A,B,C_in}) |-> !$isunknown({S,C_out,c0,c1,c2,c3,s0,s1,s2,s3}) );
-
-  // Vector wiring correctness
-  assert property ( S == {s3,s2,s1,s0} );
-  assert property ( C_out == c3 );
-
-  // Per-bit functional correctness of ripple chain
-  assert property ( !$isunknown({A[0],B[0],C_in}) |-> s0 == (A[0]^B[0]^C_in) );
-  assert property ( !$isunknown({A[0],B[0],C_in}) |-> c0 == ((A[0]&B[0])|(A[0]&C_in)|(B[0]&C_in)) );
-
-  assert property ( !$isunknown({A[1],B[1],c0}) |-> s1 == (A[1]^B[1]^c0) );
-  assert property ( !$isunknown({A[1],B[1],c0}) |-> c1 == ((A[1]&B[1])|(A[1]&c0)|(B[1]&c0)) );
-
-  assert property ( !$isunknown({A[2],B[2],c1}) |-> s2 == (A[2]^B[2]^c1) );
-  assert property ( !$isunknown({A[2],B[2],c1}) |-> c2 == ((A[2]&B[2])|(A[2]&c1)|(B[2]&c1)) );
-
-  assert property ( !$isunknown({A[3],B[3],c2}) |-> s3 == (A[3]^B[3]^c2) );
-  assert property ( !$isunknown({A[3],B[3],c2}) |-> c3 == ((A[3]&B[3])|(A[3]&c2)|(B[3]&c2)) );
-
-  // End-to-end correctness (5-bit sum)
-  assert property ( !$isunknown({A,B,C_in}) |-> {C_out,S} == ({1'b0,A} + {1'b0,B} + C_in) );
-
-  // Key coverage: extremes, propagate-through, and carry activity
-  cover property ( A==4'h0 && B==4'h0 && C_in==1'b0 && {C_out,S}==5'd0 );
-  cover property ( A==4'hF && B==4'hF && C_in==1'b1 && {C_out,S}==5'd31 );
-
-  // Full propagate chain: no generate, all propagate, carry-in transfers to out
-  cover property ( ( (A^B)==4'hF ) && ( (A&B)==4'h0 ) && (C_in==1'b1) && (C_out==1'b1) );
-
-  // Carry node activity
-  cover property ( !$isunknown({A,B,C_in,c0}) && $changed(c0) );
-  cover property ( !$isunknown({A,B,C_in,c1}) && $changed(c1) );
-  cover property ( !$isunknown({A,B,C_in,c2}) && $changed(c2) );
-  cover property ( !$isunknown({A,B,C_in,c3}) && $changed(c3) );
-endmodule
-
-
-// Bind SVA modules to DUTs (captures internal nets/wires)
-bind full_adder_1bit sva_full_adder_1bit fa_sva (
-  .sum(sum), .carry(carry), .a(a), .b(b), .c(c),
-  .w1(w1), .w2(w2), .w3(w3)
-);
-
-bind nand_adder_4bit sva_nand_adder_4bit na4_sva (
-  .S(S), .C_out(C_out), .A(A), .B(B), .C_in(C_in),
-  .c0(c0), .c1(c1), .c2(c2), .c3(c3),
-  .s0(s0), .s1(s1), .s2(s2), .s3(s3)
-);

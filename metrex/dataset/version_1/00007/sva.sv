@@ -1,129 +1,84 @@
-// SVA checkers and binds for async_transmitter, async_receiver, BaudTickGen
-// Focused, concise, high-quality assertions and coverage
+module async_transmitter_sva (
+    input logic clk,
+    input logic TxD_start,
+    input logic [7:0] TxD_data,
+    input logic TxD,
+    input logic TxD_busy
+);
 
-// ----------------------------------------
-// async_transmitter checker
-// ----------------------------------------
-module async_transmitter_sva;
-  default clocking cb @(posedge clk); endclocking
+    ///// Transmitter invariants and sequencing /////
+    // When idle (not busy), the line must be HIGH (mark level).
+    check_txd_idle_high: assert property (
+        @(posedge clk) (!TxD_busy) |-> (TxD == 1'b1)
+    );
 
-  // State encoding legal set
-  assert property (TxD_state inside {
-    4'b0000,4'b0100,4'b1000,4'b1001,4'b1010,4'b1011,4'b1100,4'b1101,4'b1110,4'b1111,4'b0010,4'b0011
-  });
+    // If idle and no start request, remain idle on the next cycle.
+    check_txd_idle_stable_without_start: assert property (
+        @(posedge clk) (!TxD_busy && !TxD_start) |-> ##1 (!TxD_busy)
+    );
 
-  // Busy is inverse of ready
-  assert property (TxD_busy == (TxD_state!=4'b0000));
+    // If idle and a start request occurs, transmitter becomes busy on the next cycle.
+    check_txd_start_sets_busy_next: assert property (
+        @(posedge clk) (!TxD_busy && TxD_start) |-> ##1 (TxD_busy)
+    );
 
-  // Start when ready loads shift and enters start state
-  assert property ((TxD_state==4'b0000 && TxD_start) |=> (TxD_state==4'b0100 && TxD_shift==$past(TxD_data)));
+    // Busy can only rise as a result of a start request in that cycle.
+    check_txd_busy_rise_requires_start: assert property (
+        @(posedge clk) $rose(TxD_busy) |-> (TxD_start == 1'b1)
+    );
 
-  // State transitions on BitTick
-  assert property ((TxD_state==4'b0100 && BitTick) |=> TxD_state==4'b1000);
-  assert property ((TxD_state==4'b1000 && BitTick) |=> TxD_state==4'b1001);
-  assert property ((TxD_state==4'b1001 && BitTick) |=> TxD_state==4'b1010);
-  assert property ((TxD_state==4'b1010 && BitTick) |=> TxD_state==4'b1011);
-  assert property ((TxD_state==4'b1011 && BitTick) |=> TxD_state==4'b1100);
-  assert property ((TxD_state==4'b1100 && BitTick) |=> TxD_state==4'b1101);
-  assert property ((TxD_state==4'b1101 && BitTick) |=> TxD_state==4'b1110);
-  assert property ((TxD_state==4'b1110 && BitTick) |=> TxD_state==4'b1111);
-  assert property ((TxD_state==4'b1111 && BitTick) |=> TxD_state==4'b0010);
-  assert property ((TxD_state==4'b0010 && BitTick) |=> TxD_state==4'b0011);
-  assert property ((TxD_state==4'b0011 && BitTick) |=> TxD_state==4'b0000);
+    // At time 0 (initial state), the transmitter is idle and line is HIGH.
+    check_txd_init_idle_high: assert property (
+        @(posedge clk) $initstate |-> (!TxD_busy && (TxD == 1'b1))
+    );
 
-  // Hold state if no advancing condition
-  assert property ((!(BitTick || (TxD_state==4'b0000 && TxD_start))) |=> $stable(TxD_state));
-
-  // Shift behavior: right shift on data states at BitTick
-  assert property ((TxD_state[3] && BitTick) |=> TxD_shift == $past(TxD_shift >> 1));
-
-  // TxD matches intended encoding
-  assert property (TxD == ((TxD_state < 4) || (TxD_state[3] && TxD_shift[0])));
-
-  // Idle drives mark (1)
-  assert property ((TxD_state==4'b0000) |-> TxD==1'b1);
-
-  // Coverage: one full busy burst; stop states reached
-  cover property ($rose(TxD_busy) ##[1:$] $fell(TxD_busy));
-  cover property (BitTick && TxD_state==4'b1111 ##1 BitTick && TxD_state==4'b0011);
 endmodule
 
-bind async_transmitter async_transmitter_sva atx_sva();
 
-// ----------------------------------------
-// async_receiver checker
-// ----------------------------------------
-module async_receiver_sva;
-  default clocking cb @(posedge clk); endclocking
 
-`ifdef SIMULATION
-  // Legal states (SIM)
-  assert property (RxD_state inside {4'b0000,4'b1000,4'b1001,4'b1010,4'b1011,4'b1100,4'b1101,4'b1110,4'b1111,4'b0010});
-  // Start detection (SIM)
-  assert property ((RxD_state==4'b0000 && !RxD_bit) |=> RxD_state==4'b1000);
-`else
-  // Legal states (HW)
-  assert property (RxD_state inside {4'b0000,4'b0001,4'b1000,4'b1001,4'b1010,4'b1011,4'b1100,4'b1101,4'b1110,4'b1111,4'b0010});
-  // Start and mid-bit sample handoff (HW)
-  assert property ((RxD_state==4'b0000 && !RxD_bit) |=> RxD_state==4'b0001);
-  assert property ((RxD_state==4'b0001 && sampleNow) |=> RxD_state==4'b1000);
-`endif
+module async_receiver_sva (
+    input logic clk,
+    input logic RxD,
+    input logic RxD_data_ready,
+    input logic [7:0] RxD_data,
+    input logic RxD_idle,
+    input logic RxD_endofpacket
+);
 
-  // Data state progression on sampleNow
-  assert property ((RxD_state==4'b1000 && sampleNow) |=> RxD_state==4'b1001);
-  assert property ((RxD_state==4'b1001 && sampleNow) |=> RxD_state==4'b1010);
-  assert property ((RxD_state==4'b1010 && sampleNow) |=> RxD_state==4'b1011);
-  assert property ((RxD_state==4'b1011 && sampleNow) |=> RxD_state==4'b1100);
-  assert property ((RxD_state==4'b1100 && sampleNow) |=> RxD_state==4'b1101);
-  assert property ((RxD_state==4'b1101 && sampleNow) |=> RxD_state==4'b1110);
-  assert property ((RxD_state==4'b1110 && sampleNow) |=> RxD_state==4'b1111);
-  assert property ((RxD_state==4'b1111 && sampleNow) |=> RxD_state==4'b0010);
-  assert property ((RxD_state==4'b0010 && sampleNow) |=> RxD_state==4'b0000);
+    ///// Receiver invariants and pulse shaping /////
+    // RxD_idle and RxD_endofpacket cannot be HIGH at the same time.
+    check_rxd_idle_eop_mutex: assert property (
+        @(posedge clk) !(RxD_idle && RxD_endofpacket)
+    );
 
-  // Shift register behavior on each sampled data bit
-  assert property ((sampleNow && RxD_state[3]) |=> RxD_data == { $past(RxD_bit), $past(RxD_data[7:1]) });
+    // When a byte is reported ready, receiver is not idle in that cycle.
+    check_rxd_dr_idle_mutex: assert property (
+        @(posedge clk) RxD_data_ready |-> !RxD_idle
+    );
 
-  // data_ready pulse, condition and width
-  assert property ($rose(RxD_data_ready) |-> $past(sampleNow && RxD_state==4'b0010 && RxD_bit));
-  assert property (RxD_data_ready |-> ##1 !RxD_data_ready);
+    // When a byte is reported ready, end-of-packet is not asserted in that cycle.
+    check_rxd_dr_eop_mutex: assert property (
+        @(posedge clk) RxD_data_ready |-> !RxD_endofpacket
+    );
 
-`ifndef SIMULATION
-  // endofpacket/idle consistency (lightweight)
-  assert property ($rose(RxD_idle) |-> $past(RxD_state==4'b0000));
-  cover property ($rose(RxD_endofpacket));
-`endif
+    // RxD_data_ready is a single-cycle pulse.
+    check_rxd_dr_single_pulse: assert property (
+        @(posedge clk) RxD_data_ready |-> ##1 !RxD_data_ready
+    );
 
-  // Coverage: one full byte reception ending in data_ready
-  sequence rx_data_seq;
-    sampleNow && RxD_state==4'b1000 ##1
-    sampleNow && RxD_state==4'b1001 ##1
-    sampleNow && RxD_state==4'b1010 ##1
-    sampleNow && RxD_state==4'b1011 ##1
-    sampleNow && RxD_state==4'b1100 ##1
-    sampleNow && RxD_state==4'b1101 ##1
-    sampleNow && RxD_state==4'b1110 ##1
-    sampleNow && RxD_state==4'b1111;
-  endsequence
-  cover property (rx_data_seq ##1 sampleNow && RxD_state==4'b0010 ##1 RxD_data_ready);
+    // RxD_endofpacket is a single-cycle pulse.
+    check_rxd_eop_single_pulse: assert property (
+        @(posedge clk) RxD_endofpacket |-> ##1 !RxD_endofpacket
+    );
+
+    // After a data_ready pulse, the reported data remains stable on the next cycle.
+    check_rxd_data_stable_after_ready: assert property (
+        @(posedge clk) RxD_data_ready |-> ##1 $stable(RxD_data)
+    );
+
+    // At time 0 (initial state), data_ready and endofpacket are LOW, and idle is LOW.
+    check_rxd_init_flags_low: assert property (
+        @(posedge clk) $initstate |-> (!RxD_data_ready && !RxD_endofpacket && (RxD_idle == 1'b0))
+    );
+
 endmodule
-
-bind async_receiver async_receiver_sva arx_sva();
-
-// ----------------------------------------
-// BaudTickGen checker
-// ----------------------------------------
-module BaudTickGen_sva;
-  default clocking cb @(posedge clk); endclocking
-
-  // Tick is single-cycle high
-  assert property (tick |-> !$past(tick));
-
-  // Accumulator update rules
-  assert property ( enable |=> Acc == $past(Acc[AccWidth-1:0]) + Inc );
-  assert property (!enable |=> Acc == Inc);
-
-  // Coverage: tick occurrence
-  cover property (tick);
-endmodule
-
-bind BaudTickGen BaudTickGen_sva btg_sva();
