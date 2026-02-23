@@ -1,0 +1,30 @@
+ASSERT PROPERTIES:
+counter.u_counter_sva.a_reset_next
+counter.u_counter_sva.a_reset_hold
+counter.u_counter_sva.a_no_x_oper
+counter.u_counter_sva.a_after_rst_up
+counter.u_counter_sva.a_after_rst_down
+counter.u_counter_sva.a_up_inc
+counter.u_counter_sva.a_up_wrap
+counter.u_counter_sva.a_down_dec
+counter.u_counter_sva.a_down_wrap
+counter.u_counter_sva.a_progress
+
+COVER PROPERTIES:
+counter.u_counter_sva.a_reset_next:precondition1
+counter.u_counter_sva.a_reset_hold:precondition1
+counter.u_counter_sva.a_no_x_oper:precondition1
+counter.u_counter_sva.a_after_rst_up:precondition1
+counter.u_counter_sva.a_after_rst_down:precondition1
+counter.u_counter_sva.a_up_inc:precondition1
+counter.u_counter_sva.a_up_wrap:precondition1
+counter.u_counter_sva.a_down_dec:precondition1
+counter.u_counter_sva.a_down_wrap:precondition1
+counter.u_counter_sva.a_progress:precondition1
+counter.u_counter_sva.c_rst_cycle
+counter.u_counter_sva.c_after_rst_up
+counter.u_counter_sva.c_after_rst_down
+counter.u_counter_sva.c_up_inc
+counter.u_counter_sva.c_up_wrap
+counter.u_counter_sva.c_down_dec
+counter.u_counter_sva.c_down_wrap

@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+d_ff_async_reset.i_dff_sva.ap_rst_immediate
+d_ff_async_reset.i_dff_sva.ap_rst_hold
+d_ff_async_reset.i_dff_sva.ap_hold_zero_until_clk
+d_ff_async_reset.i_dff_sva.ap_first_capture
+d_ff_async_reset.i_dff_sva.ap_pipeline
+d_ff_async_reset.i_dff_sva.ap_stable_d_no_glitch
+d_ff_async_reset.i_dff_sva.ap_no_x
+
+COVER PROPERTIES:
+d_ff_async_reset.i_dff_sva.ap_rst_hold:precondition1
+d_ff_async_reset.i_dff_sva.ap_hold_zero_until_clk:precondition1
+d_ff_async_reset.i_dff_sva.ap_first_capture:precondition1
+d_ff_async_reset.i_dff_sva.ap_pipeline:precondition1
+d_ff_async_reset.i_dff_sva.ap_stable_d_no_glitch:precondition1
+d_ff_async_reset.i_dff_sva.ap_no_x:precondition1
+d_ff_async_reset.i_dff_sva.cp_reset_pulse
+d_ff_async_reset.i_dff_sva.cp_cap0
+d_ff_async_reset.i_dff_sva.cp_cap1

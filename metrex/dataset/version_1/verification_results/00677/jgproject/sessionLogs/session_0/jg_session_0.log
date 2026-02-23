@@ -1,0 +1,1072 @@
+# ----------------------------------------
+# JasperGold Version Info
+# tool      : JasperGold 2021.03
+# platform  : Linux 5.14.0-570.84.1.el9_6.x86_64
+# version   : 2021.03 FCS 64 bits
+# build date: 2021.03.23 02:50:43 UTC
+# ----------------------------------------
+# started   : 2026-02-20 18:03:18 EST
+# hostname  : della-i13n22.(none)
+# pid       : 2574166
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:36267' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY4xC8JADIW/QwQRB/+ItpMuXQUHRXBwPWo5tbVosdXBxb/qPzlfDy0m5F1ekpecAZKX955gvadgzIo1WxbCDTu9nZn3N0mMoK8YMWFPSkPGSXwoXnHjSiG25IETyzkosjCXq3fBquqouVOqVhMRy2fM5ZG0x26Lk67RroE2t1dK5THTMJVKWYUL9u+SDX9pdWfN/TR8AECmJLc=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00677/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00677/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00677/jgproject/.tmp/.postCmds.tcl'
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00677/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+00677
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./00677/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./00677/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = multiply
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% set OUT_DIR [file join "verification_results" $DESIGN_ID]
+verification_results/00677
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+verification_results/00677/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+verification_results/00677/summary.txt
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 00677
+% puts "  TOP       : $TOP"
+  TOP       : multiply
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 1
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : verification_results/00677
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./00677/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./00677/sva.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './00677/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './00677/sva.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='multiply'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "multiply".
+[INFO (HIER-8002)] ./00677/module.v(10): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./00677/sva.sv(5): compiling module 'controller_m_sva'
+[INFO (VERI-1018)] ./00677/module.v(12): compiling module 'controller_m'
+[INFO (VERI-1018)] ./00677/sva.sv(38): compiling module 'datapath_m_sva'
+[INFO (VERI-1018)] ./00677/module.v(38): compiling module 'datapath_m'
+[WARN (VERI-1209)] ./00677/module.v(57): expression size 32 truncated to fit in target size 8
+[INFO (VERI-1018)] ./00677/sva.sv(81): compiling module 'multiply_sva'
+[INFO (VERI-1018)] ./00677/module.v(1): compiling module 'multiply'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          7 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (6 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      7 (7 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+WARNING (WNL018): ./00677/sva.sv(102): multiply mult_8u_8u (size 16) automatically black boxed.
+    Use the "elaborate -bbox_mul" command to prevent automatic black-boxing.
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+reset
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using reset signal: reset
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "reset".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 22 asserts, 26 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 48 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 4 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned values for 49 of 49 design flops, 0 of 0 design latches, 387 of 488 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 86400s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_1" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_2" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_4" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_5" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_7" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_9" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m1.datapath_m_sva_i._assert_2" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.multiply_sva_i._assert_2" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.multiply_sva_i._assert_3" was proven in 0.00 s.
+0: Found proofs for 9 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0.01s
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m1.datapath_m_sva_i._assert_1" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "multiply.m1.datapath_m_sva_i._assert_1:precondition1" was proven unreachable in 0.00 s.
+0: Found proofs for 2 properties in preprocessing
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_3" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "multiply.m0.controller_m_sva_i._assert_11" was proven in 0.00 s.
+0.0.PRE: Proof Simplification completed in 0.01 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 35
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 2574238@della-i13n22(local) jg_2574166_della-i13n22_1
+0.0.N: Proofgrid shell started at 2574237@della-i13n22(local) jg_2574166_della-i13n22_1
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_2:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_2:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_6:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_2:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._assert_6:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_2:precondition1".
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_2:precondition1"	[0.02 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_3:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 1024 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 1024 was found for the property "multiply.m0.controller_m_sva_i._assert_3:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_3:precondition1" was covered in 3 cycles in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_4:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_5:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_7:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_8:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_9:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_10:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._assert_3:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "multiply.m1.datapath_m_sva_i._assert_4" in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._assert_4:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._assert_5:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._assert_7:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.multiply_sva_i._assert_2:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.multiply_sva_i._assert_3:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_3:precondition1".
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_3:precondition1"	[0.00 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_6"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 4096 was found for the property "multiply.m0.controller_m_sva_i._assert_6" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "multiply.multiply_sva_i._assert_1" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "multiply.multiply_sva_i._assert_1:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "multiply.m0.controller_m_sva_i._assert_6" was proven in 0.01 s.
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_6"	[0.01 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_8"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 4096 was found for the property "multiply.m0.controller_m_sva_i._assert_8" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "multiply.m0.controller_m_sva_i._assert_8" was proven in 0.00 s.
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_8"	[0.00 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_10"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 4096 was found for the property "multiply.m0.controller_m_sva_i._assert_10" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.Hp: Trace Attempt  2	[0.01 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "multiply.m0.controller_m_sva_i._assert_10" was proven in 0.00 s.
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_10"	[0.00 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_11:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 1024 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 1024 was found for the property "multiply.m0.controller_m_sva_i._assert_11:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_11:precondition1" was covered in 3 cycles in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._assert_12:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_11:precondition1".
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._cover_8" was covered in 3 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._assert_11:precondition1".
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_11:precondition1"	[0.01 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._assert_12"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 4096 was found for the property "multiply.m0.controller_m_sva_i._assert_12" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "multiply.m0.controller_m_sva_i._assert_12" was proven in 0.00 s.
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._assert_12"	[0.00 s].
+0.0.N: Starting proof for property "multiply.m0.controller_m_sva_i._cover_13"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 8192 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 8192 was found for the property "multiply.m0.controller_m_sva_i._cover_13" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  7	[0.00 s]
+0.0.N: A trace with 7 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "multiply.m0.controller_m_sva_i._cover_13" was covered in 7 cycles in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "multiply.m1.datapath_m_sva_i._cover_9" was covered in 5 cycles in 0.00 s by the incidental trace "multiply.m0.controller_m_sva_i._cover_13".
+0.0.N: Stopped processing property "multiply.m0.controller_m_sva_i._cover_13"	[0.01 s].
+0.0.N: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.03 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: Trace Attempt 12	[0.03 s]
+0.0.N: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.N: The property "multiply.m1.datapath_m_sva_i._assert_3" was proven in 0.00 s.
+0.0.N: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_3"	[0.00 s].
+0.0.N: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_5"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Ht: Proofgrid shell started at 2574251@della-i13n22(local) jg_2574166_della-i13n22_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  4	[0.08 s]
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.B: Proofgrid shell started at 2574252@della-i13n22(local) jg_2574166_della-i13n22_1
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_5"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt  9	[0.04 s]
+0.0.Ht: A trace with 9 cycles was found. [0.08 s]
+INFO (IPF047): 0.0.Ht: The cover property "multiply.multiply_sva_i._cover_6" was covered in 9 cycles in 0.08 s.
+0.0.Ht: Trace Attempt 10	[0.08 s]
+0.0.N: Trace Attempt  1	[0.26 s]
+0.0.N: Trace Attempt  2	[0.26 s]
+0.0.N: Trace Attempt  3	[0.26 s]
+0.0.N: Trace Attempt  4	[0.26 s]
+0.0.Hp: Lemmas used(6): ?9
+0.0.Hp: A proof was found: No trace exists. [0.45 s]
+INFO (IPF057): 0.0.Hp: The property "multiply.m1.datapath_m_sva_i._assert_5" was proven in 0.45 s.
+0.0.Hp: A proof was found: No trace exists. [0.45 s]
+INFO (IPF057): 0.0.Hp: The property "multiply.m1.datapath_m_sva_i._assert_6" was proven in 0.45 s.
+0.0.Hp: A proof was found: No trace exists. [0.45 s]
+INFO (IPF051): 0.0.Hp: The cover property "multiply.multiply_sva_i._cover_4" was proven unreachable in 0.45 s.
+0.0.Hp: A proof was found: No trace exists. [0.45 s]
+INFO (IPF051): 0.0.Hp: The cover property "multiply.multiply_sva_i._cover_5" was proven unreachable in 0.45 s.
+0.0.N: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_5"	[0.40 s].
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.B: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_5"	[0.34 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.B: Last scan. Per property time limit: 0s
+0.0.B: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0: ProofGrid usable level: 1
+0.0.Ht: Trace Attempt 411	[4.09 s]
+0.0.B: Trace Attempt 427	[4.02 s]
+0.0.N: Trace Attempt 70	[4.42 s]
+0.0.Ht: Trace Attempt 463	[9.17 s]
+0.0.N: Trace Attempt 86	[9.31 s]
+0.0.N: Trace Attempt 94	[14.22 s]
+0.0.N: Trace Attempt 98	[18.32 s]
+0.0.N: Trace Attempt 107	[22.40 s]
+0.0.N: Trace Attempt  1	[25.62 s]
+0.0.N: Trace Attempt  2	[25.62 s]
+0.0.N: Trace Attempt  3	[25.62 s]
+0.0.B: Trace Attempt 515	[27.90 s]
+0.0.N: Trace Attempt  1	[28.99 s]
+0.0.N: Trace Attempt  2	[28.99 s]
+0.0.N: Trace Attempt  3	[29.00 s]
+0.0.N: Trace Attempt  1	[32.76 s]
+0.0.N: Trace Attempt  2	[32.76 s]
+0.0.N: Trace Attempt  3	[32.76 s]
+0.0.N: Trace Attempt  1	[36.52 s]
+0.0.N: Trace Attempt  2	[36.52 s]
+0.0.N: Trace Attempt  3	[36.52 s]
+0.0.N: Trace Attempt  1	[39.77 s]
+0.0.N: Trace Attempt  2	[39.77 s]
+0.0.N: Trace Attempt  3	[39.78 s]
+0.0.N: Trace Attempt  1	[43.80 s]
+0.0.N: Trace Attempt  2	[43.80 s]
+0.0.N: Trace Attempt  3	[43.81 s]
+0.0.N: Trace Attempt  1	[47.73 s]
+0.0.N: Trace Attempt  2	[47.73 s]
+0.0.N: Trace Attempt  3	[47.73 s]
+0.0.Ht: Trace Attempt 515	[49.24 s]
+0.0.N: Trace Attempt  1	[51.47 s]
+0.0.N: Trace Attempt  2	[51.47 s]
+0.0.N: Trace Attempt  3	[51.47 s]
+0.0.N: Trace Attempt 120	[55.79 s]
+0.0.N: Trace Attempt  1	[56.12 s]
+0.0.N: Trace Attempt  2	[56.12 s]
+0.0.N: Trace Attempt  3	[56.13 s]
+0.0.N: Trace Attempt  1	[59.82 s]
+0.0.N: Trace Attempt  2	[59.82 s]
+0.0.N: Trace Attempt  3	[59.82 s]
+0.0.N: Trace Attempt 122	[64.22 s]
+0.0.N: Trace Attempt  1	[64.54 s]
+0.0.N: Trace Attempt  2	[64.54 s]
+0.0.N: Trace Attempt  3	[64.55 s]
+0.0.N: Trace Attempt 124	[68.81 s]
+0.0.N: Trace Attempt  1	[68.83 s]
+0.0.N: Trace Attempt  2	[68.83 s]
+0.0.N: Trace Attempt  3	[68.83 s]
+0.0.N: Trace Attempt  1	[73.00 s]
+0.0.N: Trace Attempt  2	[73.00 s]
+0.0.N: Trace Attempt  3	[73.00 s]
+0.0.N: Trace Attempt 125	[77.08 s]
+0.0.N: Trace Attempt  1	[77.49 s]
+0.0.N: Trace Attempt  2	[77.49 s]
+0.0.N: Trace Attempt  3	[77.49 s]
+0.0.N: Trace Attempt 126	[82.67 s]
+0.0.N: Trace Attempt  1	[83.07 s]
+0.0.N: Trace Attempt  2	[83.07 s]
+0.0.N: Trace Attempt  3	[83.08 s]
+0.0.N: Trace Attempt  1	[87.31 s]
+0.0.N: Trace Attempt  2	[87.32 s]
+0.0.N: Trace Attempt  3	[87.32 s]
+0.0.N: Trace Attempt  1	[90.61 s]
+0.0.N: Trace Attempt  2	[90.61 s]
+0.0.N: Trace Attempt  3	[90.61 s]
+0.0.N: Trace Attempt 129	[94.68 s]
+0.0.N: Trace Attempt  1	[95.00 s]
+0.0.N: Trace Attempt  2	[95.00 s]
+0.0.N: Trace Attempt  3	[95.00 s]
+0.0.N: Trace Attempt 130	[99.52 s]
+0.0.N: Trace Attempt  1	[99.97 s]
+0.0.N: Trace Attempt  2	[99.97 s]
+0.0.N: Trace Attempt  3	[99.97 s]
+0.0.N: Trace Attempt 131	[105.67 s]
+0.0.N: Trace Attempt  1	[106.07 s]
+0.0.N: Trace Attempt  2	[106.07 s]
+0.0.N: Trace Attempt  3	[106.07 s]
+0.0.N: Trace Attempt 132	[110.52 s]
+0.0.N: Trace Attempt  1	[110.94 s]
+0.0.N: Trace Attempt  2	[110.94 s]
+0.0.N: Trace Attempt  3	[110.94 s]
+0.0.N: Trace Attempt 133	[115.14 s]
+0.0.N: Trace Attempt  1	[115.57 s]
+0.0.N: Trace Attempt  2	[115.57 s]
+0.0.N: Trace Attempt  3	[115.57 s]
+0.0.N: Trace Attempt 134	[122.00 s]
+0.0.N: Trace Attempt  1	[122.36 s]
+0.0.N: Trace Attempt  2	[122.36 s]
+0.0.N: Trace Attempt  3	[122.36 s]
+0.0.N: Trace Attempt 135	[127.28 s]
+0.0.N: Trace Attempt  1	[127.73 s]
+0.0.N: Trace Attempt  2	[127.73 s]
+0.0.N: Trace Attempt  3	[127.73 s]
+0.0.N: Trace Attempt 136	[133.72 s]
+0.0.N: Trace Attempt  1	[134.16 s]
+0.0.N: Trace Attempt  2	[134.16 s]
+0.0.N: Trace Attempt  3	[134.16 s]
+0.0.N: Trace Attempt 137	[140.11 s]
+0.0.N: Trace Attempt  1	[140.48 s]
+0.0.N: Trace Attempt  2	[140.48 s]
+0.0.N: Trace Attempt  3	[140.49 s]
+0.0.N: Trace Attempt 138	[146.05 s]
+0.0.N: Trace Attempt  1	[146.38 s]
+0.0.N: Trace Attempt  2	[146.38 s]
+0.0.N: Trace Attempt  3	[146.38 s]
+0.0.Ht: Trace Attempt 516	[149.06 s]
+0.0.N: Trace Attempt 139	[152.96 s]
+0.0.N: Trace Attempt  1	[153.37 s]
+0.0.N: Trace Attempt  2	[153.37 s]
+0.0.N: Trace Attempt  3	[153.37 s]
+0.0.N: Trace Attempt 140	[159.56 s]
+0.0.N: Trace Attempt  1	[159.99 s]
+0.0.N: Trace Attempt  2	[159.99 s]
+0.0.N: Trace Attempt  3	[160.00 s]
+0.0.N: Trace Attempt 141	[165.47 s]
+0.0.N: Trace Attempt  1	[165.86 s]
+0.0.N: Trace Attempt  2	[165.86 s]
+0.0.N: Trace Attempt  3	[165.86 s]
+0.0.N: Trace Attempt 142	[173.81 s]
+0.0.N: Trace Attempt  1	[174.24 s]
+0.0.N: Trace Attempt  2	[174.24 s]
+0.0.N: Trace Attempt  3	[174.24 s]
+0.0.N: Trace Attempt 143	[180.38 s]
+0.0.N: Trace Attempt  1	[180.92 s]
+0.0.N: Trace Attempt  2	[180.92 s]
+0.0.N: Trace Attempt  3	[180.92 s]
+0.0.N: Trace Attempt 144	[189.38 s]
+0.0.N: Trace Attempt  1	[189.82 s]
+0.0.N: Trace Attempt  2	[189.82 s]
+0.0.N: Trace Attempt  3	[189.82 s]
+0.0.N: Trace Attempt 145	[196.60 s]
+0.0.N: Trace Attempt  1	[197.06 s]
+0.0.N: Trace Attempt  2	[197.06 s]
+0.0.N: Trace Attempt  3	[197.06 s]
+0.0.N: Trace Attempt 146	[204.92 s]
+0.0.N: Trace Attempt  1	[205.49 s]
+0.0.N: Trace Attempt  2	[205.49 s]
+0.0.N: Trace Attempt  3	[205.49 s]
+0.0.B: Trace Attempt 516	[210.93 s]
+0.0.N: Trace Attempt 147	[212.32 s]
+0.0.N: Trace Attempt  1	[212.77 s]
+0.0.N: Trace Attempt  2	[212.77 s]
+0.0.N: Trace Attempt  3	[212.77 s]
+0.0.N: Trace Attempt 148	[220.24 s]
+0.0.N: Trace Attempt  1	[220.71 s]
+0.0.N: Trace Attempt  2	[220.71 s]
+0.0.N: Trace Attempt  3	[220.71 s]
+0.0.N: Trace Attempt 149	[226.78 s]
+0.0.N: Trace Attempt  1	[227.34 s]
+0.0.N: Trace Attempt  2	[227.34 s]
+0.0.N: Trace Attempt  3	[227.34 s]
+0.0.N: Trace Attempt 150	[234.85 s]
+0.0.N: Trace Attempt  1	[235.39 s]
+0.0.N: Trace Attempt  2	[235.39 s]
+0.0.N: Trace Attempt  3	[235.39 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Mp
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Mp: Trace Attempt  1	[0.00 s]
+0.0.Mp: Trace Attempt  2	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  4	[0.01 s]
+0.0.Mp: Trace Attempt  4	[0.01 s]
+0.0.Mp: Trace Attempt  4	[0.01 s]
+0.0.Mp: Trace Attempt  5	[0.01 s]
+0.0.Mp: Trace Attempt  5	[0.02 s]
+0.0.Mp: Trace Attempt  5	[0.02 s]
+0.0.Mp: Trace Attempt 215	[4.04 s]
+0.0.N: Trace Attempt 151	[245.70 s]
+0.0.N: Trace Attempt  1	[246.29 s]
+0.0.N: Trace Attempt  2	[246.29 s]
+0.0.N: Trace Attempt  3	[246.29 s]
+0.0.Mp: Trace Attempt 281	[8.33 s]
+0.0.Mp: Trace Attempt 353	[12.65 s]
+0.0.Ht: Trace Attempt 517	[255.28 s]
+0.0.N: Trace Attempt 152	[255.23 s]
+0.0.N: Trace Attempt  1	[255.71 s]
+0.0.N: Trace Attempt  2	[255.71 s]
+0.0.N: Trace Attempt  3	[255.71 s]
+0.0.Mp: Trace Attempt 353	[16.84 s]
+0.0.N: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[259.84 s].
+0.0.N: Morphing to AM
+0.0.N: Trace Attempt 152	[256.21 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[260.04 s].
+0.0.B: Morphing to I
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.I: Trace Attempt 152	[0.04 s]
+0.0.AM: Trace Attempt 194	[4.03 s]
+0.0.Mp: Trace Attempt 418	[24.44 s]
+0.0.AM: Trace Attempt 226	[8.06 s]
+0.0.Mp: Trace Attempt 418	[29.80 s]
+0.0.I: Trace Attempt 153	[11.27 s]
+0.0.I: Trace Attempt  1	[11.72 s]
+0.0.I: Trace Attempt  2	[11.72 s]
+0.0.I: Trace Attempt  3	[11.72 s]
+0.0.I: Trace Attempt  4	[11.73 s]
+0.0.AM: Trace Attempt 261	[12.07 s]
+0.0.I: Trace Attempt 56	[15.77 s]
+0.0.AM: Trace Attempt 298	[16.13 s]
+0.0.Mp: Trace Attempt 418	[36.66 s]
+0.0.I: Trace Attempt 68	[20.25 s]
+0.0.AM: Trace Attempt 321	[22.27 s]
+0.0.I: Trace Attempt 76	[24.69 s]
+0.0.AM: Trace Attempt 346	[26.30 s]
+0.0.Mp: Trace Attempt 418	[45.85 s]
+0.0.I: Trace Attempt 82	[29.23 s]
+0.0.AM: Trace Attempt 363	[32.09 s]
+0.0.Mp: Trace Attempt 418	[54.30 s]
+0.0.I: Trace Attempt 88	[35.08 s]
+0.0.AM: Trace Attempt 385	[36.28 s]
+0.0.Mp: Trace Attempt 418	[58.74 s]
+0.0.I: Trace Attempt 92	[39.88 s]
+0.0.AM: Trace Attempt 406	[40.33 s]
+0.0.Mp: Trace Attempt 443	[62.84 s]
+0.0.I: Trace Attempt 96	[45.18 s]
+0.0.AM: Trace Attempt 421	[48.10 s]
+0.0.I: Trace Attempt 99	[49.34 s]
+0.0.AM: Trace Attempt 431	[52.57 s]
+0.0.I: Trace Attempt 102	[54.43 s]
+0.0.Mp: Trace Attempt 472	[74.99 s]
+0.0.AM: Trace Attempt 450	[56.63 s]
+0.0.I: Trace Attempt 105	[60.34 s]
+0.0.AM: Trace Attempt 455	[62.15 s]
+0.0.I: Trace Attempt 107	[64.45 s]
+0.0.AM: Trace Attempt 468	[66.26 s]
+0.0.I: Trace Attempt 109	[68.68 s]
+0.0.Mp: Trace Attempt 472	[88.42 s]
+0.0.AM: Trace Attempt 480	[70.65 s]
+0.0.I: Trace Attempt 111	[73.71 s]
+0.0.AM: Trace Attempt 490	[74.65 s]
+0.0.I: Trace Attempt 113	[78.36 s]
+0.0.Mp: Trace Attempt 472	[99.75 s]
+0.0.I: Trace Attempt 115	[82.87 s]
+0.0.AM: Trace Attempt 502	[83.97 s]
+0.0.Ht: Trace Attempt 518	[347.29 s]
+0.0.I: Trace Attempt 117	[87.19 s]
+0.0.AM: Trace Attempt 513	[88.97 s]
+0.0.I: Trace Attempt 120	[95.23 s]
+0.0.Mp: Trace Attempt 472	[117.82 s]
+0.0.I: Trace Attempt 122	[101.58 s]
+0.0.I: Trace Attempt 124	[107.44 s]
+0.0.I: Trace Attempt 126	[113.68 s]
+0.0.Mp: Trace Attempt 472	[134.65 s]
+0.0.I: Trace Attempt 128	[120.03 s]
+0.0.I: Trace Attempt 130	[126.96 s]
+0.0.Mp: Trace Attempt 472	[147.20 s]
+0.0.I: Trace Attempt 131	[131.66 s]
+0.0.Mp: Trace Attempt 472	[156.99 s]
+0.0.AM: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[138.32 s].
+0.0.AM: Morphing to Tri
+0.0.AM: Trace Attempt 514	[89.62 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[138.13 s].
+0.0.I: Morphing to Ncustom5
+0.0.I: Trace Attempt 132	[135.50 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom5: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.Tri: Starting proof for property "multiply.m1.datapath_m_sva_i._assert_7"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Ncustom5: Trace Attempt 152	[0.04 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.18" ---- Launching abstraction thread ----
+0.0.Tri:    0.20" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.30 s]
+0.0.Tri: Trace Attempt  3	[0.30 s]
+0.0.Tri: Trace Attempt  4	[0.30 s]
+0.0.Tri: Trace Attempt  5	[0.30 s]
+0.0.Tri:    1.06" Simplification phase 1 complete
+0.0.Tri:    1.96" Simplification phase 2 complete
+0.0.Tri:    3.01" Simplification phase 3 complete
+   3.01" ---- Completed simplification thread ----
+   3.01" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    3.13" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 373	[5.74 s]
+0.0.Mp: Trace Attempt 472	[165.55 s]
+0.0.Tri: Requesting engine job to stop
+0.0.Ncustom5: Requesting engine job to stop
+0.0.Ht: Requesting engine job to terminate
+0.0.Mp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [407.43 s]
+0.0.Tri: Trace Attempt 514	[8.80 s]
+0.0.Tri: A proof was found: No trace exists. [8.80 s]
+INFO (IPF057): 0.0.Tri: The property "multiply.m1.datapath_m_sva_i._assert_7" was proven in 8.80 s.
+0.0.Ht: Interrupted (multi)
+0.0.Ht: All properties determined. [407.37 s]
+0.0.Ht: Exited with Success (@ 407.48 s)
+0: ProofGrid usable level: 0
+0.0.Ncustom5: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[8.85 s].
+0.0.Ncustom5: All properties determined. [8.85 s]
+0.0.Tri: Stopped processing property "multiply.m1.datapath_m_sva_i._assert_7"	[9.00 s].
+0.0.Ncustom5: Exited with Success (@ 407.64 s)
+0.0.Tri: All properties determined. [9.00 s]
+0.0.Tri: Exited with Success (@ 407.90 s)
+0.0.Mp: All properties determined. [166.85 s]
+0.0.Mp: Exited with Success (@ 407.98 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.98 %)
+--------------------------------------------------------------
+     engines started                               :     9
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Ht        0.08      407.36        0.00       99.98 %
+     Mp        0.05      407.39        0.00       99.99 %
+    Tri        0.05      407.35        0.00       99.99 %
+    Ncustom5        0.11      407.08        0.00       99.97 %
+    all        0.07      407.29        0.00       99.98 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.29     1629.18        0.00
+
+    Data read    : 1.75 MiB
+    Data written : 243.56 kiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 48
+                 assertions                   : 22
+                  - proven                    : 20 (90.9091%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 2 (9.09091%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 26
+                  - unreachable               : 3 (11.5385%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 23 (88.4615%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote verification_results/00677/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote verification_results/00677/property_list.txt
+[<embedded>] % exit 0
+INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 1.531 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

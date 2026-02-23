@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-17 01:24:41 EST
-# hostname  : della9.princeton.edu.(none)
-# pid       : 3000241
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:44393' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19ErZ57FTwoggevoZao/UGLrR68+Kq+SZwGLW7YzcxmZjcGiF/ee0L0nipj1mzYsVTdstfdhXl/QWxU+soREw4kNKScxYfiFTeu5GIrHjixjKMyDbpMbxesuo6aO6V6NTOicOYshHNO3RQnX6NZA01ut5TCEdOgSuSswgb7t8mGv7S+Qrqfhw86mSSm' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-20 16:46:02 EST
+# hostname  : della-i13n22.(none)
+# pid       : 2489156
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:34953' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19ErZ57FTwoggevoZao/UGLrR68+Kq+SZwGLW7YzcxmZjcGiF/ee0L0nipj1mzYsVTdstfdhXl/QWxU+soREw4kNKScxYfiFTeu5GIrHjixjKMyDbpMbxesuo6aO6V6NTOicOYshHNO3RQnX6NZA01ut5TCEdOgSuSswgb7t8mGv7S+Qrqfhw86mSSm' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00012/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/
@@ -227,4 +227,54 @@ if {!$err && $NO_CLOCK} {
 if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
+}
+
+# ---- Reset -----
+set RESET_SIG ""
+set RESET_EXPR ""
+if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+
+if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+
+# ---- Property discovery (bind sanity check) ----
+set ASSERTS {}
+set COVERS  {}
+catch { set ASSERTS [assert -list -silent] }
+catch { set COVERS  [cover  -list -silent] }
+
+puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+
+# Write property names
+set fp [open $PROP_LIST_TXT "w"]
+puts $fp "ASSERT PROPERTIES:"
+foreach a $ASSERTS { puts $fp $a }
+puts $fp ""
+puts $fp "COVER PROPERTIES:"
+foreach c $COVERS { puts $fp $c }
+close $fp
+
+if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
 }

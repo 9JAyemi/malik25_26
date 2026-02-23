@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+MEM2WB.u_MEM2WB_sva.a_passthrough
+MEM2WB.u_MEM2WB_sva.a_rst_zeros_clk
+MEM2WB.u_MEM2WB_sva.a_no_x_in
+MEM2WB.u_MEM2WB_sva.a_no_x_out
+MEM2WB.u_MEM2WB_sva.a_stable_when_inputs_stable
+MEM2WB.u_MEM2WB_sva._assert_6
+
+COVER PROPERTIES:
+MEM2WB.u_MEM2WB_sva.a_rst_zeros_clk:precondition1
+MEM2WB.u_MEM2WB_sva.a_stable_when_inputs_stable:precondition1
+MEM2WB.u_MEM2WB_sva.c_reset_pulse
+MEM2WB.u_MEM2WB_sva.c_reset_release
+MEM2WB.u_MEM2WB_sva.c_pass_event
+MEM2WB.u_MEM2WB_sva.c_memtoreg_00
+MEM2WB.u_MEM2WB_sva.c_memtoreg_01
+MEM2WB.u_MEM2WB_sva.c_memtoreg_10
+MEM2WB.u_MEM2WB_sva.c_memtoreg_11
+MEM2WB.u_MEM2WB_sva.c_regwrite_1
+MEM2WB.u_MEM2WB_sva.c_regwrite_0

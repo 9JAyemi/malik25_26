@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-17 01:24:07 EST
-# hostname  : della9.princeton.edu.(none)
-# pid       : 2852225
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:46821' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19ELZ57FTwoggevoZao/UGLrR68+Kq+SZyGWtywm5nNzG4MEL+994QYvFSmbNiyZ6W646C7D/PpQGxUhsoJM44kNKRcxMfiFXdu5GJrnjixjJMyDbpMb1esuo6aB6V6NQui7iyFc879FCdfo1kjTW63lMIR86BK5KzCBvu3yYa/tL5Cup+HLzo+JKU=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-20 16:45:22 EST
+# hostname  : della-i13n22.(none)
+# pid       : 2488277
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:41931' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19ELZ57FTwoggevoZao/UGLrR68+Kq+SZyGWtywm5nNzG4MEL+994QYvFSmbNiyZ6W646C7D/PpQGxUhsoJM44kNKRcxMfiFXdu5GJrnjixjJMyDbpMb1esuo6aB6V6NQui7iyFc879FCdfo1kjTW63lMIR86BK5KzCBvu3yYa/tL5Cup+HLzo+JKU=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00002/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/
@@ -228,3 +228,77 @@ if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
 }
+
+# ---- Reset -----
+set RESET_SIG ""
+set RESET_EXPR ""
+if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+
+if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+
+# ---- Property discovery (bind sanity check) ----
+set ASSERTS {}
+set COVERS  {}
+catch { set ASSERTS [assert -list -silent] }
+catch { set COVERS  [cover  -list -silent] }
+
+puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+
+# Write property names
+set fp [open $PROP_LIST_TXT "w"]
+puts $fp "ASSERT PROPERTIES:"
+foreach a $ASSERTS { puts $fp $a }
+puts $fp ""
+puts $fp "COVER PROPERTIES:"
+foreach c $COVERS { puts $fp $c }
+close $fp
+
+if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+
+# ---- Prove all assertions ----
+puts "INFO: Running prove -all"
+if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+
+# ---- Covers (best effort) ----
+catch { cover -all }
+
+# ---- Write summary ----
+set fp [open $SUMMARY_TXT "w"]
+puts $fp "DESIGN_ID=$DESIGN_ID"
+puts $fp "TOP=$TOP"
+puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+puts $fp "COVER_COUNT=[llength $COVERS]"
+puts $fp "PROP_LIST=$PROP_LIST_TXT"
+close $fp
+
+puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+puts "INFO: Wrote $SUMMARY_TXT"
+puts "INFO: Wrote $PROP_LIST_TXT"
+exit 0

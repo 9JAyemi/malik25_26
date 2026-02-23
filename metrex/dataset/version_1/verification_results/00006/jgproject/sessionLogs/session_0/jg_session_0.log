@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-17 01:24:21 EST
-# hostname  : della9.princeton.edu.(none)
-# pid       : 2912157
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:33849' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY69CsJAEIS/QwQRC19ETWWVVrBQBAvbI4ZT84MGEy1sfFXf5JwcMbjH7s3szeyeAeK3954Qg5fKlA1b9qxUdxx092E+HYiNylA5YcaRhIaUi/hYvOLOjVxszRMnlnFSpkGX6e2KVddR86BUr2ZB1J2lcM65n+LkazRrpMntllI4Yh5UiZxV2GD/Ntnwl9ZXSPfz8AU7oiSp' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-20 16:45:38 EST
+# hostname  : della-i13n22.(none)
+# pid       : 2488664
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:46181' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY69CsJAEIS/QwQRC19ETWWVVrBQBAvbI4ZT84MGEy1sfFXf5JwcMbjH7s3szeyeAeK3954Qg5fKlA1b9qxUdxx092E+HYiNylA5YcaRhIaUi/hYvOLOjVxszRMnlnFSpkGX6e2KVddR86BUr2ZB1J2lcM65n+LkazRrpMntllI4Yh5UiZxV2GD/Ntnwl9ZXSPfz8AU7oiSp' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00006/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -174,7 +174,6 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
   set TOP $::env(JG_TOP)
 }
-binary_to_gray_converter
 % 
 % set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
 sv12
@@ -189,9 +188,9 @@ sv12
 % # - a single file
 % # - a list of files/dirs separated by spaces/colons
 % set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
-./00006//module.v
+./00006/module.v
 % set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
-./00006//sva.sv
+./00006/sva.sv
 % 
 % set DESIGN_FILES {}
 % foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
@@ -208,7 +207,7 @@ sv12
   }
 }
 % puts "INFO: Using TOP = $TOP"
-INFO: Using TOP = binary_to_gray_converter
+INFO: Using TOP = v053dc2
 % 
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
@@ -227,7 +226,7 @@ INFO: Verification run starting
 % puts "  DESIGN_ID : $DESIGN_ID"
   DESIGN_ID : 00006
 % puts "  TOP       : $TOP"
-  TOP       : binary_to_gray_converter
+  TOP       : v053dc2
 % puts "  STD       : $STD"
   STD       : sv12
 % puts "  INCDIRS   : $INCDIRS"
@@ -262,49 +261,112 @@ analyze -sv12
 % set err 0
 0
 % puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
-DEBUG: DESIGN_FILES = ./00006//module.v
+DEBUG: DESIGN_FILES = ./00006/module.v
 % puts "DEBUG: SVA_FILES    = $SVA_FILES"
-DEBUG: SVA_FILES    = ./00006//sva.sv
+DEBUG: SVA_FILES    = ./00006/sva.sv
 % 
 % if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
   puts "ERROR: analyze design failed:\n$msg"
   set err 1
 }
-[-- (VERI-1482)] Analyzing Verilog file '/usr/licensed/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
-[-- (VERI-1482)] Analyzing Verilog file './00006//module.v'
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './00006/module.v'
 % if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
   puts "ERROR: analyze SVA failed:\n$msg2"
   set err 1
 }
-[-- (VERI-1482)] Analyzing Verilog file './00006//sva.sv'
-[ERROR (VERI-1137)] ./00006//sva.sv(1): syntax error near 'a'
-Summary of errors detected:
-	[ERROR (VERI-1137)] ./00006//sva.sv(1): syntax error near 'a'
-ERROR: analyze SVA failed:
-ERROR (ENL034): 1 errors detected in the design file(s).
-
-1
+[-- (VERI-1482)] Analyzing Verilog file './00006/sva.sv'
 % 
 % puts "DEBUG: Elaborating TOP='$TOP'"
-DEBUG: Elaborating TOP='binary_to_gray_converter'
+DEBUG: Elaborating TOP='v053dc2'
 % if {!$err && [catch {elaborate -top $TOP} emsg]} {
   puts "ERROR: elaborate failed:\n$emsg"
   set err 1
 }
-% 
-% # If combinational / event-driven, you can force "no clock"
-% if {!$err && $NO_CLOCK} {
+INFO (ISW003): Top module name is "v053dc2".
+[INFO (HIER-8002)] ./00006/module.v(10): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./00006/module.v(2): compiling module 'v053dc2'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          1 (0 packages)
+  Single run mode                         On
+  Pipeline                                On (1 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      6 (1 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
   catch { clock -none }
 }
-% 
-% if {$err} {
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
 }
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: No reset signal found; using reset -none
+INFO (IPM031): Clearing proof results of all properties.
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 0 asserts, 0 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
 
-❌ FAILED: compile/elab errors
+❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)
 INFO (IPL005): Received request to exit from the console.
 INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
-INFO (IPL015): The Tcl-thread exited with status 1.
-INFO (IPL016): Exiting the analysis session with status 1.
+INFO (IPL015): The Tcl-thread exited with status 3.
+INFO (IPL016): Exiting the analysis session with status 3.
