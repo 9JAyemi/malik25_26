@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:39:35 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2542080
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:34095' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsJADIS/RQQRD76IWvHaq+BBETx4XWpZtT9osdWDF1/VN1mnixYTMptJMskaIH557wnWewrGrNmwYyncstfbmXl/k9gI+ooREw4kNKScxYfiFTeu5GIrHjixjKMiDXOZehesqo6aO6VqNTMi+UI+V55z6rY46RrtGmhze6VUHjENU4mUVbhg/y7Z8JdWV2jup+EDPA0kqg==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:36:37 EST
+# hostname  : della-i13n20.(none)
+# pid       : 1130373
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:39227' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsJADETfIoKIB39ErXjt1VtF8OB10VK126LiVg9e/FX/pM4uWkxINplMJmuA9NW2LdF6T6UxGSs2LJXXbPV2Zt7fIjVKfcWICXt2NOSc1A/VX7lxwanLmDLjQSGk5KDII7fU/IwVWuC5UwvzYibyhXyu2nHslArtNdIbSD1cqlUnUdtJz4sXLti/Szb+J+xV4v12+ACi/iUL' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00331/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -375,6 +375,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -393,7 +395,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -446,8 +448,8 @@ INFO (IPF057): 0.0.PRE: The property "memory_interface.u_sva._assert_8" was prov
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 19
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2542162@della-i13n22(local) jg_2542080_della-i13n22_1
-0.0.N: Proofgrid shell started at 2542161@della-i13n22(local) jg_2542080_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1130445@della-i13n20(local) jg_1130373_della-i13n20_1
+0.0.N: Proofgrid shell started at 1130444@della-i13n20(local) jg_1130373_della-i13n20_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -464,44 +466,35 @@ INFO (IPF047): 0.0.N: The cover property "memory_interface.u_sva._assert_16:prec
 0.0.N: Stopped processing property "memory_interface.u_sva._assert_6"	[0.01 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_7:precondition1" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_10:precondition1" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_15:precondition1" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_17" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_21" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_7:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_10:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_15:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_17" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_21" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_18" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_18" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_12:precondition1" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_13:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_12:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._assert_13:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "memory_interface.u_sva._assert_14" in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "memory_interface.u_sva._assert_14" in 0.02 s.
 0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_12" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_13" in 0.01 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_15" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_19" was covered in 3 cycles in 0.01 s.
-0.0.N: Requesting engine job to stop
-0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.04 s]
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_20" was covered in 3 cycles in 0.01 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "memory_interface.u_sva._assert_7:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "memory_interface.u_sva._assert_7:precondition1"	[0.00 s].
 0.0.N: Starting proof for property "memory_interface.u_sva._assert_12"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 8 was found for the property "memory_interface.u_sva._assert_12" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_12" in 0.02 s.
 0.0.N: Stopped processing property "memory_interface.u_sva._assert_12"	[0.00 s].
 0.0.N: Starting proof for property "memory_interface.u_sva._assert_13"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -509,23 +502,40 @@ INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_20" was
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_13" in 0.00 s.
 0.0.N: Stopped processing property "memory_interface.u_sva._assert_13"	[0.00 s].
-0.0.N: Starting proof for property "memory_interface.u_sva._cover_19"	[0.00 s].
-0.0.N: Stopped processing property "memory_interface.u_sva._cover_19"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.04 s)
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "memory_interface.u_sva._assert_15" in 0.02 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_19" was covered in 3 cycles in 0.02 s.
+0.0.N: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "memory_interface.u_sva._cover_20" was covered in 3 cycles in 0.02 s.
+0.0.Hp: All properties determined. [0.01 s]
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "memory_interface.u_sva._assert_15"	[0.00 s].
+0.0.N: Stopped processing property "memory_interface.u_sva._assert_15"	[0.00 s].
+0.0.N: Starting proof for property "memory_interface.u_sva._cover_20"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Exited with Success (@ 0.02 s)
 0: ProofGrid usable level: 0
-0.0.N: Exited with Success (@ 0.04 s)
-0.0.Ht: Proofgrid shell started at 2542175@della-i13n22(local) jg_2542080_della-i13n22_1
+0.0.N: Stopped processing property "memory_interface.u_sva._cover_20"	[0.00 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.Ht: Proofgrid shell started at 1130458@della-i13n20(local) jg_1130373_della-i13n20_1
 0.0.Ht: Requesting engine job to terminate
+0.0.N: Exited with Success (@ 0.05 s)
 0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2542176@della-i13n22(local) jg_2542080_della-i13n22_1
+0.0.B: Proofgrid shell started at 1130459@della-i13n20(local) jg_1130373_della-i13n20_1
 0.0.B: Requesting engine job to terminate
 0.0.Ht: Exited with Success (@ 0.06 s)
 0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.06 s)
+0.0.B: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 24.19 %)
+ProofGrid Summary (utilization 13.46 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -534,20 +544,20 @@ ProofGrid Summary (utilization 24.19 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.03        0.00       39.03 %
-     Hp        0.05        0.03        0.00       40.72 %
+      N        0.06        0.02        0.00       23.38 %
+     Hp        0.05        0.02        0.00       25.06 %
      Ht        0.05        0.00        0.00        0.00 %
       B        0.06        0.00        0.00        0.00 %
-    all        0.05        0.02        0.00       24.19 %
+    all        0.06        0.01        0.00       13.46 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.22        0.07        0.00
+               0.22        0.03        0.00
 
-    Data read    : 17.52 kiB
-    Data written : 1.89 kiB
+    Data read    : 19.35 kiB
+    Data written : 2.05 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -601,6 +611,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.285 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

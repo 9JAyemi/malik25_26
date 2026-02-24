@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -380,7 +382,7 @@ WARNING (WCK006): 0: Clock "reset" for flop "sva_i._assert_3" is assigned to con
     Check your clock definition and pin constraints or try "clock -analyze" for more information.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -422,11 +424,24 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 19
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2526896@della-i13n22(local) jg_2526809_della-i13n22_1
-0.0.N: Proofgrid shell started at 2526895@della-i13n22(local) jg_2526809_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 111374@della-i13n16(local) jg_111300_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proofgrid shell started at 111373@della-i13n16(local) jg_111300_della-i13n16_1
+0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_5:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_12" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "state_machine.sva_i._assert_6" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_6:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "state_machine.sva_i._assert_7" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_8:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_15" was covered in 1 cycles in 0.02 s.
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "state_machine.sva_i._assert_2"	[0.00 s].
@@ -435,6 +450,7 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 INFO (IPF008): 0.0.N: A max_length bound of 8 was found for the property "state_machine.sva_i._assert_2" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
@@ -445,20 +461,6 @@ INFO (IPF054): 0.0.N: A min_length bound of 8 was found for the property "state_
 INFO (IPF057): 0.0.N: The property "state_machine.sva_i._assert_2" was proven in 0.00 s.
 0.0.N: Trace Attempt  9	[0.00 s]
 0.0.N: Stopped processing property "state_machine.sva_i._assert_2"	[0.00 s].
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_5:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_12" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "state_machine.sva_i._assert_6" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_6:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "state_machine.sva_i._assert_7" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_8:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_15" was covered in 1 cycles in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Starting proof for property "state_machine.sva_i._assert_5"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
@@ -472,13 +474,25 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "state_machine.sva_i._assert_10" in 0.00 s by the incidental trace "state_machine.sva_i._assert_5".
 INFO (IPF047): 0.0.N: The cover property "state_machine.sva_i._assert_10:precondition1" was covered in 3 cycles in 0.00 s by the incidental trace "state_machine.sva_i._assert_5".
 0.0.N: Stopped processing property "state_machine.sva_i._assert_5"	[0.00 s].
-0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.N: Starting proof for property "state_machine.sva_i._assert_8"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 8 was found for the property "state_machine.sva_i._assert_8" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "state_machine.sva_i._assert_8" in 0.00 s.
+0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "state_machine.sva_i._assert_8" in 0.03 s.
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "state_machine.sva_i._assert_9" in 0.03 s.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._assert_9:precondition1" was covered in 3 cycles in 0.03 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 3 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_13" was covered in 3 cycles in 0.03 s.
 INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_16" was covered in 3 cycles in 0.03 s.
@@ -486,34 +500,42 @@ INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_16" was co
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.03 s]
 0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_14" was covered in 3 cycles in 0.04 s.
-INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_17" was covered in 3 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_14" was covered in 3 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "state_machine.sva_i._cover_17" was covered in 3 cycles in 0.03 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.N: Starting proof for property "state_machine.sva_i._assert_8"	[0.00 s].
-0.0.N: Stopped processing property "state_machine.sva_i._assert_8"	[0.00 s].
-0.0.N: Starting proof for property "state_machine.sva_i._cover_13"	[0.00 s].
+0.0.N: Stopped processing property "state_machine.sva_i._assert_8"	[0.01 s].
+0.0.N: Starting proof for property "state_machine.sva_i._assert_9"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Stopped processing property "state_machine.sva_i._cover_13"	[0.00 s].
-0.0.N: Starting proof for property "state_machine.sva_i._cover_14"	[0.00 s].
-0.0.N: Stopped processing property "state_machine.sva_i._cover_14"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
+0.0.N: Stopped processing property "state_machine.sva_i._assert_9"	[0.00 s].
 0.0.Hp: Exited with Success (@ 0.03 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2526909@della-i13n22(local) jg_2526809_della-i13n22_1
+0.0.N: Starting proof for property "state_machine.sva_i._assert_9:precondition1"	[0.00 s].
+0.0.N: Stopped processing property "state_machine.sva_i._assert_9:precondition1"	[0.00 s].
+0.0.N: Starting proof for property "state_machine.sva_i._cover_13"	[0.00 s].
+0.0.N: Stopped processing property "state_machine.sva_i._cover_13"	[0.00 s].
+0.0.N: Starting proof for property "state_machine.sva_i._cover_14"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Stopped processing property "state_machine.sva_i._cover_14"	[0.00 s].
+0.0.N: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 111387@della-i13n16(local) jg_111300_della-i13n16_1
 0.0.Ht: Requesting engine job to terminate
 0.0.N: Exited with Success (@ 0.05 s)
 0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2526910@della-i13n22(local) jg_2526809_della-i13n22_1
+0.0.B: Proofgrid shell started at 111388@della-i13n16(local) jg_111300_della-i13n16_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.07 s)
+0.0.Ht: Exited with Success (@ 0.06 s)
 0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.07 s)
+0.0.B: Exited with Success (@ 0.06 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 20.23 %)
+ProofGrid Summary (utilization 19.66 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -522,20 +544,20 @@ ProofGrid Summary (utilization 20.23 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.03        0.00       34.43 %
-     Hp        0.05        0.03        0.00       35.71 %
+      N        0.05        0.02        0.00       34.11 %
+     Hp        0.04        0.03        0.00       36.55 %
      Ht        0.05        0.00        0.00        0.00 %
-      B        0.07        0.00        0.00        0.00 %
-    all        0.06        0.01        0.00       20.23 %
+      B        0.06        0.00        0.00        0.00 %
+    all        0.05        0.01        0.00       19.66 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.22        0.06        0.00
+               0.21        0.05        0.00
 
-    Data read    : 6.50 kiB
-    Data written : 2.11 kiB
+    Data read    : 7.38 kiB
+    Data written : 2.24 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -589,6 +611,6 @@ INFO: Wrote verification_results/00185/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

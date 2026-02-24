@@ -361,6 +361,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -383,7 +385,7 @@ WARNING (WCK006): 0: Clock "RESET" for flop "u_clock_gate_module_sva.a_async_res
 INFO (ICK005): An additional 1 flops in the current analysis region have problematic clocks.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -425,100 +427,76 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 14
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2494472@della-i13n22(local) jg_2494400_della-i13n22_1
-0.0.N: Proofgrid shell started at 2494471@della-i13n22(local) jg_2494400_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 4128892@della-h14n1(local) jg_4128570_della-h14n1_1
+0.0.N: Proofgrid shell started at 4128891@della-h14n1(local) jg_4128570_della-h14n1_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on".
-0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on"	[0.01 s].
-0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on".
-0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on"	[0.00 s].
-0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 4 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 4 was found for the property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears" in 0.00 s.
 0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.a_te_forces_on:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.a_te_drop_clears:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_no_glitch_negedge" in 0.02 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears" in 0.00 s.
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_te_drop_clears" in 0.00 s by the incidental trace "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears".
-0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears"	[0.00 s].
-0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.c_te_force"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16 was found for the property "clock_gate_module.u_clock_gate_module_sva.c_te_force" in 0.00 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_no_glitch_negedge" in 0.01 s.
 0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears" in 0.01 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_force" was covered in 3 cycles in 0.00 s.
-0.0.Hp: Trace Attempt  3	[0.00 s]
-0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.c_te_force"	[0.00 s].
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_gate_module.u_clock_gate_module_sva.a_te_drop_clears" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_force" was covered in 3 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_override" was covered in 3 cycles in 0.02 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_disable_path" was covered in 3 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_drop_disable" was covered in 3 cycles in 0.02 s.
+0.0.N: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.03 s]
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_en_gate" was proven unreachable in 0.02 s.
+0.0.Hp: All properties determined. [0.00 s]
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on"	[0.00 s].
+0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.a_en_sets_on"	[0.00 s].
+0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.a_both_low_clears"	[0.00 s].
 0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.c_en_gate"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16 was found for the property "clock_gate_module.u_clock_gate_module_sva.c_en_gate" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 11	[0.00 s]
-0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF051): 0.0.N: The cover property "clock_gate_module.u_clock_gate_module_sva.c_en_gate" was proven unreachable in 0.00 s.
 0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.c_en_gate"	[0.00 s].
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_disable_path" was covered in 3 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_drop_disable" was covered in 3 cycles in 0.02 s.
-0.0.N: Requesting engine job to stop
-0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "clock_gate_module.u_clock_gate_module_sva.c_te_override" was covered in 3 cycles in 0.02 s.
-0.0.Hp: All properties determined. [0.00 s]
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "clock_gate_module.u_clock_gate_module_sva.c_disable_path"	[0.00 s].
-0.0.N: Stopped processing property "clock_gate_module.u_clock_gate_module_sva.c_disable_path"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.02 s)
+0.0.N: Trace Attempt 11	[0.00 s]
+0.0.N: All properties determined. [0.02 s]
+0.0.Hp: Exited with Success (@ 0.03 s)
 0: ProofGrid usable level: 0
-0.0.N: Exited with Success (@ 0.02 s)
-0.0.Ht: Proofgrid shell started at 2494485@della-i13n22(local) jg_2494400_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 4128905@della-h14n1(local) jg_4128570_della-h14n1_1
 0.0.Ht: Requesting engine job to terminate
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2494486@della-i13n22(local) jg_2494400_della-i13n22_1
+0.0.N: Exited with Success (@ 0.08 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Proofgrid shell started at 4128906@della-h14n1(local) jg_4128570_della-h14n1_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.06 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.06 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.08 s)
+0.0.B: Exited with Success (@ 0.09 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 12.93 %)
+ProofGrid Summary (utilization 13.47 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -527,20 +505,20 @@ ProofGrid Summary (utilization 12.93 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.02        0.00       22.43 %
-     Hp        0.05        0.02        0.00       23.78 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.06        0.00        0.00        0.00 %
-    all        0.05        0.01        0.00       12.93 %
+      N        0.07        0.02        0.00       22.46 %
+     Hp        0.07        0.02        0.00       26.53 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.01        0.00       13.47 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.03        0.00
+               0.29        0.05        0.00
 
-    Data read    : 5.69 kiB
-    Data written : 1.94 kiB
+    Data read    : 4.60 kiB
+    Data written : 1.76 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -594,6 +572,6 @@ INFO: Wrote verification_results/00068/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

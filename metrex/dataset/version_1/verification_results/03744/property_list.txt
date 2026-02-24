@@ -1,0 +1,24 @@
+ASSERT PROPERTIES:
+simple_calculator.sva_i.a_no_x_inputs
+simple_calculator.sva_i.out_no_x_when_known
+simple_calculator.sva_i.op_in_range
+simple_calculator.sva_i.add_ok
+simple_calculator.sva_i.sub_ok
+simple_calculator.sva_i.and_ok
+simple_calculator.sva_i.or_ok
+simple_calculator.sva_i.stable_out_when_inputs_stable
+
+COVER PROPERTIES:
+simple_calculator.sva_i.add_ok:precondition1
+simple_calculator.sva_i.sub_ok:precondition1
+simple_calculator.sva_i.and_ok:precondition1
+simple_calculator.sva_i.or_ok:precondition1
+simple_calculator.sva_i.stable_out_when_inputs_stable:precondition1
+simple_calculator.sva_i.cover_add
+simple_calculator.sva_i.cover_sub
+simple_calculator.sva_i.cover_and
+simple_calculator.sva_i.cover_or
+simple_calculator.sva_i.cover_add_overflow
+simple_calculator.sva_i.cover_sub_underflow
+simple_calculator.sva_i.cover_and_zero
+simple_calculator.sva_i.cover_or_full

@@ -1,0 +1,37 @@
+ASSERT PROPERTIES:
+register_4bit.i_register_4bit_sva.a_reset_clears_now
+register_4bit.i_register_4bit_sva.a_reset_dominates
+register_4bit.i_register_4bit_sva.a_load_on_enable
+register_4bit.i_register_4bit_sva.a_hold_when_disabled
+register_4bit.i_register_4bit_sva.a_change_has_cause
+register_4bit.i_register_4bit_sva.a_ctrl_known
+register_4bit.i_register_4bit_sva.a_out_known_after_act
+
+COVER PROPERTIES:
+register_4bit.i_register_4bit_sva.a_reset_clears_now:precondition1
+register_4bit.i_register_4bit_sva.a_reset_dominates:precondition1
+register_4bit.i_register_4bit_sva.a_load_on_enable:precondition1
+register_4bit.i_register_4bit_sva.a_hold_when_disabled:precondition1
+register_4bit.i_register_4bit_sva.a_change_has_cause:precondition1
+register_4bit.i_register_4bit_sva.a_out_known_after_act:precondition1
+register_4bit.i_register_4bit_sva.c_reset_pulse
+register_4bit.i_register_4bit_sva.c_any_write
+register_4bit.i_register_4bit_sva.c_write_nonzero
+register_4bit.i_register_4bit_sva.c_hold_with_input_toggle
+register_4bit.i_register_4bit_sva.c_back_to_back_writes
+register_4bit.i_register_4bit_sva.g_cover_vals[0]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[1]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[2]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[3]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[4]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[5]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[6]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[7]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[8]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[9]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[10]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[11]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[12]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[13]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[14]._cover_13
+register_4bit.i_register_4bit_sva.g_cover_vals[15]._cover_13

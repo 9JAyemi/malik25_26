@@ -1,0 +1,28 @@
+ASSERT PROPERTIES:
+top_module.mux_inst.u_mux_3to4_sva.a_reset_zeros
+top_module.mux_inst.u_mux_3to4_sva.a_no_xz
+top_module.mux_inst.u_mux_3to4_sva.a_pipeline_val
+top_module.mux_inst.u_mux_3to4_sva.a_bitmap
+top_module.mux_inst.u_mux_3to4_sva.a_w_is_zero
+top_module.br_inst.u_byte_rev_sva.a_reset_zeros
+top_module.br_inst.u_byte_rev_sva.a_no_xz
+top_module.br_inst.u_byte_rev_sva.a_pipeline_swap
+top_module.u_top_sva.a_xor_integrates
+top_module.u_top_sva.a_no_xz_out
+
+COVER PROPERTIES:
+top_module.mux_inst.u_mux_3to4_sva.a_reset_zeros:precondition1
+top_module.mux_inst.u_mux_3to4_sva.a_pipeline_val:precondition1
+top_module.mux_inst.u_mux_3to4_sva.c_val_000
+top_module.mux_inst.u_mux_3to4_sva.c_val_001
+top_module.mux_inst.u_mux_3to4_sva.c_val_010
+top_module.mux_inst.u_mux_3to4_sva.c_val_011
+top_module.mux_inst.u_mux_3to4_sva.c_val_100
+top_module.mux_inst.u_mux_3to4_sva.c_val_101
+top_module.mux_inst.u_mux_3to4_sva.c_val_110
+top_module.mux_inst.u_mux_3to4_sva.c_val_111
+top_module.br_inst.u_byte_rev_sva.a_reset_zeros:precondition1
+top_module.br_inst.u_byte_rev_sva.a_pipeline_swap:precondition1
+top_module.br_inst.u_byte_rev_sva.c_nontrivial_swap
+top_module.u_top_sva.c_xor_nonzero
+top_module.u_top_sva.c_reset_cycle

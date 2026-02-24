@@ -1,0 +1,35 @@
+ASSERT PROPERTIES:
+top_module.sva_bind.a_reset_clears
+top_module.sva_bind.a_shift_step
+top_module.sva_bind.a_shift_out_match
+top_module.sva_bind.a_mux_sel0
+top_module.sva_bind.a_mux_sel1
+top_module.sva_bind.a_final_sel0
+top_module.sva_bind.a_final_sel1
+top_module.sva_bind.a_and_equiv
+top_module.sva_bind.a_or_equiv
+top_module.sva_bind.a_nor_equiv
+top_module.sva_bind.a_nor_not_or
+top_module.sva_bind.a_and_implies_or
+top_module.sva_bind.a_mutual_excl
+top_module.sva_bind.a_dec_0
+top_module.sva_bind.a_dec_1
+top_module.sva_bind.a_no_x_outs
+
+COVER PROPERTIES:
+top_module.sva_bind.a_reset_clears:precondition1
+top_module.sva_bind.a_mux_sel0:precondition1
+top_module.sva_bind.a_mux_sel1:precondition1
+top_module.sva_bind.a_final_sel0:precondition1
+top_module.sva_bind.a_final_sel1:precondition1
+top_module.sva_bind.a_and_implies_or:precondition1
+top_module.sva_bind.a_dec_0:precondition1
+top_module.sva_bind.a_dec_1:precondition1
+top_module.sva_bind.c_reset_deassert
+top_module.sva_bind.c_shift_101
+top_module.sva_bind.c_sel0_nonzero
+top_module.sva_bind.c_sel1_path
+top_module.sva_bind.c_all_zeros
+top_module.sva_bind.c_all_ones
+top_module.sva_bind.c_decoder_both
+top_module.sva_bind.c_decoder_both2

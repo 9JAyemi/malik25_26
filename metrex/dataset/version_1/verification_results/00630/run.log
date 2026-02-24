@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -377,7 +379,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1

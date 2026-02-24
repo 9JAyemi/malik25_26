@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+binary_adder.u_binary_adder_sva.ap_s_eq_sum
+binary_adder.u_binary_adder_sva.ap_hold_zero_in_reset
+binary_adder.u_binary_adder_sva.ap_sum_update
+binary_adder.u_binary_adder_sva.ap_carry_update
+binary_adder.u_binary_adder_sva.ap_known_active
+
+COVER PROPERTIES:
+binary_adder.u_binary_adder_sva.ap_hold_zero_in_reset:precondition1
+binary_adder.u_binary_adder_sva.ap_sum_update:precondition1
+binary_adder.u_binary_adder_sva.ap_carry_update:precondition1
+binary_adder.u_binary_adder_sva.ap_known_active:precondition1
+binary_adder.u_binary_adder_sva.cp_reset_seq
+binary_adder.u_binary_adder_sva.cp_simple_add
+binary_adder.u_binary_adder_sva.cp_overflow_wrap
+binary_adder.u_binary_adder_sva.cp_maj0
+binary_adder.u_binary_adder_sva.cp_maj1

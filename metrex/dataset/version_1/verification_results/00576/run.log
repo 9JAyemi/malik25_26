@@ -362,6 +362,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -380,7 +382,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -417,13 +419,14 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 84
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 2564857@della-i13n22(local) jg_2564747_della-i13n22_1
+0.0.N: Proofgrid shell started at 1437027@della-h14n5(local) jg_1436861_della-h14n5_1
+0.0.Hp: Proofgrid shell started at 1437028@della-h14n5(local) jg_1436861_della-h14n5_1
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Hp: Proofgrid shell started at 2564858@della-i13n22(local) jg_2564747_della-i13n22_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[0]._cover_0"	[0.00 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk.cov_in[0]._cover_0" was covered in 1 cycles in 0.01 s.
@@ -432,7 +435,6 @@ INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk.cov_out[10]._cover
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[0]._cover_0"	[0.01 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_out[0]._cover_0"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk.cov_out[0]._cover_0" was covered in 1 cycles in 0.00 s.
 INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk._cover_0_1" was covered in 1 cycles in 0.00 s by the incidental trace "des_sbox3.sbox3_chk.cov_out[0]._cover_0".
@@ -463,134 +465,134 @@ INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk.cov_in[1]._cover_0
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.N: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.N: The cover property "des_sbox3.sbox3_chk.cov_in[2]._cover_0_2" was covered in 1 cycles in 0.00 s.
-0.0.Hp: Trace Attempt  1	[0.01 s]
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[2]._cover_0_2" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[52]._cover_0_52" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[3]._cover_0_3" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[7]._cover_0_7" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[2]._cover_0_2" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[52]._cover_0_52" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[3]._cover_0_3" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[7]._cover_0_7" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[3]._cover_0_3" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[55]._cover_0_55" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[4]._cover_0_4" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[9]._cover_0_9" was covered in 1 cycles in 0.02 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[4]._cover_0_4" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[36]._cover_0_36" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[4]._cover_0_4" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[36]._cover_0_36" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[5]._cover_0_5" was covered in 1 cycles in 0.03 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[59]._cover_0_59" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[6]._cover_0_6" was covered in 1 cycles in 0.03 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[14]._cover_0_14" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[6]._cover_0_6" was covered in 1 cycles in 0.03 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[41]._cover_0_41" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[7]._cover_0_7" was covered in 1 cycles in 0.03 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[8]._cover_0_8" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[8]._cover_0_8" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[8]._cover_0_8" was covered in 1 cycles in 0.04 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[45]._cover_0_45" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[9]._cover_0_9" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[10]._cover_0_10" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[11]._cover_0_11" was covered in 1 cycles in 0.04 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[11]._cover_0_11" was covered in 1 cycles in 0.04 s.
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[24]._cover_0_24" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[11]._cover_0_11" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[24]._cover_0_24" was covered in 1 cycles in 0.05 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[12]._cover_0_12" was covered in 1 cycles in 0.05 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[15]._cover_0_15" was covered in 1 cycles in 0.05 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_out[12]._cover_0_12" was covered in 1 cycles in 0.05 s.
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[54]._cover_0_54" was covered in 1 cycles in 0.05 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[13]._cover_0_13" was covered in 1 cycles in 0.05 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[14]._cover_0_14" was covered in 1 cycles in 0.05 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[15]._cover_0_15" was covered in 1 cycles in 0.05 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[15]._cover_0_15" was covered in 1 cycles in 0.06 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[16]._cover_0_16" was covered in 1 cycles in 0.06 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[17]._cover_0_17" was covered in 1 cycles in 0.06 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[18]._cover_0_18" was covered in 1 cycles in 0.06 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[19]._cover_0_19" was covered in 1 cycles in 0.06 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[20]._cover_0_20" was covered in 1 cycles in 0.07 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[21]._cover_0_21" was covered in 1 cycles in 0.07 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[22]._cover_0_22" was covered in 1 cycles in 0.07 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[23]._cover_0_23" was covered in 1 cycles in 0.07 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[25]._cover_0_25" was covered in 1 cycles in 0.07 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[26]._cover_0_26" was covered in 1 cycles in 0.08 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[27]._cover_0_27" was covered in 1 cycles in 0.08 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[28]._cover_0_28" was covered in 1 cycles in 0.08 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[29]._cover_0_29" was covered in 1 cycles in 0.08 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[30]._cover_0_30" was covered in 1 cycles in 0.08 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[31]._cover_0_31" was covered in 1 cycles in 0.09 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[34]._cover_0_34" was covered in 1 cycles in 0.09 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[35]._cover_0_35" was covered in 1 cycles in 0.09 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[37]._cover_0_37" was covered in 1 cycles in 0.09 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[38]._cover_0_38" was covered in 1 cycles in 0.09 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[39]._cover_0_39" was covered in 1 cycles in 0.10 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[40]._cover_0_40" was covered in 1 cycles in 0.10 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[42]._cover_0_42" was covered in 1 cycles in 0.10 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[43]._cover_0_43" was covered in 1 cycles in 0.10 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[44]._cover_0_44" was covered in 1 cycles in 0.10 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[46]._cover_0_46" was covered in 1 cycles in 0.11 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[47]._cover_0_47" was covered in 1 cycles in 0.11 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[48]._cover_0_48" was covered in 1 cycles in 0.11 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[49]._cover_0_49" was covered in 1 cycles in 0.11 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[50]._cover_0_50" was covered in 1 cycles in 0.11 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
@@ -614,21 +616,20 @@ INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[61]._cover
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[62]._cover_0_62" was covered in 1 cycles in 0.13 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.15 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.13 s]
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
 INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[63]._cover_0_63" was covered in 1 cycles in 0.13 s.
 0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[2]._cover_0_2"	[0.13 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[2]._cover_0_2"	[0.12 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_out[2]._cover_0_2"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_out[2]._cover_0_2"	[0.00 s].
-0.0.Hp: Exited with Success (@ 0.15 s)
+0.0.Hp: Exited with Success (@ 0.13 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2564871@della-i13n22(local) jg_2564747_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 1437041@della-h14n5(local) jg_1436861_della-h14n5_1
 0.0.Ht: Requesting engine job to terminate
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2564872@della-i13n22(local) jg_2564747_della-i13n22_1
+0.0.B: Proofgrid shell started at 1437042@della-h14n5(local) jg_1436861_della-h14n5_1
 0.0.B: Requesting engine job to terminate
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[3]._cover_0_3"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[3]._cover_0_3"	[0.00 s].
@@ -640,31 +641,27 @@ INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[63]._cover
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[6]._cover_0_6"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[6]._cover_0_6"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[7]._cover_0_7"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[7]._cover_0_7"	[0.00 s].
+0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[8]._cover_0_8"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[8]._cover_0_8"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_out[8]._cover_0_8"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_out[8]._cover_0_8"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[9]._cover_0_9"	[0.00 s].
-0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[9]._cover_0_9"	[0.00 s].
-0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[11]._cover_0_11"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[11]._cover_0_11"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[9]._cover_0_9"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[12]._cover_0_12"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[12]._cover_0_12"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_out[12]._cover_0_12"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_out[12]._cover_0_12"	[0.00 s].
-0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[13]._cover_0_13"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[13]._cover_0_13"	[0.00 s].
+0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[15]._cover_0_15"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[15]._cover_0_15"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[16]._cover_0_16"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[16]._cover_0_16"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[17]._cover_0_17"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[17]._cover_0_17"	[0.00 s].
-0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[18]._cover_0_18"	[0.00 s].
-0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[18]._cover_0_18"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[19]._cover_0_19"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[19]._cover_0_19"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[20]._cover_0_20"	[0.00 s].
@@ -674,8 +671,13 @@ INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[63]._cover
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[21]._cover_0_21"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[22]._cover_0_22"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[22]._cover_0_22"	[0.00 s].
+0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[23]._cover_0_23"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[23]._cover_0_23"	[0.00 s].
+0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[25]._cover_0_25"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[25]._cover_0_25"	[0.00 s].
+0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[26]._cover_0_26"	[0.00 s].
+0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[26]._cover_0_26"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[27]._cover_0_27"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[27]._cover_0_27"	[0.00 s].
@@ -710,7 +712,6 @@ INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[63]._cover
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[50]._cover_0_50"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[50]._cover_0_50"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[51]._cover_0_51"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[51]._cover_0_51"	[0.00 s].
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[53]._cover_0_53"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -727,12 +728,13 @@ INFO (IPF047): 0.0.Hp: The cover property "des_sbox3.sbox3_chk.cov_in[63]._cover
 0.0.N: Starting proof for property "des_sbox3.sbox3_chk.cov_in[62]._cover_0_62"	[0.00 s].
 0.0.N: Stopped processing property "des_sbox3.sbox3_chk.cov_in[62]._cover_0_62"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.B: Interrupted. [0.00 s]
-0.0.N: Exited with Success (@ 0.15 s)
-0.0.Ht: Exited with Success (@ 0.15 s)
-0.0.B: Exited with Success (@ 0.15 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Interrupted. [0.01 s]
+0.0.N: Exited with Success (@ 0.13 s)
+0.0.Ht: Exited with Success (@ 0.13 s)
+0.0.B: Exited with Success (@ 0.13 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 41.76 %)
+ProofGrid Summary (utilization 38.86 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -741,20 +743,20 @@ ProofGrid Summary (utilization 41.76 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.15        0.00       73.99 %
-     Hp        0.05        0.14        0.00       73.50 %
-     Ht        0.15        0.00        0.00        0.00 %
-      B        0.15        0.00        0.00        0.00 %
-    all        0.10        0.07        0.00       41.76 %
+      N        0.07        0.13        0.00       63.60 %
+     Hp        0.07        0.13        0.00       64.01 %
+     Ht        0.13        0.00        0.00        0.00 %
+      B        0.13        0.00        0.00        0.00 %
+    all        0.10        0.06        0.00       38.86 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.41        0.29        0.00
+               0.40        0.26        0.00
 
-    Data read    : 13.80 kiB
-    Data written : 4.83 kiB
+    Data read    : 13.58 kiB
+    Data written : 4.81 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -808,6 +810,6 @@ INFO: Wrote verification_results/00576/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.317 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.307 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

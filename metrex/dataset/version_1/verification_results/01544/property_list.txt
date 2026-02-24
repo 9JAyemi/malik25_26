@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+SyncCounter.sva_i.a_rst_nxt0
+SyncCounter.sva_i.a_rst_hold
+SyncCounter.sva_i.a_leds_mirror
+SyncCounter.sva_i.a_no_x
+SyncCounter.sva_i.a_inc_mod16
+SyncCounter.sva_i.a_wrap
+
+COVER PROPERTIES:
+SyncCounter.sva_i.a_rst_nxt0:precondition1
+SyncCounter.sva_i.a_rst_hold:precondition1
+SyncCounter.sva_i.a_wrap:precondition1
+SyncCounter.sva_i.c_deassert
+SyncCounter.sva_i.c_wrap
+SyncCounter.sva_i.c_full_cycle

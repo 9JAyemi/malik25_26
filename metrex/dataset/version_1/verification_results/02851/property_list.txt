@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+power_supply.sva_i.a_known
+power_supply.sva_i.a_legal_states
+power_supply.sva_i.a_rst_zeros
+power_supply.sva_i.a_active_vals
+power_supply.sva_i.a_pair_consist1
+power_supply.sva_i.a_pair_consist2
+
+COVER PROPERTIES:
+power_supply.sva_i.a_rst_zeros:precondition1
+power_supply.sva_i.a_active_vals:precondition1
+power_supply.sva_i.c_reset_state
+power_supply.sva_i.c_active_state
+power_supply.sva_i.c_reset_cycle

@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:51:51 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2559024
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:44749' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+iVsRbr4IHRfDgNdQStbVosdWDF3/VP4nToMUNu5nZzOzGAPHLe0+IzlNlyIo1WxaqG3a62zDvL4iNSlc5YMSehJqUk3hfvOTGlVxsyQMnlnFQpkGX6e2CVddRcadQr2JCpDNnykw459hOcfLVmtXT5GZLIRwxDqpEzjJssH+bbPhL4ztL9/PwATzDJKw=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:35:02 EST
+# hostname  : della-r3c3n4.(none)
+# pid       : 3619459
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:41149' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+iVsRbr94qggevQUvUxqJiqgcv/qp/UidBixt2s7OZnUkCZK+maYjReaoMyVmyZqG6YqO7jeT9bbJEpascMGLHlpqCo3Bf+MqNC04oZ8yEB1aTkr2yiNxS72eMphbPnUozL2aqM2fKTL3j0CpZ7dXS60k9OFXq06jtpOfFCw7mz8nE/4S9k3i/HT6jtCUN' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00513/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/

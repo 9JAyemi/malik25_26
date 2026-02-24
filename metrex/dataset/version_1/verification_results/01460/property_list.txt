@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+delay_module.u_delay_module_sva.a_reset_clears
+delay_module.u_delay_module_sva.a_stage1_capture
+delay_module.u_delay_module_sva.a_stage2_pipeline
+delay_module.u_delay_module_sva.a_out_pipeline
+delay_module.u_delay_module_sva.a_two_cycle_latency
+delay_module.u_delay_module_sva.a_no_x_active
+
+COVER PROPERTIES:
+delay_module.u_delay_module_sva.a_reset_clears:precondition1
+delay_module.u_delay_module_sva.a_stage2_pipeline:precondition1
+delay_module.u_delay_module_sva.a_out_pipeline:precondition1
+delay_module.u_delay_module_sva.a_two_cycle_latency:precondition1
+delay_module.u_delay_module_sva.a_no_x_active:precondition1
+delay_module.u_delay_module_sva.c_change_propagates
+delay_module.u_delay_module_sva.c_reset_flush_then_data

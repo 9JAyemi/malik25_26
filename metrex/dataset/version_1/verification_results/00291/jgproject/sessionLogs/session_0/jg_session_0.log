@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:36:58 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2537319
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:33219' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+iVm9Cr4IHRfDgNdQStbVosdWDF3/VP4nToMUNu5nZzOzGAPHLe0+IzlNlyIo1WxaqG3a62zDvL4iNSlc5YMSehJqUk3hfvOTGlVxsyQMnlnFQpkGX6e2CVddRcadQr2JCpDNjzlQ459hOcfLVmtXT5GZLIRwxDqpEzjJssH+bbPhL4ztL9/PwAT3SJK8=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:57:44 EST
+# hostname  : della-i13n16.(none)
+# pid       : 113908
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:33547' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+iVm9Cr94qggevQUvUxqJiqgcv/qp/UidBixt2s7OZnUkCZK+maYjReaoMyVmyZqG6YqO7jeT9bbJEpascMGLHlpqCo3Bf+MqNC04oZ8yEB1aTkr2yiNxS72eMphbPnUozL2aqM2POVL3j0CpZ7dXS60k9OFXq06jtpOfFCw7mz8nE/4S9k3i/HT6kwyUQ' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00291/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -377,6 +377,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -395,7 +397,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -439,14 +441,23 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 13
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 2537390@della-i13n22(local) jg_2537319_della-i13n22_1
-0.0.Hp: Proofgrid shell started at 2537391@della-i13n22(local) jg_2537319_della-i13n22_1
+0.0.N: Proofgrid shell started at 113981@della-i13n16(local) jg_113908_della-i13n16_1
+0.0.Hp: Proofgrid shell started at 113982@della-i13n16(local) jg_113908_della-i13n16_1
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "up_down_counter.u_up_down_counter_sva.a_load"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 2048 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "up_down_counter.u_up_down_counter_sva.a_load" in 0.00 s.
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.a_load:precondition1" was covered in 1 cycles in 0.01 s.
@@ -458,24 +469,15 @@ INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva
 INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.a_dec:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_load_min" was covered in 1 cycles in 0.01 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 2048 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "up_down_counter.u_up_down_counter_sva.a_load" in 0.02 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.N: The property "up_down_counter.u_up_down_counter_sva.a_load" was proven in 0.02 s.
-0.0.N: Stopped processing property "up_down_counter.u_up_down_counter_sva.a_load"	[0.02 s].
+INFO (IPF057): 0.0.N: The property "up_down_counter.u_up_down_counter_sva.a_load" was proven in 0.01 s.
+0.0.N: Stopped processing property "up_down_counter.u_up_down_counter_sva.a_load"	[0.01 s].
 0.0.N: Starting proof for property "up_down_counter.u_up_down_counter_sva.a_inc"	[0.00 s].
+0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 2048 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "up_down_counter.u_up_down_counter_sva.a_inc" in 0.00 s.
@@ -484,14 +486,7 @@ INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "up_
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_inc_any" was covered in 3 cycles in 0.02 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_dec_any" was covered in 3 cycles in 0.02 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -499,34 +494,53 @@ INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva
 0.0.N: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.N: The property "up_down_counter.u_up_down_counter_sva.a_inc" was proven in 0.00 s.
 0.0.N: Stopped processing property "up_down_counter.u_up_down_counter_sva.a_inc"	[0.00 s].
+0.0.N: Starting proof for property "up_down_counter.u_up_down_counter_sva.a_dec"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 2048 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "up_down_counter.u_up_down_counter_sva.a_dec" in 0.00 s.
+0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_wrap_up" was covered in 3 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_inc_any" was covered in 3 cycles in 0.01 s.
+0.0.N: Trace Attempt  3	[0.00 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_wrap_down" was covered in 3 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_dec_any" was covered in 3 cycles in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_wrap_up" was covered in 3 cycles in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "up_down_counter.u_up_down_counter_sva.c_wrap_down" was covered in 3 cycles in 0.01 s.
 0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.Hp: Lemmas used(5): ?3
+0.0.Hp: Lemmas used(5): ?4
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
 0.0.Hp: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.Hp: The property "up_down_counter.u_up_down_counter_sva.a_dec" was proven in 0.02 s.
+INFO (IPF057): 0.0.Hp: The property "up_down_counter.u_up_down_counter_sva.a_dec" was proven in 0.01 s.
 0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Starting proof for property "up_down_counter.u_up_down_counter_sva.a_dec"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Exited with Success (@ 0.01 s)
+0: ProofGrid usable level: 0
 0.0.N: Stopped processing property "up_down_counter.u_up_down_counter_sva.a_dec"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.02 s)
-0: ProofGrid usable level: 0
-0.0.B: Proofgrid shell started at 2537405@della-i13n22(local) jg_2537319_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2537404@della-i13n22(local) jg_2537319_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 113995@della-i13n16(local) jg_113908_della-i13n16_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Exited with Success (@ 0.06 s)
+0.0.N: Exited with Success (@ 0.04 s)
 0.0.Ht: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.06 s)
+0.0.B: Proofgrid shell started at 113996@della-i13n16(local) jg_113908_della-i13n16_1
+0.0.B: Requesting engine job to terminate
+0.0.Ht: Exited with Success (@ 0.05 s)
+0.0.B: Interrupted. [0.00 s]
+0.0.B: Exited with Success (@ 0.05 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 17.19 %)
+ProofGrid Summary (utilization 11.67 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -535,20 +549,20 @@ ProofGrid Summary (utilization 17.19 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.02        0.00       30.51 %
-     Hp        0.05        0.02        0.00       30.32 %
-     Ht        0.06        0.00        0.00        0.00 %
+      N        0.05        0.01        0.00       21.48 %
+     Hp        0.04        0.01        0.00       21.13 %
+     Ht        0.04        0.00        0.00        0.00 %
       B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.01        0.00       17.19 %
+    all        0.05        0.01        0.00       11.67 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21        0.04        0.00
+               0.19        0.02        0.00
 
-    Data read    : 8.36 kiB
-    Data written : 2.90 kiB
+    Data read    : 9.14 kiB
+    Data written : 3.54 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -602,6 +616,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

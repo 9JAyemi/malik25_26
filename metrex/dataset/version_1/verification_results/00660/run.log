@@ -368,6 +368,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -386,7 +388,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -431,83 +433,100 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 21
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2572744@della-i13n22(local) jg_2572672_della-i13n22_1
-0.0.N: Proofgrid shell started at 2572743@della-i13n22(local) jg_2572672_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1681120@della-h14n7(local) jg_1680779_della-h14n7_1
+0.0.N: Proofgrid shell started at 1681119@della-h14n7(local) jg_1680779_della-h14n7_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_no_x_oper:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_after_rst_up" in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_after_rst_up:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_after_rst_down" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_after_rst_down:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_up_inc" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_up_inc:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_up_wrap" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_up_wrap:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_down_dec" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_down_dec:precondition1" was covered in 1 cycles in 0.02 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_down_wrap" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_down_wrap:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_progress" in 0.03 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.a_progress:precondition1" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_after_rst_up" was covered in 1 cycles in 0.03 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_after_rst_down" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_up_inc" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_up_wrap" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_down_dec" was covered in 1 cycles in 0.03 s.
-0.0.N: Requesting engine job to stop
-0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.04 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_down_wrap" was covered in 1 cycles in 0.03 s.
-0.0.Hp: All properties determined. [0.00 s]
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "counter.u_counter_sva.a_no_x_oper:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_no_x_oper:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_down_wrap" in 0.01 s by the incidental trace "counter.u_counter_sva.a_no_x_oper:precondition1".
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_down_wrap:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "counter.u_counter_sva.a_no_x_oper:precondition1".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_progress" in 0.01 s by the incidental trace "counter.u_counter_sva.a_no_x_oper:precondition1".
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_progress:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "counter.u_counter_sva.a_no_x_oper:precondition1".
+0.0.N: Stopped processing property "counter.u_counter_sva.a_no_x_oper:precondition1"	[0.01 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.a_after_rst_up"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_after_rst_up" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_after_rst_up:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "counter.u_counter_sva.a_after_rst_up".
+0.0.N: Stopped processing property "counter.u_counter_sva.a_after_rst_up"	[0.00 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.a_after_rst_down"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_after_rst_down" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_after_rst_down:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "counter.u_counter_sva.a_after_rst_down".
+0.0.N: Stopped processing property "counter.u_counter_sva.a_after_rst_down"	[0.00 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.a_up_inc"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_up_inc" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_up_inc:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "counter.u_counter_sva.a_up_inc".
+0.0.N: Stopped processing property "counter.u_counter_sva.a_up_inc"	[0.00 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.a_up_wrap"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_up_wrap" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_up_wrap:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "counter.u_counter_sva.a_up_wrap".
+0.0.N: Stopped processing property "counter.u_counter_sva.a_up_wrap"	[0.00 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.a_down_dec"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva.a_down_dec" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "counter.u_counter_sva.a_down_dec:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "counter.u_counter_sva.a_down_dec".
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_after_rst_up" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_after_rst_down" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_up_inc" was covered in 1 cycles in 0.02 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_up_wrap" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_down_dec" was covered in 1 cycles in 0.02 s.
+0.0.N: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva.c_down_wrap" was covered in 1 cycles in 0.02 s.
+0.0.Hp: All properties determined. [0.00 s]
+0.0.N: Stopped processing property "counter.u_counter_sva.a_down_dec"	[0.01 s].
 0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "counter.u_counter_sva.a_progress"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "counter.u_counter_sva.a_progress"	[0.00 s].
 0.0.N: Starting proof for property "counter.u_counter_sva.c_after_rst_up"	[0.00 s].
-0.0.N: Stopped processing property "counter.u_counter_sva.c_after_rst_up"	[0.00 s].
-0.0.N: Starting proof for property "counter.u_counter_sva.c_up_inc"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "counter.u_counter_sva.c_up_inc"	[0.00 s].
+0.0.N: Stopped processing property "counter.u_counter_sva.c_after_rst_up"	[0.00 s].
+0.0.Hp: Exited with Success (@ 0.02 s)
+0: ProofGrid usable level: 0
+0.0.N: Starting proof for property "counter.u_counter_sva.c_after_rst_down"	[0.00 s].
+0.0.N: Stopped processing property "counter.u_counter_sva.c_after_rst_down"	[0.00 s].
 0.0.N: Starting proof for property "counter.u_counter_sva.c_up_wrap"	[0.00 s].
 0.0.N: Stopped processing property "counter.u_counter_sva.c_up_wrap"	[0.00 s].
+0.0.N: Starting proof for property "counter.u_counter_sva.c_down_dec"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "counter.u_counter_sva.c_down_dec"	[0.00 s].
 0.0.N: Starting proof for property "counter.u_counter_sva.c_down_wrap"	[0.00 s].
 0.0.N: Stopped processing property "counter.u_counter_sva.c_down_wrap"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.04 s)
-0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2572757@della-i13n22(local) jg_2572672_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2572758@della-i13n22(local) jg_2572672_della-i13n22_1
+0.0.B: Proofgrid shell started at 1681148@della-h14n7(local) jg_1680779_della-h14n7_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.07 s)
-0.0.B: Interrupted. [0.00 s]
+0.0.N: Exited with Success (@ 0.06 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 1681147@della-h14n7(local) jg_1680779_della-h14n7_1
+0.0.Ht: Requesting engine job to terminate
 0.0.B: Exited with Success (@ 0.07 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 23.58 %)
+ProofGrid Summary (utilization 15.26 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -516,20 +535,20 @@ ProofGrid Summary (utilization 23.58 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.03        0.00       36.77 %
-     Hp        0.05        0.04        0.00       41.88 %
-     Ht        0.05        0.00        0.00        0.00 %
+      N        0.07        0.02        0.00       26.05 %
+     Hp        0.06        0.02        0.00       27.01 %
+     Ht        0.07        0.00        0.00        0.00 %
       B        0.06        0.00        0.00        0.00 %
-    all        0.05        0.02        0.00       23.58 %
+    all        0.06        0.01        0.00       15.26 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.22        0.07        0.00
+               0.26        0.05        0.00
 
-    Data read    : 16.01 kiB
-    Data written : 2.02 kiB
+    Data read    : 16.44 kiB
+    Data written : 2.00 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -583,6 +602,6 @@ INFO: Wrote verification_results/00660/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.317 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

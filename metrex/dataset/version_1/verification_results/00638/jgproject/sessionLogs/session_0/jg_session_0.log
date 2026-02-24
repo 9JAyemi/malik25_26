@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 18:00:49 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2570581
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:42553' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+iFgTx0KvgQRE8eA21RG0tWmz14MVf9U/iNGhxw25mNjO7MUD88t4TovNUGbJizZaF6oad7jbM+wtio9JVDhixJ6Em5STeFy+5cSUXW/LAiWUclGnQZXq7YNV1VNwp1KuYEOnMmDIXzjm2U5x8tWb1NLnZUghHjIMqkbMMG+zfJhv+0vjO0v08fAA/kyS0' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:38:21 EST
+# hostname  : della-h14n7.(none)
+# pid       : 1670016
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:43591' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+iFgTx0Ku3iuDBa9AStbGomOrBi7/qn9RJ0OKG3exsZmeSANmraRpidJ4qQ3KWrFmortjobiN5f5ssUekqB4zYsaWm4CjcF75y44ITyhkz4YHVpGSvLCK31PsZo6nFc6fSzIuZ6syYMlfvOLRKVnu19HpSD06V+jRqO+l58YKD+XMy8T9h7yTeb4cPpoQlFQ==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00638/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -369,6 +369,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -387,7 +389,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -442,53 +444,57 @@ INFO (IPF057): 0.0.PRE: The property "user_design.u_user_design_sva.a_ack_assert
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 12
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2570653@della-i13n22(local) jg_2570581_della-i13n22_1
-0.0.N: Proofgrid shell started at 2570652@della-i13n22(local) jg_2570581_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1670277@della-h14n7(local) jg_1670016_della-h14n7_1
+0.0.N: Proofgrid shell started at 1670276@della-h14n7(local) jg_1670016_della-h14n7_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "user_design.u_user_design_sva.a_ack_assert_on_in1ack:precondition1"	[0.00 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_ack_assert_on_in1ack:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_ack_rise_cause:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_ack_sticky_until_reset:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_stb_implies_inputs:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "user_design.u_user_design_sva.a_ack_changes_only_on_events" in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_ack_changes_only_on_events:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "user_design.u_user_design_sva.a_ack_fall_only_reset" in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.a_ack_fall_only_reset:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.c_stb_mirror" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.c_stb_mirror" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.c_data_change" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "user_design.u_user_design_sva.c_data_change" was covered in 1 cycles in 0.01 s.
 0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.Hp: A trace with 2 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 2 cycles was found for the property "user_design.u_user_design_sva.a_ack_rise_cause" in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 2 cycles was found for the property "user_design.u_user_design_sva.a_ack_rise_cause" in 0.01 s.
 0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.Hp: Trace Attempt  4	[0.00 s]
 0.0.Hp: Lemmas used(5): ?2
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.Hp: The property "user_design.u_user_design_sva.a_ack_sticky_until_reset" was proven in 0.02 s.
+INFO (IPF057): 0.0.Hp: The property "user_design.u_user_design_sva.a_ack_sticky_until_reset" was proven in 0.01 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: All properties determined. [0.01 s]
+0.0.N: Stopped processing property "user_design.u_user_design_sva.a_ack_assert_on_in1ack:precondition1"	[0.01 s].
 0.0.Hp: Exited with Success (@ 0.01 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2570666@della-i13n22(local) jg_2570581_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2570667@della-i13n22(local) jg_2570581_della-i13n22_1
+0.0.N: All properties determined. [0.01 s]
+0.0.B: Proofgrid shell started at 1670305@della-h14n7(local) jg_1670016_della-h14n7_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.06 s)
-0.0.B: Interrupted. [0.00 s]
+0.0.N: Exited with Success (@ 0.06 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 1670304@della-h14n7(local) jg_1670016_della-h14n7_1
+0.0.Ht: Requesting engine job to terminate
+0.0.Ht: Interrupted. [0.01 s]
 0.0.B: Exited with Success (@ 0.06 s)
+0.0.Ht: Exited with Success (@ 0.06 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 6.20 %)
+ProofGrid Summary (utilization 1.76 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -497,20 +503,20 @@ ProofGrid Summary (utilization 6.20 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        0.60 %
-     Hp        0.05        0.01        0.00       21.25 %
-     Ht        0.05        0.00        0.00        0.00 %
+      N        0.06        0.00        0.00        2.94 %
+     Hp        0.06        0.00        0.00        3.92 %
+     Ht        0.06        0.00        0.00        0.00 %
       B        0.06        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        6.20 %
+    all        0.06        0.00        0.00        1.76 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21        0.01        0.00
+               0.25        0.00        0.00
 
-    Data read    : 3.18 kiB
-    Data written : 1.68 kiB
+    Data read    : 3.22 kiB
+    Data written : 1.69 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -564,6 +570,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

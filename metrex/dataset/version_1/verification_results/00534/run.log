@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -377,7 +379,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -401,7 +403,7 @@ INFO (IPF051): 0.0.PRE: The cover property "top_module.sva_i._cover_14" was prov
 0: Found proofs for 5 properties in preprocessing
 0: Using multistage preprocessing
 0: Starting reduce
-0: Finished reduce in 0.001s
+0: Finished reduce in 0s
 0.0.PRE: Performing Proof Simplification...
 0.0.N: clocks: 3, declared: 1, disabling: 0, posedge: 3, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Proof Simplification Iteration 1	[0.00 s]
@@ -415,13 +417,13 @@ INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
     Use check_assumptions -show to show this property in the property table.
 INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
     Use check_assumptions -show -live to show this property in the property table.
-0.0.PRE: Proof Simplification completed in 0.01 s
+0.0.PRE: Proof Simplification completed in 0.00 s
 0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 15
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2560988@della-i13n22(local) jg_2560916_della-i13n22_1
-0.0.N: Proofgrid shell started at 2560987@della-i13n22(local) jg_2560916_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1434095@della-h14n5(local) jg_1433926_della-h14n5_1
+0.0.N: Proofgrid shell started at 1434094@della-h14n5(local) jg_1433926_della-h14n5_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -439,7 +441,7 @@ INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "top
 INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "top_module.sva_i._assert_2" in 0.01 s.
 INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_2:precondition1" was covered in 3 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_2".
 INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._cover_12" was covered in 3 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_2".
-0.0.N: Stopped processing property "top_module.sva_i._assert_2"	[0.02 s].
+0.0.N: Stopped processing property "top_module.sva_i._assert_2"	[0.01 s].
 0.0.N: Starting proof for property "top_module.sva_i._assert_3"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 256 cycles. [0.00 s]
@@ -447,28 +449,28 @@ INFO (IPF008): 0.0.N: A max_length bound of 256 was found for the property "top_
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.sva_i._assert_7" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._cover_11" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._cover_13" was covered in 1 cycles in 0.02 s.
-0.0.N: Trace Attempt 17	[0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.sva_i._assert_7" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._cover_11" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "top_module.sva_i._cover_13" was covered in 1 cycles in 0.01 s.
+0.0.N: Trace Attempt 17	[0.00 s]
 0.0.N: A trace with 17 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 17 cycles was found for the property "top_module.sva_i._assert_3" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_3:precondition1" was covered in 17 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_3".
-INFO (IPF055): 0.0.N: A counterexample (cex) with 15 cycles was found for the property "top_module.sva_i._assert_4" in 0.01 s by the incidental trace "top_module.sva_i._assert_3".
-INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_4:precondition1" was covered in 15 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_3".
-INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_8:precondition1" was covered in 4 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_3".
-INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._cover_9" was covered in 7 cycles in 0.01 s by the incidental trace "top_module.sva_i._assert_3".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 17 cycles was found for the property "top_module.sva_i._assert_3" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_3:precondition1" was covered in 17 cycles in 0.00 s by the incidental trace "top_module.sva_i._assert_3".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 15 cycles was found for the property "top_module.sva_i._assert_4" in 0.00 s by the incidental trace "top_module.sva_i._assert_3".
+INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_4:precondition1" was covered in 15 cycles in 0.00 s by the incidental trace "top_module.sva_i._assert_3".
+INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._assert_8:precondition1" was covered in 4 cycles in 0.00 s by the incidental trace "top_module.sva_i._assert_3".
+INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._cover_9" was covered in 7 cycles in 0.00 s by the incidental trace "top_module.sva_i._assert_3".
 0.0.N: Stopped processing property "top_module.sva_i._assert_3"	[0.01 s].
 0.0.N: Starting proof for property "top_module.sva_i._assert_8"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: A trace with 3 cycles was found. [0.00 s]
@@ -491,26 +493,26 @@ INFO (IPF008): 0.0.N: A max_length bound of 256 was found for the property "top_
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
-0.0.N: Trace Attempt 17	[0.01 s]
+0.0.N: Trace Attempt 17	[0.00 s]
 0.0.N: A trace with 17 cycles was found. [0.01 s]
 INFO (IPF047): 0.0.N: The cover property "top_module.sva_i._cover_10" was covered in 17 cycles in 0.00 s.
 0.0.N: Stopped processing property "top_module.sva_i._cover_10"	[0.00 s].
+0.0.N: All properties determined. [0.01 s]
 0.0.Hp: Interrupted (multi)
 0.0.Hp: All properties determined. [0.02 s]
-0.0.N: All properties determined. [0.01 s]
-0.0.Ht: Proofgrid shell started at 2561001@della-i13n22(local) jg_2560916_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.B: Proofgrid shell started at 2561002@della-i13n22(local) jg_2560916_della-i13n22_1
+0.0.B: Proofgrid shell started at 1434109@della-h14n5(local) jg_1433926_della-h14n5_1
 0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.07 s)
+0.0.N: Exited with Success (@ 0.08 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.07 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.07 s)
-0.0.B: Exited with Success (@ 0.09 s)
+0.0.Hp: Exited with Success (@ 0.08 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 1434108@della-h14n5(local) jg_1433926_della-h14n5_1
+0.0.Ht: Requesting engine job to terminate
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.08 s)
+0.0.Ht: Exited with Success (@ 0.08 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 14.71 %)
+ProofGrid Summary (utilization 9.66 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -519,20 +521,20 @@ ProofGrid Summary (utilization 14.71 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.06        0.02        0.00       27.19 %
-     Hp        0.05        0.02        0.00       29.40 %
-     Ht        0.07        0.00        0.00        0.00 %
-      B        0.07        0.00        0.00        0.00 %
-    all        0.06        0.01        0.00       14.71 %
+      N        0.07        0.02        0.00       18.59 %
+     Hp        0.07        0.02        0.00       19.21 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.01        0.00        9.66 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.24        0.04        0.00
+               0.30        0.03        0.00
 
-    Data read    : 28.46 kiB
-    Data written : 2.41 kiB
+    Data read    : 28.42 kiB
+    Data written : 2.40 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -586,6 +588,6 @@ INFO: Wrote verification_results/00534/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.311 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.326 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

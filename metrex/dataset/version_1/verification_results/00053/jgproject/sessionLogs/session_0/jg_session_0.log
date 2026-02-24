@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 16:48:40 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2492992
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:35691' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19ELYi3XgUPiuDBa6glan/QYqsHL76qbxKnQYsbdjOzmdmNAeKX954QvafKmDUbdixVt+x1d2HeXxAblb5yxIQDCQ0pZ/GheMWNK7nYigdOLOOoTIMu09sFq66j5k6pXs2MKJwFc+GcUzfFyddo1kCT2y2lcMQ0qBI5q7DB/m2y4S+tr5Du5+EDPF4kqw==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 11:58:50 EST
+# hostname  : della-h14n8.(none)
+# pid       : 2328503
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:37057' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEEHEgz+iFsRbr94qggevQUvVpkXFVA9e/FX/pE6CFjfsZmczOxMDpK+2bYnRe6qMyVixYam6Zqu7C/P+NqlR6StHTNizoyHnJDwUvnLjghPKmDLjQaFJyUGZR26p9zNW0wLPnVozL2YSz4K5esexUyq010hvIPXgVKtPoraTnhcvONg/Jxv/E/Yq8X47fACjTyUM' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00053/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -369,6 +369,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -387,7 +389,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -419,21 +421,21 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 31
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2493064@della-i13n22(local) jg_2492992_della-i13n22_1
-0.0.N: Proofgrid shell started at 2493063@della-i13n22(local) jg_2492992_della-i13n22_1
-0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: Proofgrid shell started at 2328669@della-h14n8(local) jg_2328503_della-h14n8_1
+0.0.Hp: Proofgrid shell started at 2328670@della-h14n8(local) jg_2328503_della-h14n8_1
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_1" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._assert_1:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_2" in 0.01 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
-INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._assert_2:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
-0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_1"	[0.01 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_1" in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._assert_1:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_2" in 0.02 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
+INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._assert_2:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_1".
+0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_1"	[0.02 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_3"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
@@ -452,48 +454,47 @@ INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._assert_11:preco
 INFO (IPF047): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._cover_17" was covered in 1 cycles in 0.00 s by the incidental trace "UART_Tx.uart_tx_sva_i._assert_5".
 0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_5"	[0.00 s].
 0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_6"	[0.00 s].
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_6:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_15:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_7:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.03 s]
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_6:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_15:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_7:precondition1" was covered in 1 cycles in 0.00 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_10:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_10:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_12:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_13:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_14:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_15" in 0.01 s.
+0.0.Hp: Trace Attempt  2	[0.03 s]
+0.0.Hp: Trace Attempt  3	[0.04 s]
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_12:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_13:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._assert_14:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_15" in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.01 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+0.0.Hp: A trace with 3 cycles was found. [0.04 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_8" in 0.02 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_13" in 0.03 s.
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.02 s]
+0.0.Hp: A trace with 3 cycles was found. [0.04 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "UART_Tx.uart_tx_sva_i._assert_13" in 0.02 s.
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  4	[0.06 s]
+0.0.N: Trace Attempt  3	[0.03 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.N: The property "UART_Tx.uart_tx_sva_i._assert_6" was proven in 0.02 s.
-0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_6"	[0.02 s].
+0.0.N: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.N: The property "UART_Tx.uart_tx_sva_i._assert_6" was proven in 0.03 s.
+0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_6"	[0.03 s].
 0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_7"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -502,7 +503,7 @@ INFO (IPF057): 0.0.N: The property "UART_Tx.uart_tx_sva_i._assert_6" was proven 
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.04 s]
+0.0.Hp: Trace Attempt  5	[0.09 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
@@ -515,73 +516,66 @@ INFO (IPF057): 0.0.N: The property "UART_Tx.uart_tx_sva_i._assert_7" was proven 
 0.0.N: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "UART_Tx.uart_tx_sva_i._assert_9" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Ht: Proofgrid shell started at 2493077@della-i13n22(local) jg_2492992_della-i13n22_1
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.Hp: Lemmas used(5): ?1
-0.0.Hp: A proof was found: No trace exists. [0.06 s]
-INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_9" was proven in 0.06 s.
-0.0.Hp: A proof was found: No trace exists. [0.06 s]
-INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_10" was proven in 0.06 s.
-0.0.Hp: A proof was found: No trace exists. [0.06 s]
-INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_11" was proven in 0.06 s.
-0.0.Hp: A proof was found: No trace exists. [0.06 s]
-INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_12" was proven in 0.06 s.
-0.0.Hp: A proof was found: No trace exists. [0.06 s]
-INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_14" was proven in 0.06 s.
-0.0.Hp: Trace Attempt  5	[0.06 s]
-0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_9"	[0.01 s].
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._cover_16"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "UART_Tx.uart_tx_sva_i._cover_16" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: Requesting engine job to stop
-0.0.Hp: Requesting engine job to terminate
-0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.07 s]
-0.0.N: Trace Attempt  6	[0.01 s]
 0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF051): 0.0.N: The cover property "UART_Tx.uart_tx_sva_i._cover_16" was proven unreachable in 0.01 s.
-0.0.Hp: Interrupted (multi)
-0.0.Hp: All properties determined. [0.07 s]
-0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 27	[0.01 s]
-0.0.Ht: All properties determined. [0.01 s]
-0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._cover_16"	[0.01 s].
+INFO (IPF057): 0.0.N: The property "UART_Tx.uart_tx_sva_i._assert_9" was proven in 0.01 s.
+0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_9"	[0.01 s].
+0.0.N: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_10"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 536870912 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 536870912 was found for the property "UART_Tx.uart_tx_sva_i._assert_10" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Proofgrid shell started at 2328684@della-h14n8(local) jg_2328503_della-h14n8_1
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "UART_Tx.uart_tx_sva_i._assert_10"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.Hp: Lemmas used(6): ?1
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Requesting engine job to stop
+0.0.B: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.12 s]
+0.0.Hp: A proof was found: No trace exists. [0.11 s]
+INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_10" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.11 s]
+INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_11" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.11 s]
+INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_12" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.11 s]
+INFO (IPF057): 0.0.Hp: The property "UART_Tx.uart_tx_sva_i._assert_14" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.11 s]
+INFO (IPF051): 0.0.Hp: The cover property "UART_Tx.uart_tx_sva_i._cover_16" was proven unreachable in 0.06 s.
+0.0.Hp: All properties determined. [0.11 s]
+0.0.N: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_10"	[0.01 s].
+0.0.N: Trace Attempt 11	[0.01 s]
 0.0.N: All properties determined. [0.01 s]
-0.0.Hp: Exited with Success (@ 0.08 s)
+0.0.B: Stopped processing property "UART_Tx.uart_tx_sva_i._assert_10"	[0.00 s].
+0.0.Hp: Exited with Success (@ 0.12 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Exited with Success (@ 0.08 s)
-0.0.B: Proofgrid shell started at 2493078@della-i13n22(local) jg_2492992_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.08 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.08 s)
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.13 s)
+0.0.Ht: Proofgrid shell started at 2328683@della-h14n8(local) jg_2328503_della-h14n8_1
+0.0.Ht: Requesting engine job to terminate
+0.0.N: Exited with Success (@ 0.13 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.15 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 38.84 %)
+ProofGrid Summary (utilization 27.50 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -590,20 +584,20 @@ ProofGrid Summary (utilization 38.84 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.07        0.00       57.02 %
-     Hp        0.05        0.07        0.00       57.92 %
-     Ht        0.06        0.01        0.00       18.60 %
-      B        0.08        0.00        0.00        0.00 %
-    all        0.06        0.04        0.00       38.84 %
+      N        0.13        0.11        0.00       45.82 %
+     Hp        0.14        0.08        0.00       36.05 %
+     Ht        0.13        0.00        0.00        0.00 %
+      B        0.10        0.00        0.00        2.14 %
+    all        0.13        0.05        0.00       27.50 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23        0.15        0.00
+               0.50        0.19        0.00
 
-    Data read    : 18.88 kiB
-    Data written : 9.58 kiB
+    Data read    : 18.44 kiB
+    Data written : 9.11 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -657,6 +651,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.321 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

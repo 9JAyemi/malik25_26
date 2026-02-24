@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+resettable_register.sva_i.a_reset_zero
+resettable_register.sva_i.a_set_one
+resettable_register.sva_i.a_clear_zero
+resettable_register.sva_i.a_hold
+resettable_register.sva_i.a_change_requires_ctrl
+resettable_register.sva_i.a_no_x_out
+resettable_register.sva_i.a_no_x_ctrls
+
+COVER PROPERTIES:
+resettable_register.sva_i.a_reset_zero:precondition1
+resettable_register.sva_i.a_set_one:precondition1
+resettable_register.sva_i.a_clear_zero:precondition1
+resettable_register.sva_i.a_hold:precondition1
+resettable_register.sva_i.a_change_requires_ctrl:precondition1
+resettable_register.sva_i.c_reset
+resettable_register.sva_i.c_set_only
+resettable_register.sva_i.c_clear_only
+resettable_register.sva_i.c_set_and_clear
+resettable_register.sva_i.c_hold_path
+resettable_register.sva_i.c_out_rise
+resettable_register.sva_i.c_out_fall

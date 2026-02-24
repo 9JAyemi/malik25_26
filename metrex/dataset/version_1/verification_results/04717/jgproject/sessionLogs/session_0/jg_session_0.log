@@ -1,0 +1,2380 @@
+# ----------------------------------------
+# JasperGold Version Info
+# tool      : JasperGold 2021.03
+# platform  : Linux 5.14.0-570.84.1.el9_6.x86_64
+# version   : 2021.03 FCS 64 bits
+# build date: 2021.03.23 02:50:43 UTC
+# ----------------------------------------
+# started   : 2026-02-23 13:59:18 EST
+# hostname  : della-h12n18.(none)
+# pid       : 2937560
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:39107' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY69CsJAEIS/QwQRC19EE0GwSWsXESxsg4ZT84OKFy1sfFXfJM4dGlyYvf2ZmT0DJK+2bQnReyqNSVmxYam8Zqu3C/P+FolR6gsjJuzZ0ZBzUj9Uf+XGhVJdypSIB1aTgoOQB26h/ZlMU4vjTq2ZEzNmzoKZEEl/7JysdI38BnL3l2rVcfAu5efE8xeyv0tZ+I/XVeL9NHwAp04lFw==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/04717/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/04717/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/04717/jgproject/.tmp/.postCmds.tcl'
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/04717/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+04717
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./04717/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./04717/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = watchdog_timer
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% set OUT_DIR [file join "verification_results" $DESIGN_ID]
+verification_results/04717
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+verification_results/04717/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+verification_results/04717/summary.txt
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 04717
+% puts "  TOP       : $TOP"
+  TOP       : watchdog_timer
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 1
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : verification_results/04717
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./04717/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./04717/sva.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './04717/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './04717/sva.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='watchdog_timer'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "watchdog_timer".
+[INFO (HIER-8002)] ./04717/module.v(27): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./04717/sva.sv(2): compiling module 'watchdog_timer_sva'
+[WARN (VERI-1796)] ./04717/sva.sv(18): system function call isunknown with non-constant argument is not synthesizable
+[WARN (VERI-1796)] ./04717/sva.sv(19): system function call isunknown with non-constant argument is not synthesizable
+[INFO (VERI-1018)] ./04717/module.v(1): compiling module 'watchdog_timer'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+rst
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using reset signal: rst
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "rst".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 7 asserts, 6 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 13 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 4 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned values for 33 of 33 design flops, 0 of 0 design latches, 33 of 103 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "watchdog_timer.u_wdt_sva._assert_1" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "watchdog_timer.u_wdt_sva._assert_1:precondition1" was proven unreachable in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "watchdog_timer.u_wdt_sva._assert_2" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "watchdog_timer.u_wdt_sva._assert_3" was proven in 0.00 s.
+0: Found proofs for 4 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0s
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "watchdog_timer.u_wdt_sva._assert_7" was proven in 0.00 s.
+0: Found proofs for 1 properties in preprocessing
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: Proof Simplification completed in 0.00 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 8
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 2937692@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.N: Proofgrid shell started at 2937691@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "watchdog_timer.u_wdt_sva._assert_4" in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "watchdog_timer.u_wdt_sva._assert_5" in 0.01 s.
+0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "watchdog_timer.u_wdt_sva._assert_6:precondition1" was covered in 3 cycles in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "watchdog_timer.u_wdt_sva._cover_8" was covered in 3 cycles in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "watchdog_timer.u_wdt_sva._cover_10" was covered in 3 cycles in 0.01 s.
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "watchdog_timer.u_wdt_sva._assert_4"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "watchdog_timer.u_wdt_sva._assert_4"	[0.00 s].
+0.0.N: Starting proof for property "watchdog_timer.u_wdt_sva._assert_6"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: A trace with 5 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 5 cycles was found for the property "watchdog_timer.u_wdt_sva._assert_6" in 0.00 s.
+0.0.N: Stopped processing property "watchdog_timer.u_wdt_sva._assert_6"	[0.00 s].
+0.0.N: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.03 s]
+0.0.Hp: Trace Attempt  5	[0.03 s]
+0.0.Hp: A trace with 5 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "watchdog_timer.u_wdt_sva._cover_11" was covered in 5 cycles in 0.02 s.
+0.0.B: Proofgrid shell started at 2937706@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Proofgrid shell started at 2937705@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0: ProofGrid usable level: 1
+0.0.B: Trace Attempt 169	[0.94 s]
+0.0.B: Per property time limit expired (0.95 s) [0.95 s]
+0.0.B: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[0.95 s].
+0.0.B: Last scan. Per property time limit: 0s
+0.0.B: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 181	[1.00 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[1.00 s].
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.N: Trace Attempt 10	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt 209	[4.42 s]
+0.0.B: Trace Attempt 283	[4.03 s]
+0.0.B: Trace Attempt 359	[8.12 s]
+0.0.Ht: Trace Attempt 367	[12.20 s]
+0.0.B: Trace Attempt 407	[12.27 s]
+0.0.B: Trace Attempt 458	[16.34 s]
+0.0.Ht: Trace Attempt 430	[17.54 s]
+0.0.Hp: Trace Attempt 430	[19.94 s]
+0.0.Ht: Trace Attempt 476	[23.04 s]
+0.0.N: Trace Attempt 430	[22.20 s]
+0.0.B: Trace Attempt 476	[22.34 s]
+0.0.N: Trace Attempt  1	[22.65 s]
+0.0.N: Trace Attempt  2	[22.65 s]
+0.0.N: Trace Attempt  3	[22.65 s]
+0.0.Hp: Trace Attempt 476	[24.30 s]
+0.0.Ht: Trace Attempt 514	[27.11 s]
+0.0.N: Trace Attempt 160	[26.70 s]
+0.0.B: Trace Attempt 477	[27.26 s]
+0.0.Hp: Trace Attempt 513	[29.02 s]
+0.0.Ht: Trace Attempt 546	[31.32 s]
+0.0.N: Trace Attempt 193	[31.50 s]
+0.0.Hp: Trace Attempt 550	[33.68 s]
+0.0.Ht: Trace Attempt 585	[35.50 s]
+0.0.B: Trace Attempt 482	[35.80 s]
+0.0.N: Trace Attempt 201	[35.89 s]
+0.0.Hp: Trace Attempt 589	[39.08 s]
+0.0.Ht: Trace Attempt 608	[39.61 s]
+0.0.B: Trace Attempt 492	[39.92 s]
+0.0.N: Trace Attempt 209	[40.40 s]
+0.0.Ht: Trace Attempt 639	[44.04 s]
+0.0.Hp: Trace Attempt 641	[44.88 s]
+0.0.B: Trace Attempt 499	[44.53 s]
+0.0.N: Trace Attempt 217	[44.98 s]
+0.0.Ht: Trace Attempt 653	[48.66 s]
+0.0.Hp: Trace Attempt 676	[48.89 s]
+0.0.B: Trace Attempt 544	[48.68 s]
+0.0.N: Trace Attempt 230	[50.12 s]
+0.0.Hp: Trace Attempt 697	[53.01 s]
+0.0.B: Trace Attempt 557	[52.83 s]
+0.0.Ht: Trace Attempt 675	[54.82 s]
+0.0.N: Trace Attempt 236	[54.83 s]
+0.0.Hp: Trace Attempt 730	[57.15 s]
+0.0.B: Trace Attempt 604	[56.90 s]
+0.0.N: Trace Attempt 244	[59.62 s]
+0.0.Hp: Trace Attempt 760	[61.18 s]
+0.0.B: Trace Attempt 615	[62.28 s]
+0.0.Hp: Trace Attempt 765	[65.49 s]
+0.0.N: Trace Attempt 260	[64.60 s]
+0.0.Hp: Trace Attempt 801	[69.52 s]
+0.0.N: Trace Attempt 268	[69.24 s]
+0.0.Ht: Trace Attempt 711	[70.77 s]
+0.0.B: Trace Attempt 616	[70.49 s]
+0.0.N: Trace Attempt 281	[73.35 s]
+0.0.B: Trace Attempt 639	[74.50 s]
+0.0.Hp: Trace Attempt 827	[76.06 s]
+0.0.B: Trace Attempt 662	[78.61 s]
+0.0.Hp: Trace Attempt 865	[80.08 s]
+0.0.Hp: Trace Attempt 888	[84.35 s]
+0.0.B: Trace Attempt 680	[86.49 s]
+0.0.Hp: Trace Attempt 911	[89.74 s]
+0.0.Hp: Trace Attempt 939	[93.84 s]
+0.0.B: Trace Attempt 682	[93.47 s]
+0.0.Hp: Trace Attempt 957	[98.35 s]
+0.0.B: Trace Attempt 686	[100.25 s]
+0.0.Hp: Trace Attempt 973	[104.51 s]
+0.0.Ht: Trace Attempt 811	[106.49 s]
+0.0.B: Trace Attempt 687	[105.68 s]
+0.0.Hp: Trace Attempt 999	[108.71 s]
+0.0.B: Trace Attempt 728	[109.69 s]
+0.0.Hp: Trace Attempt 1013	[112.75 s]
+0.0.Hp: Trace Attempt 1025	[116.93 s]
+0.0.Hp: Trace Attempt 1037	[123.53 s]
+0.0.Hp: Trace Attempt 1049	[127.74 s]
+0.0.Hp: Trace Attempt 1063	[131.95 s]
+0.0.B: Trace Attempt 744	[134.92 s]
+0.0.Hp: Trace Attempt 1071	[137.23 s]
+0.0.Hp: Trace Attempt 1082	[141.62 s]
+0.0.B: Trace Attempt 750	[140.90 s]
+0.0.Hp: Trace Attempt 1086	[147.82 s]
+0.0.Hp: Trace Attempt 1100	[152.01 s]
+0.0.B: Trace Attempt 751	[155.36 s]
+0.0.Hp: Trace Attempt 1114	[156.38 s]
+0.0.B: Trace Attempt 757	[159.52 s]
+0.0.Hp: Trace Attempt 1127	[160.54 s]
+0.0.N: Trace Attempt 317	[159.78 s]
+0.0.Hp: Trace Attempt 1136	[164.86 s]
+0.0.N: Trace Attempt 508	[164.25 s]
+0.0.B: Trace Attempt 759	[164.62 s]
+0.0.Hp: Trace Attempt 1143	[169.19 s]
+0.0.N: Trace Attempt 525	[168.38 s]
+0.0.B: Trace Attempt 795	[168.66 s]
+0.0.Hp: Trace Attempt 1150	[173.40 s]
+0.0.N: Trace Attempt 561	[172.56 s]
+0.0.B: Trace Attempt 818	[172.68 s]
+0.0.N: Trace Attempt 572	[176.74 s]
+0.0.B: Trace Attempt 825	[177.25 s]
+0.0.Hp: Trace Attempt 1151	[179.03 s]
+0.0.Ht: Trace Attempt 986	[181.30 s]
+0.0.B: Trace Attempt 830	[181.25 s]
+0.0.N: Trace Attempt 582	[181.47 s]
+0.0.B: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[182.41 s].
+0.0.B: Morphing to K
+0.0.B: Trace Attempt 835	[182.39 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.K: Trace Attempt 429	[0.01 s]
+0.0.Hp: Trace Attempt 1163	[183.46 s]
+0.0.N: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[182.61 s].
+0.0.N: Morphing to AM
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.15 s]
+0.0.AM: Trace Attempt  3	[0.15 s]
+0.0.AM: Trace Attempt  1	[0.65 s]
+0.0.AM: Trace Attempt  2	[0.65 s]
+0.0.AM: Trace Attempt  3	[0.65 s]
+0.0.AM: Trace Attempt  1	[3.38 s]
+0.0.AM: Trace Attempt  2	[3.38 s]
+0.0.AM: Trace Attempt  3	[3.38 s]
+0.0.Hp: Trace Attempt 1171	[187.58 s]
+0.0.AM: Trace Attempt 337	[7.39 s]
+0.0.Hp: Trace Attempt 1181	[191.79 s]
+0.0.AM: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[8.54 s].
+0.0.K: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[8.74 s].
+0.0.AM: Morphing to Tri
+0.0.AM: Trace Attempt 397	[8.49 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.K: Morphing to AB
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Tri: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.14 s]
+0.0.AB: Trace Attempt  2	[0.14 s]
+0.0.AB: Trace Attempt  3	[0.14 s]
+0.0.AB: Trace Attempt  4	[0.14 s]
+0.0.AB: Trace Attempt  5	[0.14 s]
+0.0.Tri:    0.11" ---- Launching abstraction thread ----
+0.0.Tri:    0.13" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.22 s]
+0.0.Tri: Trace Attempt  3	[0.22 s]
+0.0.Tri: Trace Attempt  4	[0.22 s]
+0.0.Tri: Trace Attempt  5	[0.22 s]
+0.0.AB: Trace Attempt  1	[0.69 s]
+0.0.AB: Trace Attempt  2	[0.69 s]
+0.0.AB: Trace Attempt  3	[0.69 s]
+0.0.AB: Trace Attempt  4	[0.69 s]
+0.0.AB: Trace Attempt  5	[0.69 s]
+0.0.Tri:    1.21" Simplification phase 1 complete
+0.0.Tri:    1.26" Simplification phase 2 complete
+0.0.Tri:    1.31" Simplification phase 3 complete
+   1.31" ---- Completed simplification thread ----
+   1.31" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    1.44" ---- Restarting abstraction thread on simplified netlist ----
+0.0.AB: Trace Attempt  1	[3.81 s]
+0.0.AB: Trace Attempt  2	[3.81 s]
+0.0.AB: Trace Attempt  3	[3.81 s]
+0.0.AB: Trace Attempt  4	[3.81 s]
+0.0.AB: Trace Attempt  5	[3.81 s]
+0.0.Tri: Trace Attempt 7250	[4.25 s]
+0.0.AB: Trace Attempt 392	[7.85 s]
+0.0.Tri: Trace Attempt 17907	[8.26 s]
+0.0.AB: Trace Attempt 472	[11.87 s]
+0.0.Tri: Trace Attempt 30062	[12.26 s]
+0.0.AB: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[15.82 s].
+0.0.AB: Morphing to K
+0.0.AB: Trace Attempt 611	[15.72 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.Tri: Trace Attempt 37746	[16.98 s]
+0.0.Tri: Trace Attempt 48317	[21.09 s]
+0.0.Tri: Trace Attempt 58061	[25.09 s]
+0.0.Tri: Trace Attempt 66213	[29.60 s]
+0.0.Tri: Trace Attempt 77569	[33.60 s]
+0.0.K: Trace Attempt  1	[19.66 s]
+0.0.K: Trace Attempt  2	[19.66 s]
+0.0.K: Trace Attempt  3	[19.66 s]
+0.0.K: Trace Attempt  4	[19.66 s]
+0.0.K: Trace Attempt  5	[19.66 s]
+0.0.K: Trace Attempt 277	[23.67 s]
+0.0.Tri: Trace Attempt 86457	[40.63 s]
+0.0.K: Trace Attempt 367	[27.70 s]
+0.0.Tri: Trace Attempt 98191	[44.63 s]
+0.0.K: Trace Attempt 415	[33.42 s]
+0.0.Tri: Trace Attempt 109384	[49.60 s]
+0.0.K: Trace Attempt 417	[37.65 s]
+0.0.Tri: Trace Attempt 120758	[53.60 s]
+0.0.K: Trace Attempt 420	[41.82 s]
+0.0.Tri: Trace Attempt 121599	[58.48 s]
+0.0.Tri: Trace Attempt 137031	[62.86 s]
+0.0.K: Trace Attempt 437	[48.70 s]
+0.0.Tri: Trace Attempt 152126	[67.39 s]
+0.0.K: Trace Attempt 440	[53.98 s]
+0.0.Tri: Trace Attempt 167442	[71.66 s]
+0.0.K: Trace Attempt 442	[58.00 s]
+0.0.K: Trace Attempt 444	[62.79 s]
+0.0.Tri: Trace Attempt 168278	[78.92 s]
+0.0.Tri: Trace Attempt 182850	[83.01 s]
+0.0.K: Trace Attempt 486	[69.91 s]
+0.0.Tri: Trace Attempt 197289	[87.01 s]
+0.0.K: Trace Attempt 488	[74.11 s]
+0.0.Tri: Trace Attempt 213500	[91.40 s]
+0.0.Tri: Trace Attempt 229186	[95.81 s]
+0.0.K: Trace Attempt 499	[84.14 s]
+0.0.K: Trace Attempt 500	[88.30 s]
+0.0.Tri: Trace Attempt 241657	[111.82 s]
+0.0.K: Trace Attempt 517	[96.51 s]
+0.0.Tri: Trace Attempt 255756	[115.86 s]
+0.0.K: Trace Attempt 520	[101.56 s]
+0.0.Tri: Trace Attempt 270037	[120.10 s]
+0.0.K: Trace Attempt 530	[105.61 s]
+0.0.Ht: Trace Attempt 1158	[316.35 s]
+0.0.Tri: Trace Attempt 284335	[124.32 s]
+0.0.K: Trace Attempt 563	[109.67 s]
+0.0.Ht: Trace Attempt 27843	[320.35 s]
+0.0.Tri: Trace Attempt 305053	[128.65 s]
+0.0.K: Trace Attempt 568	[113.91 s]
+0.0.Ht: Trace Attempt 58478	[324.35 s]
+0.0.Tri: Trace Attempt 325771	[133.23 s]
+0.0.K: Trace Attempt 571	[118.01 s]
+0.0.Ht: Trace Attempt 87381	[328.41 s]
+0.0.Tri: Trace Attempt 345823	[137.68 s]
+0.0.K: Trace Attempt 599	[122.01 s]
+0.0.Ht: Trace Attempt 125487	[332.41 s]
+0.0.K: Trace Attempt 605	[127.97 s]
+0.0.Ht: Trace Attempt 166662	[336.41 s]
+0.0.Ht: Trace Attempt 197224	[340.41 s]
+0.0.K: Trace Attempt 606	[134.17 s]
+0.0.Ht: Trace Attempt 244733	[344.41 s]
+0.0.K: Trace Attempt 607	[139.17 s]
+0.0.Tri: Trace Attempt 350590	[155.19 s]
+0.0.Ht: Trace Attempt 279133	[348.41 s]
+0.0.Tri: Trace Attempt 366683	[159.21 s]
+0.0.Ht: Trace Attempt 314339	[352.41 s]
+0.0.K: Trace Attempt 617	[144.73 s]
+0.0.Tri: Trace Attempt 386670	[163.63 s]
+0.0.Ht: Trace Attempt 346531	[356.41 s]
+0.0.K: Trace Attempt 623	[148.77 s]
+0.0.Tri: Trace Attempt 401427	[167.63 s]
+0.0.Ht: Trace Attempt 355003	[360.41 s]
+0.0.K: Trace Attempt 673	[154.32 s]
+0.0.Tri: Trace Attempt 419206	[171.99 s]
+0.0.Ht: Trace Attempt 390720	[364.41 s]
+0.0.Ht: Trace Attempt 427244	[368.41 s]
+0.0.Tri: Trace Attempt 440025	[176.58 s]
+0.0.Tri: Trace Attempt 457265	[180.58 s]
+0.0.K: Trace Attempt 675	[165.19 s]
+0.0.Tri: Trace Attempt 472235	[184.58 s]
+0.0.Tri: Trace Attempt 483631	[188.58 s]
+0.0.K: Trace Attempt 676	[176.52 s]
+0.0.Tri: Trace Attempt 496746	[192.58 s]
+0.0.K: Trace Attempt 677	[183.71 s]
+0.0.Ht: Trace Attempt 448436	[370.69 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 392.49 s)
+0.0.Ht: Engine should be restarted (starts=1, unexpected_terminations=1)
+   Last recorded RSS memory usage: 4.21729 MiB
+   Last recorded free memory: 610.949 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2946188@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 41655	[4.00 s]
+0.0.Ht: Trace Attempt 82455	[8.00 s]
+0.0.K: Trace Attempt 681	[195.77 s]
+0.0.Ht: Trace Attempt 121410	[12.00 s]
+0.0.Ht: Trace Attempt 162947	[16.00 s]
+0.0.Ht: Trace Attempt 192855	[20.00 s]
+0.0.Ht: Trace Attempt 240378	[24.00 s]
+0.0.Ht: Trace Attempt 278026	[28.00 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Mp
+0.0.Hp: Trace Attempt 1183	[192.35 s]
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Mp: Trace Attempt  1	[0.00 s]
+0.0.Mp: Trace Attempt  2	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 683	[213.48 s]
+0.0.Tri: Trace Attempt 501663	[231.00 s]
+0.0.Ht: Trace Attempt 318911	[32.00 s]
+0.0.Mp: Trace Attempt 107	[4.60 s]
+0.0.Tri: Trace Attempt 522086	[235.33 s]
+0.0.K: Trace Attempt 684	[221.45 s]
+0.0.Ht: Trace Attempt 349525	[37.39 s]
+0.0.Mp: Trace Attempt 139	[9.05 s]
+0.0.Tri: Trace Attempt 538279	[239.33 s]
+0.0.Ht: Trace Attempt 375907	[41.39 s]
+0.0.K: Trace Attempt 685	[226.05 s]
+0.0.Mp: Trace Attempt 153	[13.76 s]
+0.0.Tri: Trace Attempt 555972	[243.33 s]
+0.0.Ht: Trace Attempt 413252	[45.39 s]
+0.0.Tri: Trace Attempt 569053	[247.33 s]
+0.0.Mp: Trace Attempt 171	[18.57 s]
+0.0.Ht: Trace Attempt 449201	[49.39 s]
+0.0.Mp: Trace Attempt 199	[22.58 s]
+0.0.Tri: Trace Attempt 589374	[251.70 s]
+0.0.Ht: Trace Attempt 484215	[53.39 s]
+0.0.Mp: Trace Attempt 224	[26.58 s]
+0.0.Tri: Trace Attempt 604928	[255.70 s]
+0.0.K: Trace Attempt 705	[240.33 s]
+0.0.Ht: Trace Attempt 524285	[58.17 s]
+0.0.Tri: Trace Attempt 618714	[259.70 s]
+0.0.Mp: Trace Attempt 226	[32.69 s]
+0.0.Ht: Trace Attempt 554297	[62.17 s]
+0.0.Tri: Trace Attempt 637288	[263.70 s]
+0.0.Ht: Trace Attempt 586496	[66.17 s]
+0.0.Mp: Trace Attempt 226	[38.11 s]
+0.0.K: Trace Attempt 707	[251.46 s]
+0.0.Tri: Trace Attempt 655696	[267.92 s]
+0.0.Ht: Trace Attempt 623125	[70.17 s]
+0.0.Tri: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[271.83 s].
+0.0.K: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[256.07 s].
+0.0.K: Morphing to AB
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Morphing to D
+0.0.Tri: Trace Attempt 672059	[271.83 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.01 s]
+0.0.D: Trace Attempt  2	[0.02 s]
+0.0.D: Trace Attempt  3	[0.03 s]
+0.0.D: Trace Attempt  5	[0.04 s]
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.AB: Trace Attempt  1	[0.64 s]
+0.0.AB: Trace Attempt  2	[0.64 s]
+0.0.AB: Trace Attempt  3	[0.64 s]
+0.0.AB: Trace Attempt  4	[0.64 s]
+0.0.AB: Trace Attempt  5	[0.64 s]
+0.0.Mp: Trace Attempt 226	[44.26 s]
+0.0.Ht: Trace Attempt 664834	[74.17 s]
+0.0.AB: Trace Attempt  1	[3.63 s]
+0.0.AB: Trace Attempt  2	[3.63 s]
+0.0.AB: Trace Attempt  3	[3.63 s]
+0.0.AB: Trace Attempt  4	[3.63 s]
+0.0.AB: Trace Attempt  5	[3.63 s]
+0.0.AB: Trace Attempt 393	[7.64 s]
+0.0.Mp: Trace Attempt 226	[51.53 s]
+0.0.AB: Trace Attempt 473	[11.64 s]
+0.0.AB: Trace Attempt 614	[15.69 s]
+0.0.Mp: Trace Attempt 226	[59.36 s]
+0.0.AB: Trace Attempt 659	[19.76 s]
+0.0.Mp: Trace Attempt 232	[63.51 s]
+0.0.Ht: Trace Attempt 672058	[74.83 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 486.07 s)
+0.0.Ht: Engine should be restarted (starts=2, unexpected_terminations=2)
+   Last recorded RSS memory usage: 5.07256 MiB
+   Last recorded free memory: 609.161 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2946833@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt 699	[23.80 s]
+0.0.Mp: Trace Attempt 275	[68.26 s]
+0.0.Ht: Trace Attempt 41667	[4.00 s]
+0.0.AB: Trace Attempt 739	[27.87 s]
+0.0.Ht: Trace Attempt 82329	[8.00 s]
+0.0.Mp: Trace Attempt 281	[73.68 s]
+0.0.AB: Trace Attempt 776	[31.91 s]
+0.0.Ht: Trace Attempt 121579	[12.00 s]
+0.0.Mp: Trace Attempt 296	[77.98 s]
+0.0.AB: Trace Attempt 809	[35.93 s]
+0.0.Ht: Trace Attempt 163153	[16.00 s]
+0.0.Mp: Trace Attempt 303	[82.25 s]
+0.0.AB: Trace Attempt 864	[40.01 s]
+0.0.Ht: Trace Attempt 192612	[20.00 s]
+0.0.Mp: Trace Attempt 313	[86.39 s]
+0.0.AB: Trace Attempt 898	[44.05 s]
+0.0.Ht: Trace Attempt 240428	[24.00 s]
+0.0.Mp: Trace Attempt 321	[90.60 s]
+0.0.AB: Trace Attempt 937	[48.05 s]
+0.0.Ht: Trace Attempt 278067	[28.00 s]
+0.0.Mp: Trace Attempt 331	[94.88 s]
+0.0.AB: Trace Attempt 967	[52.06 s]
+0.0.Ht: Trace Attempt 323449	[32.00 s]
+0.0.AB: Trace Attempt 996	[56.13 s]
+0.0.Mp: Trace Attempt 342	[99.86 s]
+0.0.Ht: Trace Attempt 349543	[37.37 s]
+0.0.AB: Trace Attempt 1020	[60.19 s]
+0.0.Mp: Trace Attempt 360	[104.12 s]
+0.0.Ht: Trace Attempt 398568	[41.37 s]
+0.0.AB: Trace Attempt 320	[64.21 s]
+0.0.D: Trace Attempt 133	[64.56 s]
+0.0.Ht: Trace Attempt 446096	[45.37 s]
+0.0.Mp: Trace Attempt 385	[111.03 s]
+0.0.AB: Trace Attempt 443	[68.21 s]
+0.0.Ht: Trace Attempt 492245	[49.37 s]
+0.0.AB: Trace Attempt 515	[72.29 s]
+0.0.Mp: Trace Attempt 385	[117.17 s]
+0.0.Ht: Trace Attempt 524304	[53.77 s]
+0.0.AB: Trace Attempt 563	[76.44 s]
+0.0.Ht: Trace Attempt 570374	[57.77 s]
+0.0.AB: Trace Attempt 641	[80.47 s]
+0.0.Mp: Trace Attempt 385	[123.63 s]
+0.0.Ht: Trace Attempt 615329	[61.77 s]
+0.0.AB: Trace Attempt 657	[85.20 s]
+0.0.Mp: Trace Attempt 385	[129.30 s]
+0.0.Ht: Trace Attempt 659656	[65.77 s]
+0.0.AB: Trace Attempt 709	[89.29 s]
+0.0.Mp: Trace Attempt 385	[135.69 s]
+0.0.AB: Trace Attempt 736	[94.85 s]
+0.0.AB: Trace Attempt 796	[98.87 s]
+0.0.Mp: Trace Attempt 385	[142.81 s]
+0.0.AB: Trace Attempt 844	[103.50 s]
+0.0.Ht: Trace Attempt 672058	[66.89 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 571.75 s)
+0.0.Ht: Engine should be restarted (starts=3, unexpected_terminations=3)
+   Last recorded RSS memory usage: 5.20196 MiB
+   Last recorded free memory: 610.168 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.AB: Trace Attempt 845	[107.71 s]
+0.0.Ht: Proofgrid shell started at 2947144@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Mp: Trace Attempt 385	[152.44 s]
+0.0.AB: Trace Attempt 853	[111.74 s]
+0.0.Ht: Trace Attempt 41191	[4.00 s]
+0.0.Ht: Trace Attempt 81729	[8.00 s]
+0.0.AB: Trace Attempt 902	[115.78 s]
+0.0.Mp: Trace Attempt 385	[160.68 s]
+0.0.Ht: Trace Attempt 120808	[12.00 s]
+0.0.AB: Trace Attempt 911	[122.37 s]
+0.0.Ht: Trace Attempt 162466	[16.00 s]
+0.0.Mp: Trace Attempt 385	[167.27 s]
+0.0.AB: Trace Attempt 946	[126.38 s]
+0.0.Ht: Trace Attempt 191632	[20.00 s]
+0.0.AB: Trace Attempt 988	[130.56 s]
+0.0.Ht: Trace Attempt 239477	[24.00 s]
+0.0.Mp: Trace Attempt 385	[175.31 s]
+0.0.Ht: Trace Attempt 276923	[28.00 s]
+0.0.AB: Trace Attempt 1009	[138.25 s]
+0.0.Ht: Trace Attempt 322431	[32.00 s]
+0.0.Mp: Trace Attempt 385	[183.22 s]
+0.0.AB: Trace Attempt 1026	[142.66 s]
+0.0.AB: Trace Attempt  1	[142.82 s]
+0.0.AB: Trace Attempt  2	[142.82 s]
+0.0.AB: Trace Attempt  3	[142.82 s]
+0.0.AB: Trace Attempt  4	[142.82 s]
+0.0.AB: Trace Attempt  5	[142.82 s]
+0.0.Ht: Trace Attempt 349543	[37.49 s]
+0.0.AB: Trace Attempt 304	[146.85 s]
+0.0.Mp: Trace Attempt 385	[191.30 s]
+0.0.Ht: Trace Attempt 398685	[41.49 s]
+0.0.AB: Trace Attempt 379	[150.86 s]
+0.0.Ht: Trace Attempt 446189	[45.49 s]
+0.0.AB: Trace Attempt 394	[156.16 s]
+0.0.Ht: Trace Attempt 492234	[49.49 s]
+0.0.Mp: Trace Attempt 385	[200.43 s]
+0.0.AB: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[159.96 s].
+0.0.AB: Morphing to Tricustom6
+0.0.AB: Trace Attempt 396	[159.29 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tricustom6: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Tricustom6:    0.13" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.15" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:    1.20" Simplification phase 1 complete
+0.0.Tricustom6:    1.26" Simplification phase 2 complete
+0.0.Ht: Trace Attempt 524304	[53.97 s]
+0.0.Tricustom6:    2.10" Simplification phase 3 complete
+   2.10" ---- Completed simplification thread ----
+   2.10" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:    2.23" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 24012	[4.59 s]
+0.0.Ht: Trace Attempt 569215	[57.97 s]
+0.0.Mp: Trace Attempt 385	[209.41 s]
+0.0.Tricustom6: Trace Attempt 92364	[8.60 s]
+0.0.Ht: Trace Attempt 608876	[61.97 s]
+0.0.Tricustom6: Trace Attempt 151424	[13.13 s]
+0.0.Ht: Trace Attempt 651369	[65.97 s]
+0.0.Mp: Trace Attempt 385	[218.48 s]
+0.0.Tricustom6: Trace Attempt 203252	[17.13 s]
+0.0.Tricustom6: Trace Attempt 259848	[23.36 s]
+0.0.Mp: Trace Attempt 385	[227.33 s]
+0.0.Tricustom6: Trace Attempt 319164	[27.36 s]
+0.0.Mp: Trace Attempt 405	[231.67 s]
+0.0.Ht: Trace Attempt 672058	[67.91 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 656.18 s)
+0.0.Ht: Engine should be restarted (starts=4, unexpected_terminations=4)
+   Last recorded RSS memory usage: 5.3291 MiB
+   Last recorded free memory: 610.366 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2947327@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Mp: Trace Attempt 423	[236.30 s]
+0.0.Ht: Trace Attempt 42054	[4.00 s]
+0.0.Tricustom6: Trace Attempt 393876	[37.08 s]
+0.0.Mp: Trace Attempt 434	[240.35 s]
+0.0.Ht: Trace Attempt 81148	[8.00 s]
+0.0.Tricustom6: Trace Attempt 464180	[41.20 s]
+0.0.Mp: Trace Attempt 456	[244.52 s]
+0.0.Ht: Trace Attempt 118019	[12.00 s]
+0.0.Ht: Trace Attempt 159409	[16.00 s]
+0.0.Ht: Trace Attempt 188644	[20.00 s]
+0.0.Tricustom6: Trace Attempt 539844	[54.12 s]
+0.0.Ht: Trace Attempt 235926	[24.00 s]
+0.0.Mp: Trace Attempt 494	[260.69 s]
+0.0.Tricustom6: Trace Attempt 604820	[58.12 s]
+0.0.Ht: Trace Attempt 271782	[28.00 s]
+0.0.Tricustom6: Trace Attempt 675620	[62.42 s]
+0.0.Ht: Trace Attempt 309670	[32.00 s]
+0.0.Tricustom6: Trace Attempt 758196	[66.90 s]
+0.0.Ht: Trace Attempt 343378	[36.00 s]
+0.0.Mp: Trace Attempt 494	[272.36 s]
+0.0.Ht: Trace Attempt 353253	[40.00 s]
+0.0.Ht: Trace Attempt 402816	[44.00 s]
+0.0.Ht: Trace Attempt 450639	[48.00 s]
+0.0.Mp: Trace Attempt 494	[284.35 s]
+0.0.Ht: Trace Attempt 497086	[52.00 s]
+0.0.Ht: Trace Attempt 525316	[56.00 s]
+0.0.Tricustom6: Trace Attempt 796860	[91.76 s]
+0.0.Ht: Trace Attempt 571931	[60.00 s]
+0.0.Mp: Trace Attempt 494	[296.45 s]
+0.0.Tricustom6: Trace Attempt 860064	[95.87 s]
+0.0.Ht: Trace Attempt 605975	[64.00 s]
+0.0.Tricustom6: Trace Attempt 932852	[99.88 s]
+0.0.Ht: Trace Attempt 643181	[68.00 s]
+0.0.Ht: Trace Attempt 680184	[72.00 s]
+0.0.Tricustom6: Trace Attempt 995164	[104.24 s]
+0.0.Mp: Trace Attempt 494	[309.00 s]
+0.0.Tricustom6: Trace Attempt 1063172	[108.24 s]
+0.0.Ht: Trace Attempt 699050	[77.42 s]
+0.0.Tricustom6: Trace Attempt 1110144	[112.25 s]
+0.0.Ht: Trace Attempt 709908	[81.42 s]
+0.0.Tricustom6: Trace Attempt 1186464	[116.25 s]
+0.0.Ht: Trace Attempt 749589	[85.42 s]
+0.0.Mp: Trace Attempt 494	[321.80 s]
+0.0.Ht: Trace Attempt 798061	[89.42 s]
+0.0.Ht: Trace Attempt 845970	[93.42 s]
+0.0.Ht: Trace Attempt 893120	[97.42 s]
+0.0.Mp: Trace Attempt 494	[334.88 s]
+0.0.Ht: Trace Attempt 939519	[101.42 s]
+0.0.Ht: Trace Attempt 985257	[105.42 s]
+0.0.Ht: Trace Attempt 1030036	[109.42 s]
+0.0.Mp: Trace Attempt 494	[347.77 s]
+0.0.Tricustom6: Trace Attempt 1186672	[145.51 s]
+0.0.Ht: Trace Attempt 1048593	[114.23 s]
+0.0.Tricustom6: Trace Attempt 1256240	[150.02 s]
+0.0.Ht: Trace Attempt 1085745	[118.23 s]
+0.0.Tricustom6: Trace Attempt 1311352	[154.07 s]
+0.0.Ht: Trace Attempt 1124450	[122.23 s]
+0.0.Mp: Trace Attempt 494	[361.17 s]
+0.0.Tricustom6: Trace Attempt 1390968	[158.30 s]
+0.0.Ht: Trace Attempt 1158489	[126.23 s]
+0.0.Ht: Trace Attempt 1190508	[130.24 s]
+0.0.Tricustom6: Trace Attempt 1474732	[162.81 s]
+0.0.Ht: Trace Attempt 1222174	[134.24 s]
+0.0.Tricustom6: Trace Attempt 1558196	[167.21 s]
+0.0.Ht: Trace Attempt 1257917	[138.24 s]
+0.0.Tricustom6: Trace Attempt 1631852	[171.74 s]
+0.0.Mp: Trace Attempt 494	[374.93 s]
+0.0.Ht: Trace Attempt 1290922	[142.24 s]
+0.0.Tricustom6: Trace Attempt 1717736	[176.04 s]
+0.0.Ht: Trace Attempt 1325089	[146.24 s]
+0.0.Ht: Trace Attempt 1364841	[150.24 s]
+0.0.Mp: Trace Attempt 494	[389.00 s]
+0.0.Ht: Trace Attempt 1398100	[161.20 s]
+0.0.Ht: Trace Attempt 1398117	[161.23 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 819.28 s)
+0.0.Ht: Engine should be restarted (starts=5, unexpected_terminations=5)
+   Last recorded RSS memory usage: 10.8404 MiB
+   Last recorded free memory: 601.497 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2948218@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 38468	[4.00 s]
+0.0.Ht: Trace Attempt 78001	[8.00 s]
+0.0.Mp: Trace Attempt 494	[408.61 s]
+0.0.Ht: Trace Attempt 115585	[12.00 s]
+0.0.Ht: Trace Attempt 156403	[16.00 s]
+0.0.Ht: Trace Attempt 183867	[20.00 s]
+0.0.Ht: Trace Attempt 230889	[24.00 s]
+0.0.Mp: Trace Attempt 494	[424.29 s]
+0.0.Ht: Trace Attempt 266638	[28.00 s]
+0.0.Ht: Trace Attempt 311072	[32.00 s]
+0.0.Ht: Trace Attempt 349525	[37.14 s]
+0.0.Ht: Trace Attempt 378292	[41.14 s]
+0.0.Mp: Trace Attempt 494	[439.61 s]
+0.0.Ht: Trace Attempt 424550	[45.14 s]
+0.0.Ht: Trace Attempt 469311	[49.14 s]
+0.0.Tricustom6: Trace Attempt 1773556	[248.04 s]
+0.0.Ht: Trace Attempt 511376	[53.14 s]
+0.0.Mp: Trace Attempt 494	[454.55 s]
+0.0.Tricustom6: Trace Attempt 1842140	[252.04 s]
+0.0.Ht: Trace Attempt 532927	[57.14 s]
+0.0.Tricustom6: Trace Attempt 1906940	[256.04 s]
+0.0.Ht: Trace Attempt 567754	[61.14 s]
+0.0.Tricustom6: Trace Attempt 1981236	[260.41 s]
+0.0.Ht: Trace Attempt 606723	[65.14 s]
+0.0.Ht: Trace Attempt 637823	[69.14 s]
+0.0.Tricustom6: Trace Attempt 2060852	[264.74 s]
+0.0.Mp: Trace Attempt 494	[470.56 s]
+0.0.Ht: Trace Attempt 669720	[73.14 s]
+0.0.Tricustom6: Trace Attempt 2130728	[269.02 s]
+0.0.Tricustom6: Trace Attempt 2196540	[273.02 s]
+0.0.Ht: Trace Attempt 699050	[79.54 s]
+0.0.Tricustom6: Trace Attempt 2250152	[277.21 s]
+0.0.Ht: Trace Attempt 706561	[83.54 s]
+0.0.Mp: Trace Attempt 494	[484.27 s]
+0.0.Tricustom6: Trace Attempt 2329572	[281.21 s]
+0.0.Ht: Trace Attempt 742603	[87.54 s]
+0.0.Mp: Morphing to Oh
+0.0.Mp: All properties determined. [0.00 s]
+0.0.Mp: Exited with Success (@ 0.00 s)
+0.0.Oh: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Oh: bwd trail(1): 1 0.000815111s
+0.0.Oh: All properties either determined or skipped. [0.02 s]
+0.0.Oh: Exited with Success (@ 908.03 s)
+0.0.Tricustom6: Trace Attempt 2402900	[285.39 s]
+0.0.Ht: Trace Attempt 778847	[91.54 s]
+0.0.L: Proofgrid shell started at 2948599@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.L: OS RSS memory limit : 17179869184 / 17179869184
+0.0.L: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.L: Using trace diversification with seed 1 (0.05)
+0.0.L: Using LRU state removal heuristic
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[0.00 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6:precondition1 (2) }
+0.0.L: Trace Attempt  3	[0.01 s]
+0.0.L: Trace Attempt  4	[0.01 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6 <4> }
+0.0.L: Trace Attempt  3	[0.01 s]
+0.0.L: Trace Attempt  4	[0.01 s]
+0.0.L: Trace Attempt  5	[0.01 s]
+0.0.Tricustom6: Trace Attempt 2466852	[289.39 s]
+0.0.Ht: Trace Attempt 803932	[95.54 s]
+0.0.L: Trace Attempt 251	[4.02 s]
+0.0.Tricustom6: Trace Attempt 2526656	[293.39 s]
+0.0.Ht: Trace Attempt 826643	[99.54 s]
+0.0.L: Trace Attempt 341	[8.02 s]
+0.0.Tricustom6: Trace Attempt 2576792	[297.62 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6:precondition1 (2) }
+0.0.L: Trace Attempt  3	[11.63 s]
+0.0.L: Trace Attempt  4	[11.63 s]
+0.0.L: Trace Attempt  5	[11.63 s]
+0.0.Ht: Trace Attempt 861844	[103.54 s]
+0.0.Tricustom6: Trace Attempt 2618524	[301.81 s]
+0.0.L: Trace Attempt 260	[15.64 s]
+0.0.Ht: Trace Attempt 900104	[107.54 s]
+0.0.L: Trace Attempt 331	[19.65 s]
+0.0.Ht: Trace Attempt 941505	[111.54 s]
+0.0.Ht: Trace Attempt 985078	[115.54 s]
+0.0.L: Trace Attempt 383	[23.70 s]
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[25.86 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_10 (2) }
+0.0.L: Trace Attempt  3	[25.86 s]
+0.0.L: Trace Attempt  4	[25.86 s]
+0.0.L: Trace Attempt  5	[25.86 s]
+0.0.Ht: Trace Attempt 1028107	[119.54 s]
+0.0.L: Trace Attempt 289	[29.90 s]
+0.0.Ht: Trace Attempt 1048593	[124.68 s]
+0.0.L: Trace Attempt 344	[34.49 s]
+0.0.Ht: Trace Attempt 1092491	[128.68 s]
+0.0.L: Trace Attempt 397	[38.55 s]
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[39.10 s]
+0.0.L: Trace Attempt  4	[39.10 s]
+0.0.L: Trace Attempt  5	[39.10 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_11 (4) }
+0.0.L: Trace Attempt  3	[39.10 s]
+0.0.L: Trace Attempt  4	[39.10 s]
+0.0.L: Trace Attempt  5	[39.10 s]
+0.0.Ht: Trace Attempt 1136112	[132.68 s]
+0.0.L: Trace Attempt 264	[43.10 s]
+0.0.Ht: Trace Attempt 1179255	[136.68 s]
+0.0.L: Trace Attempt 350	[47.12 s]
+0.0.Ht: Trace Attempt 1222124	[140.68 s]
+0.0.L: Trace Attempt 395	[51.13 s]
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[51.82 s]
+0.0.L: Trace Attempt  4	[51.82 s]
+0.0.L: Trace Attempt  5	[51.82 s]
+0.0.Ht: Trace Attempt 1264375	[144.68 s]
+0.0.L: Trace Attempt 276	[56.10 s]
+0.0.Ht: Trace Attempt 1306322	[148.68 s]
+0.0.L: Trace Attempt 357	[60.11 s]
+0.0.Ht: Trace Attempt 1347995	[152.68 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6 <4> }
+0.0.L: Trace Attempt  3	[64.24 s]
+0.0.L: Trace Attempt  4	[64.24 s]
+0.0.L: Trace Attempt  5	[64.24 s]
+0.0.Ht: Trace Attempt 1389435	[156.68 s]
+0.0.L: Trace Attempt 264	[68.25 s]
+0.0.Ht: Trace Attempt 1398100	[163.88 s]
+0.0.L: Trace Attempt 350	[72.27 s]
+0.0.Ht: Trace Attempt 1398117	[163.89 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 985.23 s)
+0.0.Ht: Engine should be restarted (starts=6, unexpected_terminations=6)
+   Last recorded RSS memory usage: 12.8607 MiB
+   Last recorded free memory: 597.464 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2948662@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.L: Trace Attempt 395	[76.31 s]
+0.0.D: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[524.09 s].
+0.0.D: Morphing to B
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6:precondition1 (2) }
+0.0.L: Trace Attempt  3	[77.04 s]
+0.0.L: Trace Attempt  4	[77.04 s]
+0.0.L: Trace Attempt  5	[77.04 s]
+0.0.Tricustom6: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[364.24 s].
+0.0.Tricustom6: Morphing to Ncustom1
+0.0.Tricustom6: Trace Attempt 2647092	[304.32 s]
+0.0.Tricustom6: All properties determined. [0.00 s]
+0.0.Tricustom6: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 429	[0.15 s]
+0.0.Ht: Trace Attempt 34797	[4.00 s]
+0.0.B: Trace Attempt 279	[4.02 s]
+0.0.L: Trace Attempt 268	[81.06 s]
+0.0.Ht: Trace Attempt 74620	[8.00 s]
+0.0.B: Trace Attempt 354	[8.04 s]
+0.0.L: Trace Attempt 344	[85.12 s]
+0.0.Ht: Trace Attempt 112779	[12.00 s]
+0.0.B: Trace Attempt 392	[12.06 s]
+0.0.L: Trace Attempt 399	[89.12 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_10 (2) }
+0.0.L: Trace Attempt  3	[89.51 s]
+0.0.L: Trace Attempt  4	[89.51 s]
+0.0.L: Trace Attempt  5	[89.51 s]
+0.0.Ht: Trace Attempt 151533	[16.00 s]
+0.0.B: Trace Attempt 421	[16.15 s]
+0.0.L: Trace Attempt 267	[93.53 s]
+0.0.Ht: Trace Attempt 178133	[20.00 s]
+0.0.B: Trace Attempt 441	[20.38 s]
+0.0.L: Trace Attempt 343	[97.55 s]
+0.0.Ht: Trace Attempt 225849	[24.00 s]
+0.0.L: Trace Attempt 397	[101.57 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_11 (4) }
+0.0.L: Trace Attempt  3	[102.01 s]
+0.0.L: Trace Attempt  4	[102.01 s]
+0.0.L: Trace Attempt  5	[102.01 s]
+0.0.Ht: Trace Attempt 262180	[28.00 s]
+0.0.B: Trace Attempt 465	[25.30 s]
+0.0.Ncustom1: Trace Attempt 430	[27.30 s]
+0.0.Ncustom1: Trace Attempt  1	[27.78 s]
+0.0.Ncustom1: Trace Attempt  2	[27.78 s]
+0.0.Ncustom1: Trace Attempt  3	[27.78 s]
+0.0.L: Trace Attempt 263	[106.02 s]
+0.0.Ht: Trace Attempt 302107	[32.00 s]
+0.0.Ncustom1: Trace Attempt 129	[32.31 s]
+0.0.B: Trace Attempt 476	[32.87 s]
+0.0.Ht: Trace Attempt 344673	[36.00 s]
+0.0.L: Trace Attempt 350	[110.06 s]
+0.0.Ncustom1: Trace Attempt 176	[36.34 s]
+0.0.Ht: Trace Attempt 355053	[40.00 s]
+0.0.L: Trace Attempt 395	[114.09 s]
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[114.83 s]
+0.0.L: Trace Attempt  4	[114.83 s]
+0.0.L: Trace Attempt  5	[114.83 s]
+0.0.Ht: Trace Attempt 403050	[44.00 s]
+0.0.Ncustom1: Trace Attempt 189	[41.41 s]
+0.0.L: Trace Attempt 276	[119.12 s]
+0.0.B: Trace Attempt 477	[43.58 s]
+0.0.Ht: Trace Attempt 449218	[48.00 s]
+0.0.L: Trace Attempt 357	[123.13 s]
+0.0.Ncustom1: Trace Attempt 195	[46.86 s]
+0.0.Ht: Trace Attempt 494202	[52.00 s]
+0.0.B: Trace Attempt 480	[49.41 s]
+0.0.L: Trace Attempt 403	[127.22 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6 <4> }
+0.0.L: Trace Attempt  3	[127.44 s]
+0.0.L: Trace Attempt  4	[127.44 s]
+0.0.L: Trace Attempt  5	[127.44 s]
+0.0.Ht: Trace Attempt 524304	[56.28 s]
+0.0.Ncustom1: Trace Attempt 201	[53.36 s]
+0.0.L: Trace Attempt 264	[131.45 s]
+0.0.Ht: Trace Attempt 569138	[60.28 s]
+0.0.L: Trace Attempt 350	[135.48 s]
+0.0.Ncustom1: Trace Attempt 207	[59.87 s]
+0.0.Ht: Trace Attempt 613218	[64.28 s]
+0.0.B: Trace Attempt 482	[62.42 s]
+0.0.L: Trace Attempt 395	[139.51 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._assert_6:precondition1 (2) }
+0.0.L: Trace Attempt  3	[140.28 s]
+0.0.L: Trace Attempt  4	[140.28 s]
+0.0.L: Trace Attempt  5	[140.28 s]
+0.0.Ht: Trace Attempt 656491	[68.28 s]
+0.0.Ncustom1: Trace Attempt 211	[65.27 s]
+0.0.L: Trace Attempt 268	[144.32 s]
+0.0.Ncustom1: Trace Attempt 215	[69.36 s]
+0.0.B: Trace Attempt 483	[69.61 s]
+0.0.L: Trace Attempt 344	[148.39 s]
+0.0.Ht: Trace Attempt 699050	[75.48 s]
+0.0.Ncustom1: Trace Attempt 219	[74.24 s]
+0.0.L: Trace Attempt 400	[152.40 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_10 (2) }
+0.0.L: Trace Attempt  3	[152.87 s]
+0.0.L: Trace Attempt  4	[152.87 s]
+0.0.L: Trace Attempt  5	[152.87 s]
+0.0.Ht: Trace Attempt 710235	[79.48 s]
+0.0.B: Trace Attempt 498	[77.15 s]
+0.0.Ncustom1: Trace Attempt 228	[79.25 s]
+0.0.L: Trace Attempt 268	[156.90 s]
+0.0.Ht: Trace Attempt 758116	[83.48 s]
+0.0.B: Trace Attempt 500	[81.21 s]
+0.0.L: Trace Attempt 344	[160.98 s]
+0.0.Ncustom1: Trace Attempt 232	[83.89 s]
+0.0.Ht: Trace Attempt 805142	[87.48 s]
+0.0.B: Trace Attempt 529	[85.23 s]
+0.0.L: Trace Attempt 400	[164.98 s]
+0.0.L: Using states from traces to { watchdog_timer.u_wdt_sva._cover_11 (4) }
+0.0.L: Trace Attempt  3	[165.45 s]
+0.0.L: Trace Attempt  4	[165.45 s]
+0.0.L: Trace Attempt  5	[165.45 s]
+0.0.Ht: Trace Attempt 851520	[91.48 s]
+0.0.B: Trace Attempt 543	[89.24 s]
+0.0.Ncustom1: Trace Attempt 236	[90.87 s]
+0.0.L: Trace Attempt 265	[169.45 s]
+0.0.Ht: Trace Attempt 896972	[95.48 s]
+0.0.B: Trace Attempt 551	[93.77 s]
+0.0.Ncustom1: Trace Attempt 240	[95.24 s]
+0.0.L: Trace Attempt 351	[173.48 s]
+0.0.Ht: Trace Attempt 941833	[99.48 s]
+0.0.B: Trace Attempt 561	[98.07 s]
+0.0.Ncustom1: Trace Attempt 246	[99.82 s]
+0.0.L: Trace Attempt 396	[177.52 s]
+0.0.Ht: Trace Attempt 986061	[103.48 s]
+0.0.L: Using states from traces to { (reset) }
+0.0.L: Trace Attempt  3	[178.22 s]
+0.0.L: Trace Attempt  4	[178.22 s]
+0.0.L: Trace Attempt  5	[178.22 s]
+0.0.B: Trace Attempt 591	[102.90 s]
+0.0.Ht: Trace Attempt 1029599	[107.48 s]
+0.0.Ncustom1: Trace Attempt 252	[105.16 s]
+0.0.L: Trace Attempt 276	[182.50 s]
+0.0.B: Trace Attempt 608	[107.45 s]
+0.0.L: Morphing to J
+0.0.L: Trace Attempt 325	[184.82 s]
+0.0.L: All properties determined. [0.00 s]
+0.0.L: Exited with Success (@ 0.00 s)
+0.0.J: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  2	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  3	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  4	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.01 s]
+0.0.J: Trace Attempt  1	[0.03 s]
+0.0.J: Trace Attempt  1	[0.03 s]
+0.0.J: Trace Attempt  1	[0.04 s]
+0.0.J: Trace Attempt  1	[0.05 s]
+0.0.J: Trace Attempt  1	[0.07 s]
+0.0.J: Trace Attempt  1	[0.09 s]
+0.0.J: Trace Attempt  1	[0.13 s]
+0.0.J: Trace Attempt  1	[0.18 s]
+0.0.J: Trace Attempt  1	[0.26 s]
+0.0.J: Trace Attempt  1	[0.39 s]
+0.0.J: Trace Attempt  1	[0.57 s]
+0.0.J: Trace Attempt  1	[0.85 s]
+0.0.J: Trace Attempt  1	[1.28 s]
+0.0.Ht: Trace Attempt 1048593	[112.41 s]
+0.0.J: Trace Attempt  1	[1.92 s]
+0.0.Ncustom1: Trace Attempt 262	[109.95 s]
+0.0.J: Trace Attempt  1	[2.61 s]
+0.0.J: Trace Attempt  1	[3.33 s]
+0.0.J: Trace Attempt  1	[4.39 s]
+0.0.Ht: Trace Attempt 1093000	[116.41 s]
+0.0.B: Trace Attempt 615	[113.78 s]
+0.0.J: Trace Attempt  1	[6.00 s]
+0.0.Ncustom1: Trace Attempt 270	[114.74 s]
+0.0.J: Trace Attempt  1	[8.40 s]
+0.0.Ht: Trace Attempt 1137044	[120.41 s]
+0.0.Ncustom1: Trace Attempt 291	[118.96 s]
+0.0.J: Trace Attempt  1	[12.33 s]
+0.0.Ht: Trace Attempt 1180751	[124.41 s]
+0.0.J: Trace Attempt 1765376	[16.33 s]
+0.0.Ht: Trace Attempt 1223261	[128.41 s]
+0.0.B: Trace Attempt 616	[125.61 s]
+0.0.J: Trace Attempt  1	[19.05 s]
+0.0.Ht: Trace Attempt 1265365	[132.41 s]
+0.0.B: Trace Attempt 621	[130.07 s]
+0.0.J: Trace Attempt 2613248	[23.05 s]
+0.0.Ht: Trace Attempt 1307250	[136.41 s]
+0.0.B: Trace Attempt 639	[134.25 s]
+0.0.J: Trace Attempt 4452352	[27.06 s]
+0.0.Ht: Trace Attempt 1349445	[140.41 s]
+0.0.J: Trace Attempt  1	[29.70 s]
+0.0.B: Trace Attempt 649	[138.90 s]
+0.0.Ht: Trace Attempt 1391381	[144.41 s]
+0.0.J: Trace Attempt 1306624	[33.70 s]
+0.0.B: Trace Attempt 662	[143.19 s]
+0.0.J: Trace Attempt 2613248	[37.70 s]
+0.0.B: Trace Attempt 668	[147.33 s]
+0.0.Ht: Trace Attempt 1398100	[151.36 s]
+0.0.J: Trace Attempt 3919872	[41.70 s]
+0.0.Ht: Trace Attempt 1398117	[151.38 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 1138.55 s)
+0.0.Ht: Engine should be restarted (starts=7, unexpected_terminations=7)
+   Last recorded RSS memory usage: 10.8171 MiB
+   Last recorded free memory: 596.818 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2948963@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.J: Trace Attempt 6369280	[45.70 s]
+0.0.Ht: Trace Attempt 36085	[4.00 s]
+0.0.J: Trace Attempt  1	[48.15 s]
+0.0.B: Trace Attempt 680	[156.14 s]
+0.0.Ht: Trace Attempt 69450	[8.00 s]
+0.0.J: Trace Attempt 2615296	[52.16 s]
+0.0.Ht: Trace Attempt 103791	[12.00 s]
+0.0.B: Trace Attempt 682	[163.58 s]
+0.0.J: Trace Attempt 5232640	[56.16 s]
+0.0.Ht: Trace Attempt 142351	[16.00 s]
+0.0.J: Trace Attempt 7845888	[60.16 s]
+0.0.B: Trace Attempt 686	[170.79 s]
+0.0.Ht: Trace Attempt 174780	[20.83 s]
+0.0.J: Trace Attempt 10463232	[64.16 s]
+0.0.J: Trace Attempt  1	[66.45 s]
+0.0.Ht: Trace Attempt 220201	[24.83 s]
+0.0.B: Trace Attempt 687	[176.46 s]
+0.0.J: Trace Attempt 2596864	[70.45 s]
+0.0.Ht: Trace Attempt 262141	[29.17 s]
+0.0.B: Trace Attempt 726	[180.50 s]
+0.0.J: Trace Attempt 5206016	[74.45 s]
+0.0.Ht: Trace Attempt 300570	[33.17 s]
+0.0.B: Trace Attempt 743	[184.81 s]
+0.0.J: Trace Attempt 7823360	[78.45 s]
+0.0.Ht: Trace Attempt 341608	[37.17 s]
+0.0.J: Trace Attempt 10446848	[82.45 s]
+0.0.Ht: Trace Attempt 349543	[41.37 s]
+0.0.J: Trace Attempt 13066240	[86.45 s]
+0.0.Ht: Trace Attempt 395385	[45.37 s]
+0.0.J: Trace Attempt 15679488	[90.45 s]
+0.0.Ht: Trace Attempt 439713	[49.37 s]
+0.0.J: Trace Attempt  1	[93.91 s]
+0.0.Ht: Trace Attempt 482562	[53.37 s]
+0.0.J: Trace Attempt 2611200	[97.91 s]
+0.0.B: Trace Attempt 744	[207.46 s]
+0.0.Ht: Trace Attempt 524215	[57.40 s]
+0.0.J: Trace Attempt 5226496	[101.91 s]
+0.0.Ncustom1: Trace Attempt 317	[211.23 s]
+0.0.Ht: Trace Attempt 548624	[61.40 s]
+0.0.J: Trace Attempt 7839744	[105.91 s]
+0.0.B: Trace Attempt 750	[213.83 s]
+0.0.Ht: Trace Attempt 590594	[65.40 s]
+0.0.Ncustom1: Trace Attempt 508	[215.71 s]
+0.0.J: Trace Attempt 10452992	[109.91 s]
+0.0.Ht: Trace Attempt 631996	[69.40 s]
+0.0.Ncustom1: Trace Attempt 525	[219.85 s]
+0.0.J: Trace Attempt 13068288	[113.91 s]
+0.0.Ht: Trace Attempt 672685	[73.40 s]
+0.0.Ncustom1: Trace Attempt 561	[224.03 s]
+0.0.J: Trace Attempt 15687680	[117.92 s]
+0.0.Ncustom1: Trace Attempt 572	[228.22 s]
+0.0.B: Trace Attempt 751	[229.44 s]
+0.0.J: Trace Attempt 18313216	[121.92 s]
+0.0.Ht: Trace Attempt 699050	[79.59 s]
+0.0.Ncustom1: Trace Attempt 582	[232.96 s]
+0.0.B: Trace Attempt 755	[233.58 s]
+0.0.J: Trace Attempt 20936704	[125.92 s]
+0.0.Ht: Trace Attempt 705818	[83.59 s]
+0.0.Ncustom1: Trace Attempt 590	[237.50 s]
+0.0.J: Trace Attempt 23552000	[129.92 s]
+0.0.Ht: Trace Attempt 751037	[87.59 s]
+0.0.B: Trace Attempt 758	[238.08 s]
+0.0.J: Trace Attempt 26167296	[133.92 s]
+0.0.Ht: Trace Attempt 795592	[91.59 s]
+0.0.B: Trace Attempt 784	[242.14 s]
+0.0.Ncustom1: Trace Attempt 598	[242.09 s]
+0.0.J: Trace Attempt  1	[135.05 s]
+0.0.Ht: Trace Attempt 839751	[95.59 s]
+0.0.B: Trace Attempt 808	[246.14 s]
+0.0.J: Trace Attempt 2615296	[139.05 s]
+0.0.Ncustom1: Trace Attempt 606	[246.85 s]
+0.0.Ht: Trace Attempt 883206	[99.59 s]
+0.0.J: Trace Attempt 5226496	[143.05 s]
+0.0.Ncustom1: Trace Attempt 619	[251.68 s]
+0.0.B: Trace Attempt 824	[251.87 s]
+0.0.Ht: Trace Attempt 925694	[103.59 s]
+0.0.J: Trace Attempt 7837696	[147.05 s]
+0.0.Ncustom1: Trace Attempt 635	[256.15 s]
+0.0.B: Trace Attempt 826	[256.75 s]
+0.0.Ht: Trace Attempt 967794	[107.59 s]
+0.0.J: Trace Attempt 10450944	[151.05 s]
+0.0.Ncustom1: Trace Attempt 662	[260.22 s]
+0.0.Ht: Trace Attempt 1009231	[111.59 s]
+0.0.J: Trace Attempt 13072384	[155.05 s]
+0.0.J: Trace Attempt 15691776	[159.06 s]
+0.0.Ht: Trace Attempt 1048573	[117.28 s]
+0.0.J: Trace Attempt 18315264	[163.06 s]
+0.0.Ht: Trace Attempt 1072333	[121.28 s]
+0.0.J: Trace Attempt 20928512	[167.06 s]
+0.0.Ht: Trace Attempt 1114532	[125.28 s]
+0.0.J: Trace Attempt 23543808	[171.06 s]
+0.0.Ht: Trace Attempt 1156206	[129.28 s]
+0.0.B: Trace Attempt 849	[281.14 s]
+0.0.J: Trace Attempt 26163200	[175.06 s]
+0.0.Ht: Trace Attempt 1197482	[133.28 s]
+0.0.J: Trace Attempt 28774400	[179.06 s]
+0.0.Ht: Trace Attempt 1238255	[137.28 s]
+0.0.J: Trace Attempt 31387648	[183.06 s]
+0.0.Ht: Trace Attempt 1278426	[141.28 s]
+0.0.J: Interrupted (multi)
+0.0.J: Morphing to U2
+0.0.J: Trace Attempt 32620213	[184.95 s]
+0.0.J: All properties determined. [0.00 s]
+0.0.J: Exited with Success (@ 0.00 s)
+0.0.U2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.U2: Reached length limit (10000) [0.01 s]
+0.0.U2: Exited with Success (@ 1281.08 s)
+0.0.U2: Completed, Restart ignored.
+0.0.Ht: Trace Attempt 1318835	[145.28 s]
+0.0.B: Trace Attempt 850	[297.07 s]
+0.0.U: Proofgrid shell started at 2949263@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.U: OS RSS memory limit : 17179869184 / 17179869184
+0.0.U: Reached length limit (100) [0.00 s]
+0.0.U: Exited with Success (@ 1286.11 s)
+0.0.Ht: Trace Attempt 1359399	[149.28 s]
+0.0.B: Trace Attempt 865	[301.38 s]
+0.0.Hp: Proofgrid shell started at 2949341@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Trace Attempt 867	[309.19 s]
+0.0.Ht: Trace Attempt 1398100	[160.93 s]
+0.0.Ht: Trace Attempt 1398117	[160.95 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 1301.00 s)
+0.0.Ht: Engine should be restarted (starts=8, unexpected_terminations=8)
+   Last recorded RSS memory usage: 12.783 MiB
+   Last recorded free memory: 587.975 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2949351@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.03 s]
+0.0.Ht: Trace Attempt  2	[0.03 s]
+0.0.Ht: Trace Attempt  3	[0.03 s]
+0.0.Ht: Trace Attempt  4	[0.03 s]
+0.0.Ht: Trace Attempt  5	[0.03 s]
+0.0.Mp: Proofgrid shell started at 2949358@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Mp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Mp: Trace Attempt  1	[0.00 s]
+0.0.Mp: Trace Attempt  2	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 36848	[4.03 s]
+0.0.Mp: Trace Attempt 104	[4.36 s]
+0.0.Ht: Trace Attempt 73318	[8.03 s]
+0.0.Mp: Trace Attempt 135	[9.18 s]
+0.0.Ht: Trace Attempt 107948	[12.03 s]
+0.0.Mp: Trace Attempt 152	[14.37 s]
+0.0.Ht: Trace Attempt 145496	[16.03 s]
+0.0.Mp: Trace Attempt 167	[18.38 s]
+0.0.Ht: Trace Attempt 174780	[20.77 s]
+0.0.Mp: Trace Attempt 189	[22.45 s]
+0.0.Ht: Trace Attempt 219506	[24.77 s]
+0.0.Mp: Trace Attempt 213	[28.05 s]
+0.0.Ht: Trace Attempt 261748	[28.77 s]
+0.0.Mp: Trace Attempt 226	[32.27 s]
+0.0.Ht: Trace Attempt 295185	[32.77 s]
+0.0.Ht: Trace Attempt 336369	[36.77 s]
+0.0.Mp: Trace Attempt 226	[37.07 s]
+0.0.Ht: Trace Attempt 349543	[41.45 s]
+0.0.Mp: Trace Attempt 226	[43.02 s]
+0.0.Ht: Trace Attempt 394960	[45.45 s]
+0.0.Ht: Trace Attempt 438897	[49.45 s]
+0.0.Mp: Trace Attempt 226	[49.70 s]
+0.0.Ht: Trace Attempt 481461	[53.45 s]
+0.0.Ht: Trace Attempt 522789	[57.45 s]
+0.0.Mp: Trace Attempt 226	[57.64 s]
+0.0.B: Trace Attempt 868	[373.46 s]
+0.0.Ht: Trace Attempt 545519	[61.45 s]
+0.0.Ht: Trace Attempt 587659	[65.45 s]
+0.0.Mp: Trace Attempt 227	[65.72 s]
+0.0.Ht: Trace Attempt 628701	[69.45 s]
+0.0.Mp: Trace Attempt 275	[70.89 s]
+0.0.B: Trace Attempt 869	[384.69 s]
+0.0.Ht: Trace Attempt 669202	[73.45 s]
+0.0.Mp: Trace Attempt 281	[76.82 s]
+0.0.Ht: Trace Attempt 699050	[80.00 s]
+0.0.Mp: Trace Attempt 296	[81.17 s]
+0.0.Ht: Trace Attempt 705640	[84.00 s]
+0.0.Mp: Trace Attempt 301	[86.10 s]
+0.0.Ht: Trace Attempt 751065	[88.00 s]
+0.0.Ht: Trace Attempt 795775	[92.00 s]
+0.0.Mp: Trace Attempt 312	[92.14 s]
+0.0.Ht: Trace Attempt 839736	[96.00 s]
+0.0.Mp: Trace Attempt 321	[96.66 s]
+0.0.B: Trace Attempt 870	[412.11 s]
+0.0.Ht: Trace Attempt 883034	[100.00 s]
+0.0.Mp: Trace Attempt 331	[101.79 s]
+0.0.Ht: Trace Attempt 925683	[104.00 s]
+0.0.Mp: Trace Attempt 337	[106.82 s]
+0.0.Ht: Trace Attempt 967495	[108.00 s]
+0.0.Mp: Trace Attempt 346	[111.27 s]
+0.0.Ht: Trace Attempt 1009033	[112.00 s]
+0.0.Mp: Trace Attempt 364	[115.48 s]
+0.0.Ht: Trace Attempt 1048573	[117.61 s]
+0.0.B: Trace Attempt 871	[431.31 s]
+0.0.Ht: Trace Attempt 1072344	[121.61 s]
+0.0.Mp: Trace Attempt 385	[121.86 s]
+0.0.Ht: Trace Attempt 1113051	[125.61 s]
+0.0.Mp: Trace Attempt 385	[128.37 s]
+0.0.Ht: Trace Attempt 1153712	[129.61 s]
+0.0.Ht: Trace Attempt 1194934	[133.61 s]
+0.0.Mp: Trace Attempt 385	[134.85 s]
+0.0.Ht: Trace Attempt 1235839	[137.61 s]
+0.0.Mp: Trace Attempt 385	[140.55 s]
+0.0.Ht: Trace Attempt 1276492	[141.61 s]
+0.0.B: Trace Attempt 872	[456.51 s]
+0.0.Ht: Trace Attempt 1316720	[145.61 s]
+0.0.Mp: Trace Attempt 385	[146.97 s]
+0.0.Ht: Trace Attempt 1356441	[149.61 s]
+0.0.Ht: Trace Attempt 1396264	[153.61 s]
+0.0.Mp: Trace Attempt 385	[154.14 s]
+0.0.Ht: Trace Attempt 1398099	[153.80 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 1457.22 s)
+0.0.Ht: Engine should be restarted (starts=9, unexpected_terminations=9)
+   Last recorded RSS memory usage: 10.668 MiB
+   Last recorded free memory: 589.47 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2949754@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 36933	[4.00 s]
+0.0.Ht: Trace Attempt 76212	[8.00 s]
+0.0.Mp: Trace Attempt 385	[167.69 s]
+0.0.Ht: Trace Attempt 114200	[12.00 s]
+0.0.Ht: Trace Attempt 145001	[16.00 s]
+0.0.Ht: Trace Attempt 170235	[20.00 s]
+0.0.B: Trace Attempt 873	[489.68 s]
+0.0.Ht: Trace Attempt 184712	[24.01 s]
+0.0.B: Trace Attempt 874	[495.45 s]
+0.0.Mp: Trace Attempt 385	[183.05 s]
+0.0.Ht: Trace Attempt 213086	[28.01 s]
+0.0.B: Trace Attempt 887	[500.66 s]
+0.0.Ht: Trace Attempt 258606	[32.01 s]
+0.0.Ht: Trace Attempt 291360	[36.01 s]
+0.0.Ht: Trace Attempt 335373	[40.01 s]
+0.0.Mp: Trace Attempt 385	[196.18 s]
+0.0.Ht: Trace Attempt 349543	[44.39 s]
+0.0.Ht: Trace Attempt 397554	[48.39 s]
+0.0.Ht: Trace Attempt 444211	[52.39 s]
+0.0.Mp: Trace Attempt 385	[212.32 s]
+0.0.Ht: Trace Attempt 489325	[56.39 s]
+0.0.Ht: Trace Attempt 524304	[61.11 s]
+0.0.Ht: Trace Attempt 569187	[65.11 s]
+0.0.Ht: Trace Attempt 613208	[69.11 s]
+0.0.Mp: Trace Attempt 385	[227.64 s]
+0.0.Ht: Trace Attempt 643979	[73.11 s]
+0.0.Ht: Trace Attempt 677609	[77.11 s]
+0.0.Ht: Trace Attempt 699050	[82.35 s]
+0.0.Ht: Trace Attempt 710251	[86.35 s]
+0.0.Mp: Trace Attempt 385	[244.42 s]
+0.0.Ht: Trace Attempt 758017	[90.35 s]
+0.0.B: Trace Attempt 888	[560.98 s]
+0.0.Ht: Trace Attempt 805072	[94.35 s]
+0.0.Ht: Trace Attempt 844327	[98.35 s]
+0.0.Mp: Trace Attempt 385	[256.84 s]
+0.0.Ht: Trace Attempt 889601	[102.35 s]
+0.0.Ht: Trace Attempt 926288	[106.36 s]
+0.0.Ht: Trace Attempt 952642	[110.36 s]
+0.0.Ht: Trace Attempt 978430	[114.36 s]
+0.0.Mp: Trace Attempt 385	[271.17 s]
+0.0.Ht: Trace Attempt 1003858	[118.37 s]
+0.0.B: Trace Attempt 889	[588.76 s]
+0.0.Ht: Trace Attempt 1028038	[122.37 s]
+0.0.Ht: Trace Attempt 1048573	[127.94 s]
+0.0.Ht: Trace Attempt 1053763	[131.94 s]
+0.0.Mp: Trace Attempt 385	[289.04 s]
+0.0.Ht: Trace Attempt 1090273	[135.94 s]
+0.0.Ht: Trace Attempt 1118410	[139.94 s]
+0.0.B: Trace Attempt 890	[609.38 s]
+0.0.Ht: Trace Attempt 1145724	[143.94 s]
+0.0.B: Trace Attempt 902	[613.51 s]
+0.0.Ht: Trace Attempt 1182979	[147.94 s]
+0.0.B: Trace Attempt 911	[617.84 s]
+0.0.Mp: Trace Attempt 385	[306.46 s]
+0.0.Ht: Trace Attempt 1221978	[151.94 s]
+0.0.Ht: Trace Attempt 1253276	[155.94 s]
+0.0.Mp: Trace Attempt 386	[312.29 s]
+0.0.Ht: Trace Attempt 1277009	[159.94 s]
+0.0.Mp: Trace Attempt 407	[316.34 s]
+0.0.Ht: Trace Attempt 1300813	[163.94 s]
+0.0.Mp: Trace Attempt 420	[320.85 s]
+0.0.Ht: Trace Attempt 1324453	[167.94 s]
+0.0.Mp: Trace Attempt 427	[326.83 s]
+0.0.Ht: Trace Attempt 1347849	[171.94 s]
+0.0.Mp: Trace Attempt 436	[331.07 s]
+0.0.Ht: Trace Attempt 1375177	[175.94 s]
+0.0.Mp: Trace Attempt 446	[335.73 s]
+0.0.Ht: Trace Attempt 1398099	[179.13 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 1637.97 s)
+0.0.Ht: Engine should be restarted (starts=10, unexpected_terminations=10)
+   Last recorded RSS memory usage: 10.6924 MiB
+   Last recorded free memory: 589.592 MiB out of 1006.89 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 2949900@della-h12n18(local) jg_2937560_della-h12n18_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Mp: Trace Attempt 466	[339.77 s]
+0.0.Ht: Trace Attempt 32744	[4.00 s]
+0.0.B: Trace Attempt 919	[656.09 s]
+0.0.Ht: Trace Attempt 60600	[8.00 s]
+0.0.Ht: Trace Attempt 91869	[12.00 s]
+0.0.Ht: Trace Attempt 131089	[16.01 s]
+0.0.Ht: Trace Attempt 172948	[20.01 s]
+0.0.Ht: Trace Attempt 199159	[24.01 s]
+0.0.B: Trace Attempt 920	[676.26 s]
+0.0.Mp: Trace Attempt 494	[364.18 s]
+0.0.Ht: Trace Attempt 242590	[28.01 s]
+0.0.Ht: Trace Attempt 275869	[32.01 s]
+0.0.B: Trace Attempt 921	[683.47 s]
+0.0.Ht: Trace Attempt 317933	[36.01 s]
+0.0.Ht: Trace Attempt 349525	[40.78 s]
+0.0.Ht: Trace Attempt 375531	[44.78 s]
+0.0.Mp: Trace Attempt 494	[383.66 s]
+0.0.B: Trace Attempt 922	[697.27 s]
+0.0.Ht: Trace Attempt 419645	[48.78 s]
+0.0.B: Trace Attempt 932	[701.44 s]
+0.0.Ht: Trace Attempt 462971	[52.78 s]
+0.0.B: Trace Attempt 943	[705.93 s]
+0.0.Ht: Trace Attempt 504990	[56.78 s]
+0.0.B: Trace Attempt 950	[709.97 s]
+0.0.Ht: Trace Attempt 528401	[60.78 s]
+0.0.Mp: Trace Attempt 494	[400.84 s]
+0.0.Ht: Trace Attempt 570932	[64.78 s]
+0.0.Ht: Trace Attempt 612458	[68.78 s]
+0.0.Ht: Trace Attempt 653237	[72.78 s]
+0.0.Ht: Trace Attempt 693384	[76.78 s]
+0.0.B: Trace Attempt 955	[727.07 s]
+0.0.Ht: Trace Attempt 699050	[80.95 s]
+0.0.Mp: Trace Attempt 494	[420.89 s]
+0.0.Ht: Trace Attempt 705419	[84.95 s]
+0.0.Ht: Trace Attempt 750852	[88.95 s]
+0.0.Ht: Trace Attempt 795420	[92.95 s]
+0.0.Ht: Trace Attempt 839309	[96.95 s]
+0.0.Ht: Trace Attempt 882125	[100.95 s]
+0.0.Mp: Trace Attempt 494	[440.52 s]
+0.0.Ht: Trace Attempt 924079	[104.95 s]
+0.0.Ht: Trace Attempt 965456	[108.95 s]
+0.0.Ht: Trace Attempt 1006411	[112.95 s]
+0.0.Ht: Trace Attempt 1046824	[116.95 s]
+0.0.Ht: Trace Attempt 1051080	[120.95 s]
+0.0.Mp: Trace Attempt 494	[458.95 s]
+0.0.Ht: Trace Attempt 1092559	[124.95 s]
+0.0.Ht: Trace Attempt 1133895	[128.95 s]
+0.0.B: Trace Attempt 956	[779.86 s]
+0.0.Ht: Trace Attempt 1173885	[132.95 s]
+0.0.Ht: Trace Attempt 1214570	[136.95 s]
+0.0.Mp: Trace Attempt 494	[477.31 s]
+0.0.Ht: Trace Attempt 1254599	[140.95 s]
+0.0.Ht: Trace Attempt 1294228	[144.95 s]
+0.0.B: Trace Attempt 957	[795.13 s]
+0.0.Ht: Trace Attempt 1333557	[148.95 s]
+0.0.Ht: Trace Attempt 1372773	[152.95 s]
+0.0.B: Trace Attempt 958	[805.48 s]
+0.0.Ht: Trace Attempt 1398099	[155.55 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 1794.73 s)
+0.0.Ht: ERROR (EPF089): This engine job has stopped and been automatically restarted "proofgrid_restarts"=10 times and will not be automatically restarted anymore. Investigate why it might have stopped so many times (memout, or ProofGrid setup problem maybe?).
+    Terminated unexpectedly 11 times
+0.0.Mp: Trace Attempt 494	[498.00 s]
+0.0.Mp: Trace Attempt 494	[521.42 s]
+0.0.B: Trace Attempt 959	[841.43 s]
+0.0.Mp: Trace Attempt 494	[540.75 s]
+0.0.B: Trace Attempt 960	[872.70 s]
+0.0.Mp: Trace Attempt 494	[562.59 s]
+0.0.Mp: Trace Attempt 494	[582.13 s]
+0.0.B: Trace Attempt 961	[906.64 s]
+0.0.B: Trace Attempt 962	[913.83 s]
+0.0.B: Trace Attempt 967	[921.28 s]
+0.0.Mp: Trace Attempt 494	[608.32 s]
+0.0.Mp: Trace Attempt 494	[626.10 s]
+0.0.Mp: Trace Attempt 494	[648.79 s]
+0.0.B: Trace Attempt 969	[963.95 s]
+0.0.B: Trace Attempt 970	[972.63 s]
+0.0.B: Trace Attempt 979	[976.66 s]
+0.0.Mp: Trace Attempt 494	[668.18 s]
+0.0.B: Trace Attempt 990	[981.29 s]
+0.0.B: Trace Attempt 998	[985.34 s]
+0.0.Mp: Trace Attempt 494	[685.36 s]
+0.0.Mp: Trace Attempt 525	[689.82 s]
+0.0.Mp: Trace Attempt 559	[695.13 s]
+0.0.Mp: Trace Attempt 567	[700.64 s]
+0.0.Mp: Trace Attempt 578	[704.93 s]
+0.0.B: Trace Attempt 1000	[1022.59 s]
+0.0.Mp: Trace Attempt 593	[710.79 s]
+0.0.Mp: Trace Attempt 604	[714.85 s]
+0.0.Mp: Trace Attempt 622	[718.91 s]
+0.0.Mp: Trace Attempt 643	[742.29 s]
+0.0.B: Trace Attempt 1001	[1066.11 s]
+0.0.B: Trace Attempt 1002	[1078.54 s]
+0.0.Mp: Trace Attempt 643	[768.07 s]
+0.0.B: Trace Attempt 1007	[1093.88 s]
+0.0.Mp: Trace Attempt 643	[790.59 s]
+0.0.Mp: Trace Attempt 643	[813.82 s]
+0.0.B: Trace Attempt 1008	[1140.42 s]
+0.0.Mp: Trace Attempt 643	[836.15 s]
+0.0.B: Trace Attempt 1009	[1149.49 s]
+0.0.B: Trace Attempt 1012	[1160.24 s]
+0.0.B: Trace Attempt 1021	[1164.85 s]
+0.0.Mp: Trace Attempt 643	[860.76 s]
+0.0.B: Trace Attempt 1024	[1180.51 s]
+0.0.Mp: Trace Attempt 643	[882.50 s]
+0.0.Mp: Trace Attempt 643	[907.37 s]
+0.0.Mp: Trace Attempt 643	[928.18 s]
+0.0.B: Trace Attempt 1025	[1242.55 s]
+0.0.Mp: Trace Attempt 651	[932.18 s]
+0.0.Mp: Trace Attempt 701	[936.33 s]
+0.0.Mp: Trace Attempt 733	[940.75 s]
+0.0.Mp: Trace Attempt 754	[946.16 s]
+0.0.B: Trace Attempt 1026	[1260.98 s]
+0.0.Mp: Trace Attempt 759	[950.26 s]
+0.0.B: Trace Attempt 1027	[1266.48 s]
+0.0.Mp: Trace Attempt 782	[977.06 s]
+0.0.B: Trace Attempt 1029	[1302.17 s]
+0.0.Mp: Trace Attempt 782	[1006.65 s]
+0.0.B: Trace Attempt 1030	[1327.48 s]
+0.0.B: Trace Attempt 1031	[1334.12 s]
+0.0.B: Trace Attempt 1032	[1345.98 s]
+0.0.Mp: Trace Attempt 782	[1034.51 s]
+0.0.B: Trace Attempt 1033	[1372.59 s]
+0.0.Ncustom1: Trace Attempt 681	[1375.34 s]
+0.0.B: Trace Attempt 1043	[1379.46 s]
+0.0.Ncustom1: Trace Attempt 880	[1379.37 s]
+0.0.Mp: Trace Attempt 782	[1070.32 s]
+0.0.Ncustom1: Trace Attempt 953	[1383.51 s]
+0.0.Ncustom1: Trace Attempt 961	[1387.98 s]
+0.0.Ncustom1: Trace Attempt 976	[1392.92 s]
+0.0.Ncustom1: Trace Attempt 981	[1397.65 s]
+0.0.B: Trace Attempt 1044	[1398.44 s]
+0.0.Ncustom1: Trace Attempt 993	[1402.09 s]
+0.0.B: Trace Attempt 1045	[1407.12 s]
+0.0.Mp: Trace Attempt 782	[1099.14 s]
+0.0.B: Trace Attempt 1054	[1427.29 s]
+0.0.Mp: Trace Attempt 782	[1134.70 s]
+0.0.B: Trace Attempt 1055	[1450.48 s]
+0.0.Ncustom1: Trace Attempt 1015	[1453.61 s]
+0.0.B: Trace Attempt 1056	[1458.40 s]
+0.0.Ncustom1: Trace Attempt 1125	[1458.79 s]
+0.0.Ncustom1: Trace Attempt 1160	[1463.14 s]
+0.0.Ncustom1: Trace Attempt 1177	[1467.22 s]
+0.0.Ncustom1: Trace Attempt 1183	[1471.70 s]
+0.0.Ncustom1: Trace Attempt 1193	[1476.34 s]
+0.0.Mp: Trace Attempt 782	[1165.72 s]
+0.0.Ncustom1: Trace Attempt 1216	[1480.53 s]
+0.0.Mp: Trace Attempt 790	[1172.93 s]
+0.0.Ncustom1: Trace Attempt 1219	[1486.48 s]
+0.0.Mp: Trace Attempt 804	[1176.97 s]
+0.0.Ncustom1: Trace Attempt 1224	[1492.35 s]
+0.0.Mp: Trace Attempt 823	[1181.59 s]
+0.0.Ncustom1: Trace Attempt 1240	[1497.84 s]
+0.0.Mp: Trace Attempt 832	[1185.82 s]
+0.0.Ncustom1: Trace Attempt 1246	[1503.08 s]
+0.0.Ncustom1: Trace Attempt 1251	[1507.85 s]
+0.0.Mp: Trace Attempt 846	[1195.51 s]
+0.0.Ncustom1: Trace Attempt 1265	[1511.86 s]
+0.0.B: Trace Attempt 1057	[1516.71 s]
+0.0.Mp: Trace Attempt 870	[1230.88 s]
+0.0.B: Trace Attempt 1058	[1548.48 s]
+0.0.B: Trace Attempt 1059	[1565.60 s]
+0.0.Mp: Trace Attempt 870	[1265.21 s]
+0.0.B: Trace Attempt 1060	[1590.09 s]
+0.0.Mp: Trace Attempt 870	[1301.29 s]
+0.0.B: Trace Attempt 1061	[1614.85 s]
+0.0.B: Trace Attempt 1066	[1619.37 s]
+0.0.B: Trace Attempt 1073	[1624.32 s]
+0.0.Mp: Trace Attempt 870	[1333.06 s]
+0.0.Mp: Trace Attempt 870	[1367.73 s]
+0.0.B: Trace Attempt 1074	[1684.42 s]
+0.0.B: Trace Attempt 1075	[1695.82 s]
+0.0.B: Trace Attempt 1076	[1704.63 s]
+0.0.Mp: Trace Attempt 870	[1403.31 s]
+0.0.B: Trace Attempt 1077	[1720.47 s]
+0.0.B: Trace Attempt 1078	[1733.64 s]
+0.0.B: Trace Attempt 1079	[1738.55 s]
+0.0.Mp: Trace Attempt 870	[1439.66 s]
+0.0.B: Trace Attempt 1080	[1754.27 s]
+0.0.B: Trace Attempt 1081	[1768.75 s]
+0.0.B: Trace Attempt 1082	[1776.45 s]
+0.0.Mp: Trace Attempt 870	[1474.44 s]
+0.0.Mp: Trace Attempt 871	[1479.85 s]
+0.0.Mp: Trace Attempt 889	[1483.99 s]
+0.0.Mp: Trace Attempt 902	[1488.21 s]
+0.0.Mp: Trace Attempt 918	[1492.64 s]
+0.0.Mp: Trace Attempt 930	[1496.93 s]
+0.0.B: Trace Attempt 1083	[1818.83 s]
+0.0.B: Trace Attempt 1084	[1839.88 s]
+0.0.Ncustom1: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[1843.66 s].
+0.0.Ncustom1: Morphing to AMcustom2
+0.0.Ncustom1: Trace Attempt 1291	[1514.31 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.05 s]
+0.0.AMcustom2: Trace Attempt  2	[0.05 s]
+0.0.AMcustom2: Trace Attempt  3	[0.05 s]
+0.0.AMcustom2: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[0.17 s].
+0.0.AMcustom2: Morphing to I
+0.0.AMcustom2: Trace Attempt 54	[0.17 s]
+0.0.AMcustom2: All properties determined. [0.00 s]
+0.0.AMcustom2: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.I: Trace Attempt 11	[0.01 s]
+0.0.I: Trace Attempt  1	[0.01 s]
+0.0.I: Trace Attempt  2	[0.01 s]
+0.0.I: Trace Attempt  3	[0.01 s]
+0.0.I: Trace Attempt 85	[7.81 s]
+0.0.Mp: Trace Attempt 946	[1544.90 s]
+0.0.B: Trace Attempt 1085	[1861.73 s]
+0.0.B: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[1866.04 s].
+0.0.B: Morphing to M
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.M: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.M: Trace Attempt 126	[4.28 s]
+0.0.M: Trace Attempt 168	[8.84 s]
+0.0.M: Trace Attempt 189	[14.92 s]
+0.0.I: Trace Attempt 123	[39.85 s]
+0.0.M: Trace Attempt 195	[20.40 s]
+0.0.M: Trace Attempt 201	[26.44 s]
+0.0.M: Trace Attempt 207	[33.02 s]
+0.0.Mp: Trace Attempt 946	[1587.18 s]
+0.0.M: Trace Attempt 211	[37.46 s]
+0.0.M: Trace Attempt 215	[41.67 s]
+0.0.M: Trace Attempt 219	[47.21 s]
+0.0.M: Trace Attempt 228	[52.29 s]
+0.0.M: Trace Attempt 232	[56.83 s]
+0.0.M: Trace Attempt 236	[63.98 s]
+0.0.Mp: Trace Attempt 946	[1621.76 s]
+0.0.M: Trace Attempt 240	[69.03 s]
+0.0.M: Trace Attempt 244	[73.93 s]
+0.0.I: Trace Attempt 161	[98.40 s]
+0.0.M: Trace Attempt 252	[80.09 s]
+0.0.M: Trace Attempt 260	[84.41 s]
+0.0.M: Trace Attempt 264	[89.98 s]
+0.0.M: Trace Attempt 268	[94.10 s]
+0.0.M: Trace Attempt 274	[98.79 s]
+0.0.M: Trace Attempt 283	[103.09 s]
+0.0.Mp: Trace Attempt 946	[1657.73 s]
+0.0.M: Trace Attempt 301	[107.14 s]
+0.0.M: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[137.15 s].
+0.0.M: Morphing to AMcustom2
+0.0.M: Trace Attempt 309	[107.61 s]
+0.0.M: All properties determined. [0.00 s]
+0.0.M: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  4	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.02 s]
+0.0.AMcustom2: Trace Attempt  1	[0.05 s]
+0.0.AMcustom2: Trace Attempt  2	[0.05 s]
+0.0.AMcustom2: Trace Attempt  3	[0.05 s]
+0.0.AMcustom2: Trace Attempt  1	[0.29 s]
+0.0.AMcustom2: Trace Attempt  2	[0.29 s]
+0.0.AMcustom2: Trace Attempt  3	[0.29 s]
+0.0.AMcustom2: Trace Attempt  1	[1.32 s]
+0.0.AMcustom2: Trace Attempt  2	[1.32 s]
+0.0.AMcustom2: Trace Attempt  3	[1.32 s]
+0.0.AMcustom2: Trace Attempt 253	[6.04 s]
+0.0.AMcustom2: Trace Attempt  1	[6.89 s]
+0.0.AMcustom2: Trace Attempt  2	[6.89 s]
+0.0.AMcustom2: Trace Attempt  3	[6.89 s]
+0.0.AMcustom2: Trace Attempt 211	[10.96 s]
+0.0.Mp: Trace Attempt 946	[1703.69 s]
+0.0.AMcustom2: Trace Attempt 482	[15.00 s]
+0.0.AMcustom2: Trace Attempt 261	[20.36 s]
+0.0.AMcustom2: Trace Attempt 352	[24.36 s]
+0.0.AMcustom2: Trace Attempt 412	[29.70 s]
+0.0.AMcustom2: Trace Attempt 458	[34.61 s]
+0.0.AMcustom2: Trace Attempt 498	[38.67 s]
+0.0.AMcustom2: Trace Attempt 547	[43.02 s]
+0.0.AMcustom2: Trace Attempt 561	[47.59 s]
+0.0.AMcustom2: Trace Attempt 590	[51.60 s]
+0.0.AMcustom2: Trace Attempt 623	[55.64 s]
+0.0.Mp: Trace Attempt 946	[1748.37 s]
+0.0.AMcustom2: Trace Attempt 655	[59.72 s]
+0.0.AMcustom2: Trace Attempt 657	[67.19 s]
+0.0.AMcustom2: Trace Attempt 674	[71.30 s]
+0.0.AMcustom2: Trace Attempt 707	[75.44 s]
+0.0.AMcustom2: Trace Attempt 731	[79.46 s]
+0.0.AMcustom2: Trace Attempt 736	[87.53 s]
+0.0.AMcustom2: Trace Attempt 757	[91.55 s]
+0.0.AMcustom2: Trace Attempt 799	[95.59 s]
+0.0.Mp: Trace Attempt 946	[1786.21 s]
+0.0.AMcustom2: Trace Attempt 821	[99.67 s]
+0.0.AMcustom2: Trace Attempt 844	[103.71 s]
+0.0.AMcustom2: Trace Attempt 845	[112.72 s]
+0.0.AMcustom2: Trace Attempt 846	[117.72 s]
+0.0.AMcustom2: Trace Attempt 856	[121.87 s]
+0.0.I: Trace Attempt 216	[283.26 s]
+0.0.AMcustom2: Trace Attempt 881	[125.96 s]
+0.0.Mp: Trace Attempt 946	[1825.19 s]
+0.0.AMcustom2: Trace Attempt 911	[137.27 s]
+0.0.AMcustom2: Trace Attempt 932	[142.10 s]
+0.0.AMcustom2: Trace Attempt 958	[146.16 s]
+0.0.AMcustom2: Trace Attempt 976	[150.18 s]
+0.0.AMcustom2: Trace Attempt 992	[154.22 s]
+0.0.AMcustom2: Trace Attempt 1009	[167.85 s]
+0.0.AMcustom2: Trace Attempt 1012	[172.07 s]
+0.0.Mp: Trace Attempt 946	[1866.99 s]
+0.0.AMcustom2: Trace Attempt 1026	[177.12 s]
+0.0.AMcustom2: Trace Attempt  1	[177.45 s]
+0.0.AMcustom2: Trace Attempt  2	[177.45 s]
+0.0.AMcustom2: Trace Attempt  3	[177.45 s]
+0.0.AMcustom2: Trace Attempt 126	[181.76 s]
+0.0.AMcustom2: Trace Attempt 187	[186.01 s]
+0.0.AMcustom2: Trace Attempt 197	[191.14 s]
+0.0.AMcustom2: Trace Attempt 206	[195.94 s]
+0.0.AMcustom2: Trace Attempt 209	[201.33 s]
+0.0.AMcustom2: Trace Attempt 215	[206.25 s]
+0.0.AMcustom2: Trace Attempt 219	[210.49 s]
+0.0.AMcustom2: Trace Attempt 228	[215.45 s]
+0.0.Mp: Trace Attempt 946	[1909.90 s]
+0.0.AMcustom2: Trace Attempt 232	[220.67 s]
+0.0.Mp: Trace Attempt 964	[1914.09 s]
+0.0.AMcustom2: Trace Attempt 236	[227.74 s]
+0.0.Mp: Trace Attempt 976	[1918.35 s]
+0.0.AMcustom2: Trace Attempt 240	[231.98 s]
+0.0.Mp: Trace Attempt 988	[1922.59 s]
+0.0.Mp: Trace Attempt 991	[1926.74 s]
+0.0.AMcustom2: Trace Attempt 244	[236.51 s]
+0.0.Mp: Trace Attempt 1003	[1931.67 s]
+0.0.AMcustom2: Trace Attempt 252	[242.51 s]
+0.0.Mp: Trace Attempt 1006	[1937.48 s]
+0.0.AMcustom2: Trace Attempt 262	[248.61 s]
+0.0.Mp: Trace Attempt 1014	[1942.03 s]
+0.0.AMcustom2: Trace Attempt 266	[253.55 s]
+0.0.AMcustom2: Trace Attempt 270	[258.22 s]
+0.0.Mp: Trace Attempt 1019	[1949.02 s]
+0.0.AMcustom2: Trace Attempt 280	[262.76 s]
+0.0.Mp: Trace Attempt 1039	[1953.14 s]
+0.0.AMcustom2: Trace Attempt 291	[266.89 s]
+0.0.Mp: Trace Attempt 1065	[1957.19 s]
+0.0.Mp: Trace Attempt 1076	[2008.35 s]
+0.0.Mp: Trace Attempt 1076	[2053.74 s]
+0.0.Mp: Trace Attempt 1076	[2102.47 s]
+0.0.AMcustom2: Trace Attempt 317	[433.90 s]
+0.0.AMcustom2: Trace Attempt 472	[438.13 s]
+0.0.AMcustom2: Trace Attempt 506	[442.17 s]
+0.0.AMcustom2: Trace Attempt 519	[447.44 s]
+0.0.AMcustom2: Trace Attempt 532	[451.82 s]
+0.0.AMcustom2: Trace Attempt 559	[458.59 s]
+0.0.Mp: Trace Attempt 1076	[2152.93 s]
+0.0.AMcustom2: Trace Attempt 568	[462.75 s]
+0.0.AMcustom2: Trace Attempt 574	[469.94 s]
+0.0.AMcustom2: Trace Attempt 578	[473.98 s]
+0.0.AMcustom2: Trace Attempt 584	[478.46 s]
+0.0.AMcustom2: Trace Attempt 588	[483.02 s]
+0.0.AMcustom2: Trace Attempt 592	[488.02 s]
+0.0.AMcustom2: Trace Attempt 596	[493.13 s]
+0.0.AMcustom2: Trace Attempt 602	[498.37 s]
+0.0.AMcustom2: Trace Attempt 608	[504.47 s]
+0.0.AMcustom2: Trace Attempt 612	[508.90 s]
+0.0.AMcustom2: Trace Attempt 621	[513.02 s]
+0.0.Mp: Trace Attempt 1076	[2204.53 s]
+0.0.AMcustom2: Trace Attempt 639	[517.42 s]
+0.0.Mp: Trace Attempt 1076	[2257.14 s]
+0.0.I: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[728.18 s].
+0.0.I: Morphing to Ncustom5
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom5: Starting proof for property "watchdog_timer.u_wdt_sva._cover_9"	[0.00 s].
+0.0.Ncustom5: Trace Attempt 429	[0.04 s]
+INFO (IPF144): 0: Initiating shutdown of proof [3600.01 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Time limit expired (3600.00 s) [2308.88 s]
+0.0.Hp: Exited with Success (@ 3600.04 s)
+0.0.Ncustom5: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[39.62 s].
+0.0.Ncustom5: Time limit expired (3600.00 s) [39.62 s]
+0.0.Ncustom5: Exited with Success (@ 3600.38 s)
+0.0.AMcustom2: Stopped processing property "watchdog_timer.u_wdt_sva._cover_9"	[608.92 s].
+0.0.AMcustom2: Trace Attempt 671	[520.92 s]
+0.0.AMcustom2: Time limit expired (3600.00 s) [608.92 s]
+0.0.AMcustom2: Sending SIGKILL
+0.0.Mp: Sending SIGKILL
+0.0.AMcustom2: Exited with Success (@ 3602.44 s)
+0.0.Mp: Terminated by signal SIGKILL (@ 3602.44 s)
+0: ProofGrid usable level: 0
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.99 %)
+--------------------------------------------------------------
+     engines started                               :    21
+     engine jobs started                           :     8
+     unexpected terminations                       :    11
+       (0.Ht)
+     times jobs stopped due to restart limit       :     1
+       (0.Ht)
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Hp        0.09     2308.88        0.00      100.00 %
+     Ht        0.86     1793.81        0.00       99.95 %
+     Mp        0.15     2300.99        0.00       99.99 %
+     Oh        0.06      906.04        0.00       99.99 %
+     U2        0.21      369.78        0.00       99.94 %
+      U        0.06        0.00        0.00        0.19 %
+    AMcustom2        0.06     3599.73        0.00      100.00 %
+    Ncustom5        0.07     3595.88        0.00      100.00 %
+    all        0.19     1859.39        0.00       99.99 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               1.56    14875.11        0.00
+
+    Data read    : 610.66 MiB
+    Data written : 47.56 MiB
+
+0: All pending notifications were processed.
+----------------------------------------
+| INFO (ICD005): 0: The proof thread was terminated because of a time_limit expiration.
+|     The current limit is 3600 seconds.
+|     Modify it with the "-time_limit" switch or "set_prove_time_limit" command.
+----------------------------------------
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 13
+                 assertions                   : 7
+                  - proven                    : 4 (57.1429%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 3 (42.8571%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 6
+                  - unreachable               : 1 (16.6667%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 4 (66.6667%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 1 (16.6667%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote verification_results/04717/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote verification_results/04717/property_list.txt
+[<embedded>] % exit 0
+INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 14.086 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

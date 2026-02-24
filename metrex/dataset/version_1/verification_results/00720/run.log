@@ -361,6 +361,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -379,7 +381,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -414,8 +416,8 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 274
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2578900@della-i13n22(local) jg_2578828_della-i13n22_1
-0.0.N: Proofgrid shell started at 2578899@della-i13n22(local) jg_2578828_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 90020@della-h14n2(local) jg_89680_della-h14n2_1
+0.0.N: Proofgrid shell started at 90019@della-h14n2(local) jg_89680_della-h14n2_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -424,10 +426,10 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva._cover_0"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva._cover_0" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[0]._cover_0" was covered in 1 cycles in 0.02 s by the incidental trace "addition_4bit.u_addition_4bit_sva._cover_0".
-INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[0]._cover_0" was covered in 1 cycles in 0.02 s by the incidental trace "addition_4bit.u_addition_4bit_sva._cover_0".
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva._cover_0"	[0.02 s].
+INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva._cover_0" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[0]._cover_0" was covered in 1 cycles in 0.01 s by the incidental trace "addition_4bit.u_addition_4bit_sva._cover_0".
+INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[0]._cover_0" was covered in 1 cycles in 0.01 s by the incidental trace "addition_4bit.u_addition_4bit_sva._cover_0".
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva._cover_0"	[0.01 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva._cover_0_1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
@@ -457,849 +459,873 @@ INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[4]._cover_0_4" was covered in 1 cycles in 0.01 s by the incidental trace "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4".
+INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[4]._cover_0_4" was covered in 1 cycles in 0.00 s by the incidental trace "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4".
 0.0.Hp: Trace Attempt  1	[0.01 s]
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[5]._cover_0_5" was covered in 1 cycles in 0.04 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[5]._cover_0_5" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[5]._cover_0_5" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[5]._cover_0_5" was covered in 1 cycles in 0.03 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[6]._cover_0_6" was covered in 1 cycles in 0.05 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[6]._cover_0_6" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[6]._cover_0_6" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[6]._cover_0_6" was covered in 1 cycles in 0.03 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[7]._cover_0_7" was covered in 1 cycles in 0.05 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[7]._cover_0_7" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[7]._cover_0_7" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[7]._cover_0_7" was covered in 1 cycles in 0.03 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[8]._cover_0_8" was covered in 1 cycles in 0.05 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[8]._cover_0_8" was covered in 1 cycles in 0.05 s.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[9]._cover_0_9" was covered in 1 cycles in 0.05 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[9]._cover_0_9" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[8]._cover_0_8" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[8]._cover_0_8" was covered in 1 cycles in 0.03 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[10]._cover_0_10" was covered in 1 cycles in 0.05 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[10]._cover_0_10" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[9]._cover_0_9" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[9]._cover_0_9" was covered in 1 cycles in 0.04 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[11]._cover_0_11" was covered in 1 cycles in 0.06 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[11]._cover_0_11" was covered in 1 cycles in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[10]._cover_0_10" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[10]._cover_0_10" was covered in 1 cycles in 0.04 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[12]._cover_0_12" was covered in 1 cycles in 0.06 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[12]._cover_0_12" was covered in 1 cycles in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[11]._cover_0_11" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[11]._cover_0_11" was covered in 1 cycles in 0.04 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[13]._cover_0_13" was covered in 1 cycles in 0.06 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[13]._cover_0_13" was covered in 1 cycles in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[12]._cover_0_12" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[12]._cover_0_12" was covered in 1 cycles in 0.04 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[14]._cover_0_14" was covered in 1 cycles in 0.06 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[14]._cover_0_14" was covered in 1 cycles in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[13]._cover_0_13" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[13]._cover_0_13" was covered in 1 cycles in 0.04 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[15]._cover_0_15" was covered in 1 cycles in 0.06 s.
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[15]._cover_0_15" was covered in 1 cycles in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[14]._cover_0_14" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[14]._cover_0_14" was covered in 1 cycles in 0.05 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[0]._cover_0_16" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[15]._cover_0_15" was covered in 1 cycles in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_SUM_S[15]._cover_0_15" was covered in 1 cycles in 0.05 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[1]._cover_0_17" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[0]._cover_0_16" was covered in 1 cycles in 0.05 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[2]._cover_0_18" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[1]._cover_0_17" was covered in 1 cycles in 0.05 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[3]._cover_0_19" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[2]._cover_0_18" was covered in 1 cycles in 0.05 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[4]._cover_0_20" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[3]._cover_0_19" was covered in 1 cycles in 0.06 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[5]._cover_0_21" was covered in 1 cycles in 0.08 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[4]._cover_0_20" was covered in 1 cycles in 0.06 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[6]._cover_0_22" was covered in 1 cycles in 0.08 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[5]._cover_0_21" was covered in 1 cycles in 0.06 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[7]._cover_0_23" was covered in 1 cycles in 0.08 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[6]._cover_0_22" was covered in 1 cycles in 0.06 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[8]._cover_0_24" was covered in 1 cycles in 0.08 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[7]._cover_0_23" was covered in 1 cycles in 0.06 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[9]._cover_0_25" was covered in 1 cycles in 0.08 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[8]._cover_0_24" was covered in 1 cycles in 0.07 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[10]._cover_0_26" was covered in 1 cycles in 0.09 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[9]._cover_0_25" was covered in 1 cycles in 0.07 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[11]._cover_0_27" was covered in 1 cycles in 0.09 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[10]._cover_0_26" was covered in 1 cycles in 0.07 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[12]._cover_0_28" was covered in 1 cycles in 0.09 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[11]._cover_0_27" was covered in 1 cycles in 0.07 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[13]._cover_0_29" was covered in 1 cycles in 0.09 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[12]._cover_0_28" was covered in 1 cycles in 0.07 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[14]._cover_0_30" was covered in 1 cycles in 0.10 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[13]._cover_0_29" was covered in 1 cycles in 0.08 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[15]._cover_0_31" was covered in 1 cycles in 0.10 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[14]._cover_0_30" was covered in 1 cycles in 0.08 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[0]._cover_0_32" was covered in 1 cycles in 0.10 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[15]._cover_0_31" was covered in 1 cycles in 0.08 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[1]._cover_0_33" was covered in 1 cycles in 0.10 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[0]._cover_0_32" was covered in 1 cycles in 0.08 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[2]._cover_0_34" was covered in 1 cycles in 0.10 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[1]._cover_0_33" was covered in 1 cycles in 0.08 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[3]._cover_0_35" was covered in 1 cycles in 0.11 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[2]._cover_0_34" was covered in 1 cycles in 0.09 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[4]._cover_0_36" was covered in 1 cycles in 0.11 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[3]._cover_0_35" was covered in 1 cycles in 0.09 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[5]._cover_0_37" was covered in 1 cycles in 0.11 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[4]._cover_0_36" was covered in 1 cycles in 0.09 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[6]._cover_0_38" was covered in 1 cycles in 0.11 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[5]._cover_0_37" was covered in 1 cycles in 0.09 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[7]._cover_0_39" was covered in 1 cycles in 0.11 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[6]._cover_0_38" was covered in 1 cycles in 0.09 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[8]._cover_0_40" was covered in 1 cycles in 0.12 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[7]._cover_0_39" was covered in 1 cycles in 0.10 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[9]._cover_0_41" was covered in 1 cycles in 0.12 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[8]._cover_0_40" was covered in 1 cycles in 0.10 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[10]._cover_0_42" was covered in 1 cycles in 0.12 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[9]._cover_0_41" was covered in 1 cycles in 0.10 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[11]._cover_0_43" was covered in 1 cycles in 0.12 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[10]._cover_0_42" was covered in 1 cycles in 0.10 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[12]._cover_0_44" was covered in 1 cycles in 0.12 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[11]._cover_0_43" was covered in 1 cycles in 0.10 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[13]._cover_0_45" was covered in 1 cycles in 0.13 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[12]._cover_0_44" was covered in 1 cycles in 0.11 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[14]._cover_0_46" was covered in 1 cycles in 0.13 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[13]._cover_0_45" was covered in 1 cycles in 0.11 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[15]._cover_0_47" was covered in 1 cycles in 0.13 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[14]._cover_0_46" was covered in 1 cycles in 0.11 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[0]._cover_0_48" was covered in 1 cycles in 0.13 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[15]._cover_0_47" was covered in 1 cycles in 0.11 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[1]._cover_0_49" was covered in 1 cycles in 0.13 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[0]._cover_0_48" was covered in 1 cycles in 0.11 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[2]._cover_0_50" was covered in 1 cycles in 0.14 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[1]._cover_0_49" was covered in 1 cycles in 0.12 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[3]._cover_0_51" was covered in 1 cycles in 0.14 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[2]._cover_0_50" was covered in 1 cycles in 0.12 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[4]._cover_0_52" was covered in 1 cycles in 0.14 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[3]._cover_0_51" was covered in 1 cycles in 0.12 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[5]._cover_0_53" was covered in 1 cycles in 0.14 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[4]._cover_0_52" was covered in 1 cycles in 0.12 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[6]._cover_0_54" was covered in 1 cycles in 0.14 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[5]._cover_0_53" was covered in 1 cycles in 0.12 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[7]._cover_0_55" was covered in 1 cycles in 0.15 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[6]._cover_0_54" was covered in 1 cycles in 0.13 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[8]._cover_0_56" was covered in 1 cycles in 0.15 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[7]._cover_0_55" was covered in 1 cycles in 0.13 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[9]._cover_0_57" was covered in 1 cycles in 0.15 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[8]._cover_0_56" was covered in 1 cycles in 0.13 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[10]._cover_0_58" was covered in 1 cycles in 0.15 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[9]._cover_0_57" was covered in 1 cycles in 0.13 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[11]._cover_0_59" was covered in 1 cycles in 0.15 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[10]._cover_0_58" was covered in 1 cycles in 0.13 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[12]._cover_0_60" was covered in 1 cycles in 0.16 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[11]._cover_0_59" was covered in 1 cycles in 0.14 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[13]._cover_0_61" was covered in 1 cycles in 0.16 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[12]._cover_0_60" was covered in 1 cycles in 0.14 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[14]._cover_0_62" was covered in 1 cycles in 0.16 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[13]._cover_0_61" was covered in 1 cycles in 0.14 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[15]._cover_0_63" was covered in 1 cycles in 0.16 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[14]._cover_0_62" was covered in 1 cycles in 0.14 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[0]._cover_0_64" was covered in 1 cycles in 0.16 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[15]._cover_0_63" was covered in 1 cycles in 0.14 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[1]._cover_0_65" was covered in 1 cycles in 0.17 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[0]._cover_0_64" was covered in 1 cycles in 0.15 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[2]._cover_0_66" was covered in 1 cycles in 0.17 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[1]._cover_0_65" was covered in 1 cycles in 0.15 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[3]._cover_0_67" was covered in 1 cycles in 0.17 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[2]._cover_0_66" was covered in 1 cycles in 0.15 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[4]._cover_0_68" was covered in 1 cycles in 0.17 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[3]._cover_0_67" was covered in 1 cycles in 0.15 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[5]._cover_0_69" was covered in 1 cycles in 0.17 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[4]._cover_0_68" was covered in 1 cycles in 0.15 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[6]._cover_0_70" was covered in 1 cycles in 0.18 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[5]._cover_0_69" was covered in 1 cycles in 0.16 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[7]._cover_0_71" was covered in 1 cycles in 0.18 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[6]._cover_0_70" was covered in 1 cycles in 0.16 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[8]._cover_0_72" was covered in 1 cycles in 0.18 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[7]._cover_0_71" was covered in 1 cycles in 0.16 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[9]._cover_0_73" was covered in 1 cycles in 0.18 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[8]._cover_0_72" was covered in 1 cycles in 0.16 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[10]._cover_0_74" was covered in 1 cycles in 0.18 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[9]._cover_0_73" was covered in 1 cycles in 0.16 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[11]._cover_0_75" was covered in 1 cycles in 0.19 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[10]._cover_0_74" was covered in 1 cycles in 0.17 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[13]._cover_0_77" was covered in 1 cycles in 0.19 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[11]._cover_0_75" was covered in 1 cycles in 0.17 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[14]._cover_0_78" was covered in 1 cycles in 0.19 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[13]._cover_0_77" was covered in 1 cycles in 0.17 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[15]._cover_0_79" was covered in 1 cycles in 0.19 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[14]._cover_0_78" was covered in 1 cycles in 0.17 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[0]._cover_0_80" was covered in 1 cycles in 0.19 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[15]._cover_0_79" was covered in 1 cycles in 0.17 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[1]._cover_0_81" was covered in 1 cycles in 0.20 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[0]._cover_0_80" was covered in 1 cycles in 0.18 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[2]._cover_0_82" was covered in 1 cycles in 0.20 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[1]._cover_0_81" was covered in 1 cycles in 0.18 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[3]._cover_0_83" was covered in 1 cycles in 0.20 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[2]._cover_0_82" was covered in 1 cycles in 0.18 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[4]._cover_0_84" was covered in 1 cycles in 0.20 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[3]._cover_0_83" was covered in 1 cycles in 0.18 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[5]._cover_0_85" was covered in 1 cycles in 0.20 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[4]._cover_0_84" was covered in 1 cycles in 0.18 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[6]._cover_0_86" was covered in 1 cycles in 0.21 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[5]._cover_0_85" was covered in 1 cycles in 0.19 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[7]._cover_0_87" was covered in 1 cycles in 0.21 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[6]._cover_0_86" was covered in 1 cycles in 0.19 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[8]._cover_0_88" was covered in 1 cycles in 0.21 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[7]._cover_0_87" was covered in 1 cycles in 0.19 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[9]._cover_0_89" was covered in 1 cycles in 0.21 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[8]._cover_0_88" was covered in 1 cycles in 0.19 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[10]._cover_0_90" was covered in 1 cycles in 0.21 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[9]._cover_0_89" was covered in 1 cycles in 0.19 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[11]._cover_0_91" was covered in 1 cycles in 0.22 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[10]._cover_0_90" was covered in 1 cycles in 0.20 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[12]._cover_0_92" was covered in 1 cycles in 0.22 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[11]._cover_0_91" was covered in 1 cycles in 0.20 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[13]._cover_0_93" was covered in 1 cycles in 0.22 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[12]._cover_0_92" was covered in 1 cycles in 0.20 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[14]._cover_0_94" was covered in 1 cycles in 0.22 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[13]._cover_0_93" was covered in 1 cycles in 0.20 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[15]._cover_0_95" was covered in 1 cycles in 0.22 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[14]._cover_0_94" was covered in 1 cycles in 0.20 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[0]._cover_0_96" was covered in 1 cycles in 0.23 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[15]._cover_0_95" was covered in 1 cycles in 0.21 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[1]._cover_0_97" was covered in 1 cycles in 0.23 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[0]._cover_0_96" was covered in 1 cycles in 0.21 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[2]._cover_0_98" was covered in 1 cycles in 0.23 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[1]._cover_0_97" was covered in 1 cycles in 0.21 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[3]._cover_0_99" was covered in 1 cycles in 0.23 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[2]._cover_0_98" was covered in 1 cycles in 0.21 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[4]._cover_0_100" was covered in 1 cycles in 0.23 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[3]._cover_0_99" was covered in 1 cycles in 0.21 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[5]._cover_0_101" was covered in 1 cycles in 0.24 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[4]._cover_0_100" was covered in 1 cycles in 0.22 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[6]._cover_0_102" was covered in 1 cycles in 0.24 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[5]._cover_0_101" was covered in 1 cycles in 0.22 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[7]._cover_0_103" was covered in 1 cycles in 0.24 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[6]._cover_0_102" was covered in 1 cycles in 0.22 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[8]._cover_0_104" was covered in 1 cycles in 0.24 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[7]._cover_0_103" was covered in 1 cycles in 0.22 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[9]._cover_0_105" was covered in 1 cycles in 0.24 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[8]._cover_0_104" was covered in 1 cycles in 0.22 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[10]._cover_0_106" was covered in 1 cycles in 0.25 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[9]._cover_0_105" was covered in 1 cycles in 0.23 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[11]._cover_0_107" was covered in 1 cycles in 0.25 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[10]._cover_0_106" was covered in 1 cycles in 0.23 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[12]._cover_0_108" was covered in 1 cycles in 0.25 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[11]._cover_0_107" was covered in 1 cycles in 0.23 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[13]._cover_0_109" was covered in 1 cycles in 0.25 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[12]._cover_0_108" was covered in 1 cycles in 0.23 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[14]._cover_0_110" was covered in 1 cycles in 0.25 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[13]._cover_0_109" was covered in 1 cycles in 0.23 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[15]._cover_0_111" was covered in 1 cycles in 0.26 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[14]._cover_0_110" was covered in 1 cycles in 0.24 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[0]._cover_0_112" was covered in 1 cycles in 0.26 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[15]._cover_0_111" was covered in 1 cycles in 0.24 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[1]._cover_0_113" was covered in 1 cycles in 0.26 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[0]._cover_0_112" was covered in 1 cycles in 0.24 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[2]._cover_0_114" was covered in 1 cycles in 0.26 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[1]._cover_0_113" was covered in 1 cycles in 0.24 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[3]._cover_0_115" was covered in 1 cycles in 0.26 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[2]._cover_0_114" was covered in 1 cycles in 0.24 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[4]._cover_0_116" was covered in 1 cycles in 0.27 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[3]._cover_0_115" was covered in 1 cycles in 0.25 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[5]._cover_0_117" was covered in 1 cycles in 0.27 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[4]._cover_0_116" was covered in 1 cycles in 0.25 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[6]._cover_0_118" was covered in 1 cycles in 0.27 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[5]._cover_0_117" was covered in 1 cycles in 0.25 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[7]._cover_0_119" was covered in 1 cycles in 0.27 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[6]._cover_0_118" was covered in 1 cycles in 0.25 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[8]._cover_0_120" was covered in 1 cycles in 0.27 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[7]._cover_0_119" was covered in 1 cycles in 0.25 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[9]._cover_0_121" was covered in 1 cycles in 0.28 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[8]._cover_0_120" was covered in 1 cycles in 0.26 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[10]._cover_0_122" was covered in 1 cycles in 0.28 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[9]._cover_0_121" was covered in 1 cycles in 0.26 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[11]._cover_0_123" was covered in 1 cycles in 0.28 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[10]._cover_0_122" was covered in 1 cycles in 0.26 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[12]._cover_0_124" was covered in 1 cycles in 0.28 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[11]._cover_0_123" was covered in 1 cycles in 0.26 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[13]._cover_0_125" was covered in 1 cycles in 0.28 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[12]._cover_0_124" was covered in 1 cycles in 0.26 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[14]._cover_0_126" was covered in 1 cycles in 0.29 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[13]._cover_0_125" was covered in 1 cycles in 0.27 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[15]._cover_0_127" was covered in 1 cycles in 0.29 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[14]._cover_0_126" was covered in 1 cycles in 0.27 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[0]._cover_0_128" was covered in 1 cycles in 0.29 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[15]._cover_0_127" was covered in 1 cycles in 0.27 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[1]._cover_0_129" was covered in 1 cycles in 0.29 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[0]._cover_0_128" was covered in 1 cycles in 0.27 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[2]._cover_0_130" was covered in 1 cycles in 0.29 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[1]._cover_0_129" was covered in 1 cycles in 0.27 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[3]._cover_0_131" was covered in 1 cycles in 0.30 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[2]._cover_0_130" was covered in 1 cycles in 0.28 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[4]._cover_0_132" was covered in 1 cycles in 0.30 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[3]._cover_0_131" was covered in 1 cycles in 0.28 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[5]._cover_0_133" was covered in 1 cycles in 0.30 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[4]._cover_0_132" was covered in 1 cycles in 0.28 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[6]._cover_0_134" was covered in 1 cycles in 0.30 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[5]._cover_0_133" was covered in 1 cycles in 0.28 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[7]._cover_0_135" was covered in 1 cycles in 0.30 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[6]._cover_0_134" was covered in 1 cycles in 0.28 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[8]._cover_0_136" was covered in 1 cycles in 0.31 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[7]._cover_0_135" was covered in 1 cycles in 0.29 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[9]._cover_0_137" was covered in 1 cycles in 0.31 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[8]._cover_0_136" was covered in 1 cycles in 0.29 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[10]._cover_0_138" was covered in 1 cycles in 0.31 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[9]._cover_0_137" was covered in 1 cycles in 0.29 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[11]._cover_0_139" was covered in 1 cycles in 0.31 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[10]._cover_0_138" was covered in 1 cycles in 0.29 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[12]._cover_0_140" was covered in 1 cycles in 0.31 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[11]._cover_0_139" was covered in 1 cycles in 0.29 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[13]._cover_0_141" was covered in 1 cycles in 0.32 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[12]._cover_0_140" was covered in 1 cycles in 0.30 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[14]._cover_0_142" was covered in 1 cycles in 0.32 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[13]._cover_0_141" was covered in 1 cycles in 0.30 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[15]._cover_0_143" was covered in 1 cycles in 0.32 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[14]._cover_0_142" was covered in 1 cycles in 0.30 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[0]._cover_0_144" was covered in 1 cycles in 0.32 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[15]._cover_0_143" was covered in 1 cycles in 0.30 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[1]._cover_0_145" was covered in 1 cycles in 0.32 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[0]._cover_0_144" was covered in 1 cycles in 0.30 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[2]._cover_0_146" was covered in 1 cycles in 0.33 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[1]._cover_0_145" was covered in 1 cycles in 0.31 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[3]._cover_0_147" was covered in 1 cycles in 0.33 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[2]._cover_0_146" was covered in 1 cycles in 0.31 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[4]._cover_0_148" was covered in 1 cycles in 0.33 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[3]._cover_0_147" was covered in 1 cycles in 0.31 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[5]._cover_0_149" was covered in 1 cycles in 0.33 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[4]._cover_0_148" was covered in 1 cycles in 0.31 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[6]._cover_0_150" was covered in 1 cycles in 0.33 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[5]._cover_0_149" was covered in 1 cycles in 0.31 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[7]._cover_0_151" was covered in 1 cycles in 0.34 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[6]._cover_0_150" was covered in 1 cycles in 0.32 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[8]._cover_0_152" was covered in 1 cycles in 0.34 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[7]._cover_0_151" was covered in 1 cycles in 0.32 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[9]._cover_0_153" was covered in 1 cycles in 0.34 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[8]._cover_0_152" was covered in 1 cycles in 0.32 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[10]._cover_0_154" was covered in 1 cycles in 0.34 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[9]._cover_0_153" was covered in 1 cycles in 0.32 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[11]._cover_0_155" was covered in 1 cycles in 0.34 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[10]._cover_0_154" was covered in 1 cycles in 0.32 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[12]._cover_0_156" was covered in 1 cycles in 0.35 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[11]._cover_0_155" was covered in 1 cycles in 0.33 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[13]._cover_0_157" was covered in 1 cycles in 0.35 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[12]._cover_0_156" was covered in 1 cycles in 0.33 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[14]._cover_0_158" was covered in 1 cycles in 0.35 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[13]._cover_0_157" was covered in 1 cycles in 0.33 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[15]._cover_0_159" was covered in 1 cycles in 0.35 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[14]._cover_0_158" was covered in 1 cycles in 0.33 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[0]._cover_0_160" was covered in 1 cycles in 0.35 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[15]._cover_0_159" was covered in 1 cycles in 0.33 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[1]._cover_0_161" was covered in 1 cycles in 0.36 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[0]._cover_0_160" was covered in 1 cycles in 0.34 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[2]._cover_0_162" was covered in 1 cycles in 0.36 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[1]._cover_0_161" was covered in 1 cycles in 0.34 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[3]._cover_0_163" was covered in 1 cycles in 0.36 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[2]._cover_0_162" was covered in 1 cycles in 0.34 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[4]._cover_0_164" was covered in 1 cycles in 0.36 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[3]._cover_0_163" was covered in 1 cycles in 0.34 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[5]._cover_0_165" was covered in 1 cycles in 0.36 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[4]._cover_0_164" was covered in 1 cycles in 0.34 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[6]._cover_0_166" was covered in 1 cycles in 0.37 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[5]._cover_0_165" was covered in 1 cycles in 0.35 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[7]._cover_0_167" was covered in 1 cycles in 0.37 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[6]._cover_0_166" was covered in 1 cycles in 0.35 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[8]._cover_0_168" was covered in 1 cycles in 0.37 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[7]._cover_0_167" was covered in 1 cycles in 0.35 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[9]._cover_0_169" was covered in 1 cycles in 0.37 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[8]._cover_0_168" was covered in 1 cycles in 0.35 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[10]._cover_0_170" was covered in 1 cycles in 0.37 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[9]._cover_0_169" was covered in 1 cycles in 0.35 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[11]._cover_0_171" was covered in 1 cycles in 0.38 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[10]._cover_0_170" was covered in 1 cycles in 0.36 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[12]._cover_0_172" was covered in 1 cycles in 0.38 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[11]._cover_0_171" was covered in 1 cycles in 0.36 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[13]._cover_0_173" was covered in 1 cycles in 0.38 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[12]._cover_0_172" was covered in 1 cycles in 0.36 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[14]._cover_0_174" was covered in 1 cycles in 0.38 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[13]._cover_0_173" was covered in 1 cycles in 0.36 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[15]._cover_0_175" was covered in 1 cycles in 0.38 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[14]._cover_0_174" was covered in 1 cycles in 0.36 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[0]._cover_0_176" was covered in 1 cycles in 0.39 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[15]._cover_0_175" was covered in 1 cycles in 0.37 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[1]._cover_0_177" was covered in 1 cycles in 0.39 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[0]._cover_0_176" was covered in 1 cycles in 0.37 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[2]._cover_0_178" was covered in 1 cycles in 0.39 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[1]._cover_0_177" was covered in 1 cycles in 0.37 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[3]._cover_0_179" was covered in 1 cycles in 0.39 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[2]._cover_0_178" was covered in 1 cycles in 0.37 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[4]._cover_0_180" was covered in 1 cycles in 0.39 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[3]._cover_0_179" was covered in 1 cycles in 0.37 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[5]._cover_0_181" was covered in 1 cycles in 0.40 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[4]._cover_0_180" was covered in 1 cycles in 0.38 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[6]._cover_0_182" was covered in 1 cycles in 0.40 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[5]._cover_0_181" was covered in 1 cycles in 0.38 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[7]._cover_0_183" was covered in 1 cycles in 0.40 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[6]._cover_0_182" was covered in 1 cycles in 0.38 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[8]._cover_0_184" was covered in 1 cycles in 0.40 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[7]._cover_0_183" was covered in 1 cycles in 0.38 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[9]._cover_0_185" was covered in 1 cycles in 0.40 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[8]._cover_0_184" was covered in 1 cycles in 0.38 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[10]._cover_0_186" was covered in 1 cycles in 0.41 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[9]._cover_0_185" was covered in 1 cycles in 0.39 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[11]._cover_0_187" was covered in 1 cycles in 0.41 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[10]._cover_0_186" was covered in 1 cycles in 0.39 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[12]._cover_0_188" was covered in 1 cycles in 0.41 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[11]._cover_0_187" was covered in 1 cycles in 0.39 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[13]._cover_0_189" was covered in 1 cycles in 0.41 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[12]._cover_0_188" was covered in 1 cycles in 0.39 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[14]._cover_0_190" was covered in 1 cycles in 0.41 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[13]._cover_0_189" was covered in 1 cycles in 0.39 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[15]._cover_0_191" was covered in 1 cycles in 0.42 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[14]._cover_0_190" was covered in 1 cycles in 0.40 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[0]._cover_0_192" was covered in 1 cycles in 0.42 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[15]._cover_0_191" was covered in 1 cycles in 0.40 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[1]._cover_0_193" was covered in 1 cycles in 0.42 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[0]._cover_0_192" was covered in 1 cycles in 0.40 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[2]._cover_0_194" was covered in 1 cycles in 0.42 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[1]._cover_0_193" was covered in 1 cycles in 0.40 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[3]._cover_0_195" was covered in 1 cycles in 0.42 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[2]._cover_0_194" was covered in 1 cycles in 0.41 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[4]._cover_0_196" was covered in 1 cycles in 0.43 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[3]._cover_0_195" was covered in 1 cycles in 0.41 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[5]._cover_0_197" was covered in 1 cycles in 0.43 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[4]._cover_0_196" was covered in 1 cycles in 0.41 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[6]._cover_0_198" was covered in 1 cycles in 0.43 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[5]._cover_0_197" was covered in 1 cycles in 0.41 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[7]._cover_0_199" was covered in 1 cycles in 0.43 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[6]._cover_0_198" was covered in 1 cycles in 0.41 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[8]._cover_0_200" was covered in 1 cycles in 0.43 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[7]._cover_0_199" was covered in 1 cycles in 0.41 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[9]._cover_0_201" was covered in 1 cycles in 0.44 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[8]._cover_0_200" was covered in 1 cycles in 0.42 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[10]._cover_0_202" was covered in 1 cycles in 0.44 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[9]._cover_0_201" was covered in 1 cycles in 0.42 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[11]._cover_0_203" was covered in 1 cycles in 0.44 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[10]._cover_0_202" was covered in 1 cycles in 0.42 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[12]._cover_0_204" was covered in 1 cycles in 0.44 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[11]._cover_0_203" was covered in 1 cycles in 0.42 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[13]._cover_0_205" was covered in 1 cycles in 0.44 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[12]._cover_0_204" was covered in 1 cycles in 0.43 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[14]._cover_0_206" was covered in 1 cycles in 0.45 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[13]._cover_0_205" was covered in 1 cycles in 0.43 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[15]._cover_0_207" was covered in 1 cycles in 0.45 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[14]._cover_0_206" was covered in 1 cycles in 0.43 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[0]._cover_0_208" was covered in 1 cycles in 0.45 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[15]._cover_0_207" was covered in 1 cycles in 0.44 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[1]._cover_0_209" was covered in 1 cycles in 0.45 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[0]._cover_0_208" was covered in 1 cycles in 0.44 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[2]._cover_0_210" was covered in 1 cycles in 0.45 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[1]._cover_0_209" was covered in 1 cycles in 0.44 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[3]._cover_0_211" was covered in 1 cycles in 0.46 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[2]._cover_0_210" was covered in 1 cycles in 0.44 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[4]._cover_0_212" was covered in 1 cycles in 0.46 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[3]._cover_0_211" was covered in 1 cycles in 0.44 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[5]._cover_0_213" was covered in 1 cycles in 0.46 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[4]._cover_0_212" was covered in 1 cycles in 0.45 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[6]._cover_0_214" was covered in 1 cycles in 0.46 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[5]._cover_0_213" was covered in 1 cycles in 0.45 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[7]._cover_0_215" was covered in 1 cycles in 0.46 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[6]._cover_0_214" was covered in 1 cycles in 0.45 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[8]._cover_0_216" was covered in 1 cycles in 0.47 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[7]._cover_0_215" was covered in 1 cycles in 0.45 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[9]._cover_0_217" was covered in 1 cycles in 0.47 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[8]._cover_0_216" was covered in 1 cycles in 0.46 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[10]._cover_0_218" was covered in 1 cycles in 0.47 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[9]._cover_0_217" was covered in 1 cycles in 0.46 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[11]._cover_0_219" was covered in 1 cycles in 0.48 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[10]._cover_0_218" was covered in 1 cycles in 0.46 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[12]._cover_0_220" was covered in 1 cycles in 0.48 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[11]._cover_0_219" was covered in 1 cycles in 0.46 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[13]._cover_0_221" was covered in 1 cycles in 0.48 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[12]._cover_0_220" was covered in 1 cycles in 0.47 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[14]._cover_0_222" was covered in 1 cycles in 0.48 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[13]._cover_0_221" was covered in 1 cycles in 0.47 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[15]._cover_0_223" was covered in 1 cycles in 0.49 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[14]._cover_0_222" was covered in 1 cycles in 0.47 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[0]._cover_0_224" was covered in 1 cycles in 0.49 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[15]._cover_0_223" was covered in 1 cycles in 0.47 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[1]._cover_0_225" was covered in 1 cycles in 0.49 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[0]._cover_0_224" was covered in 1 cycles in 0.47 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[2]._cover_0_226" was covered in 1 cycles in 0.49 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[1]._cover_0_225" was covered in 1 cycles in 0.48 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[3]._cover_0_227" was covered in 1 cycles in 0.49 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[2]._cover_0_226" was covered in 1 cycles in 0.48 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[4]._cover_0_228" was covered in 1 cycles in 0.50 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[3]._cover_0_227" was covered in 1 cycles in 0.48 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[5]._cover_0_229" was covered in 1 cycles in 0.50 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[4]._cover_0_228" was covered in 1 cycles in 0.48 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[6]._cover_0_230" was covered in 1 cycles in 0.50 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[5]._cover_0_229" was covered in 1 cycles in 0.48 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[7]._cover_0_231" was covered in 1 cycles in 0.50 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[6]._cover_0_230" was covered in 1 cycles in 0.49 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[8]._cover_0_232" was covered in 1 cycles in 0.51 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[7]._cover_0_231" was covered in 1 cycles in 0.49 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[9]._cover_0_233" was covered in 1 cycles in 0.51 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[8]._cover_0_232" was covered in 1 cycles in 0.49 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[10]._cover_0_234" was covered in 1 cycles in 0.51 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[9]._cover_0_233" was covered in 1 cycles in 0.49 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[11]._cover_0_235" was covered in 1 cycles in 0.51 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[10]._cover_0_234" was covered in 1 cycles in 0.49 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[12]._cover_0_236" was covered in 1 cycles in 0.52 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[11]._cover_0_235" was covered in 1 cycles in 0.50 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[13]._cover_0_237" was covered in 1 cycles in 0.52 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[12]._cover_0_236" was covered in 1 cycles in 0.50 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[14]._cover_0_238" was covered in 1 cycles in 0.52 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[13]._cover_0_237" was covered in 1 cycles in 0.50 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[15]._cover_0_239" was covered in 1 cycles in 0.52 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[14]._cover_0_238" was covered in 1 cycles in 0.50 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[0]._cover_0_240" was covered in 1 cycles in 0.52 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[15]._cover_0_239" was covered in 1 cycles in 0.50 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[1]._cover_0_241" was covered in 1 cycles in 0.53 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[0]._cover_0_240" was covered in 1 cycles in 0.51 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[2]._cover_0_242" was covered in 1 cycles in 0.53 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[1]._cover_0_241" was covered in 1 cycles in 0.51 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[3]._cover_0_243" was covered in 1 cycles in 0.53 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[2]._cover_0_242" was covered in 1 cycles in 0.51 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[4]._cover_0_244" was covered in 1 cycles in 0.53 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[3]._cover_0_243" was covered in 1 cycles in 0.51 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[5]._cover_0_245" was covered in 1 cycles in 0.53 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[4]._cover_0_244" was covered in 1 cycles in 0.51 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[6]._cover_0_246" was covered in 1 cycles in 0.54 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[5]._cover_0_245" was covered in 1 cycles in 0.52 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[7]._cover_0_247" was covered in 1 cycles in 0.54 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[6]._cover_0_246" was covered in 1 cycles in 0.52 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[8]._cover_0_248" was covered in 1 cycles in 0.54 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[7]._cover_0_247" was covered in 1 cycles in 0.52 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[9]._cover_0_249" was covered in 1 cycles in 0.54 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[8]._cover_0_248" was covered in 1 cycles in 0.52 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[10]._cover_0_250" was covered in 1 cycles in 0.54 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[9]._cover_0_249" was covered in 1 cycles in 0.52 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[11]._cover_0_251" was covered in 1 cycles in 0.55 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[10]._cover_0_250" was covered in 1 cycles in 0.53 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[12]._cover_0_252" was covered in 1 cycles in 0.55 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[11]._cover_0_251" was covered in 1 cycles in 0.53 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[13]._cover_0_253" was covered in 1 cycles in 0.55 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[12]._cover_0_252" was covered in 1 cycles in 0.53 s.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[14]._cover_0_254" was covered in 1 cycles in 0.55 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[13]._cover_0_253" was covered in 1 cycles in 0.53 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[14]._cover_0_254" was covered in 1 cycles in 0.53 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.55 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.53 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[15]._cover_0_255" was covered in 1 cycles in 0.55 s.
+INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[15]._cover_0_255" was covered in 1 cycles in 0.53 s.
 0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4"	[0.51 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[4]._cover_0_4"	[0.50 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[5]._cover_0_5"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[5]._cover_0_5"	[0.00 s].
-0.0.Hp: Exited with Success (@ 0.55 s)
+0.0.Hp: Exited with Success (@ 0.53 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2578913@della-i13n22(local) jg_2578828_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 90033@della-h14n2(local) jg_89680_della-h14n2_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Proofgrid shell started at 2578914@della-i13n22(local) jg_2578828_della-i13n22_1
+0.0.B: Proofgrid shell started at 90034@della-h14n2(local) jg_89680_della-h14n2_1
 0.0.B: Requesting engine job to terminate
+0.0.B: Interrupted. [0.01 s]
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[6]._cover_0_6"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[6]._cover_0_6"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[8]._cover_0_8"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[8]._cover_0_8"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[9]._cover_0_9"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[9]._cover_0_9"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[10]._cover_0_10"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[10]._cover_0_10"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[11]._cover_0_11"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[11]._cover_0_11"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[12]._cover_0_12"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[12]._cover_0_12"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[13]._cover_0_13"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[13]._cover_0_13"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[14]._cover_0_14"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[14]._cover_0_14"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[0]._cover_0_16"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[15]._cover_0_15"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[0].COV_AB_J[15]._cover_0_15"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[0]._cover_0_16"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[0]._cover_0_16"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[1]._cover_0_17"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[1]._cover_0_17"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[2]._cover_0_18"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[2]._cover_0_18"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[3]._cover_0_19"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[3]._cover_0_19"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[5]._cover_0_21"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[4]._cover_0_20"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[4]._cover_0_20"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[5]._cover_0_21"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[5]._cover_0_21"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[6]._cover_0_22"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[6]._cover_0_22"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[7]._cover_0_23"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[7]._cover_0_23"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[8]._cover_0_24"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[8]._cover_0_24"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[9]._cover_0_25"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[9]._cover_0_25"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[10]._cover_0_26"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[10]._cover_0_26"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[11]._cover_0_27"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[11]._cover_0_27"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[12]._cover_0_28"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[12]._cover_0_28"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[13]._cover_0_29"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[14]._cover_0_30"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[13]._cover_0_29"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[14]._cover_0_30"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[15]._cover_0_31"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[1].COV_AB_J[15]._cover_0_31"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[0]._cover_0_32"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[0]._cover_0_32"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[1]._cover_0_33"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[1]._cover_0_33"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[2]._cover_0_34"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[2]._cover_0_34"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[3]._cover_0_35"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[3]._cover_0_35"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[4]._cover_0_36"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[4]._cover_0_36"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[5]._cover_0_37"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[5]._cover_0_37"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[6]._cover_0_38"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[6]._cover_0_38"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[7]._cover_0_39"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[7]._cover_0_39"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[8]._cover_0_40"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[8]._cover_0_40"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[9]._cover_0_41"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[9]._cover_0_41"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[10]._cover_0_42"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[11]._cover_0_43"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[10]._cover_0_42"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[11]._cover_0_43"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[13]._cover_0_45"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[13]._cover_0_45"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[14]._cover_0_46"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[14]._cover_0_46"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[15]._cover_0_47"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[2].COV_AB_J[15]._cover_0_47"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[0]._cover_0_48"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[0]._cover_0_48"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[1]._cover_0_49"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[1]._cover_0_49"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[2]._cover_0_50"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[2]._cover_0_50"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[3]._cover_0_51"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[3]._cover_0_51"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[4]._cover_0_52"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[4]._cover_0_52"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[5]._cover_0_53"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[5]._cover_0_53"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[6]._cover_0_54"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[6]._cover_0_54"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[7]._cover_0_55"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[7]._cover_0_55"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[8]._cover_0_56"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[8]._cover_0_56"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[9]._cover_0_57"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[9]._cover_0_57"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[10]._cover_0_58"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[10]._cover_0_58"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[11]._cover_0_59"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[11]._cover_0_59"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[12]._cover_0_60"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[12]._cover_0_60"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[13]._cover_0_61"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[13]._cover_0_61"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[14]._cover_0_62"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[14]._cover_0_62"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[15]._cover_0_63"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[3].COV_AB_J[15]._cover_0_63"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[0]._cover_0_64"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[0]._cover_0_64"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[2]._cover_0_66"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[1]._cover_0_65"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[1]._cover_0_65"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[2]._cover_0_66"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[2]._cover_0_66"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[3]._cover_0_67"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[3]._cover_0_67"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[4]._cover_0_68"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[4]._cover_0_68"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[5]._cover_0_69"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[5]._cover_0_69"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[7]._cover_0_71"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[6]._cover_0_70"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[6]._cover_0_70"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[7]._cover_0_71"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[7]._cover_0_71"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[8]._cover_0_72"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[8]._cover_0_72"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[9]._cover_0_73"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[9]._cover_0_73"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[13]._cover_0_77"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[10]._cover_0_74"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[10]._cover_0_74"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[11]._cover_0_75"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[11]._cover_0_75"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[13]._cover_0_77"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[13]._cover_0_77"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[14]._cover_0_78"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[14]._cover_0_78"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[15]._cover_0_79"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[4].COV_AB_J[15]._cover_0_79"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[0]._cover_0_80"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[0]._cover_0_80"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[1]._cover_0_81"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[1]._cover_0_81"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[2]._cover_0_82"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[2]._cover_0_82"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[3]._cover_0_83"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[3]._cover_0_83"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[4]._cover_0_84"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[4]._cover_0_84"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[5]._cover_0_85"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[5]._cover_0_85"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[7]._cover_0_87"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[6]._cover_0_86"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[6]._cover_0_86"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[7]._cover_0_87"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[7]._cover_0_87"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[8]._cover_0_88"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[8]._cover_0_88"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[9]._cover_0_89"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[9]._cover_0_89"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[10]._cover_0_90"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[10]._cover_0_90"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[11]._cover_0_91"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[11]._cover_0_91"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[12]._cover_0_92"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[12]._cover_0_92"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[13]._cover_0_93"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[13]._cover_0_93"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[15]._cover_0_95"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[5].COV_AB_J[15]._cover_0_95"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[0]._cover_0_96"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[0]._cover_0_96"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[1]._cover_0_97"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[1]._cover_0_97"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[2]._cover_0_98"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[2]._cover_0_98"	[0.00 s].
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.54 s)
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[3]._cover_0_99"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[3]._cover_0_99"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[5]._cover_0_101"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[5]._cover_0_101"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[6]._cover_0_102"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[6]._cover_0_102"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[7]._cover_0_103"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[7]._cover_0_103"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[8]._cover_0_104"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[8]._cover_0_104"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[9]._cover_0_105"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[9]._cover_0_105"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[10]._cover_0_106"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[10]._cover_0_106"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[11]._cover_0_107"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[11]._cover_0_107"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[12]._cover_0_108"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[12]._cover_0_108"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[14]._cover_0_110"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[14]._cover_0_110"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[13]._cover_0_109"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[13]._cover_0_109"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[15]._cover_0_111"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[6].COV_AB_J[15]._cover_0_111"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[0]._cover_0_112"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[0]._cover_0_112"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[1]._cover_0_113"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[1]._cover_0_113"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[2]._cover_0_114"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[2]._cover_0_114"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[3]._cover_0_115"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[3]._cover_0_115"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[5]._cover_0_117"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[4]._cover_0_116"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[4]._cover_0_116"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[5]._cover_0_117"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[5]._cover_0_117"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[6]._cover_0_118"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[6]._cover_0_118"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[7]._cover_0_119"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[7]._cover_0_119"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[8]._cover_0_120"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[8]._cover_0_120"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[9]._cover_0_121"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[9]._cover_0_121"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[10]._cover_0_122"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[10]._cover_0_122"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[11]._cover_0_123"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[11]._cover_0_123"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[12]._cover_0_124"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[12]._cover_0_124"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[13]._cover_0_125"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[13]._cover_0_125"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[14]._cover_0_126"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[14]._cover_0_126"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[15]._cover_0_127"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[7].COV_AB_J[15]._cover_0_127"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[0]._cover_0_128"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[0]._cover_0_128"	[0.00 s].
@@ -1308,233 +1334,261 @@ INFO (IPF047): 0.0.Hp: The cover property "addition_4bit.u_addition_4bit_sva.COV
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[2]._cover_0_130"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[2]._cover_0_130"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[3]._cover_0_131"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[3]._cover_0_131"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[4]._cover_0_132"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[4]._cover_0_132"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[5]._cover_0_133"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[5]._cover_0_133"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[6]._cover_0_134"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[6]._cover_0_134"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[7]._cover_0_135"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[7]._cover_0_135"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[8]._cover_0_136"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[8]._cover_0_136"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[9]._cover_0_137"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[9]._cover_0_137"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[10]._cover_0_138"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[10]._cover_0_138"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[11]._cover_0_139"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[11]._cover_0_139"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[12]._cover_0_140"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[12]._cover_0_140"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[13]._cover_0_141"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[13]._cover_0_141"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[14]._cover_0_142"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[14]._cover_0_142"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[15]._cover_0_143"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[8].COV_AB_J[15]._cover_0_143"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[0]._cover_0_144"	[0.00 s].
+0.0.Ht: Exited with Success (@ 0.54 s)
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[0]._cover_0_144"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[1]._cover_0_145"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[1]._cover_0_145"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[2]._cover_0_146"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[2]._cover_0_146"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[3]._cover_0_147"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[3]._cover_0_147"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[4]._cover_0_148"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[4]._cover_0_148"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[5]._cover_0_149"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[5]._cover_0_149"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[6]._cover_0_150"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[6]._cover_0_150"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[7]._cover_0_151"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[7]._cover_0_151"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[8]._cover_0_152"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[8]._cover_0_152"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[9]._cover_0_153"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[9]._cover_0_153"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[11]._cover_0_155"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[11]._cover_0_155"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[12]._cover_0_156"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[12]._cover_0_156"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[13]._cover_0_157"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[13]._cover_0_157"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[14]._cover_0_158"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[14]._cover_0_158"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[15]._cover_0_159"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[9].COV_AB_J[15]._cover_0_159"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[0]._cover_0_160"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[0]._cover_0_160"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[2]._cover_0_162"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[1]._cover_0_161"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[1]._cover_0_161"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[2]._cover_0_162"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[2]._cover_0_162"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[3]._cover_0_163"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[3]._cover_0_163"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[5]._cover_0_165"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[5]._cover_0_165"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[4]._cover_0_164"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[4]._cover_0_164"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[6]._cover_0_166"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[6]._cover_0_166"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[7]._cover_0_167"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[7]._cover_0_167"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[8]._cover_0_168"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[8]._cover_0_168"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[9]._cover_0_169"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[9]._cover_0_169"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[10]._cover_0_170"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[10]._cover_0_170"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[11]._cover_0_171"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[11]._cover_0_171"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[12]._cover_0_172"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[12]._cover_0_172"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[13]._cover_0_173"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[13]._cover_0_173"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[14]._cover_0_174"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[14]._cover_0_174"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[15]._cover_0_175"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[10].COV_AB_J[15]._cover_0_175"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[1]._cover_0_177"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[0]._cover_0_176"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[0]._cover_0_176"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[1]._cover_0_177"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[1]._cover_0_177"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[2]._cover_0_178"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[2]._cover_0_178"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[3]._cover_0_179"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[3]._cover_0_179"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[4]._cover_0_180"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[4]._cover_0_180"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[5]._cover_0_181"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[5]._cover_0_181"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[6]._cover_0_182"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[6]._cover_0_182"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[7]._cover_0_183"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[7]._cover_0_183"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[8]._cover_0_184"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[8]._cover_0_184"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[9]._cover_0_185"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[9]._cover_0_185"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[10]._cover_0_186"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[10]._cover_0_186"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[11]._cover_0_187"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[11]._cover_0_187"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[12]._cover_0_188"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[12]._cover_0_188"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[13]._cover_0_189"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[13]._cover_0_189"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[14]._cover_0_190"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[14]._cover_0_190"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[15]._cover_0_191"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[11].COV_AB_J[15]._cover_0_191"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[0]._cover_0_192"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[0]._cover_0_192"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[1]._cover_0_193"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[1]._cover_0_193"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[2]._cover_0_194"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[2]._cover_0_194"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[3]._cover_0_195"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[3]._cover_0_195"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[4]._cover_0_196"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[4]._cover_0_196"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[5]._cover_0_197"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[5]._cover_0_197"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[6]._cover_0_198"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[6]._cover_0_198"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[7]._cover_0_199"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[7]._cover_0_199"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[8]._cover_0_200"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[8]._cover_0_200"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[9]._cover_0_201"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[9]._cover_0_201"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[10]._cover_0_202"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[10]._cover_0_202"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[11]._cover_0_203"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[11]._cover_0_203"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[12]._cover_0_204"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[12]._cover_0_204"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[13]._cover_0_205"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[13]._cover_0_205"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[14]._cover_0_206"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[14]._cover_0_206"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[15]._cover_0_207"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[12].COV_AB_J[15]._cover_0_207"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[0]._cover_0_208"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[0]._cover_0_208"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[1]._cover_0_209"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[1]._cover_0_209"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[2]._cover_0_210"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[2]._cover_0_210"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[3]._cover_0_211"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[3]._cover_0_211"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[4]._cover_0_212"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[4]._cover_0_212"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[5]._cover_0_213"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[5]._cover_0_213"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[6]._cover_0_214"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[6]._cover_0_214"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[7]._cover_0_215"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[7]._cover_0_215"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[9]._cover_0_217"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[8]._cover_0_216"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[8]._cover_0_216"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[9]._cover_0_217"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[9]._cover_0_217"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[10]._cover_0_218"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[10]._cover_0_218"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[11]._cover_0_219"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[11]._cover_0_219"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[12]._cover_0_220"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[12]._cover_0_220"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[13]._cover_0_221"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[13]._cover_0_221"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[14]._cover_0_222"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[14]._cover_0_222"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[15]._cover_0_223"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[13].COV_AB_J[15]._cover_0_223"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[0]._cover_0_224"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[0]._cover_0_224"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[1]._cover_0_225"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[1]._cover_0_225"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[2]._cover_0_226"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[2]._cover_0_226"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[3]._cover_0_227"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[3]._cover_0_227"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[4]._cover_0_228"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[4]._cover_0_228"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[6]._cover_0_230"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[6]._cover_0_230"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[7]._cover_0_231"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[7]._cover_0_231"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[8]._cover_0_232"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[8]._cover_0_232"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[9]._cover_0_233"	[0.00 s].
-0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[9]._cover_0_233"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[10]._cover_0_234"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[10]._cover_0_234"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[11]._cover_0_235"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[11]._cover_0_235"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[12]._cover_0_236"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[12]._cover_0_236"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[13]._cover_0_237"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[13]._cover_0_237"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[14]._cover_0_238"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[14].COV_AB_J[14]._cover_0_238"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[0]._cover_0_240"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[0]._cover_0_240"	[0.00 s].
-0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[2]._cover_0_242"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[1]._cover_0_241"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[1]._cover_0_241"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[2]._cover_0_242"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[2]._cover_0_242"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[3]._cover_0_243"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[3]._cover_0_243"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[4]._cover_0_244"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[4]._cover_0_244"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[5]._cover_0_245"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[5]._cover_0_245"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[6]._cover_0_246"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[6]._cover_0_246"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[7]._cover_0_247"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[7]._cover_0_247"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[8]._cover_0_248"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[8]._cover_0_248"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[9]._cover_0_249"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[9]._cover_0_249"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[10]._cover_0_250"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[10]._cover_0_250"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[11]._cover_0_251"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[11]._cover_0_251"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[12]._cover_0_252"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[12]._cover_0_252"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[13]._cover_0_253"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[13]._cover_0_253"	[0.00 s].
+0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[14]._cover_0_254"	[0.00 s].
+0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[14]._cover_0_254"	[0.00 s].
 0.0.N: Starting proof for property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[15]._cover_0_255"	[0.00 s].
 0.0.N: Stopped processing property "addition_4bit.u_addition_4bit_sva.COV_AB_I[15].COV_AB_J[15]._cover_0_255"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.N: Exited with Success (@ 0.55 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.55 s)
-0.0.B: Exited with Success (@ 0.55 s)
+0.0.N: Exited with Success (@ 0.54 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 47.67 %)
+ProofGrid Summary (utilization 46.66 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -1543,20 +1597,20 @@ ProofGrid Summary (utilization 47.67 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.55        0.00       90.97 %
-     Hp        0.05        0.55        0.00       91.56 %
-     Ht        0.55        0.00        0.00        0.00 %
-      B        0.55        0.00        0.00        0.00 %
-    all        0.30        0.27        0.00       47.67 %
+      N        0.08        0.53        0.00       87.42 %
+     Hp        0.07        0.53        0.00       87.98 %
+     Ht        0.53        0.00        0.00        0.00 %
+      B        0.53        0.00        0.00        0.00 %
+    all        0.30        0.27        0.00       46.66 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               1.20        1.09        0.00
+               1.21        1.06        0.00
 
-    Data read    : 55.00 kiB
-    Data written : 14.13 kiB
+    Data read    : 56.62 kiB
+    Data written : 13.81 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -1610,6 +1664,6 @@ INFO: Wrote verification_results/00720/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.323 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.327 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

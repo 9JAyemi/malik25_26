@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+up_counter_4bit_sync_reset.u_sva.a_no_x
+up_counter_4bit_sync_reset.u_sva.a_next_state
+up_counter_4bit_sync_reset.u_sva.a_wrap
+
+COVER PROPERTIES:
+up_counter_4bit_sync_reset.u_sva.a_no_x:precondition1
+up_counter_4bit_sync_reset.u_sva.a_next_state:precondition1
+up_counter_4bit_sync_reset.u_sva.a_wrap:precondition1
+up_counter_4bit_sync_reset.u_sva.c_reset_seen
+up_counter_4bit_sync_reset.u_sva.c_deassert
+up_counter_4bit_sync_reset.u_sva.c_first_inc
+up_counter_4bit_sync_reset.u_sva.c_wrap_event

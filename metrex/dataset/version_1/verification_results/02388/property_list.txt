@@ -1,0 +1,24 @@
+ASSERT PROPERTIES:
+small_fifo_cntr.sva.a_async_clear_edge
+small_fifo_cntr.sva.a_async_clear_hold
+small_fifo_cntr.sva.a_sync_clear
+small_fifo_cntr.sva.a_hold_when_dis
+small_fifo_cntr.sva.a_count_up
+small_fifo_cntr.sva.a_count_down
+small_fifo_cntr.sva.a_change_when_en
+small_fifo_cntr.sva.a_no_xz
+
+COVER PROPERTIES:
+small_fifo_cntr.sva.a_async_clear_hold:precondition1
+small_fifo_cntr.sva.a_sync_clear:precondition1
+small_fifo_cntr.sva.a_hold_when_dis:precondition1
+small_fifo_cntr.sva.a_count_up:precondition1
+small_fifo_cntr.sva.a_count_down:precondition1
+small_fifo_cntr.sva.a_change_when_en:precondition1
+small_fifo_cntr.sva.c_async_clear
+small_fifo_cntr.sva.c_sync_clear
+small_fifo_cntr.sva.c_inc_step
+small_fifo_cntr.sva.c_dec_step
+small_fifo_cntr.sva.c_wrap_up
+small_fifo_cntr.sva.c_wrap_down
+small_fifo_cntr.sva.c_hold

@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:26:23 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2524156
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:39553' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY6xCsJAEETfIYKIhT+ixsJCSCtYKIKF7RHDqYlBg4kWNv6qf3JODg3usXszezO7Z4D45b0nROepMmTFmi0L1Q073W2Y9xfERqWrHDBiT0JNykm8L15y40outuSBE8s4KNOgy/R2warrqLhTqFcxIdKZMmMunHNspzj5as3qaXKzpRCOGAdVImcZNti/TTb8pfGdpft5+AA+0SSy' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:53:33 EST
+# hostname  : della-i13n16.(none)
+# pid       : 109670
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:36619' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+i1oMHoVdvFcGD16AlamNRMdWDF3/VP6mToMUNu9nZzM4kAbJX0zTE6DxVhuQsWbNQXbHR3Uby/jZZotJVDhixY0tNwVG4L3zlxgUnlDNmwgOrScleWURuqfczRlOL506lmRcz1ZkyY67ecWiVrPZq6fWkHpwq9WnUdtLz4gUH8+dk4n/C3km83w4fpcIlEw==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00159/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -369,6 +369,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -391,7 +393,7 @@ WARNING (WCK006): 0: Clock "i_dff_sva.reset (negative edge)" for flop "i_dff_sva
     Check your clock definition and pin constraints or try "clock -analyze" for more information.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -452,34 +454,37 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 2
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2524228@della-i13n22(local) jg_2524156_della-i13n22_1
-0.0.N: Proofgrid shell started at 2524227@della-i13n22(local) jg_2524156_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 109742@della-i13n16(local) jg_109670_della-i13n16_1
+0.0.N: Proofgrid shell started at 109741@della-i13n16(local) jg_109670_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
-0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "d_ff_async_reset.i_dff_sva.ap_rst_hold"	[0.00 s].
+0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "d_ff_async_reset.i_dff_sva.ap_rst_hold" in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "d_ff_async_reset.i_dff_sva.ap_rst_hold:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: All properties determined. [0.00 s]
 0.0.Hp: All properties determined. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2524241@della-i13n22(local) jg_2524156_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
+0.0.N: Stopped processing property "d_ff_async_reset.i_dff_sva.ap_rst_hold"	[0.01 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.04 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.05 s)
+0.0.Ht: Proofgrid shell started at 109755@della-i13n16(local) jg_109670_della-i13n16_1
+0.0.Ht: Requesting engine job to terminate
+0.0.N: Exited with Success (@ 0.04 s)
 0.0.Ht: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.05 s)
-0.0.B: Proofgrid shell started at 2524242@della-i13n22(local) jg_2524156_della-i13n22_1
+0.0.B: Proofgrid shell started at 109756@della-i13n16(local) jg_109670_della-i13n16_1
 0.0.B: Requesting engine job to terminate
+0.0.Ht: Exited with Success (@ 0.05 s)
 0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.07 s)
+0.0.B: Exited with Success (@ 0.05 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 0.51 %)
+ProofGrid Summary (utilization 0.80 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -488,19 +493,19 @@ ProofGrid Summary (utilization 0.51 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        0.42 %
-     Hp        0.05        0.00        0.00        1.59 %
-     Ht        0.05        0.00        0.00        0.00 %
+      N        0.05        0.00        0.00        1.08 %
+     Hp        0.04        0.00        0.00        2.17 %
+     Ht        0.04        0.00        0.00        0.00 %
       B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        0.51 %
+    all        0.05        0.00        0.00        0.80 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.00        0.00
+               0.19        0.00        0.00
 
-    Data read    : 1.60 kiB
+    Data read    : 1.67 kiB
     Data written : 1.28 kiB
 
 0: All pending notifications were processed.
@@ -555,6 +560,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.312 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

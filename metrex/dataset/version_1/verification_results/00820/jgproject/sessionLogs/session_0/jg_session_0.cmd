@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 18:27:32 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2589066
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:36819' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY6xCsJAEETfIYKIhT+iCVYWaQULRbCwPWI4NTFoMNHCxl/1T87JocE9dm5nb2fnDJC8vPeE6D0FY1as2bIQbtjp7sK8v0ViBH3liAl7UhoyTuJD8YobVwqxJQ+cWM5BmYW5XG8XrLqOmjulejURsc6cmTCS9thtcdI12jXQ5talVB0zDVOplFVwsH9ONvyl1Z0199PwAT0qJK0=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:37:49 EST
+# hostname  : della-h14n12.(none)
+# pid       : 1777007
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:44567' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEEHEgz+iLZ489OqtInjwGrREbS0qpnrw4q/6J3EatLhhJ7ubmdkYIHuFEIjRewrG5CxZsxCu2Ojuwry/RWYEfeWICTu2NBQc1Q/VX7lxoVKXMyXhgdOkZK8sIrfU+xmrqcNzp9bMi5nqzJkJE+kPnZOTrpHfQO7tplp1Gr0r+Xnx2g32b5ON/2l1J/F+Gj6kGyUO' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00820/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/
@@ -280,8 +280,27 @@ if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
 }
 
 # ---- Prove all assertions ----
+# 3600 seconds = 1 hour timeout per property (adjust as needed)
+set_prove_time_limit 3600
 puts "INFO: Running prove -all"
 if {[catch { prove -all } pmsg]} {
   puts "ERROR: prove command failed:\n$pmsg"
   exit 4
 }
+
+# ---- Covers (best effort) ----
+catch { cover -all }
+
+# ---- Write summary ----
+set fp [open $SUMMARY_TXT "w"]
+puts $fp "DESIGN_ID=$DESIGN_ID"
+puts $fp "TOP=$TOP"
+puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+puts $fp "COVER_COUNT=[llength $COVERS]"
+puts $fp "PROP_LIST=$PROP_LIST_TXT"
+close $fp
+
+puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+puts "INFO: Wrote $SUMMARY_TXT"
+puts "INFO: Wrote $PROP_LIST_TXT"
+exit 0

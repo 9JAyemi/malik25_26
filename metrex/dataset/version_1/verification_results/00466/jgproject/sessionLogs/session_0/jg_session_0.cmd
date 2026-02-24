@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:48:32 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2554515
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:34265' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY4xC8JADIW/QwQRB/+ItoM4dRUcFMHB9ajl1NaixVYHF/+q/+R8PbSYkHd5SV5yBkhe3nuC9Z6CMSvWbFkIN+z0dmbe3yQxgr5ixIQ9KQ0ZJ/GheMWNK4XYkgdOLOegyMJcrt4Fq6qj5k6pWk1ELJ8xl0fSHrstTrpGuwba3F4plcdMw1QqZRUu2L9LNvyl1Z0199PwAT84JLM=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:38:58 EST
+# hostname  : della-i13n20.(none)
+# pid       : 1134655
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:36539' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY69CsJAEIS/QwQRC19Ek0Ks0tpFBAvbQ8OpiUHFixY2vqpvck4ODe6ye/szM3sGyF4hBKL1nkpjcpasWSiv2OjtzLy/RWaU+ooRE3ZsaSg4qh+qv3LjQqUuZ0rCA6dJyV5RRGyp/RmrqcNzp9bMC5nKZ8zlifiHTsmJ10hvIPX2Uq06jdqV9Lxw7QX7d8nG/7S8k3A/Dh+mKSUU' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00466/jgproject/.tmp/.postCmds.tcl'
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
 # Output: verification_results/<DESIGN_ID>/
@@ -280,6 +280,8 @@ if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
 }
 
 # ---- Prove all assertions ----
+# 3600 seconds = 1 hour timeout per property (adjust as needed)
+set_prove_time_limit 3600
 puts "INFO: Running prove -all"
 if {[catch { prove -all } pmsg]} {
   puts "ERROR: prove command failed:\n$pmsg"

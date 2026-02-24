@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+counter.i_counter_sva.a_rst_sync
+counter.i_counter_sva.a_up_inc
+counter.i_counter_sva.a_up_wrap
+counter.i_counter_sva.a_down_dec
+counter.i_counter_sva.a_down_wrap
+counter.i_counter_sva.a_progress
+counter.i_counter_sva.a_known_io
+
+COVER PROPERTIES:
+counter.i_counter_sva.a_rst_sync:precondition1
+counter.i_counter_sva.a_up_inc:precondition1
+counter.i_counter_sva.a_up_wrap:precondition1
+counter.i_counter_sva.a_down_dec:precondition1
+counter.i_counter_sva.a_down_wrap:precondition1
+counter.i_counter_sva.a_progress:precondition1
+counter.i_counter_sva.a_known_io:precondition1
+counter.i_counter_sva.c_seen_reset
+counter.i_counter_sva.c_up_nonwrap
+counter.i_counter_sva.c_down_nonwrap
+counter.i_counter_sva.c_up_wrap
+counter.i_counter_sva.c_down_wrap
+counter.i_counter_sva.c_dir_change

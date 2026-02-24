@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+counter.sva_i.a_rst_clears
+counter.sva_i.a_rst_holds
+counter.sva_i.a_no_x_post_rst
+counter.sva_i.a_inc
+counter.sva_i.a_hold
+
+COVER PROPERTIES:
+counter.sva_i.a_rst_clears:precondition1
+counter.sva_i.a_rst_holds:precondition1
+counter.sva_i.a_no_x_post_rst:precondition1
+counter.sva_i.a_inc:precondition1
+counter.sva_i.a_hold:precondition1
+counter.sva_i.c_reset
+counter.sva_i.c_inc
+counter.sva_i.c_hold
+counter.sva_i.c_wrap
+counter.sva_i.c_seq

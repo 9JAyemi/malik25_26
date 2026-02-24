@@ -1,0 +1,26 @@
+ASSERT PROPERTIES:
+alu4bit.u_alu4bit_sva.ap_add
+alu4bit.u_alu4bit_sva.ap_sub
+alu4bit.u_alu4bit_sva.ap_and
+alu4bit.u_alu4bit_sva.ap_or
+alu4bit.u_alu4bit_sva.ap_known
+
+COVER PROPERTIES:
+alu4bit.u_alu4bit_sva.ap_add:precondition1
+alu4bit.u_alu4bit_sva.ap_sub:precondition1
+alu4bit.u_alu4bit_sva.ap_and:precondition1
+alu4bit.u_alu4bit_sva.ap_or:precondition1
+alu4bit.u_alu4bit_sva.cp_op00_binvcin
+alu4bit.u_alu4bit_sva.cp_op00_binv
+alu4bit.u_alu4bit_sva.cp_op00_cout0
+alu4bit.u_alu4bit_sva.cp_op00_cout1
+alu4bit.u_alu4bit_sva.cp_op01_binvcin
+alu4bit.u_alu4bit_sva.cp_op01_binv
+alu4bit.u_alu4bit_sva.cp_op01_cout0
+alu4bit.u_alu4bit_sva.cp_op01_cout1
+alu4bit.u_alu4bit_sva.cp_op10_binv0
+alu4bit.u_alu4bit_sva.cp_op10_binv1
+alu4bit.u_alu4bit_sva.cp_and_zero
+alu4bit.u_alu4bit_sva.cp_op11_binv0
+alu4bit.u_alu4bit_sva.cp_op11_binv1
+alu4bit.u_alu4bit_sva.cp_or_all1

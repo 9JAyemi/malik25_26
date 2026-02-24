@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -377,7 +379,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -422,14 +424,19 @@ INFO (IPF057): 0.0.PRE: The property "DisplayCtrl.sva_inst.a_an_onehot" was prov
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 29
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2539843@della-i13n22(local) jg_2539771_della-i13n22_1
-0.0.N: Proofgrid shell started at 2539842@della-i13n22(local) jg_2539771_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 114967@della-i13n16(local) jg_114895_della-i13n16_1
+0.0.N: Proofgrid shell started at 114966@della-i13n16(local) jg_114895_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "DisplayCtrl.sva_inst.a_mux_00"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "DisplayCtrl.sva_inst.a_mux_00" was proven in 0.00 s.
+0.0.N: Stopped processing property "DisplayCtrl.sva_inst.a_mux_00"	[0.00 s].
 0.0.Hp: Lemmas used(1): ?1
-0.0.Hp: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.Hp: The property "DisplayCtrl.sva_inst.a_mux_00" was proven in 0.00 s.
 0.0.Hp: Lemmas used(1): ?1
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.Hp: The property "DisplayCtrl.sva_inst.a_mux_01" was proven in 0.00 s.
@@ -444,20 +451,20 @@ INFO (IPF057): 0.0.Hp: The property "DisplayCtrl.sva_inst.a_mux_11" was proven i
 INFO (IPF057): 0.0.Hp: The property "DisplayCtrl.sva_inst.a_cats_valid" was proven in 0.00 s.
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_00:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan00" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[15].c_hex" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_00:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan00" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[15].c_hex" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_01:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan01" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_01:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan01" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_10:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan10" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_10:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan10" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_11:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan11" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.a_mux_11:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.c_scan11" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[0].c_hex" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[0].c_hex" was covered in 1 cycles in 0.01 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
@@ -473,47 +480,51 @@ INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[5].c_h
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[6].c_hex" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[6].c_hex" was covered in 1 cycles in 0.04 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[7].c_hex" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[8].c_hex" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[9].c_hex" was covered in 1 cycles in 0.03 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[10].c_hex" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[7].c_hex" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[8].c_hex" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[9].c_hex" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[10].c_hex" was covered in 1 cycles in 0.04 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[11].c_hex" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[12].c_hex" was covered in 1 cycles in 0.04 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[13].c_hex" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[11].c_hex" was covered in 1 cycles in 0.05 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[12].c_hex" was covered in 1 cycles in 0.05 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[13].c_hex" was covered in 1 cycles in 0.05 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.05 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[14].c_hex" was covered in 1 cycles in 0.04 s.
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2539856@della-i13n22(local) jg_2539771_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.Ht: Interrupted. [0.00 s]
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[14].c_hex" was covered in 1 cycles in 0.05 s.
+0.0.Hp: All properties determined. [0.01 s]
+0.0.B: Proofgrid shell started at 114981@della-i13n16(local) jg_114895_della-i13n16_1
+0.0.B: Requesting engine job to terminate
+0.0.B: Interrupted. [0.00 s]
 0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "DisplayCtrl.sva_inst.a_mux_00:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "DisplayCtrl.sva_inst.a_mux_00:precondition1"	[0.00 s].
+0.0.N: Starting proof for property "DisplayCtrl.sva_inst.a_mux_01:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "DisplayCtrl.sva_inst.a_mux_01:precondition1"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[2].c_hex"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[2].c_hex"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[3].c_hex"	[0.00 s].
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[3].c_hex"	[0.00 s].
+0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[6].c_hex"	[0.00 s].
+0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[6].c_hex"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[7].c_hex"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[7].c_hex"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[8].c_hex"	[0.00 s].
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[8].c_hex"	[0.00 s].
-0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[10].c_hex"	[0.00 s].
-0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[10].c_hex"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[11].c_hex"	[0.00 s].
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[11].c_hex"	[0.00 s].
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[12].c_hex"	[0.00 s].
@@ -522,16 +533,16 @@ INFO (IPF047): 0.0.Hp: The cover property "DisplayCtrl.sva_inst.G_COV_HEX[14].c_
 0.0.N: Starting proof for property "DisplayCtrl.sva_inst.G_COV_HEX[13].c_hex"	[0.00 s].
 0.0.N: Stopped processing property "DisplayCtrl.sva_inst.G_COV_HEX[13].c_hex"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.06 s)
+0.0.Hp: Exited with Success (@ 0.05 s)
 0: ProofGrid usable level: 0
-0.0.B: Proofgrid shell started at 2539857@della-i13n22(local) jg_2539771_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.07 s)
-0.0.Ht: Exited with Success (@ 0.07 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.07 s)
+0.0.Ht: Proofgrid shell started at 114980@della-i13n16(local) jg_114895_della-i13n16_1
+0.0.Ht: Requesting engine job to terminate
+0.0.B: Exited with Success (@ 0.06 s)
+0.0.N: Exited with Success (@ 0.06 s)
+0.0.Ht: Interrupted. [0.00 s]
+0.0.Ht: Exited with Success (@ 0.06 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 29.83 %)
+ProofGrid Summary (utilization 33.82 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -540,20 +551,20 @@ ProofGrid Summary (utilization 29.83 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.04        0.00       43.94 %
-     Hp        0.05        0.05        0.00       52.44 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.07        0.00        0.00        0.00 %
-    all        0.06        0.02        0.00       29.83 %
+      N        0.05        0.05        0.00       51.72 %
+     Hp        0.05        0.05        0.00       53.41 %
+     Ht        0.06        0.00        0.00        0.00 %
+      B        0.05        0.00        0.00        0.00 %
+    all        0.05        0.03        0.00       33.82 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.22        0.10        0.00
+               0.20        0.10        0.00
 
-    Data read    : 6.57 kiB
-    Data written : 2.33 kiB
+    Data read    : 7.05 kiB
+    Data written : 2.36 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -607,6 +618,6 @@ INFO: Wrote verification_results/00309/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.317 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

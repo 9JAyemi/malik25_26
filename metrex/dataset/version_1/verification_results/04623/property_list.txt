@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+four_bit_register.sva.ap_async_reset_immediate
+four_bit_register.sva.ap_reset_holds_zero
+four_bit_register.sva.ap_reset_stable_on_clk
+four_bit_register.sva.ap_rst_known
+four_bit_register.sva.ap_first_clk_after_rel
+four_bit_register.sva.ap_sync_capture
+four_bit_register.sva.ap_known_propagation
+
+COVER PROPERTIES:
+four_bit_register.sva.ap_reset_holds_zero:precondition1
+four_bit_register.sva.ap_reset_stable_on_clk:precondition1
+four_bit_register.sva.ap_first_clk_after_rel:precondition1
+four_bit_register.sva.ap_sync_capture:precondition1
+four_bit_register.sva.ap_known_propagation:precondition1
+four_bit_register.sva.cv_reset_assert
+four_bit_register.sva.cv_reset_release
+four_bit_register.sva.cv_data_cap_change
+four_bit_register.sva.cv_q_toggle

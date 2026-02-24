@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -377,7 +379,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -414,8 +416,8 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 10
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 2564157@della-i13n22(local) jg_2564086_della-i13n22_1
-0.0.Hp: Proofgrid shell started at 2564158@della-i13n22(local) jg_2564086_della-i13n22_1
+0.0.N: Proofgrid shell started at 1432914@della-h14n5(local) jg_1432748_della-h14n5_1
+0.0.Hp: Proofgrid shell started at 1432915@della-h14n5(local) jg_1432748_della-h14n5_1
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -426,50 +428,45 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_3" in 0.01 s.
 INFO (IPF047): 0.0.N: The cover property "csconvert_mono.mono_sva._assert_4:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "csconvert_mono.mono_sva._assert_3".
 0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_3"	[0.01 s].
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Starting proof for property "csconvert_mono.mono_sva._assert_4"	[0.00 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_4" in 0.00 s.
 0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_4"	[0.00 s].
 0.0.N: Starting proof for property "csconvert_mono.mono_sva._assert_5"	[0.00 s].
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_5" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "csconvert_mono.mono_sva._assert_5:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_7" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "csconvert_mono.mono_sva._assert_7:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_6" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "csconvert_mono.mono_sva._assert_6:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.00 s]
+0.0.Hp: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_5" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "csconvert_mono.mono_sva._assert_5:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "csconvert_mono.mono_sva._assert_5".
 0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_5"	[0.00 s].
-0.0.N: Starting proof for property "csconvert_mono.mono_sva._assert_6"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_6" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "csconvert_mono.mono_sva._assert_6:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "csconvert_mono.mono_sva._assert_6".
-0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_6"	[0.00 s].
-0.0.N: Starting proof for property "csconvert_mono.mono_sva._assert_7"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "csconvert_mono.mono_sva._assert_7" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "csconvert_mono.mono_sva._assert_7:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "csconvert_mono.mono_sva._assert_7".
-0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_7"	[0.00 s].
 0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "csconvert_mono.mono_sva._assert_6"	[0.00 s].
+0.0.N: Stopped processing property "csconvert_mono.mono_sva._assert_6"	[0.00 s].
 0.0.N: Starting proof for property "csconvert_mono.mono_sva._cover_8"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "csconvert_mono.mono_sva._cover_8" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.03 s]
 0.0.N: Trace Attempt  2	[0.03 s]
 0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Ht: Proofgrid shell started at 2564171@della-i13n22(local) jg_2564086_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 1432928@della-h14n5(local) jg_1432748_della-h14n5_1
 0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
@@ -477,7 +474,7 @@ INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "cs
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.B: Proofgrid shell started at 2564172@della-i13n22(local) jg_2564086_della-i13n22_1
+0.0.B: Proofgrid shell started at 1432929@della-h14n5(local) jg_1432748_della-h14n5_1
 0.0.B: OS RSS memory limit : 17179869184 / 17179869184
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Last scan. Per property time limit: 0s
@@ -487,53 +484,48 @@ INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "cs
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.45 s]
-0.0.N: Trace Attempt  2	[0.45 s]
-0.0.N: Trace Attempt  3	[0.45 s]
+0.0.N: Trace Attempt  1	[0.40 s]
+0.0.N: Trace Attempt  2	[0.40 s]
+0.0.N: Trace Attempt  3	[0.40 s]
 0: ProofGrid usable level: 1
-0.0.B: Trace Attempt 207	[4.04 s]
-0.0.Hp: Trace Attempt 139	[5.66 s]
-0.0.B: Trace Attempt 256	[8.17 s]
-0.0.B: Trace Attempt 284	[12.46 s]
-0.0.Ht: Trace Attempt 385	[15.14 s]
-0.0.B: Trace Attempt 302	[16.74 s]
-0.0.B: Trace Attempt 324	[20.84 s]
-0.0.Ht: Trace Attempt 408	[21.11 s]
-0.0.Hp: Trace Attempt 408	[21.52 s]
-0.0.B: Trace Attempt 331	[25.03 s]
-0.0.Hp: Trace Attempt 410	[26.03 s]
-0.0.Ht: Trace Attempt 445	[26.24 s]
-0.0.B: Trace Attempt 345	[30.19 s]
-0.0.Ht: Trace Attempt 478	[31.13 s]
-0.0.Hp: Trace Attempt 475	[32.67 s]
-0.0.B: Trace Attempt 355	[34.62 s]
-0.0.Ht: Trace Attempt 498	[35.50 s]
-0.0.Hp: Trace Attempt 498	[38.19 s]
-0.0.B: Trace Attempt 369	[39.23 s]
+0.0.B: Trace Attempt 224	[4.08 s]
+0.0.B: Trace Attempt 268	[8.09 s]
+0.0.Ht: Trace Attempt 369	[8.22 s]
+0.0.B: Trace Attempt 301	[12.41 s]
+0.0.Ht: Trace Attempt 409	[12.75 s]
+0.0.Hp: Trace Attempt 399	[13.07 s]
+0.0.B: Trace Attempt 326	[16.70 s]
+0.0.Ht: Trace Attempt 444	[16.87 s]
+0.0.Hp: Trace Attempt 429	[18.28 s]
+0.0.Ht: Trace Attempt 479	[20.94 s]
+0.0.B: Trace Attempt 345	[22.52 s]
+0.0.Hp: Trace Attempt 459	[22.91 s]
+0.0.Ht: Trace Attempt 512	[25.02 s]
 0.0.N: Requesting engine job to stop
 0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [39.66 s]
-0.0.Ht: Trace Attempt 517	[39.43 s]
-0.0.Ht: A trace with 517 cycles was found. [39.61 s]
-INFO (IPF047): 0.0.Ht: The cover property "csconvert_mono.mono_sva._cover_8" was covered in 517 cycles in 39.61 s.
+INFO (IPF144): 0: Initiating shutdown of proof [25.86 s]
+0.0.Ht: Trace Attempt 517	[25.67 s]
+0.0.Ht: A trace with 517 cycles was found. [25.79 s]
+INFO (IPF047): 0.0.Ht: The cover property "csconvert_mono.mono_sva._cover_8" was covered in 517 cycles in 25.79 s.
+0.0.Ht: All properties determined. [25.79 s]
+0.0.Ht: Exited with Success (@ 25.86 s)
 0: ProofGrid usable level: 0
+0.0.B: Stopped processing property "csconvert_mono.mono_sva._cover_8"	[25.77 s].
+0.0.B: Trace Attempt 355	[25.74 s]
+0.0.B: All properties determined. [25.77 s]
+0.0.B: Exited with Success (@ 25.88 s)
+0.0.N: Stopped processing property "csconvert_mono.mono_sva._cover_8"	[25.87 s].
+0.0.N: Trace Attempt 407	[3.45 s]
+0.0.N: All properties determined. [25.87 s]
 0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt 513	[38.20 s]
-0.0.Hp: All properties determined. [39.66 s]
-0.0.Ht: All properties determined. [39.61 s]
-0.0.Hp: Exited with Success (@ 39.67 s)
-0.0.B: Stopped processing property "csconvert_mono.mono_sva._cover_8"	[39.60 s].
-0.0.B: All properties determined. [39.60 s]
-0.0.Ht: Exited with Success (@ 39.70 s)
-0.0.B: Exited with Success (@ 39.70 s)
-0.0.N: Stopped processing property "csconvert_mono.mono_sva._cover_8"	[39.68 s].
-0.0.N: Trace Attempt 407	[4.20 s]
-0.0.N: All properties determined. [39.69 s]
-0.0.N: Exited with Success (@ 39.70 s)
+0.0.Hp: Trace Attempt 516	[25.72 s]
+0.0.Hp: All properties determined. [26.55 s]
+0.0.N: Exited with Success (@ 26.55 s)
+0.0.Hp: Exited with Success (@ 26.56 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.87 %)
+ProofGrid Summary (utilization 99.71 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -542,20 +534,20 @@ ProofGrid Summary (utilization 99.87 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05       39.66        0.00       99.87 %
-     Hp        0.05       39.66        0.00       99.87 %
-     Ht        0.05       39.61        0.00       99.87 %
-      B        0.06       39.60        0.00       99.84 %
-    all        0.05       39.63        0.00       99.87 %
+      N        0.07       25.86        0.00       99.72 %
+     Hp        0.07       25.85        0.00       99.73 %
+     Ht        0.07       25.79        0.00       99.73 %
+      B        0.09       25.76        0.00       99.64 %
+    all        0.08       25.82        0.00       99.71 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21      158.52        0.00
+               0.31      103.26        0.00
 
-    Data read    : 213.03 kiB
-    Data written : 22.31 kiB
+    Data read    : 210.85 kiB
+    Data written : 22.13 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -609,6 +601,6 @@ INFO: Wrote verification_results/00569/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.720 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.692 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

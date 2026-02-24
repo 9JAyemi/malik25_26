@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+counter_3bit.sva_i.ap_no_x
+counter_3bit.sva_i.ap_async_set0
+counter_3bit.sva_i.ap_hold_during_rst
+counter_3bit.sva_i.ap_always_moves
+counter_3bit.sva_i.ap_step_up
+counter_3bit.sva_i.ap_step_dn
+
+COVER PROPERTIES:
+counter_3bit.sva_i.ap_hold_during_rst:precondition1
+counter_3bit.sva_i.ap_step_up:precondition1
+counter_3bit.sva_i.ap_step_dn:precondition1
+counter_3bit.sva_i.cp_wrap_up
+counter_3bit.sva_i.cp_wrap_dn
+counter_3bit.sva_i.g_state_cov[0].cp_state
+counter_3bit.sva_i.g_state_cov[1].cp_state
+counter_3bit.sva_i.g_state_cov[2].cp_state
+counter_3bit.sva_i.g_state_cov[3].cp_state
+counter_3bit.sva_i.g_state_cov[4].cp_state
+counter_3bit.sva_i.g_state_cov[5].cp_state
+counter_3bit.sva_i.g_state_cov[6].cp_state
+counter_3bit.sva_i.g_state_cov[7].cp_state

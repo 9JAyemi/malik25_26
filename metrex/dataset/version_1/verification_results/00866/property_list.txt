@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+d_ff_reset_preset.sva_i.a_reset_dominates
+d_ff_reset_preset.sva_i.a_preset_active
+d_ff_reset_preset.sva_i.a_pass_d
+d_ff_reset_preset.sva_i.a_q_known
+
+COVER PROPERTIES:
+d_ff_reset_preset.sva_i.a_reset_dominates:precondition1
+d_ff_reset_preset.sva_i.a_preset_active:precondition1
+d_ff_reset_preset.sva_i.a_pass_d:precondition1
+d_ff_reset_preset.sva_i.c_reset
+d_ff_reset_preset.sva_i.c_preset
+d_ff_reset_preset.sva_i.c_pass0
+d_ff_reset_preset.sva_i.c_pass1

@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+sw_reset.sw_reset_sva_i.a_async_reset_zero
+sw_reset.sw_reset_sva_i.a_waitreq_def
+sw_reset.sw_reset_sva_i.a_readdata_def
+sw_reset.sw_reset_sva_i.a_count_inc
+sw_reset.sw_reset_sva_i.a_count_hold
+sw_reset.sw_reset_sva_i.a_count_clr
+sw_reset.sw_reset_sva_i.a_out_pipe_eq
+sw_reset.sw_reset_sva_i.a_msb_to_out_r
+sw_reset.sw_reset_sva_i.a_write_clears_o
+sw_reset.sw_reset_sva_i.a_wait_deasserts_after_write
+sw_reset.sw_reset_sva_i.a_wait_stays_low_until_write
+
+COVER PROPERTIES:
+sw_reset.sw_reset_sva_i.a_async_reset_zero:precondition1
+sw_reset.sw_reset_sva_i.a_count_inc:precondition1
+sw_reset.sw_reset_sva_i.a_count_hold:precondition1
+sw_reset.sw_reset_sva_i.a_count_clr:precondition1
+sw_reset.sw_reset_sva_i.a_out_pipe_eq:precondition1
+sw_reset.sw_reset_sva_i.a_msb_to_out_r:precondition1
+sw_reset.sw_reset_sva_i.a_write_clears_o:precondition1
+sw_reset.sw_reset_sva_i.a_wait_stays_low_until_write:precondition1
+sw_reset.sw_reset_sva_i.c_msb_rise
+sw_reset.sw_reset_sva_i.c_write_to_wait_low
+sw_reset.sw_reset_sva_i.c_write_to_out_low_high

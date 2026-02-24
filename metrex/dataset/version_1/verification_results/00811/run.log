@@ -360,6 +360,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -378,7 +380,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -415,54 +417,55 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 7
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2588264@della-i13n22(local) jg_2588192_della-i13n22_1
-0.0.N: Proofgrid shell started at 2588263@della-i13n22(local) jg_2588192_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 101650@della-h14n2(local) jg_101483_della-h14n2_1
+0.0.N: Proofgrid shell started at 101649@della-h14n2(local) jg_101483_della-h14n2_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "dly01_16.sva_i.ap_sr_reset_or_shift"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.ap_sr_reset_or_shift:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_use_dly15" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_all_one" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.ap_sr_reset_or_shift:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_use_dly15" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_all_one" was covered in 1 cycles in 0.02 s.
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_use_dly0" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_use_dly0" was covered in 1 cycles in 0.02 s.
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_all_zero" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_dout_edge" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_all_zero" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "dly01_16.sva_i.cv_dout_edge" was covered in 1 cycles in 0.02 s.
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
 0.0.Hp: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.Hp: The property "dly01_16.sva_i.ap_sr_reset_or_shift" was proven in 0.01 s.
+INFO (IPF057): 0.0.Hp: The property "dly01_16.sva_i.ap_sr_reset_or_shift" was proven in 0.03 s.
 0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Stopped processing property "dly01_16.sva_i.ap_sr_reset_or_shift"	[0.01 s].
-0.0.N: Trace Attempt  7	[0.00 s]
-0.0.N: All properties determined. [0.01 s]
-0.0.Hp: Exited with Success (@ 0.05 s)
-0: ProofGrid usable level: 0
-0.0.B: Proofgrid shell started at 2588278@della-i13n22(local) jg_2588192_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2588277@della-i13n22(local) jg_2588192_della-i13n22_1
+0.0.N: Stopped processing property "dly01_16.sva_i.ap_sr_reset_or_shift"	[0.03 s].
+0.0.N: Trace Attempt  8	[0.00 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.Ht: Proofgrid shell started at 101663@della-h14n2(local) jg_101483_della-h14n2_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Exited with Success (@ 0.06 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.06 s)
+0.0.N: Exited with Success (@ 0.06 s)
+0: ProofGrid usable level: 0
+0.0.Hp: Exited with Success (@ 0.06 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Proofgrid shell started at 101664@della-h14n2(local) jg_101483_della-h14n2_1
+0.0.B: Requesting engine job to terminate
+0.0.Ht: Exited with Success (@ 0.07 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 4.95 %)
+ProofGrid Summary (utilization 3.48 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -471,20 +474,20 @@ ProofGrid Summary (utilization 4.95 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.01        0.00        9.49 %
-     Hp        0.05        0.01        0.00        9.93 %
+      N        0.07        0.00        0.00        5.92 %
+     Hp        0.07        0.01        0.00        7.01 %
      Ht        0.06        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        4.95 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        3.48 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21        0.01        0.00
+               0.28        0.01        0.00
 
-    Data read    : 3.15 kiB
-    Data written : 1.47 kiB
+    Data read    : 3.16 kiB
+    Data written : 1.49 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -538,6 +541,6 @@ INFO: Wrote verification_results/00811/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:31:40 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2529123
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:33403' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+irZ57FTwoggevoZaorUWLrR68+Kv+SZwGLW7Yyc5mZycGSF7ee0L0noIxK9ZsWQg37HR3Yd7fIjGCvnLEhD0pDRkn8aF4xY0rhdiSB04s56DMwlyutwtWXUfNnVK9mohYZ85MGEl77LY46RrtGmhz61KqjpmGqVTKKjjYPycb/tLqzpr7afgAOqEkpg==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:56:26 EST
+# hostname  : della-i13n16.(none)
+# pid       : 111671
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:38333' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEEHEgz+irZ579VYRPHgNWqK2FhVTPXjxV/2TOA1a3LCT3c3MbAyQvUIIxOg9BWNylqxZCFdsdHdh3t8iM4K+csSEHVsaCo7qh+qv3LhQqcuZkvDAaVKyVxaRW+r9jNXU4blTa+bFTHXmzISJ9IfOyUnXyG8g93ZTrTqN3pX8vHjtBvu3ycb/tLqTeD8NH6GSJQc=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00210/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -372,6 +372,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -394,7 +396,7 @@ WARNING (WCK006): 0: Clock "reset" for flop "u_top_module_sva._assert_2" is assi
 INFO (ICK005): An additional 1 flops in the current analysis region have problematic clocks.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -441,34 +443,27 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 8
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2529196@della-i13n22(local) jg_2529123_della-i13n22_1
-0.0.N: Proofgrid shell started at 2529195@della-i13n22(local) jg_2529123_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 111743@della-i13n16(local) jg_111671_della-i13n16_1
+0.0.N: Proofgrid shell started at 111742@della-i13n16(local) jg_111671_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
-0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_1" in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_4" in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_7" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "top_module.u_top_module_sva._cover_10" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "top_module.u_top_module_sva._cover_12" was covered in 1 cycles in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_4" in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_7" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "top_module.u_top_module_sva._cover_10" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "top_module.u_top_module_sva._cover_12" was covered in 1 cycles in 0.03 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_8" in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "top_module.u_top_module_sva._assert_8" in 0.03 s.
 0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.Hp: Trace Attempt  4	[0.00 s]
 0.0.Hp: Trace Attempt  5	[0.00 s]
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "top_module.u_top_module_sva._assert_1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "top_module.u_top_module_sva._assert_1"	[0.00 s].
-0.0.N: Starting proof for property "top_module.u_top_module_sva._assert_4"	[0.00 s].
-0.0.N: Stopped processing property "top_module.u_top_module_sva._assert_4"	[0.00 s].
-0.0.N: Starting proof for property "top_module.u_top_module_sva._assert_8"	[0.00 s].
-0.0.N: Stopped processing property "top_module.u_top_module_sva._assert_8"	[0.00 s].
 0.0.N: Starting proof for property "top_module.u_top_module_sva._cover_11"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 256 cycles. [0.00 s]
@@ -487,10 +482,18 @@ INFO (IPF008): 0.0.N: A max_length bound of 256 was found for the property "top_
 0.0.N: Trace Attempt  2	[0.02 s]
 0.0.N: Trace Attempt  3	[0.02 s]
 0.0.N: Trace Attempt  5	[0.02 s]
-0.0.N: Trace Attempt 37	[0.04 s]
-0.0.N: A trace with 37 cycles was found. [0.05 s]
-INFO (IPF047): 0.0.N: The cover property "top_module.u_top_module_sva._cover_11" was covered in 37 cycles in 0.03 s.
-0.0.N: Stopped processing property "top_module.u_top_module_sva._cover_11"	[0.03 s].
+0.0.Ht: Proofgrid shell started at 111756@della-i13n16(local) jg_111671_della-i13n16_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 37	[0.01 s]
+0.0.Ht: A trace with 37 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Ht: The cover property "top_module.u_top_module_sva._cover_11" was covered in 37 cycles in 0.01 s.
+0.0.N: Stopped processing property "top_module.u_top_module_sva._cover_11"	[0.02 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "top_module.u_top_module_sva._cover_13"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -502,23 +505,16 @@ INFO (IPF008): 0.0.N: A max_length bound of 4194304 was found for the property "
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 2529209@della-i13n22(local) jg_2529123_della-i13n22_1
-0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt 38	[0.01 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.B: Proofgrid shell started at 2529210@della-i13n22(local) jg_2529123_della-i13n22_1
+0.0.B: Proofgrid shell started at 111757@della-i13n16(local) jg_111671_della-i13n16_1
 0.0.B: OS RSS memory limit : 17179869184 / 17179869184
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Last scan. Per property time limit: 0s
@@ -528,35 +524,31 @@ INFO (IPF008): 0.0.N: A max_length bound of 4194304 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.04 s]
-0.0.N: Trace Attempt  2	[0.04 s]
-0.0.N: Trace Attempt  3	[0.04 s]
-0.0.N: Trace Attempt  5	[0.04 s]
 0.0.N: Requesting engine job to stop
 0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.11 s]
-0.0.Ht: Trace Attempt 65	[0.04 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.09 s]
+0.0.Ht: Trace Attempt 65	[0.03 s]
 0.0.Ht: A trace with 65 cycles was found. [0.04 s]
 INFO (IPF047): 0.0.Ht: The cover property "top_module.u_top_module_sva._cover_13" was covered in 65 cycles in 0.04 s.
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt 20	[0.06 s]
-0.0.Hp: All properties determined. [0.11 s]
 0.0.Ht: All properties determined. [0.04 s]
-0.0.N: Stopped processing property "top_module.u_top_module_sva._cover_13"	[0.04 s].
-0.0.N: Trace Attempt 31	[0.04 s]
-0.0.N: All properties determined. [0.04 s]
-0.0.Hp: Exited with Success (@ 0.11 s)
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Trace Attempt 17	[0.04 s]
+0.0.Hp: All properties determined. [0.09 s]
+0.0.B: Stopped processing property "top_module.u_top_module_sva._cover_13"	[0.02 s].
+0.0.B: Trace Attempt 46	[0.02 s]
+0.0.B: All properties determined. [0.02 s]
+0.0.Hp: Exited with Success (@ 0.09 s)
 0: ProofGrid usable level: 0
-0.0.N: Exited with Success (@ 0.11 s)
-0.0.B: Stopped processing property "top_module.u_top_module_sva._cover_13"	[0.03 s].
-0.0.Ht: Exited with Success (@ 0.11 s)
-0.0.B: Trace Attempt 52	[0.02 s]
-0.0.B: All properties determined. [0.03 s]
-0.0.B: Exited with Success (@ 0.11 s)
+0.0.N: Stopped processing property "top_module.u_top_module_sva._cover_13"	[0.03 s].
+0.0.N: Trace Attempt 32	[0.03 s]
+0.0.N: All properties determined. [0.03 s]
+0.0.B: Exited with Success (@ 0.09 s)
+0.0.Ht: Exited with Success (@ 0.09 s)
+0.0.N: Exited with Success (@ 0.09 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 52.27 %)
+ProofGrid Summary (utilization 51.52 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -565,20 +557,20 @@ ProofGrid Summary (utilization 52.27 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.11        0.00       66.96 %
-     Hp        0.05        0.11        0.00       67.83 %
-     Ht        0.07        0.04        0.00       37.50 %
-      B        0.08        0.02        0.00       22.01 %
-    all        0.06        0.07        0.00       52.27 %
+      N        0.05        0.07        0.00       61.51 %
+     Hp        0.05        0.09        0.00       66.08 %
+     Ht        0.05        0.04        0.00       48.06 %
+      B        0.07        0.02        0.00       18.99 %
+    all        0.05        0.06        0.00       51.52 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.25        0.28        0.00
+               0.21        0.22        0.00
 
-    Data read    : 21.04 kiB
-    Data written : 5.01 kiB
+    Data read    : 18.40 kiB
+    Data written : 4.82 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0

@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:53:16 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2561031
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:41863' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+iLYi3XgUPiuDBa6glamvRYqsHL/6qfxKnQYsbdrKz2dmJAZKX954QvadgzIo1WxbCDTvdXZj3t0iMoK8cMWFPSkPGSXwoXnHjSiG25IETyzkoszCX6+2CVddRc6dUryYi1pkzU0bSHrstTrpGuwba3LqUqmOmYSqVsgoO9s/Jhr+0urPmfho+PisksA==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:37:29 EST
+# hostname  : della-h14n5.(none)
+# pid       : 1434143
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:45209' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEEHEgz+iLYi3Xr1VBA9eg5aorUXFVA9e/FX/JE6DFjfsZncyMxsDZK8QAjF6T5UxOUvWLFRXbHR3Yd7fJjMqfeWICTu2NBQcNQ81X7lxodKUMyXhgRNSslcWkVvq/YwV6vDcqYV5MVOdOTNlIv2hc3LSNfIbyL3dVKtPo3clPy9eu8H+bbLxP63uJN5PwwelHCUR' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00535/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -372,6 +372,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -390,7 +392,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -436,17 +438,22 @@ INFO (IPF057): 0.0.PRE: The property "HallwayRight.hwr_sva._assert_6" was proven
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 16
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2561103@della-i13n22(local) jg_2561031_della-i13n22_1
-0.0.N: Proofgrid shell started at 2561102@della-i13n22(local) jg_2561031_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1434310@della-h14n5(local) jg_1434143_della-h14n5_1
+0.0.N: Proofgrid shell started at 1434309@della-h14n5(local) jg_1434143_della-h14n5_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "HallwayRight.hwr_sva._assert_3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "HallwayRight.hwr_sva._assert_3" in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "HallwayRight.hwr_sva._cover_8" was covered in 1 cycles in 0.01 s by the incidental trace "HallwayRight.hwr_sva._assert_3".
+0.0.N: Stopped processing property "HallwayRight.hwr_sva._assert_3"	[0.01 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "HallwayRight.hwr_sva._assert_3" in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_9" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_8" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_10" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
@@ -477,13 +484,14 @@ INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_20" was c
 INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_21" was covered in 1 cycles in 0.03 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.04 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.03 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_22" was covered in 1 cycles in 0.03 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "HallwayRight.hwr_sva._cover_9"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_9"	[0.00 s].
 0.0.N: Starting proof for property "HallwayRight.hwr_sva._cover_14"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_14"	[0.00 s].
@@ -496,25 +504,22 @@ INFO (IPF047): 0.0.Hp: The cover property "HallwayRight.hwr_sva._cover_22" was c
 0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_19"	[0.00 s].
 0.0.N: Starting proof for property "HallwayRight.hwr_sva._cover_20"	[0.00 s].
 0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_20"	[0.00 s].
-0.0.N: Starting proof for property "HallwayRight.hwr_sva._cover_21"	[0.00 s].
-0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_21"	[0.00 s].
 0.0.N: Starting proof for property "HallwayRight.hwr_sva._cover_22"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.Hp: Exited with Success (@ 0.04 s)
-0: ProofGrid usable level: 0
 0.0.N: Stopped processing property "HallwayRight.hwr_sva._cover_22"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2561116@della-i13n22(local) jg_2561031_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2561117@della-i13n22(local) jg_2561031_della-i13n22_1
+0.0.Hp: Exited with Success (@ 0.03 s)
+0: ProofGrid usable level: 0
+0.0.B: Proofgrid shell started at 1434324@della-h14n5(local) jg_1434143_della-h14n5_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.07 s)
-0.0.B: Interrupted. [0.00 s]
+0.0.N: Exited with Success (@ 0.07 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 1434323@della-h14n5(local) jg_1434143_della-h14n5_1
+0.0.Ht: Requesting engine job to terminate
+0.0.Ht: Interrupted. [0.01 s]
 0.0.B: Exited with Success (@ 0.07 s)
+0.0.Ht: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 24.98 %)
+ProofGrid Summary (utilization 19.61 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -523,20 +528,20 @@ ProofGrid Summary (utilization 24.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.03        0.00       37.30 %
-     Hp        0.05        0.04        0.00       44.15 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.06        0.00        0.00        0.00 %
-    all        0.05        0.02        0.00       24.98 %
+      N        0.07        0.03        0.00       32.04 %
+     Hp        0.07        0.03        0.00       33.41 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.02        0.00       19.61 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21        0.07        0.00
+               0.27        0.07        0.00
 
-    Data read    : 7.76 kiB
-    Data written : 1.93 kiB
+    Data read    : 8.18 kiB
+    Data written : 1.91 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0

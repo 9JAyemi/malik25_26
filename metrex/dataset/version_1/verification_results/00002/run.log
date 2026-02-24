@@ -362,6 +362,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -383,7 +385,7 @@ WARNING (WCK006): 0: Clock "rst" for flop "u_counter_4bit_sva.a_async_immediate_
     Check your clock definition and pin constraints or try "clock -analyze" for more information.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -431,40 +433,30 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 7
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2488349@della-i13n22(local) jg_2488277_della-i13n22_1
-0.0.N: Proofgrid shell started at 2488348@della-i13n22(local) jg_2488277_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1842051@della-i13n13(local) jg_1841958_della-i13n13_1
+0.0.N: Proofgrid shell started at 1842050@della-i13n13(local) jg_1841958_della-i13n13_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "counter_4bit.u_counter_4bit_sva.a_inc_mod16"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter_4bit.u_counter_4bit_sva.a_inc_mod16" in 0.01 s.
-0.0.N: Stopped processing property "counter_4bit.u_counter_4bit_sva.a_inc_mod16"	[0.01 s].
-0.0.N: Starting proof for property "counter_4bit.u_counter_4bit_sva.a_rollover"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 1024 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 1024 was found for the property "counter_4bit.u_counter_4bit_sva.a_rollover" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.a_rollover:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.c_rollover" was covered in 1 cycles in 0.02 s.
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: A trace with 1 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter_4bit.u_counter_4bit_sva.a_inc_mod16" in 0.04 s.
+0.0.N: Stopped processing property "counter_4bit.u_counter_4bit_sva.a_inc_mod16"	[0.04 s].
+0.0.Hp: Trace Attempt  1	[0.03 s]
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.a_rollover:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "counter_4bit.u_counter_4bit_sva.c_rollover" was covered in 1 cycles in 0.00 s.
+0.0.Hp: Trace Attempt  2	[0.03 s]
+0.0.Hp: Trace Attempt  3	[0.03 s]
 0.0.Hp: Lemmas used(4): ?1
-0.0.Hp: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.Hp: The property "counter_4bit.u_counter_4bit_sva.a_rollover" was proven in 0.02 s.
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.N: Stopped processing property "counter_4bit.u_counter_4bit_sva.a_rollover"	[0.00 s].
+0.0.Hp: A proof was found: No trace exists. [0.03 s]
+INFO (IPF057): 0.0.Hp: The property "counter_4bit.u_counter_4bit_sva.a_rollover" was proven in 0.00 s.
+0.0.Hp: Trace Attempt  4	[0.03 s]
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "counter_4bit.u_counter_4bit_sva.c_16_steps"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -472,42 +464,54 @@ INFO (IPF057): 0.0.Hp: The property "counter_4bit.u_counter_4bit_sva.a_rollover"
 INFO (IPF008): 0.0.N: A max_length bound of 67108864 was found for the property "counter_4bit.u_counter_4bit_sva.c_16_steps" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  5	[0.04 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 2488362@della-i13n22(local) jg_2488277_della-i13n22_1
+0.0.Ht: Proofgrid shell started at 1842064@della-i13n13(local) jg_1841958_della-i13n13_1
 0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: Proofgrid shell started at 1842065@della-i13n13(local) jg_1841958_della-i13n13_1
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Last scan. Per property time limit: 0s
+0.0.B: Starting proof for property "counter_4bit.u_counter_4bit_sva.c_16_steps"	[0.00 s].
 0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
 0.0.Ht: Trace Attempt  2	[0.00 s]
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Requesting engine job to stop
+0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.05 s]
-0.0.Ht: Trace Attempt 31	[0.01 s]
-0.0.Ht: A trace with 31 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Ht: The cover property "counter_4bit.u_counter_4bit_sva.c_16_steps" was covered in 31 cycles in 0.01 s.
-0.0.Ht: All properties determined. [0.01 s]
-0.0.Ht: Exited with Success (@ 0.05 s)
-0: ProofGrid usable level: 0
-0.0.N: Stopped processing property "counter_4bit.u_counter_4bit_sva.c_16_steps"	[0.04 s].
-0.0.N: Trace Attempt 25	[0.05 s]
-0.0.N: All properties determined. [0.05 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: All properties determined. [0.06 s]
-0.0.B: Proofgrid shell started at 2488363@della-i13n22(local) jg_2488277_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.07 s)
-0.0.Hp: Exited with Success (@ 0.07 s)
-0.0.B: Interrupted. [0.00 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.07 s]
+0.0.B: Trace Attempt 31	[0.01 s]
+0.0.B: A trace with 31 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.B: The cover property "counter_4bit.u_counter_4bit_sva.c_16_steps" was covered in 31 cycles in 0.02 s.
+0.0.B: Stopped processing property "counter_4bit.u_counter_4bit_sva.c_16_steps"	[0.02 s].
+0.0.B: All properties determined. [0.01 s]
+0.0.N: Stopped processing property "counter_4bit.u_counter_4bit_sva.c_16_steps"	[0.02 s].
 0.0.B: Exited with Success (@ 0.07 s)
+0: ProofGrid usable level: 0
+0.0.N: Trace Attempt 20	[0.03 s]
+0.0.N: All properties determined. [0.03 s]
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Trace Attempt 16	[0.01 s]
+0.0.Ht: All properties determined. [0.02 s]
+0.0.N: Exited with Success (@ 0.07 s)
+0.0.Hp: Interrupted (multi)
+0.0.Ht: Exited with Success (@ 0.07 s)
+0.0.Hp: All properties determined. [0.07 s]
+0.0.Hp: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 13.96 %)
+ProofGrid Summary (utilization 21.26 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -516,20 +520,20 @@ ProofGrid Summary (utilization 13.96 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.29        0.05        0.00       15.40 %
-     Hp        0.28        0.05        0.00       16.05 %
-     Ht        0.05        0.01        0.00       10.97 %
-      B        0.07        0.00        0.00        0.00 %
-    all        0.17        0.03        0.00       13.96 %
+      N        0.26        0.07        0.00       20.17 %
+     Hp        0.24        0.07        0.00       21.35 %
+     Ht        0.05        0.02        0.00       23.85 %
+      B        0.05        0.02        0.00       23.63 %
+    all        0.15        0.04        0.00       21.26 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.69        0.11        0.00
+               0.61        0.16        0.00
 
-    Data read    : 9.21 kiB
-    Data written : 3.06 kiB
+    Data read    : 8.80 kiB
+    Data written : 3.90 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -583,6 +587,6 @@ INFO: Wrote verification_results/00002/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.311 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.314 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

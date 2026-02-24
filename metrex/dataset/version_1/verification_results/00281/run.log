@@ -369,6 +369,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -387,7 +389,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -427,15 +429,22 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 5
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2536094@della-i13n22(local) jg_2536020_della-i13n22_1
-0.0.N: Proofgrid shell started at 2536093@della-i13n22(local) jg_2536020_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 113620@della-i13n16(local) jg_113547_della-i13n16_1
+0.0.N: Proofgrid shell started at 113619@della-i13n16(local) jg_113547_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
-0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "mux4to1.u_mux4to1_sva._assert_1"	[0.00 s].
+0.0.N: Starting proof for property "mux4to1.u_mux4to1_sva._cover_0_4"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "mux4to1.u_mux4to1_sva._assert_1" in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "mux4to1.u_mux4to1_sva._cover_0_4" was covered in 1 cycles in 0.01 s.
+0.0.N: Stopped processing property "mux4to1.u_mux4to1_sva._assert_1"	[0.01 s].
+0.0.N: Stopped processing property "mux4to1.u_mux4to1_sva._cover_0_4"	[0.01 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "mux4to1.u_mux4to1_sva._assert_1" in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "mux4to1.u_mux4to1_sva._cover_0_4" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "mux4to1.u_mux4to1_sva._cover_0" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
@@ -444,25 +453,24 @@ INFO (IPF047): 0.0.Hp: The cover property "mux4to1.u_mux4to1_sva._cover_0_1" was
 INFO (IPF047): 0.0.Hp: The cover property "mux4to1.u_mux4to1_sva._cover_0_2" was covered in 1 cycles in 0.02 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "mux4to1.u_mux4to1_sva._cover_0_3" was covered in 1 cycles in 0.02 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Hp: Exited with Success (@ 0.01 s)
 0: ProofGrid usable level: 0
-0.0.N: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2536107@della-i13n22(local) jg_2536020_della-i13n22_1
+0.0.N: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 113633@della-i13n16(local) jg_113547_della-i13n16_1
 0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
+0.0.N: Exited with Success (@ 0.04 s)
 0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 2536108@della-i13n22(local) jg_2536020_della-i13n22_1
+0.0.B: Proofgrid shell started at 113634@della-i13n16(local) jg_113547_della-i13n16_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.05 s)
+0.0.Ht: Exited with Success (@ 0.04 s)
 0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.05 s)
+0.0.B: Exited with Success (@ 0.04 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 1.23 %)
+ProofGrid Summary (utilization 8.08 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -471,20 +479,20 @@ ProofGrid Summary (utilization 1.23 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        0.32 %
-     Hp        0.05        0.00        0.00        4.50 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        1.23 %
+      N        0.05        0.01        0.00       14.25 %
+     Hp        0.05        0.01        0.00       15.32 %
+     Ht        0.04        0.00        0.00        0.00 %
+      B        0.04        0.00        0.00        0.00 %
+    all        0.05        0.00        0.00        8.08 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.00        0.00
+               0.18        0.02        0.00
 
-    Data read    : 1.92 kiB
-    Data written : 1.39 kiB
+    Data read    : 2.09 kiB
+    Data written : 1.38 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -538,6 +546,6 @@ INFO: Wrote verification_results/00281/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.318 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

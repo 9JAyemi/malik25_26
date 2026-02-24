@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 17:44:18 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2548669
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:37893' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7NCsIwEIS/IIKIB19EreCxV8GDInjwGmqJ2h+02OrBi6/qm8Rp0OKG3exsZmZjgPjlvSdE76kyZs2GHUvVLXvdXZj3t4mNSl85YsKBhIaUs/BQuOLGlVxoxQMnlHFUpoGX6e2C1dRRc6fUrGZGpLNQztXnnDoXJ10jr4Gc2y2l+ohpYCVSVmGD/dtkw19aXSHeT8MHO1kkqA==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:37:58 EST
+# hostname  : della-i13n20.(none)
+# pid       : 1132683
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:36069' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY6/CsIwEMZ/QQQRB19EreDY1a0iOLgGLVWbFhVTHVx8Vd+kfglavHCXu8v3JwZIX23bEqP3VBmTsWLDUnXNVncX5v1tUqPSV46YsGdHQ85J81DzlRsXnKaMKTMeFNqUHJR5xJZ6P2O1LfDcqbXzQiY6C+VcvePYKRXiNdIbSD041eqTqO2k54ULDvbPycb/BF4l3I/DB6JKJQk=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00401/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -373,6 +373,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -391,7 +393,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -430,8 +432,8 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 21
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2548743@della-i13n22(local) jg_2548669_della-i13n22_1
-0.0.N: Proofgrid shell started at 2548742@della-i13n22(local) jg_2548669_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1132755@della-i13n20(local) jg_1132683_della-i13n20_1
+0.0.N: Proofgrid shell started at 1132754@della-i13n20(local) jg_1132683_della-i13n20_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -449,17 +451,17 @@ INFO (IPF008): 0.0.N: A max_length bound of 2048 was found for the property "fif
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_4" in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_5" in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_12" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_12:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_4" in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_5" in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "fifo.fifo_sva_i._assert_12" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_12:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.N: The property "fifo.fifo_sva_i._assert_3" was proven in 0.02 s.
-0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_3"	[0.02 s].
+INFO (IPF057): 0.0.N: The property "fifo.fifo_sva_i._assert_3" was proven in 0.01 s.
+0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_3"	[0.01 s].
 0.0.N: Starting proof for property "fifo.fifo_sva_i._assert_6"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
@@ -474,70 +476,70 @@ INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "fi
 0.0.Hp: Trace Attempt  3	[0.02 s]
 0.0.Hp: A trace with 3 cycles was found. [0.02 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_7" in 0.02 s.
-0.0.Hp: A trace with 3 cycles was found. [0.03 s]
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_9" in 0.02 s.
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_10" in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_10:precondition1" was covered in 3 cycles in 0.02 s.
-0.0.Hp: A trace with 3 cycles was found. [0.03 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_13" in 0.03 s.
-INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_13:precondition1" was covered in 3 cycles in 0.03 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_14" in 0.03 s.
-INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_14:precondition1" was covered in 3 cycles in 0.03 s.
-INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._cover_18" was covered in 3 cycles in 0.03 s.
-0.0.Hp: Trace Attempt  4	[0.05 s]
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_13" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_13:precondition1" was covered in 3 cycles in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "fifo.fifo_sva_i._assert_14" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._assert_14:precondition1" was covered in 3 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "fifo.fifo_sva_i._cover_18" was covered in 3 cycles in 0.02 s.
+0.0.Hp: Trace Attempt  4	[0.04 s]
 0.0.Hp: Trace Attempt  5	[0.06 s]
-0.0.Ht: Proofgrid shell started at 2548756@della-i13n22(local) jg_2548669_della-i13n22_1
-0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.B: Proofgrid shell started at 2548757@della-i13n22(local) jg_2548669_della-i13n22_1
+0.0.B: Proofgrid shell started at 1132769@della-i13n20(local) jg_1132683_della-i13n20_1
 0.0.B: OS RSS memory limit : 17179869184 / 17179869184
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.B: Starting proof for property "fifo.fifo_sva_i._assert_6"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.Ht: Proofgrid shell started at 1132768@della-i13n20(local) jg_1132683_della-i13n20_1
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.Ht: Trace Attempt  1	[0.00 s]
 0.0.Ht: Trace Attempt  2	[0.00 s]
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.11 s]
 0.0.N: Trace Attempt  2	[0.11 s]
 0.0.N: Trace Attempt  3	[0.11 s]
 0.0.N: Trace Attempt  4	[0.11 s]
 0: ProofGrid usable level: 7
-0.0.N: Trace Attempt 26	[0.34 s]
+0.0.N: Trace Attempt 26	[0.35 s]
 0.0.N: Per property time limit expired (1.00 s) [1.00 s]
 0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_6"	[0.99 s].
 0.0.N: Starting proof for property "fifo.fifo_sva_i._assert_8"	[0.00 s].
-0.0.B: Trace Attempt 24	[0.59 s]
+0.0.B: Trace Attempt 24	[0.58 s]
 0.0.B: Per property time limit expired (0.94 s) [0.94 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "fifo.fifo_sva_i._assert_8" in 0.00 s.
 0.0.B: Stopped processing property "fifo.fifo_sva_i._assert_6"	[0.94 s].
 0.0.B: Starting proof for property "fifo.fifo_sva_i._assert_8"	[0.00 s].
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "fifo.fifo_sva_i._assert_8" in 0.00 s.
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.19 s]
-0.0.N: Trace Attempt  2	[0.19 s]
-0.0.N: Trace Attempt  3	[0.19 s]
-0.0.Ht: Trace Attempt 33	[1.19 s]
-0.0.Ht: A trace with 33 cycles was found. [1.30 s]
-INFO (IPF055): 0.0.Ht: A counterexample (cex) with 33 cycles was found for the property "fifo.fifo_sva_i._assert_8" in 1.30 s.
-0.0.B: Stopped processing property "fifo.fifo_sva_i._assert_8"	[0.36 s].
+0.0.N: Trace Attempt  1	[0.20 s]
+0.0.N: Trace Attempt  2	[0.20 s]
+0.0.N: Trace Attempt  3	[0.20 s]
+0.0.Ht: Trace Attempt 33	[1.20 s]
+0.0.Ht: A trace with 33 cycles was found. [1.34 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 33 cycles was found for the property "fifo.fifo_sva_i._assert_8" in 1.35 s.
+0.0.B: Stopped processing property "fifo.fifo_sva_i._assert_8"	[0.41 s].
 0.0.B: Starting proof for property "fifo.fifo_sva_i._assert_11"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 131072 cycles. [0.00 s]
 INFO (IPF008): 0.0.B: A max_length bound of 131072 was found for the property "fifo.fifo_sva_i._assert_11" in 0.00 s.
@@ -546,7 +548,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 131072 was found for the property "f
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_8"	[0.36 s].
+0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_8"	[0.41 s].
 0.0.N: Starting proof for property "fifo.fifo_sva_i._assert_11"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -555,11 +557,11 @@ INFO (IPF008): 0.0.B: A max_length bound of 131072 was found for the property "f
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: A trace with 33 cycles was found. [1.31 s]
-INFO (IPF055): 0.0.Ht: A counterexample (cex) with 33 cycles was found for the property "fifo.fifo_sva_i._assert_11" in 1.31 s.
-INFO (IPF047): 0.0.Ht: The cover property "fifo.fifo_sva_i._assert_11:precondition1" was covered in 33 cycles in 1.31 s.
-INFO (IPF047): 0.0.Ht: The cover property "fifo.fifo_sva_i._cover_15" was covered in 33 cycles in 1.31 s.
-0.0.Ht: Trace Attempt 34	[1.31 s]
+0.0.Ht: A trace with 33 cycles was found. [1.36 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 33 cycles was found for the property "fifo.fifo_sva_i._assert_11" in 1.36 s.
+INFO (IPF047): 0.0.Ht: The cover property "fifo.fifo_sva_i._assert_11:precondition1" was covered in 33 cycles in 1.36 s.
+INFO (IPF047): 0.0.Ht: The cover property "fifo.fifo_sva_i._cover_15" was covered in 33 cycles in 1.36 s.
+0.0.Ht: Trace Attempt 34	[1.36 s]
 0.0.B: Stopped processing property "fifo.fifo_sva_i._assert_11"	[0.01 s].
 0.0.B: Starting proof for property "fifo.fifo_sva_i._cover_16"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
@@ -567,12 +569,12 @@ INFO (IPF008): 0.0.B: A max_length bound of 4096 was found for the property "fif
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Stopped processing property "fifo.fifo_sva_i._assert_11"	[0.01 s].
 0.0.N: Starting proof for property "fifo.fifo_sva_i._cover_16"	[0.00 s].
-0.0.B: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
@@ -584,20 +586,20 @@ INFO (IPF008): 0.0.B: A max_length bound of 4096 was found for the property "fif
 0.0.N: Trace Attempt  1	[0.03 s]
 0.0.N: Trace Attempt  2	[0.03 s]
 0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 35	[1.44 s]
-0.0.Ht: A trace with 35 cycles was found. [1.45 s]
-INFO (IPF055): 0.0.Ht: A counterexample (cex) with 35 cycles was found for the property "fifo.fifo_sva_i._assert_6" in 1.45 s.
-0.0.Ht: Trace Attempt 36	[1.45 s]
-0.0.N: Trace Attempt  1	[0.25 s]
-0.0.N: Trace Attempt  2	[0.25 s]
-0.0.N: Trace Attempt  3	[0.25 s]
-0.0.N: Trace Attempt  1	[0.54 s]
-0.0.N: Trace Attempt  2	[0.54 s]
-0.0.N: Trace Attempt  3	[0.54 s]
+0.0.Ht: Trace Attempt 35	[1.58 s]
+0.0.Ht: A trace with 35 cycles was found. [1.58 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 35 cycles was found for the property "fifo.fifo_sva_i._assert_6" in 1.58 s.
+0.0.Ht: Trace Attempt 36	[1.58 s]
+0.0.N: Trace Attempt  1	[0.26 s]
+0.0.N: Trace Attempt  2	[0.26 s]
+0.0.N: Trace Attempt  3	[0.26 s]
 0: ProofGrid usable level: 2
-0.0.N: Trace Attempt  1	[0.90 s]
-0.0.N: Trace Attempt  2	[0.90 s]
-0.0.N: Trace Attempt  3	[0.90 s]
+0.0.N: Trace Attempt  1	[0.55 s]
+0.0.N: Trace Attempt  2	[0.55 s]
+0.0.N: Trace Attempt  3	[0.55 s]
+0.0.N: Trace Attempt  1	[0.92 s]
+0.0.N: Trace Attempt  2	[0.92 s]
+0.0.N: Trace Attempt  3	[0.92 s]
 0.0.B: Trace Attempt 55	[0.73 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "fifo.fifo_sva_i._cover_16"	[1.00 s].
@@ -606,12 +608,10 @@ INFO (IPF055): 0.0.Ht: A counterexample (cex) with 35 cycles was found for the p
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt 38	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
 0.0.N: Stopped processing property "fifo.fifo_sva_i._cover_16"	[1.00 s].
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Starting proof for property "fifo.fifo_sva_i._cover_17"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -622,28 +622,29 @@ INFO (IPF055): 0.0.Ht: A counterexample (cex) with 35 cycles was found for the p
 0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [2.46 s]
+INFO (IPF144): 0: Initiating shutdown of proof [2.50 s]
 0.0.B: Trace Attempt 67	[0.07 s]
 0.0.B: A trace with 67 cycles was found. [0.08 s]
 INFO (IPF047): 0.0.B: The cover property "fifo.fifo_sva_i._cover_17" was covered in 67 cycles in 0.08 s.
 INFO (IPF047): 0.0.B: The cover property "fifo.fifo_sva_i._cover_16" was covered in 67 cycles in 0.08 s by the incidental trace "fifo.fifo_sva_i._cover_17".
-0.0.B: Stopped processing property "fifo.fifo_sva_i._cover_17"	[0.08 s].
 0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 61	[2.32 s]
-0.0.Ht: All properties determined. [2.39 s]
-0.0.B: All properties determined. [0.08 s]
+0.0.Ht: Trace Attempt 62	[2.43 s]
+0.0.Ht: All properties determined. [2.44 s]
 0.0.Hp: Interrupted (multi)
-0.0.Hp: All properties determined. [2.46 s]
-0.0.B: Exited with Success (@ 2.46 s)
-0: ProofGrid usable level: 0
-0.0.Ht: Exited with Success (@ 2.46 s)
-0.0.Hp: Exited with Success (@ 2.46 s)
+0.0.Hp: Trace Attempt  6	[0.07 s]
+0.0.Hp: All properties determined. [2.50 s]
 0.0.N: Stopped processing property "fifo.fifo_sva_i._cover_17"	[0.08 s].
-0.0.N: Trace Attempt 27	[0.08 s]
+0.0.N: Trace Attempt 27	[0.07 s]
 0.0.N: All properties determined. [0.08 s]
-0.0.N: Exited with Success (@ 2.47 s)
+0.0.B: Stopped processing property "fifo.fifo_sva_i._cover_17"	[0.08 s].
+0.0.B: All properties determined. [0.08 s]
+0.0.Hp: Exited with Success (@ 2.51 s)
+0: ProofGrid usable level: 0
+0.0.N: Exited with Success (@ 2.51 s)
+0.0.Ht: Exited with Success (@ 2.51 s)
+0.0.B: Exited with Success (@ 2.51 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 97.58 %)
+ProofGrid Summary (utilization 97.60 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -652,20 +653,20 @@ ProofGrid Summary (utilization 97.58 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.06        2.46        0.00       97.80 %
-     Hp        0.05        2.46        0.00       97.93 %
-     Ht        0.07        2.39        0.00       97.31 %
-      B        0.07        2.39        0.00       97.28 %
-    all        0.06        2.42        0.00       97.58 %
+      N        0.06        2.50        0.00       97.79 %
+     Hp        0.05        2.50        0.00       97.91 %
+     Ht        0.07        2.44        0.00       97.29 %
+      B        0.07        2.44        0.00       97.38 %
+    all        0.06        2.47        0.00       97.60 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.24        9.70        0.00
+               0.24        9.88        0.00
 
-    Data read    : 92.12 kiB
-    Data written : 8.14 kiB
+    Data read    : 92.19 kiB
+    Data written : 8.13 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -719,6 +720,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.301 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

@@ -358,6 +358,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -376,7 +378,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -413,11 +415,10 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 46
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2567859@della-i13n22(local) jg_2567787_della-i13n22_1
-0.0.N: Proofgrid shell started at 2567858@della-i13n22(local) jg_2567787_della-i13n22_1
-0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: Proofgrid shell started at 1456021@della-h14n5(local) jg_1455682_della-h14n5_1
+0.0.Hp: Proofgrid shell started at 1456022@della-h14n5(local) jg_1455682_della-h14n5_1
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_2"	[0.00 s].
@@ -427,39 +428,42 @@ INFO (IPF008): 0.0.N: A max_length bound of 32 was found for the property "pipel
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_3" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_3:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_4" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_4:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_12:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_13:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_3" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_3:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_4" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_4:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_12:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_14" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_14:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_13:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_14" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_14:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_15" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_15:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16:precondition1" was covered in 1 cycles in 0.01 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_2" was proven in 0.02 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_2"	[0.02 s].
+INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_2" was proven in 0.01 s.
+0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_2"	[0.01 s].
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_15" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_15:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_18" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_18:precondition1" was covered in 1 cycles in 0.01 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_18" in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_18:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
@@ -467,11 +471,8 @@ INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edg
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_21" in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_21:precondition1" was covered in 1 cycles in 0.02 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22:precondition1" was covered in 1 cycles in 0.03 s.
-0.0.Hp: Trace Attempt  2	[0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_5"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 128 cycles. [0.00 s]
@@ -488,11 +489,13 @@ INFO (IPF008): 0.0.N: A max_length bound of 128 was found for the property "pipe
 0.0.N: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_5" was proven in 0.00 s.
 0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_5"	[0.00 s].
+0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.Hp: Trace Attempt  3	[0.01 s]
 0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_12" in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_12" in 0.02 s.
 0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_13" in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_13" in 0.02 s.
+0.0.Hp: Trace Attempt  4	[0.01 s]
 0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_6"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 128 cycles. [0.00 s]
@@ -535,7 +538,6 @@ INFO (IPF008): 0.0.N: A max_length bound of 128 was found for the property "pipe
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.04 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -570,6 +572,7 @@ INFO (IPF008): 0.0.N: A max_length bound of 512 was found for the property "pipe
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  5	[0.03 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -587,13 +590,12 @@ INFO (IPF008): 0.0.N: A max_length bound of 512 was found for the property "pipe
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  5	[0.04 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.01 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_9" was proven in 0.00 s.
 0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_9"	[0.00 s].
 0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_10"	[0.00 s].
@@ -606,236 +608,56 @@ INFO (IPF008): 0.0.N: A max_length bound of 256 was found for the property "pipe
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: Trace Attempt  6	[0.01 s]
 0.0.N: A proof was found: No trace exists. [0.01 s]
 INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_10" was proven in 0.01 s.
 0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_10"	[0.01 s].
 0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11"	[0.00 s].
+0.0.Hp: Lemmas used(6): ?5
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 256 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 256 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: Trace Attempt 10	[0.01 s]
-0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11" was proven in 0.01 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11"	[0.01 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16384 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Proofgrid shell started at 2567873@della-i13n22(local) jg_2567787_della-i13n22_1
-0.0.B: OS RSS memory limit : 17179869184 / 17179869184
-0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 2567872@della-i13n22(local) jg_2567787_della-i13n22_1
-0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  4	[0.01 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16" was proven in 0.01 s.
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16"	[0.01 s].
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17"	[0.00 s].
-0.0.B: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
-INFO (IPF008): 0.0.B: A max_length bound of 4096 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17" in 0.00 s.
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16"	[0.01 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17"	[0.00 s].
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17" was proven in 0.01 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17"	[0.01 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16384 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17"	[0.01 s].
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19" was proven in 0.00 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19"	[0.01 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20"	[0.00 s].
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19"	[0.01 s].
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.B: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
-INFO (IPF008): 0.0.B: A max_length bound of 4096 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20" in 0.00 s.
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20" was proven in 0.00 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20"	[0.00 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22"	[0.00 s].
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20"	[0.00 s].
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.B: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
-INFO (IPF008): 0.0.B: A max_length bound of 16384 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22" in 0.00 s.
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: A proof was found: No trace exists. [0.00 s]
-INFO (IPF057): 0.0.N: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22" was proven in 0.00 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22"	[0.00 s].
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27"	[0.00 s].
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22"	[0.00 s].
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.B: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
-INFO (IPF008): 0.0.B: A max_length bound of 4096 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27" in 0.00 s.
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: Trace Attempt  9	[0.01 s]
-0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF051): 0.0.N: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27" was proven unreachable in 0.01 s.
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27"	[0.01 s].
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28"	[0.00 s].
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27"	[0.00 s].
-0.0.B: Last scan. Per property time limit: 0s
-0.0.B: Starting proof for property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 4096 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 4096 was found for the property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28" in 0.00 s.
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: Requesting engine job to stop
-0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.04 s]
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_16" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_17" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_19" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_20" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_22" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF051): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_27" was proven unreachable in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF051): 0.0.Hp: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28" was proven unreachable in 0.04 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._assert_11"	[0.00 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.Hp: All properties determined. [0.04 s]
+0.0.Ht: Proofgrid shell started at 1456039@della-h14n5(local) jg_1455682_della-h14n5_1
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.12 s]
-0.0.N: Trace Attempt 11	[0.01 s]
-0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF051): 0.0.N: The cover property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28" was proven unreachable in 0.01 s.
-0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 87	[0.04 s]
-0.0.Ht: All properties determined. [0.04 s]
-0.0.N: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28"	[0.01 s].
-0.0.N: All properties determined. [0.01 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt  7	[0.07 s]
-0.0.Hp: All properties determined. [0.12 s]
-0.0.B: Stopped processing property "pipelined_edge_detect.u_pipelined_edge_detect_checker._cover_28"	[0.01 s].
-0.0.B: Trace Attempt 38	[0.01 s]
-0.0.B: All properties determined. [0.02 s]
-0.0.N: Exited with Success (@ 0.12 s)
+0.0.N: Exited with Success (@ 0.07 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Exited with Success (@ 0.12 s)
-0.0.B: Exited with Success (@ 0.12 s)
-0.0.Hp: Exited with Success (@ 0.12 s)
+0.0.Hp: Exited with Success (@ 0.07 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Proofgrid shell started at 1456040@della-h14n5(local) jg_1455682_della-h14n5_1
+0.0.B: Requesting engine job to terminate
+0.0.Ht: Exited with Success (@ 0.09 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.09 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 56.97 %)
+ProofGrid Summary (utilization 22.12 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -844,20 +666,20 @@ ProofGrid Summary (utilization 56.97 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.12        0.00       68.07 %
-     Hp        0.05        0.12        0.00       69.59 %
-     Ht        0.07        0.04        0.00       38.32 %
-      B        0.07        0.05        0.00       41.19 %
-    all        0.06        0.08        0.00       56.97 %
+      N        0.07        0.04        0.00       38.29 %
+     Hp        0.07        0.04        0.00       38.24 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.09        0.00        0.00        0.00 %
+    all        0.08        0.02        0.00       22.12 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.25        0.32        0.00
+               0.30        0.09        0.00
 
-    Data read    : 46.42 kiB
-    Data written : 13.00 kiB
+    Data read    : 26.94 kiB
+    Data written : 4.58 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -911,6 +733,6 @@ INFO: Wrote verification_results/00608/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.315 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

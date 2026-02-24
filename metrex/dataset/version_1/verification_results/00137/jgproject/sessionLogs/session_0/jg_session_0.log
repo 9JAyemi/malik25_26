@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 16:54:23 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2503645
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:35269' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY6xCsJAEETfIYKIhT+iRixs0goWimBhe8RwamLQYKKFjb/qn5yTQ4N77N7M3szuGSB+ee8J0XmqDFmxZstCdcNOdxvm/QWxUekqB4zYk1CTchLvi5fcuJKLLXngxDIOyjToMr1dsOo6Ku4U6lVMiHSmzJgL5xzbKU6+WrN6mtxsKYQjxkGVyFmGDfZvkw1/aXxn6X4ePj1pJK4=' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:36:32 EST
+# hostname  : della-i13n16.(none)
+# pid       : 106693
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:41413' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+iVjx46dVbRfDgNWiJ2lhUTPXgxV/1T+okaHHDbnY2szNJgOzVNA0xOk+VITlL1ixUV2x0t5G8v02WqHSVA0bs2FJTcBTuC1+5ccEJ5YyZ8MBqUrJXFpFb6v2M0dTiuVNp5sVMdabMmKt3HFolq71aej2pB6dKfRq1nfS8eMHB/DmZ+J+wdxLvt8MHpFolDw==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00137/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -370,6 +370,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -388,7 +390,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -434,8 +436,8 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 9
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2503717@della-i13n22(local) jg_2503645_della-i13n22_1
-0.0.N: Proofgrid shell started at 2503716@della-i13n22(local) jg_2503645_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 106765@della-i13n16(local) jg_106693_della-i13n16_1
+0.0.N: Proofgrid shell started at 106764@della-i13n16(local) jg_106693_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
@@ -446,48 +448,43 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0.0.N: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.N: The property "nios_system_switches.sva_i._assert_2" was proven in 0.00 s.
 0.0.N: Stopped processing property "nios_system_switches.sva_i._assert_2"	[0.00 s].
-0.0.N: Starting proof for property "nios_system_switches.sva_i._assert_6"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "nios_system_switches.sva_i._assert_6" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "nios_system_switches.sva_i._assert_6:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "nios_system_switches.sva_i._assert_6".
-INFO (IPF047): 0.0.N: The cover property "nios_system_switches.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "nios_system_switches.sva_i._assert_6".
-INFO (IPF047): 0.0.N: The cover property "nios_system_switches.sva_i._cover_9" was covered in 1 cycles in 0.01 s by the incidental trace "nios_system_switches.sva_i._assert_6".
-0.0.N: Stopped processing property "nios_system_switches.sva_i._assert_6"	[0.01 s].
-0.0.N: Starting proof for property "nios_system_switches.sva_i._cover_10"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "nios_system_switches.sva_i._cover_10" was covered in 1 cycles in 0.00 s.
 0.0.Hp: Lemmas used(1): ?1
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_11" was covered in 1 cycles in 0.02 s.
-0.0.N: Stopped processing property "nios_system_switches.sva_i._cover_10"	[0.00 s].
-0.0.N: Starting proof for property "nios_system_switches.sva_i._cover_12"	[0.00 s].
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "nios_system_switches.sva_i._assert_6" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._assert_6:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._assert_7:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_12" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_12" was covered in 1 cycles in 0.02 s.
-0.0.N: Trace Attempt  1	[0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_9" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_10" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_11" was covered in 1 cycles in 0.01 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_13" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "nios_system_switches.sva_i._cover_13" was covered in 1 cycles in 0.01 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.N: Stopped processing property "nios_system_switches.sva_i._cover_12"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
-0.0.B: Proofgrid shell started at 2503731@della-i13n22(local) jg_2503645_della-i13n22_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "nios_system_switches.sva_i._assert_6"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2503730@della-i13n22(local) jg_2503645_della-i13n22_1
+0.0.N: Stopped processing property "nios_system_switches.sva_i._assert_6"	[0.00 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.Ht: Proofgrid shell started at 106778@della-i13n16(local) jg_106693_della-i13n16_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Exited with Success (@ 0.05 s)
 0.0.Ht: Interrupted. [0.00 s]
+0.0.B: Proofgrid shell started at 106779@della-i13n16(local) jg_106693_della-i13n16_1
+0.0.B: Requesting engine job to terminate
 0.0.Ht: Exited with Success (@ 0.05 s)
+0.0.B: Interrupted. [0.00 s]
+0.0.B: Exited with Success (@ 0.05 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 2.27 %)
+ProofGrid Summary (utilization 2.24 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -496,19 +493,19 @@ ProofGrid Summary (utilization 2.27 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        3.78 %
-     Hp        0.05        0.00        0.00        5.03 %
-     Ht        0.05        0.00        0.00        0.00 %
+      N        0.05        0.00        0.00        3.48 %
+     Hp        0.05        0.00        0.00        5.27 %
+     Ht        0.04        0.00        0.00        0.00 %
       B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        2.27 %
+    all        0.05        0.00        0.00        2.24 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.00        0.00
+               0.19        0.00        0.00
 
-    Data read    : 3.39 kiB
+    Data read    : 3.25 kiB
     Data written : 1.54 kiB
 
 0: All pending notifications were processed.
@@ -543,7 +540,7 @@ SUMMARY
 [<embedded>] % 
 [<embedded>] % # ---- Write summary ----
 [<embedded>] % set fp [open $SUMMARY_TXT "w"]
-file43
+file45
 [<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
 [<embedded>] % puts $fp "TOP=$TOP"
 [<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
@@ -563,6 +560,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.311 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

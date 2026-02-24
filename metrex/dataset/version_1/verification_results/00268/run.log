@@ -363,6 +363,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -381,7 +383,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -418,20 +420,20 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 16
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2534533@della-i13n22(local) jg_2534461_della-i13n22_1
-0.0.N: Proofgrid shell started at 2534532@della-i13n22(local) jg_2534461_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 113243@della-i13n16(local) jg_113170_della-i13n16_1
+0.0.N: Proofgrid shell started at 113242@della-i13n16(local) jg_113170_della-i13n16_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1" in 0.02 s.
-INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1".
-INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sva.c_none_set" was covered in 1 cycles in 0.02 s by the incidental trace "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1".
-0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1"	[0.02 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1" in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1".
+INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sva.c_none_set" was covered in 1 cycles in 0.01 s by the incidental trace "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1".
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_stage2_captures_stage1"	[0.01 s].
 0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.a_encode_function"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A trace with 1 cycles was found. [0.00 s]
@@ -440,64 +442,68 @@ INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sv
 0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_encode_function"	[0.00 s].
 0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.a_out_stable_between_rises"	[0.00 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "priority_encoder.u_priority_encoder_sva.a_out_stable_between_rises" in 0.02 s.
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "priority_encoder.u_priority_encoder_sva.a_out_stable_between_rises" in 0.00 s.
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_out_stable_between_rises"	[0.00 s].
+0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.a_no_x_out_when_valid:precondition1"	[0.00 s].
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.a_no_x_out_when_valid:precondition1" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.a_stage1_known_when_any:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in0" was covered in 1 cycles in 0.03 s.
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1111" was covered in 1 cycles in 0.03 s.
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in0" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1111" was covered in 1 cycles in 0.02 s.
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_no_x_out_when_valid:precondition1"	[0.00 s].
+0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_in0"	[0.00 s].
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in1" was covered in 1 cycles in 0.03 s.
-0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.a_out_stable_between_rises"	[0.01 s].
-0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_in2"	[0.00 s].
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in2" was covered in 1 cycles in 0.02 s.
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "priority_encoder.u_priority_encoder_sva.c_in2" was covered in 1 cycles in 0.00 s.
-0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_in2"	[0.00 s].
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in3" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_in3" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1101" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1101" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1010" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_1010" was covered in 1 cycles in 0.02 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.03 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "priority_encoder.u_priority_encoder_sva.c_multi_0110" was covered in 1 cycles in 0.03 s.
 0.0.Hp: All properties determined. [0.00 s]
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_in0"	[0.01 s].
 0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_in3"	[0.00 s].
-0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_in3"	[0.00 s].
-0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_multi_1101"	[0.00 s].
+0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_in2"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_multi_1101"	[0.00 s].
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_in2"	[0.00 s].
+0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_in3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: Exited with Success (@ 0.02 s)
+0: ProofGrid usable level: 0
+0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_in3"	[0.00 s].
 0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_multi_1010"	[0.00 s].
 0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_multi_1010"	[0.00 s].
 0.0.N: Starting proof for property "priority_encoder.u_priority_encoder_sva.c_multi_0110"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Stopped processing property "priority_encoder.u_priority_encoder_sva.c_multi_0110"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.03 s)
-0: ProofGrid usable level: 0
-0.0.Ht: Proofgrid shell started at 2534546@della-i13n22(local) jg_2534461_della-i13n22_1
-0.0.Ht: Requesting engine job to terminate
-0.0.B: Proofgrid shell started at 2534547@della-i13n22(local) jg_2534461_della-i13n22_1
+0.0.N: Exited with Success (@ 0.02 s)
+0.0.B: Proofgrid shell started at 113257@della-i13n16(local) jg_113170_della-i13n16_1
 0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.07 s)
-0.0.Ht: Interrupted. [0.00 s]
 0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.07 s)
-0.0.B: Exited with Success (@ 0.07 s)
+0.0.Ht: Proofgrid shell started at 113256@della-i13n16(local) jg_113170_della-i13n16_1
+0.0.Ht: Requesting engine job to terminate
+0.0.B: Exited with Success (@ 0.06 s)
+0.0.Ht: Interrupted. [0.00 s]
+0.0.Ht: Exited with Success (@ 0.06 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 22.49 %)
+ProofGrid Summary (utilization 17.76 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -506,20 +512,20 @@ ProofGrid Summary (utilization 22.49 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.03        0.00       38.73 %
-     Hp        0.05        0.03        0.00       40.16 %
+      N        0.05        0.02        0.00       32.80 %
+     Hp        0.04        0.02        0.00       33.78 %
      Ht        0.06        0.00        0.00        0.00 %
       B        0.06        0.00        0.00        0.00 %
-    all        0.06        0.02        0.00       22.49 %
+    all        0.05        0.01        0.00       17.76 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23        0.07        0.00
+               0.21        0.04        0.00
 
-    Data read    : 7.84 kiB
-    Data written : 1.79 kiB
+    Data read    : 8.76 kiB
+    Data written : 1.77 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -573,6 +579,6 @@ INFO: Wrote verification_results/00268/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.317 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

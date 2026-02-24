@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+counter.u_counter_sva.a_reset_next_zero
+counter.u_counter_sva.a_step_or_hold
+counter.u_counter_sva.a_no_x
+
+COVER PROPERTIES:
+counter.u_counter_sva.a_reset_next_zero:precondition1
+counter.u_counter_sva.a_step_or_hold:precondition1
+counter.u_counter_sva.c_reset_effect
+counter.u_counter_sva.c_single_inc
+counter.u_counter_sva.c_hold_seq
+counter.u_counter_sva.c_wraparound

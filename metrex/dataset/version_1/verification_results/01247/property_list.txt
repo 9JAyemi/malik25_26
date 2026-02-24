@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+magnitude_comparator.sva_i.ap_functional_all
+magnitude_comparator.sva_i.ap_mode0_enc
+magnitude_comparator.sva_i.ap_mode1_onehot
+magnitude_comparator.sva_i.ap_known
+
+COVER PROPERTIES:
+magnitude_comparator.sva_i.ap_mode0_enc:precondition1
+magnitude_comparator.sva_i.ap_mode1_onehot:precondition1
+magnitude_comparator.sva_i.cv_eq_m0
+magnitude_comparator.sva_i.cv_gt_m0
+magnitude_comparator.sva_i.cv_lt_m0
+magnitude_comparator.sva_i.cv_eq_m1
+magnitude_comparator.sva_i.cv_gt_m1
+magnitude_comparator.sva_i.cv_lt_m1
+magnitude_comparator.sva_i.cv_other

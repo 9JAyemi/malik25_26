@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+util_delay.util_delay_sva_b.a_reset_known
+util_delay.util_delay_sva_b.a_reset_zero
+util_delay.util_delay_sva_b.a_delay_ok
+util_delay.util_delay_sva_b.a_no_x_dout
+
+COVER PROPERTIES:
+util_delay.util_delay_sva_b.a_reset_zero:precondition1
+util_delay.util_delay_sva_b.a_delay_ok:precondition1
+util_delay.util_delay_sva_b.a_no_x_dout:precondition1
+util_delay.util_delay_sva_b.c_reset_pulse
+util_delay.util_delay_sva_b.c_rise_delay
+util_delay.util_delay_sva_b.c_fall_delay

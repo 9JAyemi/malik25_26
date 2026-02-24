@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+voltage_supply.sva_i.ap_rails_const
+voltage_supply.sva_i.ap_vnb_zero
+voltage_supply.sva_i.ap_rst_clears
+voltage_supply.sva_i.ap_vpb_zero_when_dis
+voltage_supply.sva_i.ap_vpb_change_needs_en
+voltage_supply.sva_i.ap_vpb_stable_when_low
+voltage_supply.sva_i.ap_no_xz_outputs
+
+COVER PROPERTIES:
+voltage_supply.sva_i.ap_rst_clears:precondition1
+voltage_supply.sva_i.ap_vpb_zero_when_dis:precondition1
+voltage_supply.sva_i.ap_vpb_change_needs_en:precondition1
+voltage_supply.sva_i.ap_vpb_stable_when_low:precondition1
+voltage_supply.sva_i.cp_reset_pulse
+voltage_supply.sva_i.cp_en_causes_toggle
+voltage_supply.sva_i.cp_dis_forces_zero

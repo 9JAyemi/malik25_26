@@ -5,10 +5,10 @@
 # version   : 2021.03 FCS 64 bits
 # build date: 2021.03.23 02:50:43 UTC
 # ----------------------------------------
-# started   : 2026-02-20 18:11:13 EST
-# hostname  : della-i13n22.(none)
-# pid       : 2576417
-# arguments : '-label' 'session_0' '-console' '//127.0.0.1:43255' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA7HicTY7BCsIwEERfEEHEgz+i9iCC0KvgQRE8eA21RG0tWmz14MVf9U/iNGhxw25mNjO7MUD88t4TovNUGbJizZaF6oad7jbM+wtio9JVDhixJ6Em5STeFy+5cSUXW/LAiWUclGnQZXq7YNV1VNwp1KuYEOnMmDMVzjm2U5x8tWb1NLnZUghHjIMqkbMMG+zfJhv+0vjO0v08fABAUSS2' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/.tmp/.postCmds.tcl'
+# started   : 2026-02-23 13:41:25 EST
+# hostname  : della-h14n8.(none)
+# pid       : 2374323
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:43329' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+i9iCC0Ku3iuDBa9AStbGomOrBi7/qn9RJ0OKG3exsZmeSANmraRpidJ4qQ3KWrFmortjobiN5f5ssUekqB4zYsaWm4CjcF75y44ITyhkz4YHVpGSvLCK31PsZo6nFc6fSzIuZ6syYM1XvOLRKVnu19HpSD06V+jRqO+l58YKD+XMy8T9h7yTeb4cPp0IlFw==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00694/jgproject/.tmp/.postCmds.tcl'
 
 Any disclosure about the Cadence Design Systems software or its use
 model to any third party violates the written Non-Disclosure Agreement
@@ -380,6 +380,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -398,7 +400,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -435,24 +437,39 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 12
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2576489@della-i13n22(local) jg_2576417_della-i13n22_1
-0.0.N: Proofgrid shell started at 2576488@della-i13n22(local) jg_2576417_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 2374490@della-h14n8(local) jg_2374323_della-h14n8_1
+0.0.N: Proofgrid shell started at 2374489@della-h14n8(local) jg_2374323_della-h14n8_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "full_adder.fa_sva._cover_0"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "full_adder.fa_sva._cover_0" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "full_adder.fa_sva._cover_0_8" was covered in 1 cycles in 0.02 s by the incidental trace "full_adder.fa_sva._cover_0".
+INFO (IPF047): 0.0.N: The cover property "full_adder.fa_sva._cover_0_10" was covered in 1 cycles in 0.02 s by the incidental trace "full_adder.fa_sva._cover_0".
 0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_8" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_10" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_1" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_9" was covered in 1 cycles in 0.02 s.
+0.0.N: Stopped processing property "full_adder.fa_sva._cover_0"	[0.02 s].
+0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_1"	[0.00 s].
+0.0.N: Stopped processing property "full_adder.fa_sva._cover_0_1"	[0.00 s].
+0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_2"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_2" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_3" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_11" was covered in 1 cycles in 0.02 s.
+0.0.N: Stopped processing property "full_adder.fa_sva._cover_0_2"	[0.00 s].
+0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "full_adder.fa_sva._cover_0_3" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "full_adder.fa_sva._cover_0_11" was covered in 1 cycles in 0.00 s by the incidental trace "full_adder.fa_sva._cover_0_3".
+0.0.N: Stopped processing property "full_adder.fa_sva._cover_0_3"	[0.00 s].
+0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_4"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_4" was covered in 1 cycles in 0.02 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
@@ -466,9 +483,7 @@ INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_6" was cov
 INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_7" was covered in 1 cycles in 0.02 s.
-0.0.Hp: All properties determined. [0.00 s]
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Stopped processing property "full_adder.fa_sva._cover_0_4"	[0.00 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_6"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -476,19 +491,20 @@ INFO (IPF047): 0.0.Hp: The cover property "full_adder.fa_sva._cover_0_7" was cov
 0.0.N: Starting proof for property "full_adder.fa_sva._cover_0_7"	[0.00 s].
 0.0.N: Stopped processing property "full_adder.fa_sva._cover_0_7"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
+0.0.Hp: All properties determined. [0.00 s]
 0.0.Hp: Exited with Success (@ 0.02 s)
 0: ProofGrid usable level: 0
-0.0.B: Proofgrid shell started at 2576503@della-i13n22(local) jg_2576417_della-i13n22_1
+0.0.B: Proofgrid shell started at 2374504@della-h14n8(local) jg_2374323_della-h14n8_1
 0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 2576502@della-i13n22(local) jg_2576417_della-i13n22_1
+0.0.N: Exited with Success (@ 0.07 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Proofgrid shell started at 2374503@della-h14n8(local) jg_2374323_della-h14n8_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Exited with Success (@ 0.05 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.05 s)
+0.0.B: Exited with Success (@ 0.08 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.08 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 17.51 %)
+ProofGrid Summary (utilization 12.80 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -497,19 +513,19 @@ ProofGrid Summary (utilization 17.51 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.02        0.00       28.75 %
-     Hp        0.05        0.02        0.00       31.24 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.01        0.00       17.51 %
+      N        0.08        0.02        0.00       21.89 %
+     Hp        0.08        0.02        0.00       22.64 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.08        0.01        0.00       12.80 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.04        0.00
+               0.30        0.04        0.00
 
-    Data read    : 2.45 kiB
+    Data read    : 2.97 kiB
     Data written : 1.63 kiB
 
 0: All pending notifications were processed.
@@ -564,6 +580,6 @@ INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.315 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.322 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

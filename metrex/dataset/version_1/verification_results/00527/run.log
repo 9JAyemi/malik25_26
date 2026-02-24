@@ -359,6 +359,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -377,7 +379,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 86400s
+    time_limit                    = 3600s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -409,65 +411,58 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 3
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 2560306@della-i13n22(local) jg_2560234_della-i13n22_1
-0.0.N: Proofgrid shell started at 2560305@della-i13n22(local) jg_2560234_della-i13n22_1
+0.0.Hp: Proofgrid shell started at 1432514@della-h14n5(local) jg_1432183_della-h14n5_1
+0.0.N: Proofgrid shell started at 1432513@della-h14n5(local) jg_1432183_della-h14n5_1
 0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
 0.0.N: OS RSS memory limit : 17179869184 / 17179869184
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva._assert_1" in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva._assert_2" in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.00 s]
-0.0.Hp: Trace Attempt  5	[0.00 s]
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "counter.u_counter_sva._assert_1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva._assert_1" in 0.01 s.
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "counter.u_counter_sva._assert_2" in 0.01 s by the incidental trace "counter.u_counter_sva._assert_1".
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "counter.u_counter_sva._assert_1"	[0.01 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "counter.u_counter_sva._cover_3"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 2097152 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 2097152 was found for the property "counter.u_counter_sva._cover_3" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 2560319@della-i13n22(local) jg_2560234_della-i13n22_1
-0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.03 s]
+0.0.Hp: Trace Attempt  5	[0.03 s]
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-0.0.Ht: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.06 s]
-0.0.Ht: Trace Attempt 33	[0.01 s]
-0.0.Ht: A trace with 33 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Ht: The cover property "counter.u_counter_sva._cover_3" was covered in 33 cycles in 0.01 s.
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt 30	[0.05 s]
-0.0.Hp: All properties determined. [0.06 s]
-0.0.N: Stopped processing property "counter.u_counter_sva._cover_3"	[0.02 s].
-0.0.N: Trace Attempt 24	[0.03 s]
-0.0.N: All properties determined. [0.04 s]
-0.0.Ht: All properties determined. [0.01 s]
+0.0.Hp: Trace Attempt 33	[0.05 s]
+0.0.Hp: A trace with 33 cycles was found. [0.05 s]
+INFO (IPF047): 0.0.Hp: The cover property "counter.u_counter_sva._cover_3" was covered in 33 cycles in 0.05 s.
+0.0.N: Stopped processing property "counter.u_counter_sva._cover_3"	[0.05 s].
+0.0.N: Trace Attempt 28	[0.05 s]
+0.0.N: All properties determined. [0.05 s]
 0.0.N: Exited with Success (@ 0.06 s)
 0: ProofGrid usable level: 0
-0.0.B: Proofgrid shell started at 2560320@della-i13n22(local) jg_2560234_della-i13n22_1
+0.0.Hp: All properties determined. [0.06 s]
+0.0.Ht: Proofgrid shell started at 1432529@della-h14n5(local) jg_1432183_della-h14n5_1
+0.0.Ht: Requesting engine job to terminate
+0.0.Hp: Exited with Success (@ 0.07 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Proofgrid shell started at 1432530@della-h14n5(local) jg_1432183_della-h14n5_1
 0.0.B: Requesting engine job to terminate
-0.0.Hp: Exited with Success (@ 0.08 s)
-0.0.Ht: Exited with Success (@ 0.08 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.08 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.07 s)
+0.0.B: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 32.52 %)
+ProofGrid Summary (utilization 27.76 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -476,20 +471,20 @@ ProofGrid Summary (utilization 32.52 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.04        0.00       45.52 %
-     Hp        0.05        0.06        0.00       53.40 %
-     Ht        0.05        0.01        0.00       15.05 %
-      B        0.08        0.00        0.00        0.00 %
-    all        0.06        0.03        0.00       32.52 %
+      N        0.07        0.05        0.00       43.31 %
+     Hp        0.07        0.05        0.00       44.31 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.03        0.00       27.76 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23        0.11        0.00
+               0.28        0.11        0.00
 
-    Data read    : 9.01 kiB
-    Data written : 2.69 kiB
+    Data read    : 8.73 kiB
+    Data written : 2.00 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -543,6 +538,6 @@ INFO: Wrote verification_results/00527/property_list.txt
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.312 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.315 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.
