@@ -23,12 +23,12 @@ fi
 
 mkdir -p verification_results
 
-# Do NOT wipe results on rerun
+# Always regenerate CSVs so stale entries are replaced
 SUMMARY_CSV="verification_results/summary.csv"
 VERIF_CSV="verification_results/verif_summary.csv"
 
-[[ -f "$SUMMARY_CSV" ]] || echo "id,status" > "$SUMMARY_CSV"
-[[ -f "$VERIF_CSV" ]]   || echo "id,status,reason" > "$VERIF_CSV"
+echo "id,status" > "$SUMMARY_CSV"
+echo "id,status,reason" > "$VERIF_CSV"
 
 # ----------------------------
 # Failure reason extractor
@@ -39,7 +39,7 @@ extract_reason() {
 
   if grep -q "FAILED: compile/elab errors" "$log" 2>/dev/null; then
     reason="compile/elab error: $(grep -m1 '\[ERROR' "$log" | sed 's/,/;/g' | head -c 200)"
-  elif grep -q "No properties found" "$log" 2>/dev/null; then
+  elif grep -q "FAILED: No properties found" "$log" 2>/dev/null; then
     reason="no properties found (bind did not attach or wrong TOP)"
   elif grep -q "Could not infer TOP" "$log" 2>/dev/null; then
     reason="could not infer TOP module"
@@ -86,9 +86,26 @@ for dir in "$ROOT"/*/; do
     done_marker="$out_dir/DONE"
     proj_dir="$out_dir/jgproject"
 
-    # Resume: skip if already attempted
+    # Resume: skip if already attempted, but record true status
     if [[ -f "$done_marker" ]]; then
       echo "⏭️  Skipping $id (already attempted)"
+      # Re-extract true status from existing run.log into CSVs
+      existing_log="$out_dir/run.log"
+      if [[ -f "$existing_log" ]]; then
+        if grep -q '\- cex' "$existing_log" 2>/dev/null; then
+          cex_count=$(grep -oP '(?<=- cex\s{1,20}: )\d+' "$existing_log" 2>/dev/null || echo "0")
+          if [[ "$cex_count" != "0" ]]; then
+            echo "$id,cex,proof completed with $cex_count counter-example(s)" >> "$VERIF_CSV"
+          else
+            echo "$id,pass," >> "$VERIF_CSV"
+          fi
+        elif grep -q "FAILED" "$existing_log" 2>/dev/null; then
+          reason=$(extract_reason "$existing_log")
+          echo "$id,fail,\"$reason\"" >> "$VERIF_CSV"
+        else
+          echo "$id,pass," >> "$VERIF_CSV"
+        fi
+      fi
       continue
     fi
 
