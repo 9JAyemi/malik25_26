@@ -36,6 +36,11 @@ mkdir -p "$out_dir"
 # Resume: skip if already attempted
 if [[ -f "$done_marker" ]]; then
   echo "⏭️  Skipping $ID (already attempted)"
+  # Record as pass (previously completed)
+  mkdir -p "$ROOT/verification_results"
+  VERIF_CSV="$ROOT/verification_results/verif_summary.csv"
+  [[ -f "$VERIF_CSV" ]] || echo "id,status,reason" > "$VERIF_CSV"
+  echo "$ID,pass,already completed" >> "$VERIF_CSV"
   exit 0
 fi
 
@@ -97,17 +102,31 @@ if [[ $rc -eq 0 ]]; then
 else
   echo "❌ $ID VERIF RUN FAIL (rc=$rc)"
   echo "$ID,fail" >> "$SUMMARY_CSV"
-  # lightweight reason
-  if grep -q "FAILED: compile/elab errors" "$run_log" 2>/dev/null; then
-    reason="compile/elab errors"
-  elif grep -q "No properties found" "$run_log" 2>/dev/null; then
-    reason="no properties found (bind/top)"
-  elif grep -q "prove command failed" "$run_log" 2>/dev/null; then
-    reason="prove command failed"
+
+  # ---- Extract real error from Jasper log ----
+  reason=""
+
+  # 1) Grab the exact ❌ FAILED line from run.log (excluding TCL source 'puts' lines)
+  fail_line=$(grep '❌ FAILED:' "$run_log" 2>/dev/null | grep -v 'puts' | tail -1 || true)
+
+  # 2) Grab first [ERROR ...] line from Jasper (the actual compile/elab detail)
+  first_error=$(grep -oP '\[ERROR \([A-Z]+-\d+\)\].*' "$run_log" 2>/dev/null | head -1 || true)
+
+  if [[ -n "$fail_line" && -n "$first_error" ]]; then
+    # Both present: exact failure line + specific error detail
+    reason="${fail_line} | ${first_error}"
+  elif [[ -n "$fail_line" ]]; then
+    # Just the exact failure line from the log
+    reason="$fail_line"
+  elif [[ -n "$first_error" ]]; then
+    reason="$first_error"
   else
     reason="unknown failure (check run.log)"
   fi
-  # quote reason for CSV safety
+
+  # Sanitise reason for CSV (replace commas & quotes)
+  reason="${reason//\"/\'}"
+  reason="${reason//,/;}"
   echo "$ID,fail,\"$reason\"" >> "$VERIF_CSV"
 fi
 

@@ -20,13 +20,17 @@ export PATH="$PATH:$JASPER_HOME/bin"
 # Workdir should be version_1 (where id_list.txt lives)
 cd "${SLURM_SUBMIT_DIR}"
 
+# Optional base offset for chunked submissions when MaxArraySize is limited
+BASE_ID="${BASE_ID:-0}"
+LINE_NO="$((BASE_ID + SLURM_ARRAY_TASK_ID))"
+
 # Grab ID for this array index (1-based)
-ID="$(sed -n "${SLURM_ARRAY_TASK_ID}p" id_list.txt)"
+ID="$(sed -n "${LINE_NO}p" id_list.txt)"
 
 if [[ -z "${ID}" ]]; then
-  echo "No ID found for task ${SLURM_ARRAY_TASK_ID}"
+  echo "No ID found for task ${SLURM_ARRAY_TASK_ID} (line ${LINE_NO})"
   exit 0
 fi
 
-echo "Job ${SLURM_JOB_ID} Task ${SLURM_ARRAY_TASK_ID} -> ID=${ID}"
+echo "Job ${SLURM_JOB_ID} Task ${SLURM_ARRAY_TASK_ID} (line ${LINE_NO}) -> ID=${ID}"
 ./run_one_id.sh "${ID}"
