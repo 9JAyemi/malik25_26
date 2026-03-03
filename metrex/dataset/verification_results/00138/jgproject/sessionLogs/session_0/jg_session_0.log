@@ -1,0 +1,2511 @@
+# ----------------------------------------
+# JasperGold Version Info
+# tool      : JasperGold 2021.03
+# platform  : Linux 5.14.0-570.84.1.el9_6.x86_64
+# version   : 2021.03 FCS 64 bits
+# build date: 2021.03.23 02:50:43 UTC
+# ----------------------------------------
+# started   : 2026-02-23 13:36:36 EST
+# hostname  : della-i13n16.(none)
+# pid       : 106813
+# arguments : '-label' 'session_0' '-console' '//127.0.0.1:42217' '-nowindow' '-style' 'windows' '-exitonerror' '-data' 'AAAA8HicTY7BCsIwEERfEUHEgz+iVrx46NVbRfDgNWiJ2lhUTPXgxV/1T+okaHHDbnY2szNJgOzVNA0xOk+VITlL1ixUV2x0t5G8v02WqHSVA0bs2FJTcBTuC1+5ccEJ5YyZ8MBqUrJXFpFb6v2M0dTiuVNp5sVMdabMmKt3HFolq71aej2pB6dKfRq1nfS8eMHB/DmZ+J+wdxLvt8MHpLMlEA==' '-proj' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00138/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00138/jgproject/.tmp/.initCmds.tcl' './jasper_verif_check.tcl' '-hidden' '/home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00138/jgproject/.tmp/.postCmds.tcl'
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00138/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+00138
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./00138/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./00138/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = Control
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% set OUT_DIR [file join "verification_results" $DESIGN_ID]
+verification_results/00138
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+verification_results/00138/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+verification_results/00138/summary.txt
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 00138
+% puts "  TOP       : $TOP"
+  TOP       : Control
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 1
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : verification_results/00138
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./00138/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./00138/sva.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './00138/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './00138/sva.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='Control'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "Control".
+[INFO (HIER-8002)] ./00138/module.v(47): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./00138/sva.sv(2): compiling module 'Control_sva'
+[INFO (VERI-1018)] ./00138/module.v(2): compiling module 'Control'
+[WARN (VERI-1209)] ./00138/module.v(19): expression size 32 truncated to fit in target size 18
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+rst
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using reset signal: rst
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "rst".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 8 asserts, 9 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 17 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 4 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned values for 19 of 19 design flops, 0 of 0 design latches, 25 of 53 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "Control.i_Control_sva._assert_2" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "Control.i_Control_sva._assert_2:precondition1" was proven unreachable in 0.00 s.
+0: Found proofs for 2 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0s
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "Control.i_Control_sva._cover_10" was proven unreachable in 0.00 s.
+0: Found proofs for 1 properties in preprocessing
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "Control.i_Control_sva._assert_1" was proven in 0.00 s.
+0.0.PRE: Proof Simplification completed in 0.00 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 13
+0: ProofGrid is starting event handling
+0.0.N: Proofgrid shell started at 106884@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Hp: Proofgrid shell started at 106885@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 524288 was found for the property "Control.i_Control_sva._assert_3" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  6	[0.00 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "Control.i_Control_sva._assert_3" was proven in 0.00 s.
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_3"	[0.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_3:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "Control.i_Control_sva._assert_3:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_3:precondition1"	[0.01 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_4"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 524288 was found for the property "Control.i_Control_sva._assert_4" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "Control.i_Control_sva._assert_4" was proven in 0.00 s.
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_4"	[0.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 524288 was found for the property "Control.i_Control_sva._assert_4:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Lemmas used(1): ?4
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "Control.i_Control_sva._assert_5" was proven in 0.00 s.
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Lemmas used(1): ?4
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "Control.i_Control_sva._assert_6" was proven in 0.01 s.
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.02 s]
+0.0.Hp: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.03 s]
+0.0.Hp: Lemmas used(4): ?4
+0.0.Hp: A proof was found: No trace exists. [0.05 s]
+INFO (IPF057): 0.0.Hp: The property "Control.i_Control_sva._assert_7" was proven in 0.03 s.
+0.0.Hp: Trace Attempt  4	[0.05 s]
+0.0.Ht: Proofgrid shell started at 106898@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Proofgrid shell started at 106899@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0: ProofGrid usable level: 7
+0.0.B: Trace Attempt 207	[0.94 s]
+0.0.B: Per property time limit expired (0.95 s) [0.95 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[0.95 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 524288 was found for the property "Control.i_Control_sva._assert_5:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 236	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[0.99 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 208	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 524288 was found for the property "Control.i_Control_sva._assert_6:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 187	[0.98 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 16777216 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 16777216 was found for the property "Control.i_Control_sva._assert_7:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt 96	[0.98 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 268435456 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 268435456 was found for the property "Control.i_Control_sva._assert_8" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[1.01 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 276	[4.03 s]
+0.0.B: Trace Attempt 103	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_8"	[1.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_8:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 16777216 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 16777216 was found for the property "Control.i_Control_sva._assert_8:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_8"	[1.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_8:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt 106	[0.98 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_8:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 8388608 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "Control.i_Control_sva._cover_9" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_8:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 145	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._cover_9"	[1.00 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._cover_9"	[1.00 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 401	[8.05 s]
+0.0.B: Trace Attempt 305	[4.00 s]
+0.0.N: Trace Attempt 533	[4.00 s]
+0.0.Ht: Trace Attempt 493	[12.09 s]
+0.0.B: Trace Attempt 354	[8.18 s]
+0.0.N: Trace Attempt 760	[8.66 s]
+0.0.Ht: Trace Attempt 547	[16.11 s]
+0.0.B: Trace Attempt 385	[8.81 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 860	[9.58 s]
+0.0.N: Per property time limit expired (10.00 s) [10.05 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[10.05 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 15	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 599	[20.43 s]
+0.0.B: Trace Attempt 302	[4.44 s]
+0.0.N: Trace Attempt 278	[5.83 s]
+0.0.Ht: Trace Attempt 657	[24.46 s]
+0.0.B: Trace Attempt 343	[8.55 s]
+0.0.B: Trace Attempt 351	[9.86 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[10.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.73 s]
+0.0.N: Trace Attempt  2	[0.73 s]
+0.0.N: Trace Attempt  3	[0.73 s]
+0.0.N: Trace Attempt  5	[0.73 s]
+0.0.Ht: Trace Attempt 674	[28.51 s]
+0.0.B: Trace Attempt 247	[4.68 s]
+0.0.N: Trace Attempt 383	[4.75 s]
+0.0.Ht: Trace Attempt 726	[32.56 s]
+0.0.B: Trace Attempt 303	[8.74 s]
+0.0.B: Trace Attempt 328	[9.98 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[10.02 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.Ht: Trace Attempt 738	[37.26 s]
+0.0.B: Trace Attempt 210	[4.01 s]
+0.0.Ht: Trace Attempt 777	[41.30 s]
+0.0.B: Trace Attempt 297	[8.03 s]
+0.0.B: Trace Attempt 333	[9.99 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[9.95 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 809	[48.48 s]
+0.0.B: Trace Attempt 206	[4.08 s]
+0.0.Ht: Trace Attempt 844	[52.73 s]
+0.0.B: Trace Attempt 287	[8.11 s]
+0.0.Ht: Trace Attempt 870	[56.91 s]
+0.0.B: Trace Attempt 290	[8.60 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_8"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_8:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_8"	[10.01 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_8:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt 191	[4.03 s]
+0.0.Ht: Trace Attempt 873	[61.40 s]
+0.0.B: Trace Attempt 295	[8.39 s]
+0.0.Ht: Trace Attempt 908	[65.49 s]
+0.0.B: Trace Attempt 332	[10.00 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_8:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_8:precondition1"	[10.00 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.N: Trace Attempt  1	[1.83 s]
+0.0.N: Trace Attempt  2	[1.83 s]
+0.0.N: Trace Attempt  3	[1.84 s]
+0.0.Ht: Trace Attempt 938	[69.56 s]
+0.0.B: Trace Attempt 273	[4.02 s]
+0.0.N: Trace Attempt 284	[7.20 s]
+0.0.B: Trace Attempt 338	[8.04 s]
+0.0.B: Trace Attempt 361	[9.09 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._cover_9"	[10.00 s].
+0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._cover_9"	[10.02 s].
+0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 964	[78.64 s]
+0.0.B: Trace Attempt 304	[4.00 s]
+0.0.N: Trace Attempt 542	[4.01 s]
+0.0.Ht: Trace Attempt 993	[82.68 s]
+0.0.B: Trace Attempt 354	[8.25 s]
+0.0.N: Trace Attempt 760	[8.49 s]
+0.0.Ht: Trace Attempt 1020	[86.70 s]
+0.0.N: Trace Attempt 964	[12.77 s]
+0.0.B: Trace Attempt 387	[12.81 s]
+0.0.N: Trace Attempt 1207	[16.78 s]
+0.0.B: Trace Attempt 392	[19.04 s]
+0.0.Ht: Trace Attempt 1034	[96.14 s]
+0.0.N: Trace Attempt 1304	[21.27 s]
+0.0.Ht: Trace Attempt 1042	[100.14 s]
+0.0.B: Trace Attempt 405	[23.80 s]
+0.0.N: Trace Attempt 1344	[25.93 s]
+0.0.Ht: Trace Attempt 1057	[104.15 s]
+0.0.B: Trace Attempt 418	[27.92 s]
+0.0.Ht: Trace Attempt 1079	[108.33 s]
+0.0.B: Trace Attempt 428	[32.94 s]
+0.0.B: Trace Attempt 434	[37.07 s]
+0.0.Ht: Trace Attempt 1098	[117.44 s]
+0.0.B: Trace Attempt 438	[42.23 s]
+0.0.Ht: Trace Attempt 1116	[122.09 s]
+0.0.B: Trace Attempt 442	[46.49 s]
+0.0.Ht: Trace Attempt 1135	[126.15 s]
+0.0.B: Trace Attempt 454	[50.50 s]
+0.0.Ht: Trace Attempt 1153	[130.29 s]
+0.0.B: Trace Attempt 459	[55.01 s]
+0.0.Ht: Trace Attempt 1167	[134.73 s]
+0.0.B: Trace Attempt 463	[59.53 s]
+0.0.B: Trace Attempt 467	[63.65 s]
+0.0.B: Trace Attempt 470	[67.68 s]
+0.0.Ht: Trace Attempt 1177	[145.56 s]
+0.0.B: Trace Attempt 484	[71.77 s]
+0.0.Ht: Trace Attempt 1182	[149.60 s]
+0.0.B: Trace Attempt 495	[76.00 s]
+0.0.Ht: Trace Attempt 1194	[153.61 s]
+0.0.Ht: Trace Attempt 1214	[157.63 s]
+0.0.B: Trace Attempt 499	[80.66 s]
+0.0.Ht: Trace Attempt 1229	[162.20 s]
+0.0.B: Trace Attempt 502	[85.58 s]
+0.0.B: Trace Attempt 505	[89.69 s]
+0.0.B: Trace Attempt 508	[93.95 s]
+0.0.Ht: Trace Attempt 1233	[172.38 s]
+0.0.B: Trace Attempt 516	[97.99 s]
+0.0.Ht: Trace Attempt 1244	[176.74 s]
+0.0.B: Trace Attempt 517	[98.49 s]
+0.0.B: Per property time limit expired (100.00 s) [100.01 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[100.01 s].
+0.0.B: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[100.04 s].
+0.0.N: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 1256	[181.05 s]
+0.0.B: Trace Attempt 302	[4.46 s]
+0.0.N: Trace Attempt 278	[5.81 s]
+0.0.Ht: Trace Attempt 1273	[185.23 s]
+0.0.B: Trace Attempt 343	[8.53 s]
+0.0.N: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[8.88 s].
+0.0.N: Morphing to AM
+0.0.N: Trace Attempt 415	[8.82 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.B: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[8.95 s].
+0.0.B: Morphing to Hts
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
+0.0.AM: Trace Attempt 310	[0.98 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[1.00 s].
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt 1274	[0.12 s]
+0.0.Hts: Per property time limit expired (0.99 s) [1.08 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[1.09 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.14 s]
+0.0.AM: Trace Attempt 149	[0.88 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.00 s].
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.13 s]
+0.0.AM: Trace Attempt  2	[0.13 s]
+0.0.AM: Trace Attempt  3	[0.13 s]
+0.0.Hts: Trace Attempt 1279	[0.12 s]
+0.0.Hts: Per property time limit expired (1.00 s) [1.56 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.56 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1284	[189.54 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[2.72 s].
+0.0.AM: Morphing to K
+0.0.AM: Trace Attempt 235	[2.57 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[2.10 s].
+0.0.Hts: Morphing to AB
+0.0.Hts: Trace Attempt 1282	[0.12 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 1344	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.AB: Trace Attempt 191	[1.90 s]
+0.0.AB: Per property time limit expired (1.97 s) [1.97 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[1.98 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.K: Per property time limit expired (2.00 s) [2.01 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[2.01 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.K: Trace Attempt  1	[0.58 s]
+0.0.K: Trace Attempt  2	[0.58 s]
+0.0.K: Trace Attempt  3	[0.58 s]
+0.0.K: Trace Attempt  4	[0.58 s]
+0.0.K: Trace Attempt  5	[0.58 s]
+0.0.Ht: Trace Attempt 1302	[193.59 s]
+0.0.AB: Trace Attempt 213	[1.95 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[2.00 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.47 s].
+0.0.K: Morphing to AM
+0.0.K: Trace Attempt 160	[0.47 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.48 s].
+0.0.AB: Morphing to Hts
+0.0.AB: Trace Attempt 140	[0.47 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_4:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.12 s]
+0.0.AM: Trace Attempt  2	[0.12 s]
+0.0.AM: Trace Attempt  3	[0.12 s]
+0.0.AM: Trace Attempt 390	[3.54 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.02 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[4.02 s].
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt 1344	[0.13 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.13 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_4:precondition1"	[4.13 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[1.02 s]
+0.0.AM: Trace Attempt  2	[1.02 s]
+0.0.AM: Trace Attempt  3	[1.02 s]
+0.0.AM: Trace Attempt  4	[1.02 s]
+0.0.AM: Trace Attempt 187	[2.25 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.01 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[4.01 s].
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.13 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.14 s]
+0.0.Hts: Trace Attempt 1315	[0.16 s]
+0.0.Hts: Per property time limit expired (4.00 s) [6.98 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[6.98 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.01 s].
+0.0.Hts: Morphing to I
+0.0.Hts: Trace Attempt 25	[0.01 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.I: Trace Attempt 10	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  4	[0.01 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[3.11 s].
+0.0.AM: Morphing to Tri
+0.0.AM: Trace Attempt 235	[2.57 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "Control.i_Control_sva._assert_8"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.23" ---- Launching abstraction thread ----
+0.0.Tri:    0.24" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.47 s]
+0.0.Tri: Trace Attempt  3	[0.47 s]
+0.0.Tri: Trace Attempt  4	[0.47 s]
+0.0.Tri: Trace Attempt  5	[0.47 s]
+0.0.Ht: Trace Attempt 1316	[208.01 s]
+0.0.Tri:    1.63" Simplification phase 1 complete
+0.0.Tri:    4.44" Simplification phase 2 complete
+0.0.Tri: Trace Attempt 7711	[5.06 s]
+0.0.Ht: Trace Attempt 2111	[212.01 s]
+0.0.Tri:    5.88" Simplification phase 3 complete
+   5.88" ---- Completed simplification thread ----
+   5.88" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    6.03" ---- Restarting abstraction thread on simplified netlist ----
+0.0.I: Trace Attempt 55	[1.61 s]
+0.0.I: Per property time limit expired (8.00 s) [8.00 s]
+0.0.I: Stopped processing property "Control.i_Control_sva._assert_8"	[8.00 s].
+0.0.I: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  7	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.Tri: Trace Attempt 12396	[5.92 s]
+0.0.Tri: Per property time limit expired (7.98 s) [8.02 s]
+0.0.Tri: Stopped processing property "Control.i_Control_sva._assert_8"	[8.02 s].
+0.0.Tri: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    7.85" ---- Launching main thread ----
+0.0.Tri:    7.97" ---- Launching abstraction thread ----
+0.0.Tri:    7.99" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.19 s]
+0.0.Tri: Trace Attempt  3	[0.19 s]
+0.0.Tri: Trace Attempt  4	[0.19 s]
+0.0.Tri: Trace Attempt  5	[0.19 s]
+0.0.I: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.63 s].
+0.0.I: Morphing to AB
+0.0.I: Trace Attempt 48	[0.46 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Tri: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.55 s].
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Morphing to K
+0.0.Tri: Trace Attempt 1430	[0.55 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.K: Trace Attempt 197	[0.01 s]
+0.0.Ht: Trace Attempt 2789	[216.01 s]
+0.0.K: Trace Attempt  1	[1.68 s]
+0.0.K: Trace Attempt  2	[1.68 s]
+0.0.K: Trace Attempt  3	[1.68 s]
+0.0.K: Trace Attempt  4	[1.68 s]
+0.0.K: Trace Attempt  5	[1.68 s]
+0.0.AB: Trace Attempt 206	[4.03 s]
+0.0.Ht: Trace Attempt 3255	[220.01 s]
+0.0.K: Trace Attempt 283	[5.69 s]
+0.0.AB: Trace Attempt 276	[8.10 s]
+0.0.Ht: Trace Attempt 3633	[224.01 s]
+0.0.K: Trace Attempt 349	[9.71 s]
+0.0.AB: Trace Attempt 327	[12.18 s]
+0.0.Ht: Trace Attempt 3961	[228.02 s]
+0.0.K: Trace Attempt 379	[14.16 s]
+0.0.AB: Trace Attempt 365	[15.97 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._cover_9"	[16.00 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt 383	[15.76 s]
+0.0.K: Per property time limit expired (15.98 s) [15.99 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._cover_9"	[15.99 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.Ht: Trace Attempt 4253	[232.02 s]
+0.0.K: Trace Attempt 279	[4.03 s]
+0.0.AB: Trace Attempt 318	[4.16 s]
+0.0.Ht: Trace Attempt 4520	[236.02 s]
+0.0.K: Trace Attempt 305	[8.12 s]
+0.0.AB: Trace Attempt 369	[8.16 s]
+0.0.Ht: Trace Attempt 4767	[240.03 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.00 s]
+0.0.Bm: Trace Attempt  3	[0.00 s]
+0.0.Bm: Trace Attempt  4	[0.00 s]
+0.0.Bm: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt 424	[12.16 s]
+0.0.K: Trace Attempt 333	[12.24 s]
+0.0.Ht: Trace Attempt 4997	[244.03 s]
+0.0.Bm: Trace Attempt 272	[4.03 s]
+0.0.AB: Trace Attempt 460	[15.92 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[16.00 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[16.00 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.Ht: Trace Attempt 5216	[248.04 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.22 s].
+0.0.AB: Morphing to Tricustom6
+0.0.AB: Trace Attempt 233	[1.21 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.22 s].
+0.0.K: Morphing to D
+0.0.K: Trace Attempt 201	[1.22 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Tricustom6: Starting clock optimization
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  5	[0.00 s]
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Tricustom6:    0.12" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.14" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 359	[8.07 s]
+0.0.Tricustom6:    1.61" Simplification phase 1 complete
+0.0.Tricustom6:    1.69" Simplification phase 2 complete
+0.0.Tricustom6:    3.30" Simplification phase 3 complete
+   3.30" ---- Completed simplification thread ----
+   3.30" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:    3.42" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 5420	[252.06 s]
+0.0.Tricustom6: Trace Attempt 32180	[4.60 s]
+0.0.Bm: Trace Attempt 416	[12.19 s]
+0.0.Ht: Trace Attempt 5600	[256.07 s]
+0.0.Tricustom6: Trace Attempt 63576	[8.60 s]
+0.0.Bm: Trace Attempt 461	[16.33 s]
+0.0.Ht: Trace Attempt 5797	[260.07 s]
+0.0.Tricustom6: Trace Attempt 100684	[12.60 s]
+0.0.Bm: Trace Attempt 499	[20.37 s]
+0.0.Ht: Trace Attempt 5996	[264.08 s]
+0.0.Tricustom6: Trace Attempt 128100	[16.60 s]
+0.0.Bm: Trace Attempt 542	[24.41 s]
+0.0.Ht: Trace Attempt 6174	[268.08 s]
+0.0.Bm: Trace Attempt 577	[28.52 s]
+0.0.Tricustom6: Trace Attempt 161124	[21.30 s]
+0.0.Ht: Trace Attempt 6358	[272.08 s]
+0.0.Bm: Trace Attempt 607	[32.58 s]
+0.0.Tricustom6: Trace Attempt 197944	[25.81 s]
+0.0.Ht: Trace Attempt 6536	[276.10 s]
+0.0.Bm: Trace Attempt 634	[36.63 s]
+0.0.Tricustom6: Trace Attempt 237664	[29.81 s]
+0.0.D: Trace Attempt 124	[31.27 s]
+0.0.Ht: Trace Attempt 6704	[280.10 s]
+0.0.D: Per property time limit expired (32.00 s) [32.00 s]
+0.0.D: Stopped processing property "Control.i_Control_sva._cover_9"	[32.00 s].
+0.0.D: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  5	[0.00 s]
+0.0.Tricustom6: Trace Attempt 258592	[31.95 s]
+0.0.Tricustom6: Per property time limit expired (32.00 s) [32.15 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._cover_9"	[32.15 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   32.12" ---- Launching main thread ----
+0.0.Tricustom6:   32.25" ---- Launching abstraction thread ----
+0.0.Tricustom6:   32.27" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 661	[40.79 s]
+0.0.Tricustom6:   33.65" Simplification phase 1 complete
+0.0.Tricustom6:   33.73" Simplification phase 2 complete
+0.0.Tricustom6:   35.30" Simplification phase 3 complete
+  35.30" ---- Completed simplification thread ----
+  35.30" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   35.42" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 6871	[284.10 s]
+0.0.Tricustom6: Trace Attempt 29164	[4.38 s]
+0.0.Bm: Trace Attempt 684	[44.95 s]
+0.0.Ht: Trace Attempt 7028	[288.13 s]
+0.0.Tricustom6: Trace Attempt 62088	[9.12 s]
+0.0.Bm: Trace Attempt 702	[49.13 s]
+0.0.Ht: Trace Attempt 7184	[292.14 s]
+0.0.Tricustom6: Trace Attempt 93824	[13.75 s]
+0.0.Bm: Trace Attempt 721	[53.29 s]
+0.0.Ht: Trace Attempt 7337	[296.15 s]
+0.0.Tricustom6: Trace Attempt 124004	[17.94 s]
+0.0.Bm: Trace Attempt 739	[57.37 s]
+0.0.Ht: Trace Attempt 7476	[300.15 s]
+0.0.D: Trace Attempt 113	[20.34 s]
+0.0.Bm: Trace Attempt 754	[61.42 s]
+0.0.Tricustom6: Trace Attempt 164768	[23.79 s]
+0.0.Ht: Trace Attempt 7616	[304.15 s]
+0.0.Ht: Trace Attempt 7755	[308.17 s]
+0.0.Tricustom6: Trace Attempt 200144	[28.40 s]
+0.0.Bm: Trace Attempt 760	[69.31 s]
+0.0.D: Per property time limit expired (32.00 s) [32.00 s]
+0.0.D: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[32.00 s].
+0.0.D: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[31.83 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt 7891	[312.18 s]
+0.0.Tricustom6:   64.00" ---- Launching main thread ----
+0.0.Tricustom6:   64.13" ---- Launching abstraction thread ----
+0.0.Tricustom6:   64.15" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:   65.02" Simplification phase 1 complete
+0.0.Tricustom6:   65.07" Simplification phase 2 complete
+0.0.Tricustom6:   65.12" Simplification phase 3 complete
+  65.12" ---- Completed simplification thread ----
+  65.12" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   65.24" ---- Restarting abstraction thread on simplified netlist ----
+0.0.D: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.33 s].
+0.0.D: Morphing to Ncustom1
+0.0.D: Trace Attempt 113	[0.00 s]
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 15	[0.00 s]
+0.0.Ncustom1: Trace Attempt  1	[0.00 s]
+0.0.Ncustom1: Trace Attempt  2	[0.00 s]
+0.0.Ncustom1: Trace Attempt  3	[0.00 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.50 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   65.45" ---- Launching main thread ----
+0.0.Tricustom6:   65.56" ---- Launching abstraction thread ----
+0.0.Tricustom6:   65.58" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 780	[73.39 s]
+0.0.Tricustom6:   66.46" Simplification phase 1 complete
+0.0.Tricustom6:   66.51" Simplification phase 2 complete
+0.0.Tricustom6:   66.56" Simplification phase 3 complete
+  66.56" ---- Completed simplification thread ----
+  66.56" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   66.68" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 8024	[316.18 s]
+0.0.Bm: Trace Attempt 798	[77.43 s]
+0.0.Ncustom1: Trace Attempt 278	[5.87 s]
+0.0.Bm: Trace Attempt 814	[81.80 s]
+0.0.Ncustom1: Trace Attempt 436	[12.04 s]
+0.0.Bm: Trace Attempt 834	[86.00 s]
+0.0.Ncustom1: Trace Attempt 510	[16.07 s]
+0.0.Bm: Trace Attempt 858	[90.12 s]
+0.0.Tricustom6: Trace Attempt 233248	[19.30 s]
+0.0.Ncustom1: Trace Attempt 622	[20.07 s]
+0.0.Bm: Trace Attempt 873	[94.37 s]
+0.0.Ncustom1: Trace Attempt 825	[24.09 s]
+0.0.Bm: Trace Attempt 891	[98.74 s]
+0.0.Ncustom1: Trace Attempt 863	[28.30 s]
+0.0.Bm: Trace Attempt 906	[102.89 s]
+0.0.Ncustom1: Trace Attempt 925	[32.32 s]
+0.0.Bm: Trace Attempt 923	[107.33 s]
+0.0.Ncustom1: Trace Attempt 1197	[37.56 s]
+0.0.Bm: Trace Attempt 943	[111.61 s]
+0.0.Ht: Trace Attempt 8133	[355.22 s]
+0.0.Ncustom1: Trace Attempt 1300	[42.31 s]
+0.0.Bm: Trace Attempt 956	[115.74 s]
+0.0.Ht: Trace Attempt 9104	[359.22 s]
+0.0.Ncustom1: Trace Attempt 1361	[46.61 s]
+0.0.Bm: Trace Attempt 969	[120.45 s]
+0.0.Ht: Trace Attempt 9651	[363.22 s]
+0.0.Bm: Trace Attempt 981	[124.84 s]
+0.0.Ncustom1: Trace Attempt 1556	[53.07 s]
+0.0.Ht: Trace Attempt 10043	[367.23 s]
+0.0.Bm: Trace Attempt 999	[128.94 s]
+0.0.Ncustom1: Trace Attempt 1640	[57.69 s]
+0.0.Ht: Trace Attempt 10361	[371.24 s]
+0.0.Bm: Trace Attempt 1009	[133.46 s]
+0.0.Ncustom1: Trace Attempt 1811	[61.70 s]
+0.0.Ht: Trace Attempt 10642	[375.25 s]
+0.0.Ncustom1: Trace Attempt 1872	[62.74 s]
+0.0.Ncustom1: Per property time limit expired (64.00 s) [64.26 s]
+0.0.Ncustom1: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[64.26 s].
+0.0.Ncustom1: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 383	[0.02 s]
+0.0.Tricustom6: Trace Attempt 262148	[22.35 s]
+0.0.Tricustom6: Per property time limit expired (64.00 s) [64.17 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[64.17 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_7:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  129.62" ---- Launching main thread ----
+0.0.Tricustom6:  129.74" ---- Launching abstraction thread ----
+0.0.Tricustom6:  129.76" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 1019	[137.53 s]
+0.0.Tricustom6:  130.83" Simplification phase 1 complete
+0.0.Ht: Trace Attempt 10886	[379.25 s]
+0.0.Tricustom6:  133.30" Simplification phase 2 complete
+0.0.Tricustom6: Trace Attempt 30372	[4.00 s]
+0.0.Bm: Trace Attempt 1023	[142.25 s]
+0.0.Ht: Trace Attempt 11067	[383.25 s]
+0.0.Tricustom6:  135.41" Simplification phase 3 complete
+ 135.41" ---- Completed simplification thread ----
+ 135.41" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  135.53" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 47848	[8.54 s]
+0.0.Bm: Trace Attempt 1028	[146.36 s]
+0.0.Ht: Trace Attempt 11241	[387.27 s]
+0.0.Tricustom6: Trace Attempt 69028	[12.59 s]
+0.0.Ht: Trace Attempt 11410	[391.29 s]
+0.0.Bm: Trace Attempt 1034	[150.47 s]
+0.0.Tricustom6: Trace Attempt 111876	[16.59 s]
+0.0.Ht: Trace Attempt 11563	[395.30 s]
+0.0.Bm: Trace Attempt 1041	[155.19 s]
+0.0.Ht: Trace Attempt 11706	[399.32 s]
+0.0.Bm: Trace Attempt 1053	[159.76 s]
+0.0.Ht: Trace Attempt 11853	[403.33 s]
+0.0.Bm: Trace Attempt 1055	[164.64 s]
+0.0.Ht: Trace Attempt 11993	[407.35 s]
+0.0.Tricustom6: Trace Attempt 131076	[18.55 s]
+0.0.Tricustom6: A trace with 131075 cycles was found. There may exist shorter traces (as short as 131073 cycles) [28.98 s]
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._assert_7:precondition1" was covered in 131075 cycles in 31.94 s.
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._assert_4:precondition1" was covered in 131075 cycles in 31.94 s by the incidental trace "Control.i_Control_sva._assert_7:precondition1".
+INFO (IPF055): 0.0.Tricustom6: A counterexample (cex) with 131075 cycles was found for the property "Control.i_Control_sva._assert_8" in 31.94 s by the incidental trace "Control.i_Control_sva._assert_7:precondition1".
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._assert_8:precondition1" was covered in 131075 cycles in 31.94 s by the incidental trace "Control.i_Control_sva._assert_7:precondition1".
+0: ProofGrid usable level: 3
+0.0.Ncustom1: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[32.02 s].
+0.0.Ncustom1: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt  1	[0.00 s]
+0.0.Ncustom1: Trace Attempt  2	[0.00 s]
+0.0.Ncustom1: Trace Attempt  3	[0.00 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_7:precondition1"	[31.95 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  161.52" ---- Launching main thread ----
+0.0.Tricustom6:  161.68" ---- Launching abstraction thread ----
+0.0.Tricustom6:  161.70" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 1067	[169.07 s]
+0.0.Tricustom6:  162.65" Simplification phase 1 complete
+0.0.Tricustom6:  162.69" Simplification phase 2 complete
+0.0.Tricustom6:  162.75" Simplification phase 3 complete
+ 162.75" ---- Completed simplification thread ----
+ 162.75" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  162.87" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ncustom1: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[2.25 s].
+0.0.Ncustom1: Morphing to Ncustom5
+0.0.Ncustom1: Trace Attempt 225	[2.40 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom5: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Ncustom5: Trace Attempt 197	[0.01 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[2.32 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  163.93" ---- Launching main thread ----
+0.0.Tricustom6:  164.05" ---- Launching abstraction thread ----
+0.0.Tricustom6:  164.07" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:  164.99" Simplification phase 1 complete
+0.0.Tricustom6:  165.03" Simplification phase 2 complete
+0.0.Tricustom6:  165.09" Simplification phase 3 complete
+ 165.09" ---- Completed simplification thread ----
+ 165.09" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  165.21" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ncustom5: Trace Attempt  1	[1.87 s]
+0.0.Ncustom5: Trace Attempt  2	[1.87 s]
+0.0.Ncustom5: Trace Attempt  3	[1.87 s]
+0.0.Bm: Trace Attempt 1138	[173.10 s]
+0.0.Bm: Trace Attempt 1198	[177.17 s]
+0.0.Ht: Trace Attempt 12072	[418.75 s]
+0.0.Ncustom5: Trace Attempt 284	[7.24 s]
+0.0.Bm: Trace Attempt 1252	[181.22 s]
+0.0.Ht: Trace Attempt 20974	[422.75 s]
+0.0.Bm: Trace Attempt 1301	[185.30 s]
+0.0.Ncustom5: Trace Attempt 367	[16.04 s]
+0.0.Bm: Trace Attempt 1343	[189.33 s]
+0.0.Ncustom5: Trace Attempt 407	[20.07 s]
+0.0.Tricustom6: Trace Attempt 258596	[20.68 s]
+0.0.Bm: Trace Attempt 1381	[193.40 s]
+0.0.Ht: Trace Attempt 21014	[435.03 s]
+0.0.Tricustom6: Trace Attempt 307308	[25.27 s]
+0.0.Bm: Trace Attempt 1415	[197.52 s]
+0.0.Ncustom5: Trace Attempt 452	[28.80 s]
+0.0.Tricustom6: Trace Attempt 355256	[29.27 s]
+0.0.Bm: Trace Attempt 1445	[201.75 s]
+0.0.Bm: Trace Attempt 1473	[205.75 s]
+0.0.Bm: Trace Attempt 1503	[209.84 s]
+0.0.Tricustom6: Trace Attempt 391268	[39.27 s]
+0.0.Ncustom5: Trace Attempt 502	[41.43 s]
+0.0.Bm: Trace Attempt 1531	[213.89 s]
+0.0.Tricustom6: Trace Attempt 433024	[43.27 s]
+0.0.Bm: Trace Attempt 1554	[217.96 s]
+0.0.Ncustom5: Trace Attempt 890	[47.27 s]
+0.0.Tricustom6: Trace Attempt 474668	[47.76 s]
+0.0.Bm: Trace Attempt 1576	[221.98 s]
+0.0.Tricustom6: Trace Attempt 520568	[51.76 s]
+0.0.Bm: Trace Attempt 1597	[225.99 s]
+0.0.Bm: Trace Attempt 1619	[230.08 s]
+0.0.Ncustom5: Trace Attempt 969	[59.17 s]
+0.0.Ncustom5: Trace Attempt 1033	[61.63 s]
+0.0.Ncustom5: Per property time limit expired (63.99 s) [64.18 s]
+0.0.Ncustom5: Stopped processing property "Control.i_Control_sva._cover_9"	[64.18 s].
+0.0.Ncustom5: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt 524292	[52.06 s]
+0.0.Tricustom6: Per property time limit expired (64.00 s) [64.12 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._cover_9"	[64.12 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  227.99" ---- Launching main thread ----
+0.0.Ncustom5: Trace Attempt 128	[0.02 s]
+0.0.Tricustom6:  228.12" ---- Launching abstraction thread ----
+0.0.Tricustom6:  228.14" ---- Launching multi-phase simplification thread ----
+0.0.Ht: Trace Attempt 21981	[476.59 s]
+0.0.Bm: Trace Attempt 1638	[235.92 s]
+0.0.Ncustom5: Trace Attempt  1	[0.72 s]
+0.0.Ncustom5: Trace Attempt  2	[0.72 s]
+0.0.Ncustom5: Trace Attempt  3	[0.72 s]
+0.0.Ncustom5: Trace Attempt  5	[0.72 s]
+0.0.Tricustom6:  229.22" Simplification phase 1 complete
+0.0.Tricustom6:  229.28" Simplification phase 2 complete
+0.0.Tricustom6:  229.34" Simplification phase 3 complete
+ 229.34" ---- Completed simplification thread ----
+ 229.34" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  229.48" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 27768	[4.00 s]
+0.0.Ncustom5: Trace Attempt 380	[4.75 s]
+0.0.Tricustom6: Trace Attempt 68548	[8.00 s]
+0.0.Tricustom6: Trace Attempt 111184	[12.00 s]
+0.0.Ht: Trace Attempt 27314	[490.43 s]
+0.0.Ncustom5: Trace Attempt 416	[15.06 s]
+0.0.Tricustom6: Trace Attempt 156832	[16.00 s]
+0.0.Bm: Trace Attempt 1640	[253.07 s]
+0.0.Ht: Trace Attempt 62438	[494.43 s]
+0.0.Tricustom6: Trace Attempt 189996	[20.00 s]
+0.0.Bm: Trace Attempt 1652	[257.27 s]
+0.0.Ht: Trace Attempt 98076	[498.43 s]
+0.0.Ncustom5: Trace Attempt 768	[23.62 s]
+0.0.Tricustom6: Trace Attempt 246976	[24.00 s]
+0.0.Bm: Trace Attempt 1673	[261.31 s]
+0.0.Ht: Trace Attempt 136758	[502.43 s]
+0.0.Tricustom6: Trace Attempt 262688	[29.05 s]
+0.0.Bm: Trace Attempt 1693	[265.50 s]
+0.0.Ht: Trace Attempt 170559	[506.43 s]
+0.0.Ncustom5: Trace Attempt 853	[30.91 s]
+0.0.Tricustom6: Trace Attempt 327352	[33.56 s]
+0.0.Ht: Trace Attempt 206776	[510.43 s]
+0.0.Bm: Trace Attempt 1712	[269.58 s]
+0.0.Ncustom5: Trace Attempt 1219	[37.95 s]
+0.0.Ht: Trace Attempt 249977	[514.43 s]
+0.0.Bm: Trace Attempt 1721	[273.63 s]
+0.0.Tricustom6: Trace Attempt 336948	[41.62 s]
+0.0.Bm: Trace Attempt 1734	[277.80 s]
+0.0.Tricustom6: Trace Attempt 378436	[45.62 s]
+0.0.Bm: Trace Attempt 1745	[282.01 s]
+0.0.Ncustom5: Trace Attempt 1300	[48.51 s]
+0.0.Bm: Trace Attempt 1760	[286.18 s]
+0.0.Ncustom5: Trace Attempt 1336	[52.53 s]
+0.0.Bm: Trace Attempt 1775	[290.42 s]
+0.0.Ht: Trace Attempt 262145	[532.73 s]
+0.0.Bm: Trace Attempt 1793	[294.85 s]
+0.0.Bm: Trace Attempt 1814	[298.90 s]
+0.0.Tricustom6: Trace Attempt 393220	[47.02 s]
+0.0.Tricustom6: Per property time limit expired (64.00 s) [64.11 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[64.11 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  292.10" ---- Launching main thread ----
+0.0.Tricustom6:  292.23" ---- Launching abstraction thread ----
+0.0.Ncustom5: Trace Attempt 1397	[55.31 s]
+0.0.Ncustom5: Per property time limit expired (64.00 s) [64.25 s]
+0.0.Ncustom5: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[64.26 s].
+0.0.Ncustom5: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6:  292.25" ---- Launching multi-phase simplification thread ----
+0.0.Ncustom5: Trace Attempt  1	[0.01 s]
+0.0.Ncustom5: Trace Attempt  2	[0.01 s]
+0.0.Ncustom5: Trace Attempt  3	[0.01 s]
+0.0.Ncustom5: Trace Attempt  4	[0.01 s]
+0.0.Ncustom5: Trace Attempt  5	[0.01 s]
+0.0.Ncustom5: Trace Attempt  1	[0.02 s]
+0.0.Ncustom5: Trace Attempt  2	[0.02 s]
+0.0.Ncustom5: Trace Attempt  3	[0.02 s]
+0.0.Ncustom5: Trace Attempt  5	[0.02 s]
+0.0.Tricustom6:  293.19" Simplification phase 1 complete
+0.0.Tricustom6:  293.24" Simplification phase 2 complete
+0.0.Tricustom6:  293.29" Simplification phase 3 complete
+ 293.29" ---- Completed simplification thread ----
+0.0.Tricustom6:  293.29" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  293.43" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 1832	[303.03 s]
+0.0.Ncustom5: Trace Attempt 346	[4.05 s]
+0.0.Bm: Trace Attempt 1848	[307.26 s]
+0.0.Ncustom5: Trace Attempt 448	[8.12 s]
+0.0.Ncustom5: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[11.35 s].
+0.0.Ncustom5: Morphing to Hts
+0.0.Ncustom5: Trace Attempt 526	[11.28 s]
+0.0.Ncustom5: All properties determined. [0.00 s]
+0.0.Ncustom5: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[11.58 s].
+0.0.Tricustom6: Morphing to AM
+0.0.Tricustom6: All properties determined. [0.00 s]
+0.0.Tricustom6: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 1864	[311.31 s]
+0.0.Hts: Trace Attempt 58770	[4.00 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.00 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._cover_9"	[4.00 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AM: Stopped processing property "Control.i_Control_sva._cover_9"	[3.92 s].
+0.0.AM: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.16 s].
+0.0.AM: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.13 s].
+0.0.AM: Morphing to AMcustom2
+0.0.AM: Trace Attempt 68	[0.12 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.Hts: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 1865	[317.31 s]
+0.0.Hts: Trace Attempt 58532	[4.00 s]
+0.0.AMcustom2: Trace Attempt 340	[5.40 s]
+0.0.Hts: Trace Attempt 116519	[7.90 s]
+0.0.Hts: Per property time limit expired (8.00 s) [8.02 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._cover_9"	[8.02 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt 543	[7.97 s]
+0.0.AMcustom2: Per property time limit expired (8.00 s) [8.04 s]
+0.0.AMcustom2: Stopped processing property "Control.i_Control_sva._cover_9"	[8.04 s].
+0.0.AMcustom2: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.13 s]
+0.0.AMcustom2: Trace Attempt  2	[0.13 s]
+0.0.AMcustom2: Trace Attempt  3	[0.13 s]
+0.0.Bm: Trace Attempt 1869	[324.62 s]
+0.0.Hts: Trace Attempt 66541	[4.00 s]
+0.0.AMcustom2: Trace Attempt 236	[4.78 s]
+0.0.Hts: Trace Attempt 132010	[8.00 s]
+0.0.Hts: Per property time limit expired (8.00 s) [8.00 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[8.00 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[8.02 s].
+0.0.AMcustom2: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.13 s]
+0.0.AMcustom2: Trace Attempt  2	[0.13 s]
+0.0.AMcustom2: Trace Attempt  3	[0.13 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.98 s].
+0.0.Hts: Morphing to I
+0.0.Hts: Trace Attempt 16937	[0.98 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.I: Trace Attempt 11	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.94 s].
+0.0.AMcustom2: Morphing to AD
+0.0.AMcustom2: Trace Attempt 149	[0.87 s]
+0.0.AMcustom2: All properties determined. [0.00 s]
+0.0.AMcustom2: Exited with Success (@ 0.00 s)
+0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AD: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.02 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AD: Trace Attempt  3	[0.02 s]
+0.0.AD: Trace Attempt  5	[0.02 s]
+0.0.Bm: Trace Attempt 1870	[333.61 s]
+0.0.I: Trace Attempt 79	[4.54 s]
+0.0.Bm: Trace Attempt 1882	[338.06 s]
+0.0.AD: Trace Attempt 95	[8.04 s]
+0.0.AD: Per property time limit expired (15.99 s) [15.99 s]
+0.0.AD: Stopped processing property "Control.i_Control_sva._cover_9"	[16.00 s].
+0.0.AD: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.I: Stopped processing property "Control.i_Control_sva._cover_9"	[16.03 s].
+0.0.I: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.Bm: Trace Attempt 1885	[348.48 s]
+0.0.I: Trace Attempt  1	[1.51 s]
+0.0.I: Trace Attempt  2	[1.51 s]
+0.0.I: Trace Attempt  3	[1.51 s]
+0.0.I: Trace Attempt  5	[1.52 s]
+0.0.AD: Trace Attempt  1	[1.63 s]
+0.0.AD: Trace Attempt  2	[1.63 s]
+0.0.AD: Trace Attempt  3	[1.63 s]
+0.0.AD: Trace Attempt  5	[1.63 s]
+0.0.Bm: Trace Attempt 1886	[354.96 s]
+0.0.I: Trace Attempt 99	[8.36 s]
+0.0.Bm: Trace Attempt 1891	[359.30 s]
+0.0.AD: Trace Attempt 101	[12.15 s]
+0.0.Bm: Trace Attempt 1908	[363.44 s]
+0.0.I: Trace Attempt 122	[15.76 s]
+0.0.AD: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AD: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[16.00 s].
+0.0.AD: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.I: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[15.97 s].
+0.0.I: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[1.63 s]
+0.0.AD: Trace Attempt  2	[1.63 s]
+0.0.AD: Trace Attempt  3	[1.63 s]
+0.0.AD: Trace Attempt  5	[1.63 s]
+0.0.Bm: Trace Attempt 1917	[367.74 s]
+0.0.I: Trace Attempt 99	[6.86 s]
+0.0.AD: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[6.97 s].
+0.0.AD: Morphing to AB
+0.0.AD: Trace Attempt 62	[2.04 s]
+0.0.AD: All properties determined. [0.00 s]
+0.0.AD: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.I: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[6.97 s].
+0.0.I: Morphing to Hts
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.Hts: Trace Attempt 66837	[4.00 s]
+0.0.AB: Trace Attempt 317	[4.16 s]
+0.0.Hts: Trace Attempt 131925	[8.00 s]
+0.0.Bm: Trace Attempt 1928	[379.12 s]
+0.0.AB: Trace Attempt 369	[8.18 s]
+0.0.Hts: Trace Attempt 210254	[12.00 s]
+0.0.AB: Trace Attempt 424	[12.20 s]
+0.0.AB: Trace Attempt 462	[16.22 s]
+0.0.AB: Trace Attempt 510	[20.29 s]
+0.0.Bm: Trace Attempt 1929	[392.05 s]
+0.0.AB: Trace Attempt 539	[24.32 s]
+0.0.Bm: Trace Attempt 1939	[396.15 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 639.83 s)
+0.0.Ht: Engine should be restarted (starts=1, unexpected_terminations=1)
+   Last recorded RSS memory usage: 9.67496 MiB
+   Last recorded free memory: 183.143 MiB out of 375.898 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 108604@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt 563	[28.42 s]
+0.0.Bm: Trace Attempt 1953	[400.22 s]
+0.0.Ht: Trace Attempt 43886	[4.00 s]
+0.0.AB: Trace Attempt 584	[31.92 s]
+0.0.AB: Per property time limit expired (32.00 s) [32.01 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[32.01 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 116814	[8.00 s]
+0.0.AB: Trace Attempt 238	[4.04 s]
+0.0.Hts: Trace Attempt 262145	[38.42 s]
+0.0.Hts: Per property time limit expired (32.00 s) [38.50 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[38.50 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Ht: Trace Attempt 165031	[12.00 s]
+0.0.AB: Trace Attempt 270	[8.10 s]
+0.0.Ht: Trace Attempt 233016	[16.10 s]
+0.0.AB: Trace Attempt 300	[12.11 s]
+0.0.Bm: Trace Attempt 1961	[417.06 s]
+0.0.Hts: Trace Attempt  1	[9.10 s]
+0.0.Hts: Trace Attempt  2	[9.10 s]
+0.0.Hts: Trace Attempt  3	[9.10 s]
+0.0.Hts: Trace Attempt  4	[9.10 s]
+0.0.Hts: Trace Attempt  5	[9.10 s]
+0.0.AB: Trace Attempt 318	[16.19 s]
+0.0.Hts: Trace Attempt 64962	[13.10 s]
+0.0.AB: Trace Attempt 337	[20.29 s]
+0.0.Hts: Trace Attempt 123519	[17.10 s]
+0.0.AB: Trace Attempt 351	[24.37 s]
+0.0.Hts: Trace Attempt 192166	[21.10 s]
+0.0.AB: Trace Attempt 366	[28.53 s]
+0.0.Bm: Trace Attempt 1962	[433.22 s]
+0.0.Hts: Trace Attempt 233072	[25.10 s]
+0.0.AB: Trace Attempt 374	[31.48 s]
+0.0.AB: Per property time limit expired (32.00 s) [32.00 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[32.00 s].
+0.0.AB: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[25.51 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.03 s].
+0.0.AB: Morphing to K
+0.0.AB: Trace Attempt 60	[0.02 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[0.03 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 197	[0.01 s]
+0.0.K: Trace Attempt  1	[1.72 s]
+0.0.K: Trace Attempt  2	[1.72 s]
+0.0.K: Trace Attempt  3	[1.72 s]
+0.0.K: Trace Attempt  4	[1.72 s]
+0.0.K: Trace Attempt  5	[1.72 s]
+0.0.Ht: Trace Attempt 262145	[37.82 s]
+0.0.Bm: Trace Attempt 1970	[437.27 s]
+0.0.Hts: Trace Attempt 58254	[4.01 s]
+0.0.K: Trace Attempt 277	[5.73 s]
+0.0.Hts: Trace Attempt 111852	[8.02 s]
+0.0.Bm: Trace Attempt 1985	[444.11 s]
+0.0.K: Trace Attempt 346	[9.75 s]
+0.0.Hts: Trace Attempt 164482	[12.45 s]
+0.0.Bm: Trace Attempt 1999	[448.17 s]
+0.0.K: Trace Attempt 379	[14.41 s]
+0.0.Hts: Trace Attempt 215351	[16.45 s]
+0.0.K: Trace Attempt 390	[19.43 s]
+0.0.Hts: Trace Attempt 265387	[20.45 s]
+0.0.Bm: Trace Attempt 2015	[456.56 s]
+0.0.K: Trace Attempt 455	[23.95 s]
+0.0.Hts: Trace Attempt 321363	[24.45 s]
+0.0.Hts: Trace Attempt 340403	[28.45 s]
+0.0.K: Trace Attempt 457	[29.90 s]
+0.0.Hts: Trace Attempt 397225	[32.45 s]
+0.0.K: Trace Attempt 466	[35.45 s]
+0.0.Hts: Trace Attempt 452623	[36.45 s]
+0.0.K: Trace Attempt 469	[40.23 s]
+0.0.Hts: Trace Attempt 492537	[40.45 s]
+0.0.K: Trace Attempt 476	[45.64 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 727.18 s)
+0.0.Ht: Engine should be restarted (starts=2, unexpected_terminations=2)
+   Last recorded RSS memory usage: 10.1924 MiB
+   Last recorded free memory: 182.954 MiB out of 375.898 MiB
+0.0.Ht: Restarting engine (local)
+0.0.K: Trace Attempt 482	[51.16 s]
+0.0.Ht: Proofgrid shell started at 108738@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Bm: Trace Attempt 2016	[488.41 s]
+0.0.Ht: Trace Attempt 42772	[4.00 s]
+0.0.Ht: Trace Attempt 84877	[8.00 s]
+0.0.K: Trace Attempt 484	[59.89 s]
+0.0.Bm: Trace Attempt 2017	[495.91 s]
+0.0.Ht: Trace Attempt 131468	[12.00 s]
+0.0.K: Trace Attempt 491	[61.50 s]
+0.0.K: Per property time limit expired (64.00 s) [64.01 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._cover_9"	[64.01 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 128	[0.00 s]
+0.0.K: Trace Attempt  1	[0.58 s]
+0.0.K: Trace Attempt  2	[0.58 s]
+0.0.K: Trace Attempt  3	[0.58 s]
+0.0.K: Trace Attempt  4	[0.58 s]
+0.0.K: Trace Attempt  5	[0.58 s]
+0.0.Bm: Trace Attempt 2028	[500.07 s]
+0.0.Ht: Trace Attempt 168467	[16.00 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._cover_9"	[68.15 s].
+0.0.Hts: Trace Attempt 524288	[42.75 s]
+0.0.Hts: Terminated by signal SIGKILL (@ 744.18 s)
+0.0.Hts: Engine should be restarted (starts=1, unexpected_terminations=1)
+   Last recorded RSS memory usage: 4.07306 MiB
+   Last recorded free memory: 183.2 MiB out of 375.898 MiB
+0.0.Hts: Restarting engine (local)
+0.0.Hts: Proofgrid shell started at 108765@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Hts: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 236	[4.66 s]
+0.0.Bm: Trace Attempt 2046	[504.11 s]
+0.0.Ht: Trace Attempt 215470	[20.00 s]
+0.0.Hts: Trace Attempt 99754	[4.00 s]
+0.0.K: Trace Attempt 300	[9.20 s]
+0.0.Bm: Trace Attempt 2059	[508.59 s]
+0.0.Ht: Trace Attempt 254908	[24.00 s]
+0.0.Hts: Trace Attempt 197920	[8.00 s]
+0.0.K: Trace Attempt 350	[13.24 s]
+0.0.Hts: Trace Attempt 249993	[12.00 s]
+0.0.K: Trace Attempt 388	[18.25 s]
+0.0.Hts: Trace Attempt 333323	[16.00 s]
+0.0.K: Trace Attempt 394	[22.65 s]
+0.0.K: Trace Attempt 402	[27.26 s]
+0.0.Ht: Trace Attempt 262145	[43.95 s]
+0.0.K: Trace Attempt 410	[31.42 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 775.18 s)
+0.0.Ht: Engine should be restarted (starts=3, unexpected_terminations=3)
+   Last recorded RSS memory usage: 9.45866 MiB
+   Last recorded free memory: 183.005 MiB out of 375.898 MiB
+0.0.Ht: Restarting engine (local)
+0.0.Ht: Proofgrid shell started at 108784@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 415	[36.50 s]
+0.0.Ht: Trace Attempt 42884	[4.00 s]
+0.0.Bm: Trace Attempt 2062	[538.65 s]
+0.0.K: Trace Attempt 420	[40.77 s]
+0.0.Ht: Trace Attempt 85687	[8.00 s]
+0.0.K: Trace Attempt 424	[44.89 s]
+0.0.Ht: Trace Attempt 136194	[12.00 s]
+0.0.Hts: Trace Attempt 393217	[43.95 s]
+0.0.Bm: Trace Attempt 2063	[548.27 s]
+0.0.K: Trace Attempt 429	[49.70 s]
+0.0.Ht: Trace Attempt 177175	[16.00 s]
+0.0.Bm: Trace Attempt 2076	[552.51 s]
+0.0.K: Trace Attempt 435	[53.80 s]
+0.0.Ht: Trace Attempt 226928	[20.00 s]
+0.0.K: Trace Attempt 441	[58.27 s]
+0.0.Bm: Trace Attempt 2084	[557.34 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[58.36 s].
+0.0.Hts: Terminated by signal SIGKILL (@ 802.60 s)
+0.0.Hts: Engine should be restarted (starts=2, unexpected_terminations=2)
+   Last recorded RSS memory usage: 13.7126 MiB
+   Last recorded free memory: 182.72 MiB out of 375.898 MiB
+0.0.Hts: Restarting engine (local)
+0.0.K: Trace Attempt 445	[62.57 s]
+0.0.Hts: Proofgrid shell started at 108816@della-i13n16(local) jg_106813_della-i13n16_1
+0.0.Hts: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_6:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Hts: Trace Attempt 24959	[1.38 s]
+0.0.Hts: Per property time limit expired (1.38 s) [1.38 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[1.38 s].
+0.0.Hts: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.K: Per property time limit expired (64.00 s) [64.01 s]
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_6:precondition1"	[64.01 s].
+0.0.K: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.K: Trace Attempt  1	[0.09 s]
+0.0.K: Trace Attempt  2	[0.09 s]
+0.0.K: Trace Attempt  3	[0.09 s]
+0.0.K: Trace Attempt  4	[0.09 s]
+0.0.K: Trace Attempt  5	[0.09 s]
+0.0.Hts: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.00 s].
+0.0.Hts: Morphing to Tricustom6
+0.0.Hts: Trace Attempt 17509	[1.00 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.K: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[1.00 s].
+0.0.K: Morphing to M
+0.0.K: Trace Attempt 201	[0.99 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.M: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._assert_5:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Tricustom6:    0.11" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.13" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 2087	[565.23 s]
+0.0.Tricustom6:    1.39" Simplification phase 1 complete
+0.0.Tricustom6:    1.44" Simplification phase 2 complete
+0.0.Tricustom6:    1.49" Simplification phase 3 complete
+   1.49" ---- Completed simplification thread ----
+   1.49" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:    1.61" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 44812	[4.53 s]
+0.0.M: Trace Attempt 199	[4.58 s]
+0.0.Tricustom6: Trace Attempt 110448	[8.53 s]
+0.0.Ht: Trace Attempt 262145	[43.51 s]
+0.0.Tricustom6: Trace Attempt 164768	[14.79 s]
+0.0.M: Trace Attempt 291	[14.85 s]
+0.0.Tricustom6: Trace Attempt 256684	[18.79 s]
+0.0.Bm: Trace Attempt 2088	[584.35 s]
+0.0.M: Trace Attempt 340	[22.50 s]
+0.0.M: Trace Attempt 406	[27.33 s]
+0.0.Bm: Trace Attempt 2089	[593.26 s]
+0.0.M: Trace Attempt 537	[32.06 s]
+0.0.M: Trace Attempt 614	[37.41 s]
+0.0.Bm: Trace Attempt 2090	[610.20 s]
+0.0.M: Trace Attempt 683	[46.56 s]
+0.0.Bm: Trace Attempt 2091	[619.35 s]
+0.0.Bm: Trace Attempt 2096	[623.40 s]
+0.0.M: Trace Attempt 747	[60.82 s]
+0.0.Bm: Trace Attempt 2114	[627.43 s]
+0.0.M: Trace Attempt 959	[66.25 s]
+0.0.Tricustom6: Trace Attempt 262148	[18.90 s]
+0.0.Tricustom6: A trace with 262147 cycles was found. There may exist shorter traces (as short as 262145 cycles) [64.82 s]
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._assert_5:precondition1" was covered in 262147 cycles in 71.80 s.
+0: ProofGrid usable level: 2
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[71.82 s].
+0.0.Tricustom6: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   70.95" ---- Launching main thread ----
+0.0.Tricustom6:   71.08" ---- Launching abstraction thread ----
+0.0.Tricustom6:   71.10" ---- Launching multi-phase simplification thread ----
+0.0.M: Stopped processing property "Control.i_Control_sva._assert_5:precondition1"	[71.85 s].
+0.0.M: Starting proof for property "Control.i_Control_sva._cover_9"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.Tricustom6:   72.15" Simplification phase 1 complete
+0.0.Tricustom6:   72.19" Simplification phase 2 complete
+0.0.Tricustom6:   72.25" Simplification phase 3 complete
+  72.25" ---- Completed simplification thread ----
+  72.25" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   72.37" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 28624	[4.00 s]
+0.0.M: Trace Attempt 284	[5.46 s]
+0.0.Tricustom6: Trace Attempt 94220	[8.01 s]
+0.0.Tricustom6: Trace Attempt 160940	[12.01 s]
+0.0.M: Trace Attempt 367	[14.08 s]
+0.0.Tricustom6: Trace Attempt 200268	[16.00 s]
+0.0.M: Trace Attempt 407	[18.09 s]
+0.0.Bm: Trace Attempt 2123	[653.94 s]
+0.0.Bm: Trace Attempt 2160	[657.96 s]
+0.0.Tricustom6: Trace Attempt 258596	[25.35 s]
+0.0.M: Trace Attempt 452	[26.22 s]
+0.0.Bm: Trace Attempt 2197	[661.97 s]
+0.0.Tricustom6: Trace Attempt 327816	[29.35 s]
+0.0.Bm: Trace Attempt 2231	[666.01 s]
+0.0.Bm: Trace Attempt 2263	[670.05 s]
+0.0.M: Trace Attempt 502	[38.33 s]
+0.0.Bm: Trace Attempt 2295	[674.16 s]
+0.0.Tricustom6: Trace Attempt 391268	[39.72 s]
+0.0.Bm: Trace Attempt 2325	[678.27 s]
+0.0.Tricustom6: Trace Attempt 459940	[43.72 s]
+0.0.M: Trace Attempt 890	[44.61 s]
+0.0.Bm: Trace Attempt 2352	[682.30 s]
+0.0.Bm: Trace Attempt 2380	[686.30 s]
+0.0.Bm: Trace Attempt 2406	[690.31 s]
+0.0.M: Trace Attempt 969	[56.26 s]
+0.0.Bm: Trace Attempt 2429	[694.35 s]
+0.0.Bm: Trace Attempt 2453	[698.51 s]
+0.0.Bm: Trace Attempt 2476	[702.62 s]
+0.0.Bm: Trace Attempt 2498	[706.72 s]
+0.0.Bm: Trace Attempt 2520	[710.79 s]
+0.0.Bm: Trace Attempt 2542	[714.86 s]
+0.0.M: Trace Attempt 1034	[80.36 s]
+0.0.Bm: Trace Attempt 2561	[718.95 s]
+0.0.M: Trace Attempt 1092	[84.39 s]
+0.0.Bm: Trace Attempt 2579	[723.08 s]
+0.0.Bm: Trace Attempt 2593	[727.64 s]
+0.0.Bm: Trace Attempt 2621	[731.70 s]
+0.0.M: Trace Attempt 1110	[98.42 s]
+0.0.Bm: Trace Attempt 2639	[735.80 s]
+0.0.Bm: Trace Attempt 2659	[739.86 s]
+0.0.Bm: Trace Attempt 2677	[743.95 s]
+0.0.M: Trace Attempt 1161	[111.28 s]
+0.0.Bm: Trace Attempt 2694	[747.97 s]
+0.0.Tricustom6: Requesting engine job to stop
+0.0.M: Requesting engine job to stop
+0.0.Ht: Requesting engine job to terminate
+0.0.Bm: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [997.84 s]
+0.0.Tricustom6: Trace Attempt 524292	[47.43 s]
+0.0.Tricustom6: A trace with 524292 cycles was found. There may exist shorter traces (as short as 524289 cycles) [105.42 s]
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._cover_9" was covered in 524292 cycles in 121.75 s.
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.i_Control_sva._assert_6:precondition1" was covered in 393217 cycles in 121.75 s by the incidental trace "Control.i_Control_sva._cover_9".
+0: ProofGrid usable level: 0
+0.0.Bm: Trace Attempt 2711	[752.01 s]
+0.0.Bm: Trace Attempt 2724	[756.10 s]
+0.0.Tricustom6: Stopped processing property "Control.i_Control_sva._cover_9"	[121.75 s].
+0.0.Tricustom6: All properties determined. [192.82 s]
+0.0.Tricustom6: Exited with Success (@ 997.90 s)
+0.0.M: Stopped processing property "Control.i_Control_sva._cover_9"	[121.75 s].
+0.0.M: Trace Attempt 1206	[113.73 s]
+0.0.M: All properties determined. [122.01 s]
+0.0.Bm: Trace Attempt 2727	[756.67 s]
+0.0.Bm: All properties determined. [757.84 s]
+0.0.M: Exited with Success (@ 998.81 s)
+0.0.Bm: Sending SIGKILL
+0.0.Ht: Sending SIGKILL
+0.0.Bm: Exited with Success (@ 1000.15 s)
+0.0.Ht: Terminated by signal SIGKILL (@ 1000.15 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.99 %)
+--------------------------------------------------------------
+     engines started                               :    18
+     engine jobs started                           :     4
+     unexpected terminations                       :     5
+       (0.Ht 0.Hts)
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Ht        0.23      997.61        0.00       99.98 %
+     Bm        0.05      997.83        0.00      100.00 %
+    Tricustom6        0.15      997.57        0.00       99.98 %
+      M        0.06      997.58        0.00       99.99 %
+    all        0.12      997.65        0.00       99.99 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.49     3990.59        0.00
+
+    Data read    : 234.77 MiB
+    Data written : 10.69 MiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 17
+                 assertions                   : 8
+                  - proven                    : 7 (87.5%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 1 (12.5%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 9
+                  - unreachable               : 2 (22.2222%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 7 (77.7778%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote verification_results/00138/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote verification_results/00138/property_list.txt
+[<embedded>] % exit 0
+INFO (IPL005): Received request to exit from the console.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 15.036 GB.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

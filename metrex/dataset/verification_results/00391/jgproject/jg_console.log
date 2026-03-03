@@ -1,0 +1,49 @@
+2026-02-23 13:09:30.860385 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.860478 (963347) main____ INFO    JasperGold version info
+2026-02-23 13:09:30.860494 (963347) main____ INFO      tool      : JasperGold 2021.03
+2026-02-23 13:09:30.860504 (963347) main____ INFO      version   : 2021.03 FCS 64 bits
+2026-02-23 13:09:30.860509 (963347) main____ INFO      build date: 2021.03.23 02:50:43 UTC
+2026-02-23 13:09:30.860514 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.860519 (963347) main____ INFO    Runtime info:
+2026-02-23 13:09:30.860524 (963347) main____ INFO      platform  : Linux 5.14.0-570.84.1.el9_6.x86_64 x86_64
+2026-02-23 13:09:30.860530 (963347) main____ INFO      hostname  : della-h14n11
+2026-02-23 13:09:30.860536 (963347) main____ INFO      pid       : 963347
+2026-02-23 13:09:30.860541 (963347) main____ INFO      arguments : '-style' 'windows' '-batch' '-proj' './verification_results/00391/jgproject' '-tcl' './jasper_verif_check.tcl'
+2026-02-23 13:09:30.860548 (963347) main____ INFO      locale    : UTF-8
+2026-02-23 13:09:30.860554 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.860560 (963347) main____ INFO    System resource limits info:
+2026-02-23 13:09:30.860565 (963347) main____ INFO      virtual memory: unlimited
+2026-02-23 13:09:30.860571 (963347) main____ INFO      cpu time      : unlimited
+2026-02-23 13:09:30.860577 (963347) main____ INFO      stack size    : unlimited
+2026-02-23 13:09:30.860582 (963347) main____ INFO      core file size: unlimited
+2026-02-23 13:09:30.860589 (963347) main____ INFO      open files    : 131072
+2026-02-23 13:09:30.860594 (963347) main____ INFO      file size     : unlimited
+2026-02-23 13:09:30.860600 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.860605 (963347) main____ INFO    Memory statistics:
+2026-02-23 13:09:30.860610 (963347) main____ INFO      total physical memory  : 1584164324 kB
+2026-02-23 13:09:30.860615 (963347) main____ INFO      free physical memory   : 984710176 kB
+2026-02-23 13:09:30.860621 (963347) main____ INFO      committed address space: 501427040 kB
+2026-02-23 13:09:30.860626 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.861163 (963347) main____ INFO    Important environment variables:
+2026-02-23 13:09:30.861183 (963347) main____ INFO      JASPER_HOME       : '/usr/licensed/cadence-20210126/jasper_2021.03'
+2026-02-23 13:09:30.861190 (963347) main____ INFO      JASPER_INSTALL_DIR: '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03'
+2026-02-23 13:09:30.861196 (963347) main____ INFO      LANG              : 'en_US.UTF-8'
+2026-02-23 13:09:30.861201 (963347) main____ INFO      LM_LICENSE_FILE   : '5280@license.rc.princeton.edu'
+2026-02-23 13:09:30.861207 (963347) main____ INFO      TMPDIR            : '/tmp/ab2113/jg_5017882_201'
+2026-02-23 13:09:30.861211 (963347) main____ INFO    ----------------------------------------
+2026-02-23 13:09:30.862788 (963347) lic_core INFO    Initializing license system ...
+2026-02-23 13:09:30.866333 (963347) lic_core INFO    ... license system initialized.
+2026-02-23 13:09:30.867478 (963347) lic__man INFO    Claim 'fpv' for <ui>.
+2026-02-23 13:09:30.867539 (963347) lic_core INFO    (1) checking out 'jasper_fpv' ...
+2026-02-23 13:09:30.873961 (963347) lic_core INFO    ... (1) checkout failed (error: -5) ("FLEXnet ERROR(-5, 0, 0): No such feature exists.")
+2026-02-23 13:09:30.873992 (963347) lic_core INFO    (2) checking out 'jasper_fao' ...
+2026-02-23 13:09:30.884145 (963347) lic_core INFO    ... (2) checkout succeeded
+2026-02-23 13:09:30.908992 (963347) session_ INFO    Starting analysis session with session id 'session_0' (launcher: <local>) ...
+2026-02-23 13:09:30.911559 (963347) session_ INFO    Analysis session with session id 'session_0' started (pid: 963355)
+2026-02-23 13:09:31.733667 (963347) session_ INFO    Analysis session 'session_0' connected to the console (host: 127.0.0.1:48562)
+2026-02-23 13:09:32.406194 (963347) main____ INFO    About to exit: request to exit with status 1 received from analysis session 'session_0'
+2026-02-23 13:09:32.475740 (963347) session_ INFO    Analysis session 'session_0' disconnected.
+2026-02-23 13:09:32.484078 (963347) lic__man INFO    Unclaim everything for 'session_0'.
+2026-02-23 13:09:32.484682 (963347) session_ INFO    Process for analysis session 'session_0' has exited with exit status '1'.
+2026-02-23 13:09:34.393565 (963347) lic_core INFO    (2) checkin jasper_fao
+2026-02-23 13:09:34.395146 (963347) main____ INFO    Exiting with status 1.

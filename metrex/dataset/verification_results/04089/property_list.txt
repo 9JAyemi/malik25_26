@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+data_store.i_data_store_sva.a_enable_known
+data_store.i_data_store_sva.a_capture_known
+data_store.i_data_store_sva.a_capture_unknown
+data_store.i_data_store_sva.a_hold
+data_store.i_data_store_sva.a_change_requires_enable
+
+COVER PROPERTIES:
+data_store.i_data_store_sva.a_enable_known:precondition1
+data_store.i_data_store_sva.a_capture_known:precondition1
+data_store.i_data_store_sva.a_hold:precondition1
+data_store.i_data_store_sva.a_change_requires_enable:precondition1
+data_store.i_data_store_sva.c_capture
+data_store.i_data_store_sva.c_hold2
+data_store.i_data_store_sva.c_back2back
+data_store.i_data_store_sva.c_blocked_di

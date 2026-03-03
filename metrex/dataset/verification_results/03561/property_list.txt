@@ -1,0 +1,37 @@
+ASSERT PROPERTIES:
+hybrid_pwm_sd.sva_inst.a_no_x
+hybrid_pwm_sd.sva_inst.a_dout_match
+hybrid_pwm_sd.sva_inst.a_reset_vals
+hybrid_pwm_sd.sva_inst.a_cnt_inc
+hybrid_pwm_sd.sva_inst.a_scaledin_upd_only_wrap
+hybrid_pwm_sd.sva_inst.a_sigma_upd_only_wrap
+hybrid_pwm_sd.sva_inst.a_thresh_upd_only_wrap
+hybrid_pwm_sd.sva_inst.a_out_changes_only_when
+hybrid_pwm_sd.sva_inst.a_scaledin_next
+hybrid_pwm_sd.sva_inst.a_sigma_next
+hybrid_pwm_sd.sva_inst.a_thresh_next
+hybrid_pwm_sd.sva_inst.a_out_set_on_wrap
+hybrid_pwm_sd.sva_inst.a_out_clr_on_thresh
+hybrid_pwm_sd.sva_inst.a_out_high_until_thresh
+hybrid_pwm_sd.sva_inst.a_out_full_duty
+
+COVER PROPERTIES:
+hybrid_pwm_sd.sva_inst.a_reset_vals:precondition1
+hybrid_pwm_sd.sva_inst.a_cnt_inc:precondition1
+hybrid_pwm_sd.sva_inst.a_scaledin_upd_only_wrap:precondition1
+hybrid_pwm_sd.sva_inst.a_sigma_upd_only_wrap:precondition1
+hybrid_pwm_sd.sva_inst.a_thresh_upd_only_wrap:precondition1
+hybrid_pwm_sd.sva_inst.a_out_changes_only_when:precondition1
+hybrid_pwm_sd.sva_inst.a_scaledin_next:precondition1
+hybrid_pwm_sd.sva_inst.a_sigma_next:precondition1
+hybrid_pwm_sd.sva_inst.a_thresh_next:precondition1
+hybrid_pwm_sd.sva_inst.a_out_set_on_wrap:precondition1
+hybrid_pwm_sd.sva_inst.a_out_clr_on_thresh:precondition1
+hybrid_pwm_sd.sva_inst.a_out_high_until_thresh:precondition1
+hybrid_pwm_sd.sva_inst.a_out_high_until_thresh:precondition2
+hybrid_pwm_sd.sva_inst.a_out_full_duty:precondition1
+hybrid_pwm_sd.sva_inst.a_out_full_duty:precondition2
+hybrid_pwm_sd.sva_inst.c_wrap
+hybrid_pwm_sd.sva_inst.c_thresh_0
+hybrid_pwm_sd.sva_inst.c_thresh_16
+hybrid_pwm_sd.sva_inst.c_thresh_31

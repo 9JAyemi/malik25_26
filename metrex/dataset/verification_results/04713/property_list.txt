@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+clock_gate.u_clock_gate_sva.a_enclk_func
+clock_gate.u_clock_gate_sva.a_high_only_if_both_high
+clock_gate.u_clock_gate_sva.a_no_x_out_when_inputs_known
+
+COVER PROPERTIES:
+clock_gate.u_clock_gate_sva.a_high_only_if_both_high:precondition1
+clock_gate.u_clock_gate_sva.c_combo_00
+clock_gate.u_clock_gate_sva.c_combo_01
+clock_gate.u_clock_gate_sva.c_combo_10
+clock_gate.u_clock_gate_sva.c_combo_11
+clock_gate.u_clock_gate_sva.c_enclk_rise
+clock_gate.u_clock_gate_sva.c_enclk_fall

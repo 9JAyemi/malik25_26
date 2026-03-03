@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+counter.u_counter_sva.a_no_x
+counter.u_counter_sva.a_sync_reset
+counter.u_counter_sva.a_inc
+counter.u_counter_sva.a_rel_to_one
+
+COVER PROPERTIES:
+counter.u_counter_sva.a_sync_reset:precondition1
+counter.u_counter_sva.a_inc:precondition1
+counter.u_counter_sva.a_rel_to_one:precondition1
+counter.u_counter_sva.c_reset_hi
+counter.u_counter_sva.c_reset_lo
+counter.u_counter_sva.c_wrap
+counter.u_counter_sva.c_full_cycle

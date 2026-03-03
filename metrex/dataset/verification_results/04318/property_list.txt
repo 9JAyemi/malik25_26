@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+rising_edge_detector.red_sva.ap_prev_updates
+rising_edge_detector.red_sva.ap_out_updates_on_rise
+rising_edge_detector.red_sva.ap_out_holds
+rising_edge_detector.red_sva.ap_out_changes_imply_rise
+
+COVER PROPERTIES:
+rising_edge_detector.red_sva.ap_out_updates_on_rise:precondition1
+rising_edge_detector.red_sva.ap_out_holds:precondition1
+rising_edge_detector.red_sva.ap_out_changes_imply_rise:precondition1
+rising_edge_detector.red_sva.cp_rise
+rising_edge_detector.red_sva.cp_no_rise

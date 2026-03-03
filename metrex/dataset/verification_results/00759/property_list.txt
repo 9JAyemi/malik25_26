@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.counter_sva_i.a_no_xz
+counter.counter_sva_i.a_async_rst_0
+counter.counter_sva_i.a_sync_rst_0
+counter.counter_sva_i.a_next_state
+
+COVER PROPERTIES:
+counter.counter_sva_i.a_sync_rst_0:precondition1
+counter.counter_sva_i.a_next_state:precondition1
+counter.counter_sva_i.c_inc
+counter.counter_sva_i.c_hold
+counter.counter_sva_i.c_wrap
+counter.counter_sva_i.c_async_rst

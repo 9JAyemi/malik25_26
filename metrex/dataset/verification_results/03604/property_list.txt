@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.counter_sva_i.a_rst_zero
+counter.counter_sva_i.a_known
+counter.counter_sva_i.a_step_dir
+counter.counter_sva_i.a_changes
+
+COVER PROPERTIES:
+counter.counter_sva_i.a_rst_zero:precondition1
+counter.counter_sva_i.c_up_mode
+counter.counter_sva_i.c_down_mode
+counter.counter_sva_i.c_hit_zero
+counter.counter_sva_i.c_hit_max
+counter.counter_sva_i.c_up_wrap
+counter.counter_sva_i.c_down_wrap
+counter.counter_sva_i.c_dir_toggle

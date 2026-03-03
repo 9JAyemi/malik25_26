@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+glitch_filter.gf_sva.a_out_is_tmp
+glitch_filter.gf_sva.a_high_inc
+glitch_filter.gf_sva.a_high_rst
+glitch_filter.gf_sva.a_low_inc
+glitch_filter.gf_sva.a_low_rst
+glitch_filter.gf_sva.a_update_only_on_4
+glitch_filter.gf_sva.a_rise_after_5_high
+glitch_filter.gf_sva.a_fall_after_5_low
+glitch_filter.gf_sva.a_no_spurious_hold
+
+COVER PROPERTIES:
+glitch_filter.gf_sva.a_high_inc:precondition1
+glitch_filter.gf_sva.a_high_rst:precondition1
+glitch_filter.gf_sva.a_low_inc:precondition1
+glitch_filter.gf_sva.a_low_rst:precondition1
+glitch_filter.gf_sva.a_update_only_on_4:precondition1
+glitch_filter.gf_sva.a_rise_after_5_high:precondition1
+glitch_filter.gf_sva.a_fall_after_5_low:precondition1
+glitch_filter.gf_sva.a_no_spurious_hold:precondition1
+glitch_filter.gf_sva.c_rise
+glitch_filter.gf_sva.c_fall

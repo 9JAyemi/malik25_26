@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_register.u_shift_register_sva.a_reset_clears
+shift_register.u_shift_register_sva.a_no_x_in_when_active
+shift_register.u_shift_register_sva.a_no_x_out_when_active
+shift_register.u_shift_register_sva.G_TRUNC.a_loads_instead_of_shift
+
+COVER PROPERTIES:
+shift_register.u_shift_register_sva.a_reset_clears:precondition1
+shift_register.u_shift_register_sva.c_reset_seen
+shift_register.u_shift_register_sva.c_deassert_seen
+shift_register.u_shift_register_sva.c_out_changes

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+my_register.u_my_register_sva.ap_functional
+my_register.u_my_register_sva.ap_no_glitch
+my_register.u_my_register_sva.ap_inputs_known
+my_register.u_my_register_sva.ap_q_known
+
+COVER PROPERTIES:
+my_register.u_my_register_sva.ap_no_glitch:precondition1
+my_register.u_my_register_sva.cp_clear
+my_register.u_my_register_sva.cp_preset
+my_register.u_my_register_sva.cp_enable
+my_register.u_my_register_sva.cp_hold
+my_register.u_my_register_sva.cp_both_low

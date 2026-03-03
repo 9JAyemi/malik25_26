@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+debouncer.debouncer_sva_i.a_follow_change
+debouncer.debouncer_sva_i.a_equal_hold
+debouncer.debouncer_sva_i.a_count_inc
+debouncer.debouncer_sva_i.a_count_threshold_reset
+debouncer.debouncer_sva_i.a_count_reset_on_mismatch
+debouncer.debouncer_sva_i.a_count_bounded
+debouncer.debouncer_sva_i.a_no_spurious_output_change
+
+COVER PROPERTIES:
+debouncer.debouncer_sva_i.a_follow_change:precondition1
+debouncer.debouncer_sva_i.a_equal_hold:precondition1
+debouncer.debouncer_sva_i.a_count_inc:precondition1
+debouncer.debouncer_sva_i.a_count_threshold_reset:precondition1
+debouncer.debouncer_sva_i.a_count_reset_on_mismatch:precondition1
+debouncer.debouncer_sva_i.a_no_spurious_output_change:precondition1
+debouncer.debouncer_sva_i.c_follow_change
+debouncer.debouncer_sva_i.c_threshold_then_reset
+debouncer.debouncer_sva_i.c_long_equal_stretch
+debouncer.debouncer_sva_i.c_mismatch_resets

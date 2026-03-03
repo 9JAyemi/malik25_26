@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+counter.u_counter_sva.a_no_x_rst
+counter.u_counter_sva.a_no_x_cnt_on_reset_seen
+counter.u_counter_sva.a_reset_to_zero
+counter.u_counter_sva.a_hold_zero_while_reset
+counter.u_counter_sva.a_inc_when_running
+counter.u_counter_sva.a_wrap
+
+COVER PROPERTIES:
+counter.u_counter_sva.a_no_x_cnt_on_reset_seen:precondition1
+counter.u_counter_sva.a_reset_to_zero:precondition1
+counter.u_counter_sva.a_hold_zero_while_reset:precondition1
+counter.u_counter_sva.a_inc_when_running:precondition1
+counter.u_counter_sva.a_wrap:precondition1
+counter.u_counter_sva.c_reset_pulse
+counter.u_counter_sva.c_run_no_reset_16
+counter.u_counter_sva.c_wrap_seen

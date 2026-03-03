@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+data_converter.u_data_converter_sva.ap_inputs_known
+data_converter.u_data_converter_sva.ap_out_known
+data_converter.u_data_converter_sva.ap_reset_zero
+data_converter.u_data_converter_sva.ap_mapping
+
+COVER PROPERTIES:
+data_converter.u_data_converter_sva.ap_reset_zero:precondition1
+data_converter.u_data_converter_sva.cp_reset_deassert
+data_converter.u_data_converter_sva.cp_branch_sel0
+data_converter.u_data_converter_sva.cp_branch_sel1
+data_converter.u_data_converter_sva.cp_sel_toggle

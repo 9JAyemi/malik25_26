@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+d_ff_set.dff_set_sva_i.a_load
+d_ff_set.dff_set_sva_i.a_hold
+d_ff_set.dff_set_sva_i.a_change_requires_enable
+d_ff_set.dff_set_sva_i.a_ignore_d_when_disabled
+d_ff_set.dff_set_sva_i.a_no_glitch_negedge
+
+COVER PROPERTIES:
+d_ff_set.dff_set_sva_i.a_load:precondition1
+d_ff_set.dff_set_sva_i.a_hold:precondition1
+d_ff_set.dff_set_sva_i.a_change_requires_enable:precondition1
+d_ff_set.dff_set_sva_i.a_ignore_d_when_disabled:precondition1
+d_ff_set.dff_set_sva_i.c_load
+d_ff_set.dff_set_sva_i.c_hold
+d_ff_set.dff_set_sva_i.c_back_to_back_loads
+d_ff_set.dff_set_sva_i.c_q_change
+d_ff_set.dff_set_sva_i.c_en_rise
+d_ff_set.dff_set_sva_i.c_en_fall

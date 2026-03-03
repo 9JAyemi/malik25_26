@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+iddr.iddr_sva_i.a_q1_prev_posedge
+iddr.iddr_sva_i.a_q2_last_negedge
+iddr.iddr_sva_i.a_no_change_on_negedge
+iddr.iddr_sva_i.a_no_x_after_init
+
+COVER PROPERTIES:
+iddr.iddr_sva_i.a_q1_prev_posedge:precondition1
+iddr.iddr_sva_i.a_q2_last_negedge:precondition1
+iddr.iddr_sva_i.a_no_x_after_init:precondition1
+iddr.iddr_sva_i.c_posedge_path
+iddr.iddr_sva_i.c_negedge_path

@@ -1,0 +1,28 @@
+ASSERT PROPERTIES:
+i2s_tx.i2s_tx_sva_i._assert_2
+i2s_tx.i2s_tx_sva_i.a_sck_toggle
+i2s_tx.i2s_tx_sva_i.a_ready_when_idle
+i2s_tx.i2s_tx_sva_i.a_ready_hold_low
+i2s_tx.i2s_tx_sva_i.a_capture
+i2s_tx.i2s_tx_sva_i.a_data_only_on_hs
+i2s_tx.i2s_tx_sva_i.a_bitcount_bound
+i2s_tx.i2s_tx_sva_i.a_ws_only_on_wrap
+i2s_tx.i2s_tx_sva_i.a_step_midword
+i2s_tx.i2s_tx_sva_i.a_wrap_endword
+i2s_tx.i2s_tx_sva_i.a_channel_domain
+i2s_tx.i2s_tx_sva_i.a_progress
+
+COVER PROPERTIES:
+i2s_tx.i2s_tx_sva_i._assert_2:precondition1
+i2s_tx.i2s_tx_sva_i.a_ready_when_idle:precondition1
+i2s_tx.i2s_tx_sva_i.a_ready_hold_low:precondition1
+i2s_tx.i2s_tx_sva_i.a_capture:precondition1
+i2s_tx.i2s_tx_sva_i.a_data_only_on_hs:precondition1
+i2s_tx.i2s_tx_sva_i.a_ws_only_on_wrap:precondition1
+i2s_tx.i2s_tx_sva_i.a_step_midword:precondition1
+i2s_tx.i2s_tx_sva_i.a_wrap_endword:precondition1
+i2s_tx.i2s_tx_sva_i.a_progress:precondition1
+i2s_tx.i2s_tx_sva_i.c_handshake
+i2s_tx.i2s_tx_sva_i.c_ws_toggle
+i2s_tx.i2s_tx_sva_i.c_wrap_L
+i2s_tx.i2s_tx_sva_i.c_wrap_R

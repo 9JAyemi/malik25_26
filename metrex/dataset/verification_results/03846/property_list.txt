@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.counter_sva_i.a_reset_to_zero_next
+counter.counter_sva_i.a_reset_holds_zero
+counter.counter_sva_i.a_increment_mod16
+counter.counter_sva_i.a_wrap
+
+COVER PROPERTIES:
+counter.counter_sva_i.a_reset_to_zero_next:precondition1
+counter.counter_sva_i.a_reset_holds_zero:precondition1
+counter.counter_sva_i.a_wrap:precondition1
+counter.counter_sva_i.c_seen_reset
+counter.counter_sva_i.c_wrap
+counter.counter_sva_i.c_full_cycle

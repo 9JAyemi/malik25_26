@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+counter_3bit.u_counter_3bit_sva.a_no_x
+counter_3bit.u_counter_3bit_sva.a_reset_clears_next
+counter_3bit.u_counter_3bit_sva.a_hold_zero_in_reset
+counter_3bit.u_counter_3bit_sva.a_deassert_starts_at_1
+counter_3bit.u_counter_3bit_sva.a_inc_each_cycle
+counter_3bit.u_counter_3bit_sva.a_wrap_7_to_0
+
+COVER PROPERTIES:
+counter_3bit.u_counter_3bit_sva.a_reset_clears_next:precondition1
+counter_3bit.u_counter_3bit_sva.a_hold_zero_in_reset:precondition1
+counter_3bit.u_counter_3bit_sva.a_deassert_starts_at_1:precondition1
+counter_3bit.u_counter_3bit_sva.a_inc_each_cycle:precondition1
+counter_3bit.u_counter_3bit_sva.a_wrap_7_to_0:precondition1
+counter_3bit.u_counter_3bit_sva.c_after_deassert_counts
+counter_3bit.u_counter_3bit_sva.c_wrap

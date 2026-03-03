@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+pipeline_register.sva_i.a_passthrough
+pipeline_register.sva_i.a_hold
+pipeline_register.sva_i.a_shift_o2_o1
+pipeline_register.sva_i.a_o1_din_1
+pipeline_register.sva_i.a_o2_din_2
+
+COVER PROPERTIES:
+pipeline_register.sva_i.a_hold:precondition1
+pipeline_register.sva_i.a_shift_o2_o1:precondition1
+pipeline_register.sva_i.a_o1_din_1:precondition1
+pipeline_register.sva_i.a_o2_din_2:precondition1
+pipeline_register.sva_i.c_hold3
+pipeline_register.sva_i.c_burst3
+pipeline_register.sva_i.c_o1_flow
+pipeline_register.sva_i.c_o2_flow

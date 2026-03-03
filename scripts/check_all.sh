@@ -11,6 +11,10 @@ set -euo pipefail
 #   syntax  – compile/syntax check only     (uses jasper_syntax_check.tcl)
 #   verif   – full assertion verification    (uses jasper_verif_check.tcl)
 #
+# Results are placed under <dataset_dir>/../ (the "dataset" folder):
+#   metrex/dataset/syntax_results/
+#   metrex/dataset/verification_results/
+#
 # Examples:
 #   ./scripts/check_all.sh syntax metrex/dataset/version_1
 #   ./scripts/check_all.sh verif  veri_thoughts/dataset/version_1
@@ -54,6 +58,9 @@ mkdir -p "$TMPDIR"
 trap 'rm -rf "$TMPDIR"' EXIT
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-4}"
 
+# Results go under the parent of the version dir (i.e., dataset/)
+RESULTS_BASE="$(cd "$DATASET_DIR/.." && pwd)"
+
 cd "$DATASET_DIR"
 
 # ── Failure reason extractor (verif mode) ────────────────────
@@ -90,8 +97,8 @@ extract_reason() {
 #  SYNTAX MODE
 # ============================================================
 run_syntax() {
-  mkdir -p syntax_results
-  local SUMMARY_CSV="syntax_results/summary.csv"
+  mkdir -p "$RESULTS_BASE/syntax_results"
+  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/summary.csv"
   echo "id,status" > "$SUMMARY_CSV"
 
   echo "=============================="
@@ -110,7 +117,7 @@ run_syntax() {
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
       echo "🔍 Checking $id ..."
-      local out_dir="syntax_results/$id"
+      local out_dir="$RESULTS_BASE/syntax_results/$id"
       mkdir -p "$out_dir"
 
       JG_DIR="$dir" \
@@ -140,10 +147,10 @@ run_syntax() {
 #  VERIF MODE
 # ============================================================
 run_verif() {
-  mkdir -p verification_results
+  mkdir -p "$RESULTS_BASE/verification_results"
 
-  local SUMMARY_CSV="verification_results/summary.csv"
-  local VERIF_CSV="verification_results/verif_summary.csv"
+  local SUMMARY_CSV="$RESULTS_BASE/verification_results/summary.csv"
+  local VERIF_CSV="$RESULTS_BASE/verification_results/verif_summary.csv"
 
   echo "id,status" > "$SUMMARY_CSV"
   echo "id,status,reason" > "$VERIF_CSV"
@@ -163,7 +170,7 @@ run_verif() {
     local sva_file="${dir%/}/sva.sv"
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
-      local out_dir="verification_results/$id"
+      local out_dir="$RESULTS_BASE/verification_results/$id"
       mkdir -p "$out_dir"
       local done_marker="$out_dir/DONE"
       local proj_dir="$out_dir/jgproject"

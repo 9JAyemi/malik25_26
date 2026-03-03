@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+MULT18X18S.sva_inst.a_ctrl_no_x
+MULT18X18S.sva_inst.a_inputs_no_x_when_ce
+MULT18X18S.sva_inst.a_sync_reset
+MULT18X18S.sva_inst.a_ce_update
+MULT18X18S.sva_inst.a_hold_no_ce
+MULT18X18S.sva_inst.a_sign_check
+MULT18X18S.sva_inst.a_p_known_after_update
+
+COVER PROPERTIES:
+MULT18X18S.sva_inst.a_inputs_no_x_when_ce:precondition1
+MULT18X18S.sva_inst.a_sync_reset:precondition1
+MULT18X18S.sva_inst.a_ce_update:precondition1
+MULT18X18S.sva_inst.a_hold_no_ce:precondition1
+MULT18X18S.sva_inst.a_sign_check:precondition1
+MULT18X18S.sva_inst.a_p_known_after_update:precondition1
+MULT18X18S.sva_inst.c_reset
+MULT18X18S.sva_inst.c_ce_mul
+MULT18X18S.sva_inst.c_hold
+MULT18X18S.sva_inst.c_back_to_back_ce

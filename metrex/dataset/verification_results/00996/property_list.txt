@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+clk_generator.sva_i.a_no_x_inputs
+clk_generator.sva_i.a_no_posedge_updates_clk0
+clk_generator.sva_i.a_no_posedge_updates_nd
+clk_generator.sva_i.a_compare_well_defined
+clk_generator.sva_i.a_disable_behavior
+clk_generator.sva_i.a_hold_when_not_due
+clk_generator.sva_i.a_toggle_when_due
+clk_generator.sva_i.a_ndcount_change_legal
+clk_generator.sva_i.a_clk0_change_legal
+
+COVER PROPERTIES:
+clk_generator.sva_i.a_compare_well_defined:precondition1
+clk_generator.sva_i.a_disable_behavior:precondition1
+clk_generator.sva_i.a_hold_when_not_due:precondition1
+clk_generator.sva_i.a_toggle_when_due:precondition1
+clk_generator.sva_i.a_ndcount_change_legal:precondition1
+clk_generator.sva_i.a_clk0_change_legal:precondition1
+clk_generator.sva_i.c_disable_branch
+clk_generator.sva_i.c_hold_branch
+clk_generator.sva_i.c_toggle_branch
+clk_generator.sva_i.c_two_toggles_en

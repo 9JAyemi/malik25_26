@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+clock_gate.u_clock_gate_sva.a_enclk_val
+clock_gate.u_clock_gate_sva.a_enclk_rise_cause
+clock_gate.u_clock_gate_sva.a_enclk_fall_cause
+clock_gate.u_clock_gate_sva.a_enclk_rises_only_at_clk
+clock_gate.u_clock_gate_sva.a_enclk_falls_only_at_clk
+clock_gate.u_clock_gate_sva.a_y_capture_on_enclk
+clock_gate.u_clock_gate_sva.a_y_changes_only_on_enclk
+
+COVER PROPERTIES:
+clock_gate.u_clock_gate_sva.a_enclk_rise_cause:precondition1
+clock_gate.u_clock_gate_sva.a_enclk_fall_cause:precondition1
+clock_gate.u_clock_gate_sva.a_y_changes_only_on_enclk:precondition1
+clock_gate.u_clock_gate_sva.c_en_path
+clock_gate.u_clock_gate_sva.c_te_path
+clock_gate.u_clock_gate_sva.c_gate_off
+clock_gate.u_clock_gate_sva.c_enclk_fall
+clock_gate.u_clock_gate_sva.c_y_cap

@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+arithmetic_op.sva_inst.a_inputs_known
+arithmetic_op.sva_inst.a_result_known
+arithmetic_op.sva_inst.a_add
+arithmetic_op.sva_inst.a_sub
+arithmetic_op.sva_inst.a_and
+arithmetic_op.sva_inst.a_or
+arithmetic_op.sva_inst.a_hold_when_inputs_stable
+
+COVER PROPERTIES:
+arithmetic_op.sva_inst.a_add:precondition1
+arithmetic_op.sva_inst.a_sub:precondition1
+arithmetic_op.sva_inst.a_and:precondition1
+arithmetic_op.sva_inst.a_or:precondition1
+arithmetic_op.sva_inst.a_hold_when_inputs_stable:precondition1
+arithmetic_op.sva_inst.c_add_req
+arithmetic_op.sva_inst.c_sub_req
+arithmetic_op.sva_inst.c_and_req
+arithmetic_op.sva_inst.c_or_req
+arithmetic_op.sva_inst.c_add_overflow
+arithmetic_op.sva_inst.c_sub_underflow
+arithmetic_op.sva_inst.c_and_zero
+arithmetic_op.sva_inst.c_or_allones

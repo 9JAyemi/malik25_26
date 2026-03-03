@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+four_bit_counter.sva.a_ctrl_known
+four_bit_counter.sva.a_count_known
+four_bit_counter.sva.a_rst_zero
+four_bit_counter.sva.a_hold_when_dis
+four_bit_counter.sva.a_inc_when_en
+four_bit_counter.sva.a_change_has_cause
+
+COVER PROPERTIES:
+four_bit_counter.sva.a_count_known:precondition1
+four_bit_counter.sva.a_rst_zero:precondition1
+four_bit_counter.sva.a_hold_when_dis:precondition1
+four_bit_counter.sva.a_inc_when_en:precondition1
+four_bit_counter.sva.a_change_has_cause:precondition1
+four_bit_counter.sva.c_reset_effect
+four_bit_counter.sva.c_hold
+four_bit_counter.sva.c_inc
+four_bit_counter.sva.c_wrap

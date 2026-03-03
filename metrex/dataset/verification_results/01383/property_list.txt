@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+calculator.u_calculator_sva.ap_no_x_on_op
+calculator.u_calculator_sva.ap_no_div0
+calculator.u_calculator_sva.ap_add
+calculator.u_calculator_sva.ap_sub
+calculator.u_calculator_sva.ap_mul
+calculator.u_calculator_sva.ap_div
+calculator.u_calculator_sva.ap_default_on_xop
+calculator.u_calculator_sva.ap_no_x_result
+
+COVER PROPERTIES:
+calculator.u_calculator_sva.ap_add:precondition1
+calculator.u_calculator_sva.ap_sub:precondition1
+calculator.u_calculator_sva.ap_mul:precondition1
+calculator.u_calculator_sva.ap_div:precondition1
+calculator.u_calculator_sva.ap_default_on_xop:precondition1
+calculator.u_calculator_sva.ap_no_x_result:precondition1
+calculator.u_calculator_sva.cover_add
+calculator.u_calculator_sva.cover_sub
+calculator.u_calculator_sva.cover_mul
+calculator.u_calculator_sva.cover_div
+calculator.u_calculator_sva.cover_add_overflow
+calculator.u_calculator_sva.cover_sub_underflow
+calculator.u_calculator_sva.cover_mul_overflow
+calculator.u_calculator_sva.cover_div0_attempt

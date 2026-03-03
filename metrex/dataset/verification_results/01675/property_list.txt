@@ -1,0 +1,34 @@
+ASSERT PROPERTIES:
+add_sub_and.mux.mux2to1_sva_i.a_mux_ok
+add_sub_and.mux.mux2to1_sva_i.a_no_spurious
+add_sub_and.adder.adder8_sva_i.a_addsub_ok
+add_sub_and.adder.adder8_sva_i.a_no_spurious
+add_sub_and.and_gate.and8_sva_i.a_and_ok
+add_sub_and.and_gate.and8_sva_i.a_no_spurious
+add_sub_and.add_sub_and_sva_i.a_no_x
+add_sub_and.add_sub_and_sva_i.a_and_ok
+add_sub_and.add_sub_and_sva_i.a_add_ok
+add_sub_and.add_sub_and_sva_i.a_no_spurious
+
+COVER PROPERTIES:
+add_sub_and.mux.mux2to1_sva_i.a_no_spurious:precondition1
+add_sub_and.mux.mux2to1_sva_i.c_sel0
+add_sub_and.mux.mux2to1_sva_i.c_sel1
+add_sub_and.mux.mux2to1_sva_i.c_sel_rise
+add_sub_and.mux.mux2to1_sva_i.c_sel_fall
+add_sub_and.adder.adder8_sva_i.a_no_spurious:precondition1
+add_sub_and.adder.adder8_sva_i.c_add_mode
+add_sub_and.adder.adder8_sva_i.c_sub_mode
+add_sub_and.adder.adder8_sva_i.c_add_overflow
+add_sub_and.adder.adder8_sva_i.c_sub_borrow
+add_sub_and.and_gate.and8_sva_i.a_no_spurious:precondition1
+add_sub_and.and_gate.and8_sva_i.c_zero
+add_sub_and.and_gate.and8_sva_i.c_all_ones
+add_sub_and.add_sub_and_sva_i.a_no_spurious:precondition1
+add_sub_and.add_sub_and_sva_i.c_ctrl0
+add_sub_and.add_sub_and_sva_i.c_ctrl1_zero
+add_sub_and.add_sub_and_sva_i.c_add_overflow
+add_sub_and.add_sub_and_sva_i.c_ctrl_rise
+add_sub_and.add_sub_and_sva_i.c_ctrl_fall
+add_sub_and.add_sub_and_sva_i.c_and_zero
+add_sub_and.add_sub_and_sva_i.c_and_ones

@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+d_ff_async_set_reset.sva_i.ap_complement
+d_ff_async_set_reset.sva_i.ap_rst
+d_ff_async_set_reset.sva_i.ap_set
+d_ff_async_set_reset.sva_i.ap_data
+d_ff_async_set_reset.sva_i.ap_both
+d_ff_async_set_reset.sva_i.ap_not_equal
+
+COVER PROPERTIES:
+d_ff_async_set_reset.sva_i.ap_rst:precondition1
+d_ff_async_set_reset.sva_i.ap_set:precondition1
+d_ff_async_set_reset.sva_i.ap_data:precondition1
+d_ff_async_set_reset.sva_i.ap_both:precondition1
+d_ff_async_set_reset.sva_i.cp_rst
+d_ff_async_set_reset.sva_i.cp_set
+d_ff_async_set_reset.sva_i.cp_both
+d_ff_async_set_reset.sva_i.cp_d0
+d_ff_async_set_reset.sva_i.cp_d1
+d_ff_async_set_reset.sva_i.cp_q_rise
+d_ff_async_set_reset.sva_i.cp_q_fall
+d_ff_async_set_reset.sva_i.cp_modes

@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+clock_gen.u_clock_gen_sva.a_c0_decode
+clock_gen.u_clock_gen_sva.a_c1_decode
+clock_gen.u_clock_gen_sva.a_onehot0
+clock_gen.u_clock_gen_sva.a_idle_10
+clock_gen.u_clock_gen_sva.a_known_out
+clock_gen.u_clock_gen_sva.a_next_00
+clock_gen.u_clock_gen_sva.a_next_01
+clock_gen.u_clock_gen_sva.a_next_10
+clock_gen.u_clock_gen_sva.a_from_11
+clock_gen.u_clock_gen_sva.a_c0_pulse
+clock_gen.u_clock_gen_sva.a_c1_pulse
+
+COVER PROPERTIES:
+clock_gen.u_clock_gen_sva.a_idle_10:precondition1
+clock_gen.u_clock_gen_sva.a_next_00:precondition1
+clock_gen.u_clock_gen_sva.a_next_01:precondition1
+clock_gen.u_clock_gen_sva.a_next_10:precondition1
+clock_gen.u_clock_gen_sva.a_from_11:precondition1
+clock_gen.u_clock_gen_sva.a_c0_pulse:precondition1
+clock_gen.u_clock_gen_sva.a_c1_pulse:precondition1
+clock_gen.u_clock_gen_sva.c_cycle
+clock_gen.u_clock_gen_sva.c_c0_wave
+clock_gen.u_clock_gen_sva.c_c1_wave
+clock_gen.u_clock_gen_sva.c_recover
