@@ -1,0 +1,27 @@
+{
+  "id": "00517",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.459756",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4e79fc8190828d8033f9e31ffb",
+  "custom_id": "shift_register_645b2f85",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `shift_register`. This module should implement a 4-bit serial-in, parallel-out shift register.\n\nThe module should have the following interface:\n- Input `serial_in`: A single bit representing the data to be shifted into the register.\n- Input `shift`: A single bit control signal. The shifting operation should occur on the positive edge of this signal.\n- Output `parallel_out`: A 4-bit register holding the current contents of the shift register.\n\nOn each positive edge of the `shift` signal, the value of `serial_in` should be shifted into the least significant bit (LSB) of the `parallel_out` register, and the existing bits in `parallel_out` should be shifted one position towards the most significant bit (MSB). The most significant bit is discarded.\n\nProvide the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "1ed2ac",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

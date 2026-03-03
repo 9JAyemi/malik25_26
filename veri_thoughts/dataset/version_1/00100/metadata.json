@@ -1,0 +1,27 @@
+{
+  "id": "00100",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.806862",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df7b27c819094a127cd1f699c7b",
+  "custom_id": "multiplexer_system_38b0a16f",
+  "module_name": "multiplexer_system",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `multiplexer_system`.\n\nThe module should have the following interface:\n```verilog\nmodule multiplexer_system (\n    input [2:0] sel,\n    input [3:0] data0,\n    input [3:0] data1,\n    input [3:0] data2,\n    input [3:0] data3,\n    input [3:0] data4,\n    input [3:0] data5,\n    output reg [3:0] out\n);\n```\n\nImplement the following logic for the output `out`:\n*   If the input `sel` has a value between 0 (3'b000) and 5 (3'b101) inclusive, the output `out` should be the corresponding 4-bit data input (e.g., `data0` when `sel` is 0, `data1` when `sel` is 1, ..., `data5` when `sel` is 5).\n*   If the input `sel` has a value of 6 (3'b110) or 7 (3'b111), the output `out` should be a 4-bit value where the least significant bit (`out[0]`) is the result of performing a reduction AND operation on the concatenation of the two least significant bits (`[1:0]`) from *all* six data inputs (`data0[1:0]`, `data1[1:0]`, `data2[1:0]`, `data3[1:0]`, `data4[1:0]`, and `data5[1:0]`). The upper three bits of the output (`out[3:1]`) should be zero in this case.\n*   For any other value of `sel`, the output should default to 4'b0.\n",
+  "original_verified": true,
+  "prompt_hash": "9d1d3a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

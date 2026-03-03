@@ -1,0 +1,27 @@
+{
+  "id": "00440",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.843810",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ebe9cb081908e94107b039cfa71",
+  "custom_id": "mux4to1_536e986e",
+  "module_name": "mux4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `mux4to1`.\nThe module should have the following ports:\nInputs: `in0`, `in1`, `in2`, `in3`, `sel0`, `sel1` (all single-bit).\nOutput: `out` (single-bit).\nInouts: `VPWR`, `VGND`, `VPB`, `VNB` (all single-bit).\n\nThe module should implement a 4-to-1 multiplexer. The selection of the input is determined by the 2-bit value formed by concatenating `sel1` (MSB) and `sel0` (LSB).\nSpecifically, the output `out` should be equal to:\n- `in0` when `{sel1, sel0}` is binary 11\n- `in1` when `{sel1, sel0}` is binary 10\n- `in2` when `{sel1, sel0}` is binary 01\n- `in3` when `{sel1, sel0}` is binary 00\n\nYour implementation should reflect this specific selection mapping.\n",
+  "original_verified": true,
+  "prompt_hash": "87bcdf",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

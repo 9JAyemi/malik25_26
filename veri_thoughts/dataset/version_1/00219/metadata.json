@@ -1,0 +1,27 @@
+{
+  "id": "00219",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.797236",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0b2d408190ae3c4a9b4a65fd60",
+  "custom_id": "RegisterAdd_4_0c8cf043",
+  "module_name": "RegisterAdd_4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `RegisterAdd_4`.\n\nThis module should implement a 4-bit accumulator register with the following interface:\n*   Inputs:\n    *   `CLK`: Clock signal.\n    *   `RST`: Synchronous reset signal.\n    *   `D`: A 4-bit data input.\n*   Output:\n    *   `Q_reg`: A 4-bit registered output.\n\nThe module should operate on the positive edge of the `CLK`. When the `RST` input is high, the `Q_reg` output should be reset to 4'b0000. When `RST` is low, the value of `D` should be added to the current value of `Q_reg`, and the result should be stored in `Q_reg` on the next positive clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "45ac73",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

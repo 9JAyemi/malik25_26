@@ -1,0 +1,27 @@
+{
+  "id": "00348",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.942650",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4fa8608190b2bcb85f8db75e9c",
+  "custom_id": "sum_2_msb_97e62d3a",
+  "module_name": "sum_2_msb",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `sum_2_msb`. This module takes a 4-bit input `in_4` and produces a 2-bit output `out_2`. The functionality of the module is as follows: If either of the two most significant bits of `in_4` (bits 3 and 2) is high (1), the output `out_2` should be `2'b11`. Otherwise (if both bits 3 and 2 are low), the output `out_2` should be `2'b00`.\n",
+  "original_verified": true,
+  "prompt_hash": "16935e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

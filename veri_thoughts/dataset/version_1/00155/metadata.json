@@ -1,0 +1,27 @@
+{
+  "id": "00155",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.556324",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df6aa74819094d0572dcd371422",
+  "custom_id": "trigger_control_db05eca7",
+  "module_name": "trigger_control",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `trigger_control`.\n\nThe module should have the following inputs:\n*   `clk`\n*   `sync`\n*   `reset`\n*   `sel_async`\n*   `sel_sync`\n*   `sel_single`\n*   `sel_gen`\n*   `sel_pg`\n*   `sel_dir_async`\n*   `sel_dir_sync`\n*   `sel_dir_single`\n*   `sel_dir_gen`\n*   `sel_dir_pg`\n*   `sel_chain`\n*   `sel_sync_out`\n*   `src_async` (5 bits wide)\n*   `src_async_pos` (4 bits wide)\n*   `src_sync` (5 bits wide)\n*   `src_sync_direct`\n*   `src_single` (5 bits wide)\n*   `src_gen` (5 bits wide)\n*   `src_pg` (5 bits wide)\n\nThe module should have the following outputs:\n*   `dst_tbm` (5 bits wide)\n*   `dst_tbm_pos` (4 bits wide)\n*   `dst_sync` (5 bits wide)\n*   `dst_sync_direct`\n*   `dst_dir` (5 bits wide)\n\nDefine the following local parameters, although they may not be directly used in the combinational logic:\n*   `SYN = 0`\n*   `TRG = 1`\n*   `RSR = 2`\n*   `RST = 3`\n*   `CAL = 4`\n\nThe module's combinational logic should implement the following behavior:\n\n1.  The `dst_tbm` output should be the bitwise OR combination of the 5-bit source inputs (`src_async`, `src_sync`, `src_single`, `src_gen`, `src_pg`). Each source input should only contribute to the OR if its corresponding `sel_` input (`sel_async`, `sel_sync`, `sel_single`, `sel_gen`, `sel_pg`) is high.\n\n2.  The `dst_sync_direct` output should be high only when both the `sel_chain` input and the `src_sync_direct` input are high.\n\n3.  The `dst_sync` output should carry the same 5-bit value as the signal that drives `dst_tbm`, but only when the `sel_sync_out` input is high AND the `sel_chain` input is low. Otherwise, `dst_sync` should be all zeros.\n\n4.  The `dst_tbm_pos` output should be assigned the value of the `src_async_pos` input, but only when the `src_async` input is selected (via `sel_async`) AND the second bit (index 1) of the *selected* `src_async` signal is high. Otherwise, `dst_tbm_pos` should be all zeros.\n\n5.  The `dst_dir` output should be the bitwise OR combination of the same 5-bit source inputs (`src_async`, `src_sync`, `src_single`, `src_gen`, `src_pg`). However, this combination uses a separate set of selection inputs (`sel_dir_async`, `sel_dir_sync`, `sel_dir_single`, `sel_dir_gen`, `sel_dir_pg`) to determine which source inputs contribute to the OR.\n\nImplement this functionality using continuous assignments (`assign`).\n\n",
+  "original_verified": true,
+  "prompt_hash": "ce76ea",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

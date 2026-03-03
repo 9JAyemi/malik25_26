@@ -1,0 +1,27 @@
+{
+  "id": "00260",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.892912",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e28f71081909e13ecb96b74c047",
+  "custom_id": "system_auto_cc_0_wr_status_flags_as_16_0f134190",
+  "module_name": "system_auto_cc_0_wr_status_flags_as_16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `system_auto_cc_0_wr_status_flags_as_16` with the following interface:\n\nInputs:\n- `gic0_gc0_count_d1_reg_3` (1-bit)\n- `s_aclk` (1-bit)\n- `out` (1-bit)\n- `s_axi_wvalid` (1-bit)\n- `Q` (1-bit)\n- `gnxpm_cdc_rd_pntr_bin_reg_3` (1-bit)\n\nOutputs:\n- `ram_full_fb_i_reg_0` (1-bit)\n- `E` (1-bit)\n- `s_axi_wready` (1-bit)\n\nThe module should implement the following logic:\n\n1.  A single-bit register, clocked by `s_aclk`, is used internally. This register should be initialized to 0. On the positive edge of `s_aclk`, the register updates: if the input `out` is high, it loads the value 1; otherwise (if `out` is low), it loads the value of `gic0_gc0_count_d1_reg_3`.\n2.  The output `E` should be high if and only if the input `s_axi_wvalid` is high AND the current value of the internal register is high.\n3.  The output `ram_full_fb_i_reg_0` should be high if and only if the current value of the internal register, the input `s_axi_wvalid`, the input `Q`, and the input `gnxpm_cdc_rd_pntr_bin_reg_3` are all high.\n4.  The output `s_axi_wready` should always be high, indicating that the system is always ready for a write operation in this context.\n\nYour code should match the specified module name and interface exactly.\n",
+  "original_verified": true,
+  "prompt_hash": "e11894",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

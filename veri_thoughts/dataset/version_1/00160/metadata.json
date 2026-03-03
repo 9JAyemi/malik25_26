@@ -1,0 +1,27 @@
+{
+  "id": "00160",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.584643",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df798c881908b95caf0a96392e6",
+  "custom_id": "reg_module_5933a3a5",
+  "module_name": "reg_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `reg_module`. This module should implement an 8-bit register with the following interface:\n\nInputs:\n- `clk`: Clock signal.\n- `reset`: Synchronous reset signal.\n- `wenb`: Write enable signal.\n- `in_data`: 8-bit input data.\n\nOutput:\n- `reg_out`: 8-bit output register.\n\nThe module should behave as follows:\nOn the positive edge of the clock:\n- If the `reset` signal is high, the output `reg_out` should be cleared to 0.\n- Otherwise, if the `wenb` signal is high, the output `reg_out` should be updated with the value of `in_data`.\n- Otherwise, the output `reg_out` should retain its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "19d640",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

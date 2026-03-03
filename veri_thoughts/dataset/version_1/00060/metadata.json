@@ -1,0 +1,27 @@
+{
+  "id": "00060",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.737567",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df0b2c88190b28bfe48481e030b",
+  "custom_id": "select_logic_3e7f0f34",
+  "module_name": "select_logic",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `select_logic`. This module should implement an 8-to-1 multiplexer.\n\nThe module interface should be:\n*   Inputs: `i1`, `i2`, `i3`, `i4`, `i5`, `i6`, `i7`, `i8` (the data inputs)\n*   Inputs: `s1`, `s2`, `s3` (the select inputs)\n*   Output: `a1` (the selected output)\n\nThe select inputs `s1`, `s2`, and `s3` form a 3-bit binary select code, where `s1` is the most significant bit and `s3` is the least significant bit. The output `a1` should be the data input corresponding to the value of the select code. For example, if `s1s2s3` is binary 000, `a1` should be `i1`; if `s1s2s3` is 001, `a1` should be `i2`; and so on, up to `s1s2s3` being 111 selecting `i8`.\n\nImplement this logic using only continuous assignment statements (`assign`).\n",
+  "original_verified": true,
+  "prompt_hash": "eec259",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

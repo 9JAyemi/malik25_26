@@ -1,0 +1,27 @@
+{
+  "id": "00452",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.215646",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3da3888190bc015634dbd991fa",
+  "custom_id": "TLATNTSCAX2TS_c675118d",
+  "module_name": "TLATNTSCAX2TS",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `TLATNTSCAX2TS`. This module has three single-bit inputs: `E`, `SE`, and `CK`. It has one single-bit output: `ECK`. The module should implement the following logic: the output `ECK` should be equal to the input `CK` only when both inputs `E` and `SE` are logically high. In all other cases (i.e., if `E` is low, or `SE` is low, or both are low), the output `ECK` should be forced to a logical low value.\n",
+  "original_verified": true,
+  "prompt_hash": "4570b8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

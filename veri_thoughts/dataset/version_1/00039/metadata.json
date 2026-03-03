@@ -1,0 +1,27 @@
+{
+  "id": "00039",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.691707",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de938308190b801d1471019cc20",
+  "custom_id": "Deco_Round_Mult_473f5919",
+  "module_name": "Deco_Round_Mult",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `Deco_Round_Mult` with the following interface:\ninput wire [1:0] round_mode,\ninput wire or_info,\ninput wire xor_info,\noutput reg ctrl\n\nThe output `ctrl` should be set to `1'b1` only under the following specific conditions:\n1.  The input `xor_info` is high (`1'b1`), the input `or_info` is high (`1'b1`), and the `round_mode` input is `2'b01`.\n2.  The input `xor_info` is low (`1'b0`), the input `or_info` is high (`1'b1`), and the `round_mode` input is `2'b10`.\n\nIn all other scenarios, the output `ctrl` should be set to `1'b0`.\n",
+  "original_verified": true,
+  "prompt_hash": "2410ab",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00500",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.398090",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e48a1208190b56697b305a7e9db",
+  "custom_id": "fsm_3bit_pattern_detection_a98136b3",
+  "module_name": "fsm_3bit_pattern_detection",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a synchronous Verilog module named `fsm_3bit_pattern_detection`.\nThe module should have the following interface:\nInputs:\n- `clk`: Clock signal.\n- `reset`: Asynchronous reset signal (active high).\n- `data`: A 6-bit input bus.\nOutput:\n- `match`: A 1-bit output register.\n\nThe module should implement a finite state machine (FSM) to detect a specific sequence of three 3-bit patterns from the lower bits of the `data` input.\nThe required sequence is: `001` followed by `010` followed by `100`.\nThe FSM should track the progress of detecting this sequence.\n- When the FSM is in the initial state, it looks for the first pattern (`001`) in the lower 3 bits of `data`.\n- If the first pattern is detected, it transitions to a state where it looks for the second pattern (`010`) in the lower 3 bits of `data`.\n- If the second pattern is detected immediately after the first, it transitions to a state where it looks for the third pattern (`100`) in the lower 3 bits of `data`.\n- If the third pattern is detected immediately after the second, the `match` output should be asserted (`1`) for one clock cycle when the FSM enters the final detection state.\n- If, at any point, the expected pattern is not detected while waiting for it, the FSM should return to the initial state to restart the sequence detection.\n- After successfully detecting the full sequence and asserting `match`, the FSM should return to the initial state in the next clock cycle, ready to detect the next sequence.\n- The `reset` signal should asynchronously reset the FSM to its initial state and deassert the `match` output.\n",
+  "original_verified": true,
+  "prompt_hash": "a2224c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 17
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

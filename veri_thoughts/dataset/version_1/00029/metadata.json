@@ -1,0 +1,27 @@
+{
+  "id": "00029",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.672713",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de734888190a4c90bd2378a86c4",
+  "custom_id": "binary_counter_f8e1d5eb",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `binary_counter`.\n\nThis module should implement a 4-bit binary counter with the following interface:\nInputs: `clk`, `reset`, `enable`\nOutput: `q` (a 4-bit register)\n\nThe counter should behave as follows:\n1.  When the `reset` signal is high, the counter output `q` should asynchronously reset to 0.\n2.  On the positive edge of the `clk` signal, and only when `reset` is low:\n    *   If the `enable` signal is high, the counter output `q` should increment by 1.\n    *   If the `enable` signal is low, the counter output `q` should retain its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "13f5fa",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

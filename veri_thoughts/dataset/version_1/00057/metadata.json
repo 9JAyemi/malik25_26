@@ -1,0 +1,27 @@
+{
+  "id": "00057",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.728937",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65def11dc819081b170f78a01bde2",
+  "custom_id": "adder_4bit_92da2c97",
+  "module_name": "adder_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following modules:\n\n1.  A module named `full_adder` that implements the standard combinational logic for a single-bit full adder. It should have inputs `a`, `b`, and `cin`, and outputs `sum` and `cout`.\n2.  A module named `adder_4bit` that performs 4-bit binary addition. This module should be constructed by instantiating four instances of the `full_adder` module. It should have 4-bit inputs `A` and `B`, a single-bit input `reset` which functions as the carry-in to the least significant bit, and a 4-bit output `S` representing the sum. Ensure all inputs and outputs have the exact names and widths specified.\n",
+  "original_verified": true,
+  "prompt_hash": "078f6a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

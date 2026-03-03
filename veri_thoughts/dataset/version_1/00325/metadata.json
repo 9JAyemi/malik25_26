@@ -1,0 +1,27 @@
+{
+  "id": "00325",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.867533",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4307ac8190891e76f0d3d6c12a",
+  "custom_id": "up_counter_a1428a6c",
+  "module_name": "up_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `up_counter`. The module has the following interface: inputs `clk` and `reset`, and outputs `count` (a 4-bit register) and `out` (a single-bit register).\n\nThe module should operate based on the positive edge of the `clk` signal.\n\nWhen the `reset` signal is asserted (high), both the `count` should be set to 0 and the `out` signal should be set to 0.\n\nWhen the `reset` signal is deasserted (low), on the positive edge of the `clk`, the `count` should increment by one, and the `out` signal should toggle its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "563e27",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

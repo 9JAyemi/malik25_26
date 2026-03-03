@@ -1,0 +1,27 @@
+{
+  "id": "00178",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.634046",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfe15bc8190a7c88b573ca4f6e7",
+  "custom_id": "my_module_6097a23d",
+  "module_name": "my_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `my_module`. The module should have inputs `A`, `B`, `C`, `D` and a single output `out`. Implement the logic such that:\n- When input `D` is 0, the output `out` is the value of input `A` if input `B` is 1, and the value of input `C` if input `B` is 0.\n- When input `D` is 1, the output `out` is the logical inverse of the value that would be produced if `D` were 0 (i.e., `out` is `~A` if `B` is 1, and `~C` if `B` is 0).\n",
+  "original_verified": true,
+  "prompt_hash": "13a5de",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

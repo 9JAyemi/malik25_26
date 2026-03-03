@@ -1,0 +1,27 @@
+{
+  "id": "00096",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.800167",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df608fc8190a2ee2c2c061d5779",
+  "custom_id": "four_bit_adder_c933e9b3",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign two interconnected Verilog modules.\n\nFirst, design a Verilog module named `full_adder`. This module should perform binary addition of three single-bit inputs: `A`, `B`, and `C_in`. It should produce two single-bit outputs: `S` for the sum and `C_out` for the carry-out.\nThe module interface should be:\n`module full_adder(input A, input B, input C_in, output S, output C_out);`\n\nNext, design a Verilog module named `four_bit_adder`. This module should implement a 4-bit binary adder with a carry-in and a carry-out. It should take two 4-bit inputs, `A` and `B`, and a single-bit carry-in, `C_in`. It should produce a 4-bit sum output, `S`, and a single-bit carry-out, `C_out`. Your `four_bit_adder` module should be implemented by instantiating four instances of the `full_adder` module you designed previously, connecting them appropriately to form a ripple-carry adder.\nThe module interface should be:\n`module four_bit_adder(input [3:0] A, input [3:0] B, input C_in, output [3:0] S, output C_out);`\n",
+  "original_verified": true,
+  "prompt_hash": "eab764",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

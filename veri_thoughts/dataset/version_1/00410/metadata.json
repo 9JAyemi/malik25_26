@@ -1,0 +1,27 @@
+{
+  "id": "00410",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.742154",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e8d100481909a4181511b5fefc2",
+  "custom_id": "up_down_counter_2fcd67a4",
+  "module_name": "up_down_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `up_down_counter`.\nThis module should implement a 3-bit synchronous counter.\nThe counter operates based on the positive edge of the `clk` input.\nIt has a high-priority, synchronous load function controlled by the `load` input: when `load` is high at the clock edge, the output `out` should be set to 3'b000.\nWhen `load` is low, the counter's behavior is determined by the `up_down` input:\n- If `up_down` is high, the counter should increment.\n- If `up_down` is low, the counter should decrement.\nThe output `out` should be a 3-bit register.\n\nModule Interface:\nInputs: `clk`, `load`, `up_down`\nOutput: `out` [2:0]\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "0fcba7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

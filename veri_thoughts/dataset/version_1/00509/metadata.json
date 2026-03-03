@@ -1,0 +1,27 @@
+{
+  "id": "00509",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.428616",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4b65608190967e72dfc8e7e629",
+  "custom_id": "internal_bank_address_19736c75",
+  "module_name": "internal_bank_address",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `internal_bank_address`.\n\nThe module has the following interface:\nInputs:\n- `lio_buscfg_brstlen2_sr`: 1-bit\n- `lio_buscfg_brstlen4_sr`: 1-bit\n- `m_cdq_haddr_sr`: 8-bit\n\nOutput:\n- `ibnk_sel_s`: 4-bit\n\nThe module implements combinational logic to determine the 4-bit output `ibnk_sel_s` based on the input signals. The logic is controlled by a 2-bit value formed by concatenating `lio_buscfg_brstlen4_sr` (MSB) and `lio_buscfg_brstlen2_sr` (LSB).\n\n- If this 2-bit control value is `2'b01`, the output `ibnk_sel_s` should be assigned the value of the lower 2 bits of `m_cdq_haddr_sr`.\n- If this 2-bit control value is `2'b10` or any other value, the output `ibnk_sel_s` should be assigned the value of bits [2:1] of `m_cdq_haddr_sr`.\n\nThe 2-bit value selected from `m_cdq_haddr_sr` should be assigned to the lower bits of the 4-bit output `ibnk_sel_s`.\n",
+  "original_verified": true,
+  "prompt_hash": "48ff64",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

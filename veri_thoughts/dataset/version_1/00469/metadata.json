@@ -1,0 +1,27 @@
+{
+  "id": "00469",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.297423",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4000a88190a8f718831cfa8dd4",
+  "custom_id": "johnson_counter_17be2807",
+  "module_name": "johnson_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `johnson_counter`.\nThe module has the following interface:\n-   Input: `clk` (single bit)\n-   Output: `Q` (4-bit register, `output reg [3:0] Q`)\n\nInside the module, maintain a 4-bit internal state register. On the positive edge of the `clk` signal, this internal register should update by performing a circular left shift: the bit originally in position 3 moves to position 0, the bit in position 0 moves to position 1, the bit in position 1 moves to position 2, and the bit in position 2 moves to position 3.\n\nSimultaneously on the positive edge of `clk`, the output register `Q` should be updated. Specifically, the least significant bit of `Q` (`Q[0]`) should be set to the result of a bitwise XOR operation between the least significant bit and the most significant bit of the internal state register (using their values from *before* the shift takes effect). The upper bits of the output register `Q` (`Q[1]` through `Q[3]`) should retain their previous values (as they are not explicitly assigned in this clocked block).\n\nYour code should implement this exact behavior.\n",
+  "original_verified": true,
+  "prompt_hash": "06282f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00496",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.383390",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e461fd88190907e9e957ef5d975",
+  "custom_id": "nonblocking_gate_fd4b868c",
+  "module_name": "nonblocking_gate",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `nonblocking_gate`.\n\nThe module should have the following interface:\n-   `input clk`\n-   `input [4:0] ctrl`\n-   `input [1:0] din`\n-   `input [0:0] sel`\n-   `output reg [31:0] dout`\n\nThe module's behavior should be synchronous, operating on the positive edge of the `clk` signal.\n\nOn every positive clock edge, the 32-bit output register `dout` must be unconditionally incremented by 1 using a non-blocking assignment.\n\nAdditionally, on the same positive clock edge, a specific bit slice of `dout` must be updated with the value of `din`. This update should also use a non-blocking assignment. The specific slice is determined by the inputs `ctrl` and `sel`. Let `idx` be the integer value of the expression `(ctrl * sel)`. The slice to be updated is `dout[31:idx]`.\n\nYour code should implement this behavior, ensuring the increment and the conditional slice update both occur using non-blocking assignments on the same clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "6b179b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 2
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

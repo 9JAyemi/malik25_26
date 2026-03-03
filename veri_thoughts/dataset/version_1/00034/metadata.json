@@ -1,0 +1,27 @@
+{
+  "id": "00034",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.683122",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de7b5ec81908d4327cdaa5d46a4",
+  "custom_id": "karnaugh_map_0491f7ba",
+  "module_name": "karnaugh_map",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `karnaugh_map`. The module should have inputs `A`, `B`, `C`, and `D`, and a single output `F`. Implement the logic such that the output `F` is asserted (high) if and only if input `A` is deasserted (low) AND at least one of inputs `B` or `C` is asserted (high). Input `D` is provided as part of the interface but might not be required in the minimal logic implementation.\n",
+  "original_verified": true,
+  "prompt_hash": "def54d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00273",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.725331",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3cf3148190a18a7adba8acdf0b",
+  "custom_id": "eight_bit_adder_bf314cb4",
+  "module_name": "eight_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite two Verilog modules.\n\nFirst, write a module named `eight_bit_adder`. This module should have the following interface:\n*   Inputs: `a` (8 bits wide), `b` (8 bits wide), `carry_in` (1 bit wide)\n*   Outputs: `sum` (8 bits wide), `carry_out` (1 bit wide)\nThis module should perform the standard 8-bit binary addition of inputs `a`, `b`, and `carry_in`, producing the 8-bit result in `sum` and the final carry in `carry_out`.\n\nSecond, write a module named `sixteen_bit_adder`. This module should have the following interface:\n*   Inputs: `clk` (1 bit wide), `reset` (1 bit wide), `a` (16 bits wide), `b` (16 bits wide), `carry_in` (1 bit wide)\n*   Outputs: `sum` (16 bits wide), `carry_out` (1 bit wide)\nImplement the 16-bit binary addition functionality for this module by instantiating and connecting two instances of the `eight_bit_adder` module you just defined. The `clk` and `reset` inputs are part of the specified interface.\n",
+  "original_verified": true,
+  "prompt_hash": "675b84",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

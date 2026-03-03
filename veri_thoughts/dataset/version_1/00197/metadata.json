@@ -1,0 +1,27 @@
+{
+  "id": "00197",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.710398",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e07fb34819086ae02d38e20e4b7",
+  "custom_id": "nor2_9c51fe5f",
+  "module_name": "nor2",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign two Verilog modules according to the following specifications:\n\n1.  A module named `nor2` with inputs `a`, `b` and output `out`. This module should implement a standard 2-input NOR gate.\n2.  A module named `nor3` with inputs `a`, `b`, `c` and output `out`. This module should compute the logical function `(a OR b) AND (NOT c)`. It *must* instantiate the `nor2` module to help compute the logic involving inputs `a` and `b`.\n\nEnsure the input and output ports for each module have the exact names specified.\n",
+  "original_verified": true,
+  "prompt_hash": "375ba3",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

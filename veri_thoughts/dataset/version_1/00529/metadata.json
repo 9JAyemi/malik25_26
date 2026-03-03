@@ -1,0 +1,27 @@
+{
+  "id": "00529",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.497566",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e56a2fc8190a0d14613467a897b",
+  "custom_id": "sky130_fd_sc_lp__o221ai_56d3a405",
+  "module_name": "sky130_fd_sc_lp__o221ai",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_lp__o221ai`. The module should have inputs `A1`, `A2`, `B1`, `B2`, and `C1`, and an output `Y`. The output `Y` should be the result of performing a logical NAND operation on three terms: the logical OR of `A1` and `A2`, the logical OR of `B1` and `B2`, and `C1`.\n",
+  "original_verified": true,
+  "prompt_hash": "00ebeb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

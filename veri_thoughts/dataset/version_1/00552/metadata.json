@@ -1,0 +1,27 @@
+{
+  "id": "00552",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.586816",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6161bc81908346172719b64783",
+  "custom_id": "karnaugh_map_b8e7a3d9",
+  "module_name": "karnaugh_map",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a Verilog module named `karnaugh_map`.\nThe module should have the following interface:\n- Inputs: `wire A, B, C`\n- Output: `reg F`\n\nInside the module, define four intermediate wires. These wires should represent the logical AND of input `A` with each of the four possible combinations of `B` and `C`. For example, one wire should represent `A & B & C`, another `A & B & ~C`, and so on.\n\nUse an `always` block that is sensitive to changes in `A`, `B`, and `C`. Within this block, use a `case` statement based on the concatenated input `{A, B, C}` to assign a value to the output `F`. The assignment should select the value of one of the intermediate wires you defined, based on the following mapping:\n\n- When the input `{A, B, C}` is `3'b000`, assign `F` the value of the wire representing `A & ~B & ~C`.\n- When the input `{A, B, C}` is `3'b001`, assign `F` the value of the wire representing `A & ~B & C`.\n- When the input `{A, B, C}` is `3'b010`, assign `F` the value of the wire representing `A & B & ~C`.\n- When the input `{A, B, C}` is `3'b011`, assign `F` the value of the wire representing `A & B & C`.\n- For input values `3'b100` through `3'b111`, the mapping pattern should be the same as for `3'b000` through `3'b011` respectively.\n\nYou may name the intermediate wires as you see fit, but the module name and the input/output names must match the specification.\n",
+  "original_verified": true,
+  "prompt_hash": "6c121f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

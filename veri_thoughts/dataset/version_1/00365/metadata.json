@@ -1,0 +1,27 @@
+{
+  "id": "00365",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.978060",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f58466c81909704ba734f362bfe",
+  "custom_id": "up_down_counter_23d6609d",
+  "module_name": "up_down_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `up_down_counter`.\n\nThe module should have the following inputs:\n- `CLK`: Clock signal.\n- `UP`: Control signal for incrementing.\n- `DOWN`: Control signal for decrementing.\n- `LD`: Control signal for loading.\n- `DIN`: A 3-bit data input for loading.\n\nThe module should have the following output:\n- `Q`: A 3-bit registered output representing the counter value.\n\nThe counter should operate synchronously on the positive edge of the `CLK` signal.\nThe behavior should be determined by the control signals with the following priority:\n1.  If `LD` is asserted high, the counter `Q` should be loaded with the value from `DIN`.\n2.  Else if `UP` is asserted high, the counter `Q` should be incremented by 1.\n3.  Else if `DOWN` is asserted high, the counter `Q` should be decremented by 1.\nThe counter is 3 bits wide and should exhibit wrap-around behavior (e.g., incrementing from 3'b111 results in 3'b000, and decrementing from 3'b000 results in 3'b111).\n",
+  "original_verified": true,
+  "prompt_hash": "1b04ff",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 2
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

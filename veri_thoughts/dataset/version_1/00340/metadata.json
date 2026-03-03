@@ -1,0 +1,27 @@
+{
+  "id": "00340",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.912163",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4b39348190aacf8f656231233e",
+  "custom_id": "mux4_1_344ca2ac",
+  "module_name": "mux4_1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for a 4-to-1 multiplexer module named `mux4_1`. The module should have the following interface:\n- Four 4-bit input ports: `D0`, `D1`, `D2`, and `D3`.\n- Two 1-bit input ports: `S0` and `S1`.\n- One 4-bit output port: `Y`.\n\nThe functionality should be such that the output `Y` is selected from the inputs `D0`, `D1`, `D2`, `D3` based on the 2-bit value formed by the select lines {S1, S0}. Specifically, if {S1, S0} is 2'b00, `Y` should be `D0`; if {S1, S0} is 2'b01, `Y` should be `D1`; if {S1, S0} is 2'b10, `Y` should be `D2`; and if {S1, S0} is 2'b11, `Y` should be `D3`.\n",
+  "original_verified": true,
+  "prompt_hash": "3049dd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00131",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.485806",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4beb88190b38db7ae2c6de3b0",
+  "custom_id": "signal_combiner_12172fdc",
+  "module_name": "signal_combiner",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `signal_combiner`.\nThe module takes a 4-bit input named `input_signals` and produces a single-bit output named `output_signal`.\nThe `output_signal` should indicate the overall parity of the four bits in `input_signals`. Specifically, the output should be logic 1 if the number of set bits (logic 1s) in `input_signals` is odd, and logic 0 if the number of set bits is even.\nStructure your implementation by first computing the parity of `input_signals[0]` and `input_signals[1]`, then computing the parity of `input_signals[2]` and `input_signals[3]`, and finally combining these two intermediate parity results to produce the final overall parity output.\n",
+  "original_verified": true,
+  "prompt_hash": "7ed567",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

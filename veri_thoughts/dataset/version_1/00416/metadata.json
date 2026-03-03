@@ -1,0 +1,27 @@
+{
+  "id": "00416",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.755308",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e9833b48190aa7b4c77c2d3b0ce",
+  "custom_id": "shift_register_deac766b",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `shift_register`.\nThe module should have the following interface:\nInputs:\n- `clk`: Clock signal\n- `d`: Serial data input (1-bit)\nOutputs:\n- `q`: Serial data output (1-bit)\n\nImplement a 3-bit synchronous register within this module. On every positive edge of the `clk` signal, the current contents of the 3-bit register should be shifted one position to the right. The new input bit `d` should be loaded into the least significant bit (LSB) position of the register during this shift. The output `q` should continuously reflect the current value stored in the least significant bit (LSB) of the 3-bit register.\n",
+  "original_verified": true,
+  "prompt_hash": "df37e5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

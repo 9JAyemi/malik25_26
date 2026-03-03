@@ -1,0 +1,27 @@
+{
+  "id": "00139",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.504443",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4be0081908b97be2f83ff702b",
+  "custom_id": "nand_gate_output_16e53e12",
+  "module_name": "nand_gate_output",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `nand_gate_output`.\nThe module has the following interface:\nInputs: `input wire A_N, input wire B_N, input wire C, input wire D, input wire VPWR, input wire VGND, input wire VPB, input wire VNB`\nOutput: `output reg Y`\n\nThe module's primary function is to compute the logical NAND of inputs `A_N`, `B_N`, `C`, and `D` and assign the result to output `Y`.\nIf any of the inputs (`A_N`, `B_N`, `C`, `D`, `VPWR`, `VGND`, `VPB`, `VNB`) are unknown (`1'bx`), the output `Y` should also be unknown (`1'bx`).\n\nHowever, there is a special condition based on an internal counter. The output `Y` should be forced to `0` when this internal counter's value is between 32 and 39, inclusive.\nThe internal counter has the following behavior:\nIt resets to 0 asynchronously whenever all eight inputs (`A_N`, `B_N`, `C`, `D`, `VPWR`, `VGND`, `VPB`, `VNB`) are simultaneously `0`.\nOtherwise, the counter increments by 1 on each positive edge of the output `Y`.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "f16eeb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

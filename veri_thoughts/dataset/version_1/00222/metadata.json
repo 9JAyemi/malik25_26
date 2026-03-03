@@ -1,0 +1,27 @@
+{
+  "id": "00222",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.802712",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0f4e2881908cae7880901494b3",
+  "custom_id": "myNAND3_95306615",
+  "module_name": "myNAND3",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `myNAND3` that implements a 3-input NAND gate. The module should have three inputs named `IN1`, `IN2`, and `IN3`, and one output named `QN`. The output `QN` should be logic 0 only when `IN1`, `IN2`, and `IN3` are all logic 1, and logic 1 otherwise.\n",
+  "original_verified": true,
+  "prompt_hash": "c88c4b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

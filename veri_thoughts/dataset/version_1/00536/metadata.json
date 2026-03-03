@@ -1,0 +1,27 @@
+{
+  "id": "00536",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.522200",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e59790c8190b74d62a3a9d24401",
+  "custom_id": "adder_4bit_3b3a46ce",
+  "module_name": "adder_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `adder_4bit` that implements a synchronous 4-bit adder with carry-in and carry-out. The module should calculate the sum of the two 4-bit inputs `A` and `B`, plus the single-bit carry-in `Cin`, on the positive edge of the clock `Clk`.\n\nThe module should have the following interface:\n- Inputs:\n    - `input [3:0] A`\n    - `input [3:0] B`\n    - `input Cin`\n    - `input Clk`\n- Outputs:\n    - `output [3:0] S` (the 4-bit sum)\n    - `output Cout` (the carry-out bit)\n\nEnsure that the outputs `S` and `Cout` are registered and update only on the rising edge of `Clk`.\n",
+  "original_verified": true,
+  "prompt_hash": "4429c6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

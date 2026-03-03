@@ -1,0 +1,27 @@
+{
+  "id": "00468",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.295067",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3f4ad08190956dc0918f2398ba",
+  "custom_id": "clock_gate_en_330f66ad",
+  "module_name": "clock_gate_en",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `clock_gate_en` with the following interface:\nInputs: `clk`, `en`, `data_in`\nOutput: `data_out`\n\nImplement the logic such that on the positive edge of the clock `clk`, the output `data_out` is updated. If the enable signal `en` is high, `data_out` should register the value of `data_in`. If `en` is low, `data_out` should be held at a logic low (0), irrespective of `data_in`.\n",
+  "original_verified": true,
+  "prompt_hash": "8b506e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

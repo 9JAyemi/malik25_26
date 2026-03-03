@@ -1,0 +1,27 @@
+{
+  "id": "00334",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.889954",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f49156c8190a2af4d82325294c0",
+  "custom_id": "top__3a6303d9",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following three Verilog modules:\n\n1.  Module: `alu`\n    Inputs:\n        - `A`: 4-bit\n        - `B`: 4-bit\n        - `OP`: 3-bit\n    Output:\n        - `P`: 4-bit\n    Description: This module is a combinational Arithmetic Logic Unit. It performs an operation on inputs `A` and `B` based on the value of the `OP` input and outputs the result on `P`. The operations are defined as follows:\n        - If `OP` is `3'b000`, `P` is the bitwise AND of `A` and `B`.\n        - If `OP` is `3'b001`, `P` is the bitwise OR of `A` and `B`.\n        - If `OP` is `3'b010`, `P` is the sum of `A` and `B`.\n        - If `OP` is `3'b011`, `P` is the result of `A` minus `B`.\n        - If `OP` is `3'b100`, `P` is the bitwise XOR of `A` and `B`.\n        - If `OP` is `3'b101`, `P` is the bitwise NOT of `A`.\n        - If `OP` is `3'b110`, `P` is `A` left-shifted by 1 bit.\n        - If `OP` is `3'b111`, `P` is `A` right-shifted by 1 bit.\n        - For any other value of `OP`, `P` should be `4'bxxxx`.\n\n2.  Module: `mag_comp_priority_encoder`\n    Inputs:\n        - `a`: 4-bit\n        - `b`: 4-bit\n    Output:\n        - `comparison_result`: 3-bit\n    Description: This module is a combinational magnitude comparator with a specific output encoding. It compares inputs `a` and `b` and sets the `comparison_result` output based on the comparison:\n        - If `a` is greater than `b`, `comparison_result` is `3'b010`.\n        - If `a` is less than `b`, `comparison_result` is `3'b001`.\n        - If `a` is equal to `b`, `comparison_result` is `3'b000`.\n\n3.  Module: `top_module`\n    Inputs:\n        - `A`: 4-bit\n        - `B`: 4-bit\n        - `OP`: 3-bit\n        - `a`: 4-bit\n        - `b`: 4-bit\n    Output:\n        - `final_output`: 2-bit\n    Description: This is the top-level module. It should instantiate one instance of the `alu` module and one instance of the `mag_comp_priority_encoder` module.\n    - Connect the inputs `A`, `B`, and `OP` of `top_module` to the corresponding inputs of the `alu` instance. Let the output of the `alu` instance be `alu_result`.\n    - Connect the inputs `a` and `b` of `top_module` to the corresponding inputs of the `mag_comp_priority_encoder` instance. Let the output of the `mag_comp_priority_encoder` instance be `comparison_result`.\n    - The `final_output` of `top_module` should be determined based on the values of `comparison_result` and `alu_result` as follows:\n        - If `comparison_result` is equal to `3` AND `alu_result` is equal to `0`, set `final_output` to `2'b10`.\n        - Else, if `comparison_result` is equal to `2`, set `final_output` to `2'b01`.\n        - Else, if `comparison_result` is equal to `1`, set `final_output` to `2'b00`.\n        - Otherwise, set `final_output` to `2'b11`.\n\nWrite the Verilog code for these three modules.\n",
+  "original_verified": true,
+  "prompt_hash": "856d80",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 18
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

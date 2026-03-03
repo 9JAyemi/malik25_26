@@ -1,0 +1,27 @@
+{
+  "id": "00133",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.489580",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4c3008190a2f511f1c83711e7",
+  "custom_id": "binary_adder_1e274cb4",
+  "module_name": "binary_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign two Verilog modules:\n\n1.  A single-bit `full_adder` module.\n    *   Inputs: `A`, `B`, `CIN` (all single bits)\n    *   Outputs: `S`, `COUT` (all single bits)\n    *   This module should implement the standard logic for a full adder, producing the sum and carry-out from three input bits.\n\n2.  A 4-bit `binary_adder` module.\n    *   Inputs: `A` [3:0], `B` [3:0] (4-bit vectors), `CIN` (single bit)\n    *   Outputs: `S` [3:0] (4-bit vector), `COUT` (single bit)\n    *   This module should implement a 4-bit binary adder that adds the two 4-bit inputs `A` and `B` along with the carry-in `CIN`, producing the 4-bit sum `S` and the final carry-out `COUT`. You should utilize the `full_adder` module designed in step 1 to construct this 4-bit adder.\n\nEnsure your module and port names match the specifications exactly.\n",
+  "original_verified": true,
+  "prompt_hash": "f4e48f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

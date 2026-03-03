@@ -1,0 +1,27 @@
+{
+  "id": "00392",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.687549",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e70322c81908d26c6e99e9295e8",
+  "custom_id": "sky130_fd_sc_hd__nor4b_960dedf3",
+  "module_name": "sky130_fd_sc_hd__nor4b",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_hd__nor4b`.\nThis module has the following interface:\n- Inputs: `A`, `B`, `C`, `D_N`\n- Output: `Y`\n\nThe module should implement the logic function where the output `Y` is the logical NOR of inputs `A`, `B`, `C`, and the inverted value of input `D_N`.\n",
+  "original_verified": true,
+  "prompt_hash": "d253a1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

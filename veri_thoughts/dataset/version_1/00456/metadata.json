@@ -1,0 +1,27 @@
+{
+  "id": "00456",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.234071",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3da9bc8190b51e3eee00f0bcac",
+  "custom_id": "clock_gate__3d5d52e2",
+  "module_name": "clock_gate_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `clock_gate_module`. The module has the following interface:\nInputs: `CLK`, `EN`, `TE`, `reset`\nOutput: `ENCLK`\n\nThe module should implement a circuit with the following behavior:\n*   It is synchronous to the positive edge of the `CLK` input.\n*   It has an asynchronous reset: when the `reset` input is high, the output `ENCLK` should be forced to 0, regardless of the clock or other inputs.\n*   When `reset` is low, on the positive edge of the `CLK` input, the output `ENCLK` should update its state based on the `EN` and `TE` inputs.\n*   The update rule is that `ENCLK` should toggle its current state *if and only if* both the `EN` and `TE` inputs are simultaneously high. If `EN` and `TE` are not both high, `ENCLK` should retain its current value on the positive edge of `CLK` (when `reset` is low).\n",
+  "original_verified": true,
+  "prompt_hash": "fc4571",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

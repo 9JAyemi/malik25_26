@@ -1,0 +1,27 @@
+{
+  "id": "00165",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.599057",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df7bc408190bd1a929684841d3e",
+  "custom_id": "four_bit_adder_114646dd",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog HDL code for the following two modules:\n\n1.  A single-bit full adder module named `full_adder`. This module should take three single-bit inputs (`A`, `B`, and `C_in` representing the two bits to be added and the carry-in) and produce two single-bit outputs (`S` representing the sum and `C_out` representing the carry-out). The module interface is:\n    ```verilog\n    module full_adder (\n      input A,\n      input B,\n      input C_in,\n      output S,\n      output C_out\n    );\n    // ... module implementation ...\n    endmodule\n    ```\n\n2.  A 4-bit adder module named `four_bit_adder`. This module should add two 4-bit numbers (`A` and `B`) and produce a 4-bit sum (`S`) and a carry-out bit (`C_out`). This module *must* be constructed by instantiating the `full_adder` module written above. The initial carry-in for the least significant bit should be 0. Utilize a `generate` loop structure for instantiating the required number of `full_adder` instances. The module interface is:\n    ```verilog\n    module four_bit_adder(\n      input [3:0] A,\n      input [3:0] B,\n      output reg [3:0] S,\n      output reg C_out\n    );\n    // ... module implementation ...\n    endmodule\n    ```\n",
+  "original_verified": true,
+  "prompt_hash": "cc8b51",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

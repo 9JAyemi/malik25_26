@@ -1,0 +1,27 @@
+{
+  "id": "00399",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.705389",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e7cedbc8190a8e91b5666cf9f8a",
+  "custom_id": "f1_test_7b880499",
+  "module_name": "f1_test",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following combinational logic modules. For each module, ensure the module name and port names match exactly as specified, including bit widths.\n\n1.  **Module Name:** `f1_test`\n    *   **Inputs:** `in` (1 bit)\n    *   **Outputs:** `out` (1 bit)\n    *   **Functionality:** The output `out` should always be the same as the input `in`.\n\n2.  **Module Name:** `f2_test`\n    *   **Inputs:** `in` (1 bit)\n    *   **Outputs:** `out` (1 bit)\n    *   **Functionality:** The output `out` should always be the logical inverse of the input `in`.\n\n3.  **Module Name:** `f3_test`\n    *   **Inputs:** `in` (2 bits, `[1:0]`), `select` (1 bit)\n    *   **Outputs:** `out` (1 bit)\n    *   **Functionality:** Implement a 2-to-1 multiplexer. If `select` is 0, the output `out` should be the least significant bit of `in` (`in[0]`). If `select` is 1, the output `out` should be the most significant bit of `in` (`in[1]`).\n\n4.  **Module Name:** `f4_test`\n    *   **Inputs:** `in` (128 bits, `[127:0]`), `select` (7 bits, `[6:0]`)\n    *   **Outputs:** `out` (1 bit)\n    *   **Functionality:** Implement a 128-to-1 multiplexer. The 7-bit `select` input determines which bit of the 128-bit `in` bus is routed to the single-bit output `out`. Specifically, if `select` has a value `N`, the output should be `in[N]`.\n\n5.  **Module Name:** `f5_test`\n    *   **Inputs:** `in` (8 bits, `[7:0]`), `select` (3 bits, `[2:0]`)\n    *   **Outputs:** `out` (1 bit)\n    *   **Functionality:** Implement an 8-to-1 multiplexer. The 3-bit `select` input determines which bit of the 8-bit `in` bus is routed to the single-bit output `out`. Specifically, if `select` has a value `N`, the output should be `in[N]`.\n",
+  "original_verified": true,
+  "prompt_hash": "7d1ba0",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

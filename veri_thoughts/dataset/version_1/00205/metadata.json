@@ -1,0 +1,27 @@
+{
+  "id": "00205",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.757027",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e086ae4819089523cd2e89bea4f",
+  "custom_id": "digital_circuit_731092ec",
+  "module_name": "digital_circuit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `digital_circuit`. The module should have the following interface:\nInputs: `A1`, `A2`, `B1_N`, `VPWR`, `VGND`, `VPB`, `VNB`\nOutput: `Y`\n\nImplement the logic such that the output `Y` is the result of a logical NOR operation. The first input to the NOR operation should be the logical inverse of input `B1_N`. The second input to the NOR operation should be the logical AND of inputs `A1` and `A2`. Your implementation should use basic gate primitives.\n",
+  "original_verified": true,
+  "prompt_hash": "27d742",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

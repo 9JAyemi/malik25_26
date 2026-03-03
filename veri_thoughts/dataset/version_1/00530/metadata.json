@@ -1,0 +1,27 @@
+{
+  "id": "00530",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.500556",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5781f88190b9f61063cf8f1a5d",
+  "custom_id": "counter_5d000c4a",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `counter`.\nThis module should have the following interface:\nInputs: `clk`, `rst`, `en`\nOutput: `count` (a 4-bit wide signal)\n\nThe module should implement a synchronous 4-bit counter with the following behavior:\n- The counter's state changes on the positive edge of the `clk` input.\n- When the `rst` input is high (logic 1), the counter should reset its value to 0. The reset should take precedence over any other operation.\n- When `rst` is low and the `en` input is high (logic 1), the counter should increment its value by 1.\n- When both `rst` and `en` are low, the counter should hold its current value.\n- The `count` output should always reflect the current value of the counter.\n\nAdditionally, include declarations for the following supply signals within the module, assuming standard net types for them: `VPWR`, `VGND`, `VPB`, and `VNB`.\n",
+  "original_verified": true,
+  "prompt_hash": "294340",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

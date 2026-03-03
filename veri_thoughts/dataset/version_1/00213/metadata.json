@@ -1,0 +1,27 @@
+{
+  "id": "00213",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.783073",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0a06488190903b23990c88db70",
+  "custom_id": "dff_29e2c302",
+  "module_name": "dff",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `dff`.\nThe module should have the following inputs:\n- `D` (data input)\n- `C` (clock input)\n- `E` (enable input)\n- `R` (reset input)\n- `S` (set input)\nThe module should have the following output:\n- `Q` (registered output)\n\nImplement a synchronous flip-flop that updates its output `Q` on the positive edge of the clock `C`. The flip-flop should incorporate the following control logic, evaluated on the clock edge, in descending order of priority:\n1.  An active-low reset `R` that forces the output `Q` to a configurable initial value.\n2.  An active-low set `S` that forces the output `Q` to logic '1'.\n3.  An enable input `E` that, when high, allows the data `D` to be loaded into `Q`.\n\nInclude a parameter named `INIT` to specify the reset value, with a default value of 1'b0. When none of the higher-priority control conditions are met and the enable `E` is low, the flip-flop should retain its current value on the clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "3c2c0d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

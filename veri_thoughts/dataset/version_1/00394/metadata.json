@@ -1,0 +1,27 @@
+{
+  "id": "00394",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.692602",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e793c9481908f41d0c23164638d",
+  "custom_id": "mux4to1_733f4153",
+  "module_name": "mux4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux4to1` with inputs `I` (2 bits, `[1:0]`) and `S` (2 bits, `[1:0]`), and a single-bit output `O`. The module should implement the following logic based on the value of the `S` input:\n*   When `S` is 2'b00, the output `O` should be the least significant bit of `I`.\n*   When `S` is 2'b01, the output `O` should be the most significant bit of `I`.\n*   When `S` is 2'b10, the output `O` should be a constant logic 0.\n*   When `S` is 2'b11, the output `O` should be a constant logic 1.\n",
+  "original_verified": true,
+  "prompt_hash": "7a5ecd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

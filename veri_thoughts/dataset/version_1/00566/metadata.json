@@ -1,0 +1,27 @@
+{
+  "id": "00566",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.643574",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e673b648190a4995d46ee6d5363",
+  "custom_id": "OAI21X1_9f9a9f5a",
+  "module_name": "OAI21X1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `OAI21X1`. This module should have the following interface:\nInputs: `A`, `B`, `C`\nOutput: `Y`\n\nThe module should implement the logic function of a standard OAI21 gate. Specifically, the output `Y` should be the inverse of the result of ANDing input `C` with the result of ORing inputs `A` and `B`.\n",
+  "original_verified": true,
+  "prompt_hash": "476287",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

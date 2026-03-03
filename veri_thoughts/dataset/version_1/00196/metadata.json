@@ -1,0 +1,27 @@
+{
+  "id": "00196",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.705276",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e076918819085ead03923d21887",
+  "custom_id": "and_module_f4ea630e",
+  "module_name": "and_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following set of modules:\n\n1.  **`and_module`**:\n    *   Interface: `input [7:0] in1`, `input [7:0] in2`, `output [7:0] out`\n    *   Function: Computes the bitwise AND of its two 8-bit inputs.\n\n2.  **`xor_module`**:\n    *   Interface: `input [7:0] in1`, `input [7:0] in2`, `output [7:0] out`\n    *   Function: Computes the bitwise XOR of its two 8-bit inputs.\n\n3.  **`final_module`**:\n    *   Interface: `input [7:0] and_out`, `input [7:0] xor_out`, `input select`, `output [7:0] out`\n    *   Function: Acts as an 8-bit 2-to-1 multiplexer, outputting `and_out` when `select` is 0 and `xor_out` when `select` is 1.\n\n4.  **`top_module`**:\n    *   Interface: `input clk`, `input reset`, `input [7:0] in1`, `input [7:0] in2`, `input select`, `output [7:0] out`\n    *   Function: This module should instantiate and connect the `and_module`, `xor_module`, and `final_module` to implement the following data path:\n        *   The `and_module` computes the bitwise AND of the `top_module`'s primary inputs `in1` and `in2`.\n        *   The `xor_module` computes the bitwise XOR of the output of the `and_module` and the `top_module`'s primary input `in2`.\n        *   The `final_module` selects between the output of the `and_module` (as the '0' input) and the output of the `xor_module` (as the '1' input) based on the `top_module`'s `select` input. The output of the `final_module` is the `top_module`'s `out`.\n    You will need to declare appropriate internal signals to connect these modules.\n\nEnsure all module names and port names/widths match the specifications exactly.\n",
+  "original_verified": true,
+  "prompt_hash": "533545",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00450",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.204014",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3d97008190be72a34ce413a532",
+  "custom_id": "db_controller_40b5a30e",
+  "module_name": "db_controller",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `db_controller`.\n\nThis module implements a finite state machine that controls a counter based on the current state and manages a completion signal.\n\nThe module interface is defined as follows:\n\nInputs:\n- `clk`: Clock signal\n- `rst_n`: Active-low asynchronous reset\n- `start_i`: Start signal to initiate the process\n\nOutputs:\n- `done_o`: Register output, asserted for one clock cycle upon completion of a sequence.\n- `cnt_r`: Register output, 9-bit counter value.\n- `state`: Register output, 3-bit current state.\n\nThe state machine should use the following parameter values for its states:\n- `IDLE   = 3'b000`\n- `LOAD  = 3'b001`\n- `YVER  = 3'b011`\n- `YHOR\t= 3'b010`\n- `CVER   = 3'b110`\n- `CHOR  = 3'b111`\n- `OUTLT = 3'b101`\n- `OUT   = 3'b100`\n\nThe `cnt_r` counter should increment on the positive edge of `clk`. It should reset to 0 asynchronously when `rst_n` is low. It should also reset to 0 when the state is `IDLE` or when the counter reaches a state-specific cycle limit. Otherwise, it should increment.\n\nThe state-specific cycle limits that reset the counter and trigger state transitions are:\n- `LOAD`: 384 cycles\n- `YVER`: 132 cycles\n- `YHOR`: 140 cycles\n- `CVER`: 68 cycles\n- `CHOR`: 76 cycles\n- `OUTLT`: 67 cycles\n- `OUT`: 384 cycles\nIn the `IDLE` state or any other undefined state, the effective limit should be 0 (causing the counter to reset immediately if it were somehow non-zero).\n\nThe state machine transitions are as follows:\n- From the `IDLE` state: Transitions to `LOAD` when `start_i` is high. Stays in `IDLE` otherwise.\n- From any other state (except `IDLE`): Transitions to the next state in the sequence when `cnt_r` reaches the state-specific cycle limit for the current state. Stays in the current state otherwise.\n- The state sequence after `LOAD` is `YVER`, then `YHOR`, then `CVER`, then `CHOR`, then `OUTLT`, then `OUT`.\n- From the `OUT` state: Transitions back to `IDLE` when `cnt_r` reaches the `OUT` state's cycle limit.\n\nThe `done_o` output should be asserted (`1'b1`) for a single clock cycle when the state machine transitions from the `OUT` state back to the `IDLE` state. It should be low (`1'b0`) at all other times, including during reset.\n\nImplement the logic for the state machine, the counter, and the `done_o` signal according to these specifications.\n",
+  "original_verified": true,
+  "prompt_hash": "fd479f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 44
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

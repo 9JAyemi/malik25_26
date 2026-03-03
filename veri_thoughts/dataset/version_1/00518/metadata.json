@@ -1,0 +1,27 @@
+{
+  "id": "00518",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.463003",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e50e98081909f9c2add00fcc274",
+  "custom_id": "counter_7954a3f2",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `counter`.\nThis module should have the following interface:\nInputs: `clk`, `rst`, `max_count [7:0]`\nOutput: `count [7:0]`\n\nThe module should implement an 8-bit counter. The counter should increment on the positive edge of the `clk` signal. The counter should reset asynchronously to 0 whenever the `rst` signal is high. The counter should count up to the value specified by the `max_count` input. When the counter's value reaches `max_count`, it should reset back to 0 on the *next* positive edge of `clk` (unless `rst` is high). The current value of the counter should be available on the `count` output.\n",
+  "original_verified": true,
+  "prompt_hash": "06d752",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

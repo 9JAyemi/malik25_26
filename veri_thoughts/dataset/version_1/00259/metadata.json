@@ -1,0 +1,27 @@
+{
+  "id": "00259",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.891397",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e28b2b48190beb6a894779704ba",
+  "custom_id": "mux8to1_59086982",
+  "module_name": "mux8to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux8to1`.\nThe module should have the following inputs:\n- `s2`, `s1`, `s0` (1-bit each, representing a 3-bit select value when concatenated as `{s2, s1, s0}`)\n- `d4`, `d3`, `d2`, `d1`, `d0` (1-bit each, representing data inputs)\nThe module should have a single output:\n- `reg y` (1-bit)\n\nThe functionality of the module should be as follows:\n- If the select value `{s2, s1, s0}` is 3'b000, the output `y` should be equal to the input `d0`.\n- If the select value is 3'b001, `y` should be equal to `d1`.\n- If the select value is 3'b010, `y` should be equal to `d2`.\n- If the select value is 3'b011, `y` should be equal to `d3`.\n- If the select value is 3'b100, `y` should be equal to `d4`.\n- For any other combination of the select inputs `{s2, s1, s0}` (i.e., when the value is 3'b101, 3'b110, or 3'b111), the output `y` should be a constant logic 0.\n",
+  "original_verified": true,
+  "prompt_hash": "431a71",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

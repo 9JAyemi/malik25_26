@@ -1,0 +1,27 @@
+{
+  "id": "00214",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.785085",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0a3f3081908981ab207c119331",
+  "custom_id": "sync_resettable_latch_780956c4",
+  "module_name": "sync_resettable_latch",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sync_resettable_latch`. This module should implement a 4-bit synchronous storage element with enable and synchronous reset. It should have the following ports: a clock input `CLK`, an enable input `EN`, a synchronous reset input `RST`, a 4-bit data input `D [3:0]`, and a 4-bit data output `Q [3:0]`.\n\nThe module's behavior should be as follows:\nOn the positive edge of the `CLK`:\n1.  If the `EN` input is high, the output `Q` should be updated with the value of the input `D`.\n2.  If `EN` is low, but the `RST` input is high, the output `Q` should be reset to 4'b0.\n3.  In all other cases (i.e., when neither `EN` nor `RST` is high), the output `Q` should retain its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "6658db",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

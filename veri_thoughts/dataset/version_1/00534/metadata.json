@@ -1,0 +1,27 @@
+{
+  "id": "00534",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.514266",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5706a881908e24c2fbd0b77043",
+  "custom_id": "signal_mux_96444ebc",
+  "module_name": "signal_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a combinational Verilog module named `signal_mux`. The module has inputs `A1`, `A2`, `A3`, `B1` and a single output `X`.\n\nThe behavior of the module should be such that if input `A1` is high, the output `X` is equal to the input `A2`. If input `A1` is low, the output `X` should be high only when input `B1` is high AND at least one of inputs `A2` or `A3` is high.\n",
+  "original_verified": true,
+  "prompt_hash": "62c01b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

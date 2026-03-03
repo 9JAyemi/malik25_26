@@ -1,0 +1,27 @@
+{
+  "id": "00256",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.886354",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e25c67881909505b37c8536210e",
+  "custom_id": "module_name_d281e7da",
+  "module_name": "module_name",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `module_name`.\nThe module should have the following interface:\nInputs: `A1`, `A2`, `A3`, `B1`\nOutput: `Y`\n\nThe module's output `Y` should be high if and only if:\n1.  Inputs `A1`, `A2`, and `A3` are all high, AND input `B1` is low.\nOR\n2.  Inputs `A1`, `A2`, and `A3` are all low, AND input `B1` is high.\n\nIn all other cases, the output `Y` should be low.\n",
+  "original_verified": true,
+  "prompt_hash": "60e329",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

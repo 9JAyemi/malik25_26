@@ -1,0 +1,27 @@
+{
+  "id": "00129",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.861716",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e025f288190bd977f47e84d4d60",
+  "custom_id": "add2_and_round_dfeb2964",
+  "module_name": "add2_and_round",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for two modules.\n\nThe first module, named `add2_and_round`, should have a parameter `WIDTH` with a default value of 16. It takes two `WIDTH`-bit inputs, `in1` and `in2`, and produces a `WIDTH`-bit output, `sum`. This module should add `in1` and `in2`. If the sum of `in1` and `in2` results in a carry-out (i.e., the sum is greater than or equal to 2^WIDTH), the lower `WIDTH` bits of the sum should be incremented by 1. Otherwise, the output `sum` should be the lower `WIDTH` bits of the sum of `in1` and `in2`.\n\nThe second module, named `add2_and_round_reg`, should also have a parameter `WIDTH` with a default value of 16. It takes a clock input `clk` and the same data inputs `in1` and `in2` as the first module. It produces a `WIDTH`-bit registered output `sum`. This module should instantiate the `add2_and_round` module and register its output on the positive edge of the clock `clk`.\n\nEnsure the inputs and outputs have the exact names specified:\n`add2_and_round`:\n- Inputs: `input [WIDTH-1:0] in1`, `input [WIDTH-1:0] in2`\n- Output: `output [WIDTH-1:0] sum`\n\n`add2_and_round_reg`:\n- Inputs: `input clk`, `input [WIDTH-1:0] in1`, `input [WIDTH-1:0] in2`\n- Output: `output reg [WIDTH-1:0] sum`\n",
+  "original_verified": true,
+  "prompt_hash": "21376e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

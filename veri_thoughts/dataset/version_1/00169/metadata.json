@@ -1,0 +1,27 @@
+{
+  "id": "00169",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.608164",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfa8d088190ac9eb6e1a22730eb",
+  "custom_id": "mux17_7735f2a1",
+  "module_name": "mux17",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux17`. It should have inputs `input [16:0] A`, `input [16:0] B`, and `input S`, and an output `output [16:0] MO`. The module should implement a 2-to-1 multiplexer where the output `MO` takes the value of input `B` when the select input `S` is logic 1, and takes the value of input `A` when the select input `S` is logic 0.\n",
+  "original_verified": true,
+  "prompt_hash": "dde854",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

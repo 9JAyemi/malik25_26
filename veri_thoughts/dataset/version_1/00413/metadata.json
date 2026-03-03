@@ -1,0 +1,27 @@
+{
+  "id": "00413",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.748538",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e93c8188190a7cf3f3f4790d83b",
+  "custom_id": "hexdisp_dc489f63",
+  "module_name": "hexdisp",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign two interconnected Verilog modules for displaying hexadecimal numbers on 7-segment displays.\n\n1.  **Module: `hexdigit7seg`**\n    *   This module converts a single 4-bit hexadecimal digit into the corresponding 7-segment display pattern.\n    *   It should have the following interface:\n        *   Input: `input [3:0] nibble;` (The 4-bit hexadecimal digit)\n        *   Output: `output [6:0] sseg;` (The 7-segment pattern)\n    *   The output `sseg` should be active-low, meaning a '0' corresponds to an illuminated segment. You should map the standard hexadecimal digits (0-9, A-F) to their typical 7-segment representations.\n\n2.  **Module: `hexdisp`**\n    *   This module takes a multi-digit hexadecimal word and generates the combined 7-segment display patterns for all digits.\n    *   It should utilize instances of the `hexdigit7seg` module for each individual digit.\n    *   It should have the following interface:\n        *   Parameters:\n            *   `parameter HEX_DIGITS = 8;` (The number of hexadecimal digits to display)\n            *   `parameter SEGS_PER_DIGIT = 7;` (The number of segments per digit, typically 7)\n        *   Input: `input [(HEX_DIGITS * 4 - 1):0] inword;` (The packed multi-digit hexadecimal word)\n        *   Output: `output [(HEX_DIGITS * SEGS_PER_DIGIT - 1):0] outword;` (The packed active-low 7-segment patterns for all digits)\n    *   The `hexdisp` module should connect the appropriate 4-bit slices of `inword` to the `nibble` input of each `hexdigit7seg` instance and collect the `sseg` outputs into the corresponding `SEGS_PER_DIGIT`-bit slices of `outword`.\n\nProvide the Verilog code for both modules.\n",
+  "original_verified": true,
+  "prompt_hash": "116e1a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 22
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

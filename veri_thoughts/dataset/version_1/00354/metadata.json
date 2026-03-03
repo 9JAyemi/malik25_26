@@ -1,0 +1,27 @@
+{
+  "id": "00354",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.956326",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f51d8cc81908c38a01550722747",
+  "custom_id": "VerilogModule_a2a8f248",
+  "module_name": "VerilogModule",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `VerilogModule`.\n\nThe module should have the following interface:\nInputs:\n- `aclk`\n- `s_dclk_o`\n- `Q` (1 bit)\n- `m_axi_wready`\n- `burst_count_reg` (9 bits)\n- `tx_fifo_wr`\n- `tx_fifowren_reg`\n- `tx_fifo_dataout_reg` (32 bits)\n\nOutputs:\n- `out` (1 bit)\n- `count_d1_reg` (8 bits)\n- `m_axi_wdata` (32 bits)\n\nImplement the following logic within the module:\n1.  The `out` output should be constantly driven low (0).\n2.  The `count_d1_reg` output should be constantly driven to the 8-bit value of zero.\n3.  The `m_axi_wdata` output should reflect a captured value of the `tx_fifo_dataout_reg` input. This capture should occur on the positive edge of the `aclk` signal, but only if the `m_axi_wready` input is asserted. The `m_axi_wdata` output should hold its last captured value at all other times.\n",
+  "original_verified": true,
+  "prompt_hash": "97000e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

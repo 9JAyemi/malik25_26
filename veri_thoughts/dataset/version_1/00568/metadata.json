@@ -1,0 +1,27 @@
+{
+  "id": "00568",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.653444",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e674840819098360ff90d057e17",
+  "custom_id": "alu2_87b0b33b",
+  "module_name": "alu2",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `alu2` that implements a 32-bit Arithmetic Logic Unit (ALU) with the following interface:\n\nInputs:\n*   `srca`: 32-bit wide, source operand A.\n*   `srcb`: 32-bit wide, source operand B.\n*   `alucontrol`: 2-bit wide, selects the operation.\n\nOutputs:\n*   `aluresult`: 32-bit wide, the result of the operation.\n*   `aluflags`: 4-bit wide, status flags.\n\nThe module should perform operations based on the `alucontrol` input:\n*   `2'b00`: Addition (`srca + srcb`).\n*   `2'b01`: Subtraction (`srca - srcb`).\n*   `2'b10`: Bitwise AND (`srca & srcb`).\n*   `2'b11`: Bitwise OR (`srca | srcb`).\n\nThe `aluresult` output should hold the computed value.\n\nThe `aluflags` output should provide status information:\n*   `aluflags[3]` should be the most significant bit of `aluresult` (sign flag).\n*   `aluflags[2]` should be high if `aluresult` is zero (zero flag).\n*   `aluflags[1]` should indicate the carry-out for addition (`2'b00`) or the inverse of the borrow-out for subtraction (`2'b01`), and be zero for logical operations (`2'b10`, `2'b11`).\n*   `aluflags[0]` should be high only when `alucontrol` is `2'b00` and the most significant bit of `aluresult` is different from the most significant bit of `srca`.\n\nImplement the necessary logic to compute `aluresult` and `aluflags` based on the inputs and the specified operations and flag definitions.\n",
+  "original_verified": true,
+  "prompt_hash": "85ed58",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

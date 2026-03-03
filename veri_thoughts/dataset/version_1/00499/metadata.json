@@ -1,0 +1,27 @@
+{
+  "id": "00499",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.394616",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4882cc81908ca4fadb41aac590",
+  "custom_id": "shift_register_9bb73a4f",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a 4-bit synchronous shift register in Verilog with the module name `shift_register`.\n\nThe module interface should be:\nInputs:\n*   `clk` (1-bit): Clock signal.\n*   `reset` (1-bit): Synchronous reset (active high).\n*   `parallel_load` (1-bit): Active high signal for parallel loading.\n*   `shift_left` (1-bit): Active high signal for logical left shift.\n*   `shift_right` (1-bit): Active high signal for logical right shift.\n*   `parallel_input` (4-bit): Data input for parallel loading.\n\nOutput:\n*   `q` (4-bit): The current value stored in the register.\n\nOn the positive edge of the clock (`clk`), the register should perform the following operations based on the control signals, with the specified priority (highest to lowest):\n1.  **Reset:** If `reset` is high, the register is cleared to 4'b0000.\n2.  **Parallel Load:** If `reset` is low and `parallel_load` is high, the register is loaded with the value of `parallel_input`.\n3.  **Shift Left:** If `reset` and `parallel_load` are low, and `shift_left` is high, the register performs a logical left shift (shifting a '0' into the LSB).\n4.  **Shift Right:** If `reset`, `parallel_load`, and `shift_left` are low, and `shift_right` is high, the register performs a logical right shift (shifting a '0' into the MSB).\n\nIf none of the above conditions are met (i.e., `reset`, `parallel_load`, `shift_left`, and `shift_right` are all low), the register should retain its current value.\n\nThe output `q` should always reflect the current value stored in the internal register.\n",
+  "original_verified": true,
+  "prompt_hash": "098f58",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

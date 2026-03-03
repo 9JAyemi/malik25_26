@@ -1,0 +1,27 @@
+{
+  "id": "00112",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.829290",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfb417c81908b5720ce94ee928f",
+  "custom_id": "v89d234_fa4e225b",
+  "module_name": "v89d234",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for two modules.\n\nModule 1: `v89d234`\nThis module serves as a wrapper for a second module. It should have one parameter `v422d28` with a default value of 0. It has three inputs: a single-bit signal `v41eb95`, an 8-bit signal `v39f831`, and a single-bit signal `vf892a0`. It produces one 8-bit output `vb1c024`. This module should instantiate the second module, connecting its inputs, output, and parameter accordingly.\n\nModule 2: `v89d234_v9148cb`\nThis module implements an 8-bit storage element with a synchronous load capability. It should have one parameter `INI` with a default value of 0. It accepts three inputs: an 8-bit data input `d`, a single-bit load enable signal `load`, and a single-bit clock signal `clk`. It outputs an 8-bit registered signal `q`. On the positive edge of `clk`, if `load` is asserted, the output `q` should be updated with the value of `d`. If `load` is not asserted, `q` should retain its current value. Note that the parameter `INI` is part of the module definition but does not influence the described synchronous load behavior in this particular implementation.\n\nEnsure your code uses the exact module names, port names, port widths, parameter names, and default parameter values as specified.\n",
+  "original_verified": true,
+  "prompt_hash": "0b978d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

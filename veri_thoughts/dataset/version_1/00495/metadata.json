@@ -1,0 +1,27 @@
+{
+  "id": "00495",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.379126",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4609c48190864fa3ee0d92a2b9",
+  "custom_id": "comparator_8bit_1fc7bb72",
+  "module_name": "comparator_8bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `comparator_8bit`. This module should compare two 8-bit unsigned inputs, `A` and `B`. The module should have three outputs: `equal`, `greater_than`, and `less_than`.\n\nThe outputs should behave as follows:\n- `equal` should be high (logic 1) if `A` is equal to `B`, and low (logic 0) otherwise.\n- `greater_than` should be high (logic 1) if `A` is greater than `B`, and low (logic 0) otherwise.\n- `less_than` should be high (logic 1) if `A` is less than `B`, and low (logic 0) otherwise.\n\nEnsure that for any given input values of A and B, exactly one of the outputs is high.\n\nThe module interface is defined as follows:\nInputs:\n- `A`: 8-bit wide\n- `B`: 8-bit wide\nOutputs:\n- `equal`: 1-bit wide\n- `greater_than`: 1-bit wide\n- `less_than`: 1-bit wide\n",
+  "original_verified": true,
+  "prompt_hash": "375468",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

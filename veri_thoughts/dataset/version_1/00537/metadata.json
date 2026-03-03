@@ -1,0 +1,27 @@
+{
+  "id": "00537",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.526168",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e59772c819098880df50ea9d0fb",
+  "custom_id": "three_input_full_adder_30eec0a7",
+  "module_name": "three_input_full_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `three_input_full_adder` that implements the functionality of a full adder. The module should have the following interface: `input A, input B, input C, output S, output Cout`. Your implementation should be constructed using gate-level primitives (such as `and`, `or`, `xor`).\n",
+  "original_verified": true,
+  "prompt_hash": "1f7027",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 1
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

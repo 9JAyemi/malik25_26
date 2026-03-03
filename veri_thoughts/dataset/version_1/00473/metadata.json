@@ -1,0 +1,27 @@
+{
+  "id": "00473",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.306524",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3f7fb481908500fd7789d7ee3e",
+  "custom_id": "Immediate_Extend_46f14b37",
+  "module_name": "Immediate_Extend",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a Verilog module named `Immediate_Extend`.\nThe module should have the following interface:\n```verilog\nmodule Immediate_Extend(\n    output [31 : 0] data_out,\n    input [2 : 0] load,\n    input [15 : 0] data_in\n    );\n```\nThe module should combinatorially generate the 32-bit output `data_out` based on the 3-bit input `load` and the 16-bit input `data_in`.\n\nSpecifically, the lower 16 bits of `data_out` (`data_out[15:0]`) should be determined by a specific transformation of `data_in` based on the value of `load`, while the upper 16 bits of `data_out` (`data_out[31:16]`) should always be zero.\n\nThe transformation for the lower 16 bits (`data_out[15:0]`) is as follows:\n- If `load` is 0: Take bits `data_in[7:0]`. Form a 16-bit value by concatenating 8 copies of bit `data_in[7]` with the 8 bits `data_in[7:0]`.\n- If `load` is 1: Take bits `data_in[3:0]`. Form a 16-bit value by concatenating 12 copies of bit `data_in[3]` with the 4 bits `data_in[3:0]`.\n- If `load` is 2: Take bits `data_in[10:0]`. Form a 16-bit value by concatenating 5 copies of bit `data_in[10]` with the 11 bits `data_in[10:0]`.\n- If `load` is 3: Take bits `data_in[3:0]`. Form a 16-bit value by zero-padding the 4 bits on the left with 12 zeros.\n- If `load` is 4: Take bits `data_in[7:0]`. Form a 16-bit value by zero-padding the 8 bits on the left with 8 zeros.\n- If `load` is 5: Take bits `data_in[4:0]`. Form a 16-bit value by concatenating 11 copies of bit `data_in[4]` with the 5 bits `data_in[4:0]`.\n- For any other value of `load`: Take bits `data_in[4:2]`. Form a 16-bit value by zero-padding the 3 bits on the left with 13 zeros.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "b95af3",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

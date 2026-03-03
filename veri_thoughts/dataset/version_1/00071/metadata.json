@@ -1,0 +1,27 @@
+{
+  "id": "00071",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.757704",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df235b88190af5f166a843bd04b",
+  "custom_id": "pio_latency_0cb0492d",
+  "module_name": "pio_latency",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `pio_latency` that implements a simple registered read port for a peripheral. The module has the following interface:\n*   Inputs:\n    *   `address`: 2 bits\n    *   `clk`: 1 bit\n    *   `in_port`: 16 bits\n    *   `reset_n`: 1 bit (active low, asynchronous reset)\n*   Output:\n    *   `readdata`: 16 bits\n\nThe module should behave as follows:\nWhen the input `reset_n` is low, the output `readdata` should be asynchronously reset to 0, regardless of the clock.\nOn the positive edge of `clk` (when `reset_n` is high):\n*   If the input `address` is 0, the output `readdata` should be updated with the current value of `in_port`.\n*   If the input `address` is not 0, the output `readdata` should be updated to 0.\n",
+  "original_verified": true,
+  "prompt_hash": "2c0976",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

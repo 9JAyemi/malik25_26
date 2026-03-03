@@ -1,0 +1,27 @@
+{
+  "id": "00431",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.799957",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eafe9b081908eac83c89ff4a733",
+  "custom_id": "adder16_0ed5a1fd",
+  "module_name": "adder16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `adder16` that performs the addition of two 16-bit unsigned numbers. The module should have the following interface:\n-   Inputs:\n    -   `A`: A 16-bit input.\n    -   `B`: A 16-bit input.\n-   Output:\n    -   `Y`: A 16-bit output representing the sum of `A` and `B`.\n",
+  "original_verified": true,
+  "prompt_hash": "af2209",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

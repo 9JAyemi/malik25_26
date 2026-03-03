@@ -1,0 +1,27 @@
+{
+  "id": "00559",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.617038",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e645bd48190a3b2a40a66b8313d",
+  "custom_id": "dff_posedge_reset_8cb90d7e",
+  "module_name": "dff_posedge_reset",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `dff_posedge_reset`.\nThe module should have the following interface:\nInputs: `CLK`, `D`, `reset`\nOutput: `Q`\n\nThis module implements a positive-edge triggered D flip-flop. The output `Q` should normally follow the input `D` on the rising edge of the clock `CLK`. However, the module must also include an active-high, asynchronous reset input `reset`. When `reset` is high, the output `Q` should immediately be cleared to 0, overriding the clock and data inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "f9ae2c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

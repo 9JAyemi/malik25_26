@@ -1,0 +1,27 @@
+{
+  "id": "00036",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.686522",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de7d86081909bbb9705d2cd3208",
+  "custom_id": "clock_generator_fb562d5d",
+  "module_name": "clock_generator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `clock_generator` with a single input `clk_in` and a single output `clk_out`. Assume the input clock `clk_in` has a frequency of 50 MHz. Your module should generate an output clock `clk_out` with a frequency of 5 Hz and approximately a 50% duty cycle. Define the module with inputs `clk_in` and output `clk_out`.\n",
+  "original_verified": true,
+  "prompt_hash": "406e42",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

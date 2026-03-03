@@ -1,0 +1,27 @@
+{
+  "id": "00037",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.688151",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de83a0481908e68c4fe56f53b67",
+  "custom_id": "latch_71c6a1ef",
+  "module_name": "latch",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for two modules: `latch` and `clock_gate`.\n\nModule `latch`:\nImplement a positive edge-triggered flip-flop with synchronous enable.\n- Module name: `latch`\n- Inputs: `E`, `SE`, `CK`\n- Output: `ECK`\n- Behavior: The flip-flop's data input is `E`, the synchronous enable is `SE`, and the clock is `CK`. When `SE` is active high, the flip-flop updates its state based on the value of `E` on the positive edge of `CK`. When `SE` is inactive (low), the flip-flop holds its current state regardless of `E`. The output `ECK` should reflect the current state of the flip-flop.\n\nModule `clock_gate`:\nImplement a module that utilizes an instance of the `latch` module.\n- Module name: `clock_gate`\n- Inputs: `CLK`, `EN`, `TE`\n- Output: `ENCLK`\n- Behavior: This module should generate its output `ENCLK` by instantiating the `latch` module. Connect the `clock_gate` input `EN` to the `latch` input `E`, the `clock_gate` input `TE` to the `latch` input `SE`, and the `clock_gate` input `CLK` to the `latch` input `CK`. The output `ENCLK` of the `clock_gate` module should be connected to the `ECK` output of the instantiated `latch`.\n",
+  "original_verified": true,
+  "prompt_hash": "9a7100",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

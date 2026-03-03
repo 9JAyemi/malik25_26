@@ -1,0 +1,27 @@
+{
+  "id": "00229",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.815248",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e12ed2881909d6a5e689378b43c",
+  "custom_id": "and4_nor_58d0d54a",
+  "module_name": "and4_nor",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `and4_nor`. This module should have the following interface:\nInputs: `A`, `B`, `C`, `D`\nOutput: `Y`\n\nThe module should implement the following logic function: The output `Y` is high if and only if input `D` is high AND (either both inputs `A` and `B` are high OR input `C` is low).\n",
+  "original_verified": true,
+  "prompt_hash": "f3db28",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

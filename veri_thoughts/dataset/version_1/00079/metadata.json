@@ -1,0 +1,27 @@
+{
+  "id": "00079",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.771419",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df32ea081908884b86670c441f8",
+  "custom_id": "mux_4to1_152336c4",
+  "module_name": "mux_4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux_4to1`.\nThe module should have the following inputs:\n- `in0`, `in1`, `in2`, `in3`: each 4 bits wide\n- `sel`: 2 bits wide\n\nThe module should have a single output:\n- `out`: 4 bits wide\n\nThe module should function as a 4-to-1 multiplexer. The output `out` should be assigned the value of `in0` when `sel` is 2'b00, `in1` when `sel` is 2'b01, `in2` when `sel` is 2'b10, and `in3` when `sel` is 2'b11. For any other value of `sel`, the output `out` should be set to 4'b0.\n",
+  "original_verified": true,
+  "prompt_hash": "dfdb69",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

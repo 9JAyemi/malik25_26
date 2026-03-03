@@ -1,0 +1,27 @@
+{
+  "id": "00264",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.694091",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3c3e9c8190803eb1d1319c089b",
+  "custom_id": "s6_52f5a9fa",
+  "module_name": "s6",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `s6` that implements a combinational mapping from a 6-bit input `stage1_input` to a 4-bit output `stage1_output`. The module should have the following interface:\n\n```verilog\nmodule s6(stage1_input, stage1_output);\n  input [5:0] stage1_input;\n  output [3:0] stage1_output;\n  // ... implementation goes here\nendmodule\n```\n\nThe mapping from `stage1_input` (decimal value) to `stage1_output` (decimal value) is defined as follows:\n\n0 -> 12\n1 -> 10\n2 -> 1\n3 -> 15\n4 -> 10\n5 -> 4\n6 -> 15\n7 -> 2\n8 -> 9\n9 -> 7\n10 -> 2\n11 -> 12\n12 -> 6\n13 -> 9\n14 -> 8\n15 -> 5\n16 -> 0\n17 -> 6\n18 -> 13\n19 -> 1\n20 -> 3\n21 -> 13\n22 -> 4\n23 -> 14\n24 -> 14\n25 -> 0\n26 -> 7\n27 -> 11\n28 -> 5\n29 -> 3\n30 -> 11\n31 -> 8\n32 -> 9\n33 -> 4\n34 -> 14\n35 -> 3\n36 -> 15\n37 -> 2\n38 -> 5\n39 -> 12\n40 -> 2\n41 -> 9\n42 -> 8\n43 -> 5\n44 -> 12\n45 -> 15\n46 -> 3\n47 -> 10\n48 -> 7\n49 -> 11\n50 -> 0\n51 -> 14\n52 -> 4\n53 -> 1\n54 -> 10\n55 -> 7\n56 -> 1\n57 -> 6\n58 -> 13\n59 -> 0\n60 -> 11\n61 -> 8\n62 -> 6\n63 -> 13\n\nImplement the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "3d3b62",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

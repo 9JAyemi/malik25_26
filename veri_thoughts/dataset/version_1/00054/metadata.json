@@ -1,0 +1,27 @@
+{
+  "id": "00054",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.720849",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65deee5bc819092962f07361205d8",
+  "custom_id": "mux_2to1_ea2870db",
+  "module_name": "mux_2to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `mux_2to1` that implements a 2-to-1 multiplexer. The module should have the following interface:\nInputs: `in0`, `in1`, `sel`\nOutput: `out`\nThe module should select the `in0` signal when the `sel` input is low (0) and the `in1` signal when the `sel` input is high (1), assigning the selected input to the `out` signal.\n",
+  "original_verified": true,
+  "prompt_hash": "af5860",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

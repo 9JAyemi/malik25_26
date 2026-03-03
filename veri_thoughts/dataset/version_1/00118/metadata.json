@@ -1,0 +1,27 @@
+{
+  "id": "00118",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.840289",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd89148190a854f9aeb4c3def0",
+  "custom_id": "ripple_carry_adder_395d497b",
+  "module_name": "ripple_carry_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two Verilog modules:\n\n1.  `full_adder`: A combinational logic module that takes three single-bit inputs (`a`, `b`, `cin`) and produces a single-bit sum (`sum`) and a single-bit carry-out (`cout`).\n2.  `ripple_carry_adder`: A combinational logic module that takes two 4-bit inputs (`a`, `b`) and a single-bit carry-in (`cin`), and produces a 4-bit sum (`sum`) and a single-bit carry-out (`cout`). This module should be implemented using the `full_adder` module designed in step 1, connected in a ripple-carry configuration.\n\nEnsure the module names and port names exactly match those specified above.\n",
+  "original_verified": true,
+  "prompt_hash": "3445d2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

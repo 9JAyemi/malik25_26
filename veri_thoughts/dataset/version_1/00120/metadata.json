@@ -1,0 +1,27 @@
+{
+  "id": "00120",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.843370",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd73088190a12c98fc84f10a31",
+  "custom_id": "sky130_fd_sc_ms__a2111oi_89bf8fbe",
+  "module_name": "sky130_fd_sc_ms__a2111oi",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_ms__a2111oi`.\nThe module should have the following ports:\nOutputs: `Y`\nInputs: `A1`, `A2`, `B1`, `C1`, `D1`, `VPWR`, `VGND`, `VPB`, `VNB`\n\nThe logical behavior of the output `Y` should be high if and only if at least two of the inputs `B1`, `C1`, and `D1` are high. The inputs `A1` and `A2` do not affect the logical outcome of `Y` based on the required functionality.\n",
+  "original_verified": true,
+  "prompt_hash": "0d4e5e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

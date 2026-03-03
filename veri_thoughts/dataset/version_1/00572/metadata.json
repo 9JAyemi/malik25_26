@@ -1,0 +1,27 @@
+{
+  "id": "00572",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.670060",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6a30588190973defab00529d2c",
+  "custom_id": "input_pipeline_8bb48545",
+  "module_name": "input_pipeline",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `input_pipeline`.\nThe module should have a parameter `WIDTH` defining the bit width of the data path.\nThe module interface is defined exactly as follows:\nInputs:\n- `clk`: Clock signal.\n- `clk_ena`: Clock enable signal.\n- `in_stream`: Input data stream, `WIDTH` bits wide.\n- `reset`: Asynchronous reset signal.\n\nOutputs:\n- `pipeline_reg_0`: Output of the first pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_1`: Output of the second pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_2`: Output of the third pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_3`: Output of the fourth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_4`: Output of the fifth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_5`: Output of the sixth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_6`: Output of the seventh pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_7`: Output of the eighth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_8`: Output of the ninth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_9`: Output of the tenth pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_10`: Output of the eleventh pipeline stage, `WIDTH` bits wide.\n- `pipeline_reg_11`: Output of the twelfth pipeline stage, `WIDTH` bits wide.\n\nThe module should implement a 12-stage data pipeline with a clock enable and an asynchronous reset.\nThe circuit should be synchronous to the positive edge of the `clk` signal.\nAn assertion of the `reset` signal should asynchronously clear all pipeline stages (set their outputs to 0).\nWhen `reset` is deasserted, the pipeline operates based on `clk_ena`:\n- If `clk_ena` is asserted, on the positive edge of `clk`, the value of `in_stream` is loaded into the first stage (`pipeline_reg_0`), and the value of each stage `N` (for N < 11) is shifted into stage `N+1`.\n- If `clk_ena` is deasserted, the values in all pipeline stages should remain unchanged on the positive edge of `clk`.\n",
+  "original_verified": true,
+  "prompt_hash": "09066a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

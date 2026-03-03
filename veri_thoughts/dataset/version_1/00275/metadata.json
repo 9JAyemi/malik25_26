@@ -1,0 +1,27 @@
+{
+  "id": "00275",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.731624",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3cf18c8190b829e99cbcfa6d48",
+  "custom_id": "add_subtract_34cda93d",
+  "module_name": "add_subtract",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `add_subtract`.\nThis module should have the following interface:\nInputs:\n- `a`: an 8-bit input.\n- `b`: an 8-bit input.\n- `sel`: a 1-bit input.\nOutput:\n- `out`: an 8-bit output.\n\nThe module should implement a simple arithmetic logic unit that performs either addition or subtraction on the 8-bit inputs `a` and `b`, controlled by the `sel` input.\nSpecifically, if `sel` is high (logic 1), the module should output the sum of `a` and `b`.\nIf `sel` is low (logic 0), the module should output the result of `a` minus `b`.\n",
+  "original_verified": true,
+  "prompt_hash": "4625f8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

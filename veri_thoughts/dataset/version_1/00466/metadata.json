@@ -1,0 +1,27 @@
+{
+  "id": "00466",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.288551",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3e881c8190b957cba30417e272",
+  "custom_id": "n0_948829ca",
+  "module_name": "n0",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following modules, implementing the specified logic and interconnections. Ensure all module, input, and output names and widths match the specifications exactly.\n\n1.  Module `n0`:\n    *   Interface: `input wire A, output wire Y`\n    *   Function: Implement a basic logic gate that inverts its input.\n\n2.  Module `n1`:\n    *   Interface: `input wire A, output wire Y`\n    *   Function: Implement the same basic logic gate as `n0`.\n\n3.  Module `box`:\n    *   Interface: `input wire A, output wire Y`\n    *   Function: Implement a simple identity function (buffer) where the output is the same as the input.\n\n4.  Module `c`:\n    *   Interface: `input wire I, output wire [1:0] O`\n    *   Function: Given a single bit input `I`, produce a 2-bit output `O` where the most significant bit (`O[1]`) is the inverse of `I` and the least significant bit (`O[0]`) is `I` itself.\n\n5.  Module `top`:\n    *   Interface: `input wire di, output wire [3:0] do`\n    *   Function: Instantiate the above modules and connect them to process the input `di` and generate the 4-bit output `do`.\n        *   The primary input `di` drives the inputs of both `n0` and `n1`.\n        *   The output of `n0` is buffered by one instance of `box`, and this buffered signal becomes the least significant bit of the main output, `do[0]`.\n        *   The output of `n1` is buffered by a second instance of `box`, and this second buffered signal becomes `do[1]`.\n        *   The output of `n1` also serves as the input to module `c`. The 2-bit output of module `c` forms the upper two bits of the main output `do`, such that `c`'s MSB (`O[1]`) is connected to `do[3]` and `c`'s LSB (`O[0]`) is connected to `do[2]`.\n\nStructure your code with the specified module definitions and instantiations.\n",
+  "original_verified": true,
+  "prompt_hash": "5dd26e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

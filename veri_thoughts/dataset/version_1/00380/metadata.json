@@ -1,0 +1,27 @@
+{
+  "id": "00380",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.051677",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5f0c4c8190b876c9089c135a9f",
+  "custom_id": "mux_8to1_ce99067b",
+  "module_name": "mux_8to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux_8to1` that implements an 8-to-1 multiplexer.\n\nThe module should have the following interface:\n-   Inputs:\n    -   `in0`: 4-bit wide\n    -   `in1`: 4-bit wide\n    -   `in2`: 4-bit wide\n    -   `in3`: 4-bit wide\n    -   `in4`: 4-bit wide\n    -   `in5`: 4-bit wide\n    -   `in6`: 4-bit wide\n    -   `in7`: 4-bit wide\n    -   `sel`: 3-bit wide\n-   Output:\n    -   `out`: 4-bit wide\n\nThe module should select one of the 8 input signals (`in0` through `in7`) based on the value of the `sel` input and assign the selected value to the `out` output. Specifically:\n-   If `sel` is 3'b000, `out` should take the value of `in0`.\n-   If `sel` is 3'b001, `out` should take the value of `in1`.\n-   If `sel` is 3'b010, `out` should take the value of `in2`.\n-   If `sel` is 3'b011, `out` should take the value of `in3`.\n-   If `sel` is 3'b100, `out` should take the value of `in4`.\n-   If `sel` is 3'b101, `out` should take the value of `in5`.\n-   If `sel` is 3'b110, `out` should take the value of `in6`.\n-   If `sel` is 3'b111, `out` should take the value of `in7`.\n",
+  "original_verified": true,
+  "prompt_hash": "f19520",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 25
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

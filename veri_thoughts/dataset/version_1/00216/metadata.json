@@ -1,0 +1,27 @@
+{
+  "id": "00216",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.789391",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0a73288190a8d291eae5f06739",
+  "custom_id": "counter_8469df74",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for two modules: `counter` and `top_module`.\n\n1.  **Module `counter`**: Implement a 3-bit synchronous up/down counter.\n    *   Module name: `counter`\n    *   Inputs: `clk`, `reset`, `up_down`\n    *   Output: `reg [2:0] q`\n    *   Functionality:\n        *   It should have an asynchronous active-high reset (`reset`). When `reset` is high, the output `q` should be set to 3'b000.\n        *   When `reset` is low, on the positive edge of `clk`:\n            *   If `up_down` is high, the counter should increment its value.\n            *   If `up_down` is low, the counter should decrement its value.\n\n2.  **Module `top_module`**: Implement a module that instantiates the `counter` module.\n    *   Module name: `top_module`\n    *   Inputs: `clk`, `reset`, `up_down`\n    *   Output: `reg [2:0] q`\n    *   Functionality:\n        *   Instantiate the `counter` module.\n        *   Connect the `top_module` inputs `clk`, `reset`, and `up_down` to the corresponding inputs of the `counter` instance.\n        *   Connect the output `q` of the `counter` instance to the `top_module` output `q`.\n\nEnsure the module interfaces (names, input/output names, directions, and widths/types) match the specifications exactly for both modules.\n",
+  "original_verified": true,
+  "prompt_hash": "0d90ec",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

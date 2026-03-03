@@ -1,0 +1,27 @@
+{
+  "id": "00007",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.628910",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de5adec8190b974f88576ccae8b",
+  "custom_id": "nor4b_4_input_7cb28248",
+  "module_name": "nor4b_4_input",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `nor4b_4_input` that implements a 4-input logic gate. The module should have the following interface:\n-   Inputs: `A`, `B`, `C`, `D_N`\n-   Output: `Y`\n\nThe functionality of the module should be such that the output `Y` is the logical NOR of the four inputs `A`, `B`, `C`, and `D_N`.\n",
+  "original_verified": true,
+  "prompt_hash": "4429bb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

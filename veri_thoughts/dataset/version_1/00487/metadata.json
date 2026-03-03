@@ -1,0 +1,27 @@
+{
+  "id": "00487",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.347293",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e42da7c8190bd075afd91e6bef9",
+  "custom_id": "counter_0798e8fc",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `counter`.\n\nThis module should implement a 4-bit synchronous counter with the following interface:\n- Inputs:\n    - `clk`: The clock signal.\n    - `reset`: A synchronous reset signal.\n    - `up_down`: A control signal determining the counting direction.\n- Output:\n    - `out`: A 4-bit registered output representing the current count.\n\nThe counter's state (`out`) should update only on the positive edge of the `clk` signal. If `reset` is asserted, the output should be set to 0. Otherwise, if `up_down` is asserted, the counter should increment, and if `up_down` is deasserted, the counter should decrement.\n",
+  "original_verified": true,
+  "prompt_hash": "9c80de",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

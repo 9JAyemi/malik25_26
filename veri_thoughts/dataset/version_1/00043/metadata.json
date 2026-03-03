@@ -1,0 +1,27 @@
+{
+  "id": "00043",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.699408",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de972e88190a8bf76ba29124aad",
+  "custom_id": "counter_76aaa5c8",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `counter` with the following interface:\nInputs: `clock`, `reset`, `enable`, `input_value`\nOutput: `output_value`\nParameters: `WIDTH` (specifying the bit width for `input_value` and `output_value`), `DECREMENT_VALUE` (specifying the value to subtract during an update).\n\nDesign this module to operate synchronously on the positive edge of the `clock`. It should implement a synchronous reset: when `reset` is high, the internal state (and thus the output) should be cleared to zero. When `reset` is low and `enable` is high, the internal state should be updated. The update rule is that the new state becomes the value of `input_value` decremented by `DECREMENT_VALUE`. The `output_value` should always reflect the current internal state.\n",
+  "original_verified": true,
+  "prompt_hash": "fcf9f6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

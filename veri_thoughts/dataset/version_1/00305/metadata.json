@@ -1,0 +1,27 @@
+{
+  "id": "00305",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.808222",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f94d8819096a38533e23ec185",
+  "custom_id": "mux_4to1_and_084253a8",
+  "module_name": "mux_4to1_and",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following two modules:\n\n1.  A 4-bit wide 2-to-1 multiplexer module named `mux2to1`.\n    *   Inputs: `a` (`[3:0]`), `b` (`[3:0]`), `sel` (`[0:0]`)\n    *   Output: `y` (`[3:0]`)\n    *   This module should select input `a` when `sel` is 0 and input `b` when `sel` is 1.\n\n2.  A 4-bit wide 4-to-1 multiplexer module named `mux_4to1_and`.\n    *   Inputs: `a` (`[3:0]`), `b` (`[3:0]`), `c` (`[3:0]`), `d` (`[3:0]`), `sel` (`[1:0]`)\n    *   Output: `y` (`[3:0]`)\n    *   This module should be implemented by instantiating and connecting instances of the `mux2to1` module defined above. The module should select input `a` when `sel` is `2'b00`, `b` when `sel` is `2'b01`, `c` when `sel` is `2'b10`, and `d` when `sel` is `2'b11`.\n\nEnsure the module names and interface signal names and widths exactly match those specified.\n",
+  "original_verified": true,
+  "prompt_hash": "0894d7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

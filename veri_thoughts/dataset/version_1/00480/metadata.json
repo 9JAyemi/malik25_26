@@ -1,0 +1,27 @@
+{
+  "id": "00480",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.324854",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e403c548190aa5689a648ddb585",
+  "custom_id": "adc_transformer_8804cfc8",
+  "module_name": "adc_transformer",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `adc_transformer` that interfaces with an ADC and transforms its data. The module should have the following interface:\n\nInputs:\n-   `adc_dat_a_i` (14 bits): ADC IC Channel A data connection.\n-   `adc_dat_b_i` (14 bits): ADC IC Channel B data connection.\n-   `adc_clk`: ADC clock input.\n-   `adc_rst_i`: ADC reset (active low).\n\nOutputs:\n-   `adc_clk_source` (2 bits): Optional ADC clock source control output.\n-   `adc_cdcs_o`: ADC clock duty cycle stabilizer control output.\n-   `adc_dat_a_o` (14 bits): Processed ADC Channel A data output.\n-   `adc_dat_b_o` (14 bits): Processed ADC Channel B data output.\n\nThe module should implement the following behavior:\n1.  The 14-bit input data for both channels (`adc_dat_a_i` and `adc_dat_b_i`) should be captured and registered on the positive edge of the `adc_clk`.\n2.  The registered data for each channel should then be output (`adc_dat_a_o`, `adc_dat_b_o`) after being transformed into a 14-bit 2's complement representation. This transformation should result in a \"negative slope\" characteristic, where increasing input values correspond to decreasing output values within the 2's complement range.\n3.  The output `adc_cdcs_o` should be permanently set to logic '1' to enable the clock duty cycle stabilizer.\n4.  The output `adc_clk_source` should be permanently set to the 2-bit value `2'b10`, indicating the use of an external clock source.\n5.  The `adc_rst_i` input is part of the interface but does not need to actively control any logic within this specific implementation.\n\nProvide the Verilog code for the `adc_transformer` module.\n",
+  "original_verified": true,
+  "prompt_hash": "db9810",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

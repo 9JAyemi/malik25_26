@@ -1,0 +1,27 @@
+{
+  "id": "00239",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.852410",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e19348081908870a408e3be6128",
+  "custom_id": "bitwise_shift_56b27a67",
+  "module_name": "bitwise_shift",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `bitwise_shift` with the following interface:\n\n*   Input: `a` (32 bits)\n*   Output: `y` (32 bits)\n\nThe module should implement a combinational logic function where the output `y` is the result of performing a bitwise right shift on the 32-bit integer constant `12345` by the number of positions specified by the input `a`. Use a continuous assignment statement (`assign`) for the output.\n",
+  "original_verified": true,
+  "prompt_hash": "ae891a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

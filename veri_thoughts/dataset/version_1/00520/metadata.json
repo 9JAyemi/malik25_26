@@ -1,0 +1,27 @@
+{
+  "id": "00520",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.469822",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e512ae08190859872dd9e4c7878",
+  "custom_id": "decoder_2to4_49d180db",
+  "module_name": "decoder_2to4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `decoder_2to4` that implements a 2-to-4 decoder.\n\nThe module should have the following interface:\n*   A 2-bit input named `in`.\n*   Four single-bit outputs named `out0`, `out1`, `out2`, and `out3`.\n\nThe functionality should be such that based on the binary value of the `in` signal, exactly one of the four outputs is asserted (set to 1), while the others are deasserted (set to 0). Specifically:\n*   If `in` is `2'b00`, `out0` should be 1.\n*   If `in` is `2'b01`, `out1` should be 1.\n*   If `in` is `2'b10`, `out2` should be 1.\n*   If `in` is `2'b11`, `out3` should be 1.\n\nEnsure the outputs are declared appropriately for assignment within a procedural block.\n",
+  "original_verified": true,
+  "prompt_hash": "161f49",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

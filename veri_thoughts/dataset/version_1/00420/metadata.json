@@ -1,0 +1,27 @@
+{
+  "id": "00420",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.763388",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e9e5d508190983dd22bced11503",
+  "custom_id": "RippleCarryAdder_6247bf06",
+  "module_name": "RippleCarryAdder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `RippleCarryAdder` with the following interface:\nInputs:\n`input [3:0] A`\n`input [3:0] B`\n`input Cin`\nOutputs:\n`output [3:0] S`\n`output Cout`\n\nInside the module, declare a 4-bit intermediate wire, let's call it `C`.\nAssign a value to `C` based on the input `Cin` such that only the least significant bit of `C` is directly influenced by `Cin`, and the upper bits are fixed to a constant value (specifically, logic low).\nAssign the output `S` as the result of a bitwise operation combining inputs `A`, `B`, and the intermediate wire `C`.\nAssign the output `Cout` as the result of a boolean function applied to the least significant bits of inputs `A` and `B` and the input `Cin`. This function is the standard carry-out logic for a full adder operating on these three single bits.\n",
+  "original_verified": true,
+  "prompt_hash": "4c43e7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00538",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.533880",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e59b21c8190a6b84c66d1cefa30",
+  "custom_id": "latch__b297e369",
+  "module_name": "latch_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `latch_module`.\nThis module has the following interface:\nInputs: `CLK`, `EN`, `TE`\nOutput: `ENCLK`\n\nThe module should implement the following behavior:\nThe output `ENCLK` should update its value on the positive edge of the `CLK` signal.\nThis update should *only* happen when the `EN` input is high.\nWhen `EN` is high, `ENCLK` should take the value of the `TE` input.\nWhen `EN` is low, `ENCLK` should hold its current value, regardless of the state of `CLK` or `TE`.\n",
+  "original_verified": true,
+  "prompt_hash": "18b60d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

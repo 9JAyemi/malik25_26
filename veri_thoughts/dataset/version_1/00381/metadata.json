@@ -1,0 +1,27 @@
+{
+  "id": "00381",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.053787",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5f8d948190bf54bb767fa0f39a",
+  "custom_id": "gatedcap_08f9c397",
+  "module_name": "gatedcap",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `gatedcap` with the following interface:\n-   `inout ld`: Acts as an input trigger when the module is idle, and an output 'busy' signal when active.\n-   `input clk`: Clock signal.\n-   `input rst`: Asynchronous reset, active high.\n-   `output reg vcap`: A register output representing a value that is controlled by the module's state.\n\nThe module should implement the following behavior:\n1.  On an asynchronous reset (`rst` high), the module should enter an idle state. In the idle state, `vcap` is 0, and the module should not drive `ld` high.\n2.  When in the idle state, if `ld` is asserted high by an external source, the module should begin a cycle by transitioning to a \"charging\" phase. `vcap` should be set to 0 at the start of this cycle.\n3.  In the \"charging\" phase, the module drives `ld` high to indicate it is busy. It remains in this phase for a fixed duration (a specific number of clock cycles). `vcap` remains 0.\n4.  After the charging phase, the module transitions to a \"discharging\" phase. It continues to drive `ld` high. In this phase, `vcap` is periodically decremented until it reaches 0. The period between decrements is determined by an internal counter.\n5.  When `vcap` reaches 0 in the discharging phase, the module returns to the idle state, stopping the assertion of `ld` and resetting internal state.\n",
+  "original_verified": true,
+  "prompt_hash": "c2b329",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

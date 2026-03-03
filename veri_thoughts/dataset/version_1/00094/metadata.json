@@ -1,0 +1,27 @@
+{
+  "id": "00094",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.796535",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df447fc8190a2b184b026342115",
+  "custom_id": "FullAdder_0856cc95",
+  "module_name": "FullAdder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for the following two modules:\n\n1.  **Module `FullAdder`**:\n    *   This module implements a standard full adder.\n    *   It should have the following interface:\n        *   Inputs: `input wire a`, `input wire b`, `input wire ci`\n        *   Outputs: `output reg co`, `output reg s`\n    *   The module takes three single-bit inputs (`a`, `b`, and carry-in `ci`) and produces a single-bit sum (`s`) and a single-bit carry-out (`co`).\n\n2.  **Module `RippleAdder2`**:\n    *   This module implements a 4-bit ripple-carry adder.\n    *   It should have the following interface:\n        *   Parameter: `parameter p_wordlength = 4` (Note: The implementation should be fixed for a 4-bit width, matching the port sizes, regardless of the parameter value, though you can include a check for this specific value).\n        *   Inputs: `input wire[3:0] a`, `input wire[3:0] b`, `input wire ci`\n        *   Outputs: `output reg co`, `output reg[3:0] s`\n    *   The module adds the two 4-bit inputs `a` and `b` along with the single-bit carry-in `ci` to produce a 4-bit sum `s` and a single-bit carry-out `co`.\n    *   This module *must* be implemented by instantiating and connecting four instances of the `FullAdder` module (from part 1) in a ripple-carry configuration.\n    *   The outputs `s` and `co` should be declared as `reg`.\n\nYour code should match the module and port names exactly as specified.\n",
+  "original_verified": true,
+  "prompt_hash": "23d898",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 33
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

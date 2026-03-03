@@ -1,0 +1,27 @@
+{
+  "id": "00167",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.604435",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df859848190bf13a92edf22eb1f",
+  "custom_id": "shift_register_ring_counter_99ddd5b4",
+  "module_name": "shift_register_ring_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `shift_register_ring_counter`. This module should function as a serial-in, serial-out shift register. It has the following interface:\nInputs:\n- `clk`: Clock signal\n- `d`: Serial data input\n\nOutput:\n- `q`: Serial data output\n\nThe module should store the incoming serial data on each rising edge of `clk`. The output `q` should provide the value that was present at the input `d` three clock cycles prior. Design the module to achieve this functionality.\n",
+  "original_verified": true,
+  "prompt_hash": "085939",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

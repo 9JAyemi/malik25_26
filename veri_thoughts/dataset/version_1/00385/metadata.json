@@ -1,0 +1,27 @@
+{
+  "id": "00385",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.670989",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6bbafc8190a856cd4229cdb3b1",
+  "custom_id": "my__35b1a70d",
+  "module_name": "my_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for a module named `my_module`.\nThe module should have the following interface:\nInputs: `A1`, `A2`, `B1`, `B2`\nOutput: `Y`\n\nThe module's behavior should be such that the output `Y` is true if and only if both `A1` and `A2` are true, or if both `B1` and `B2` are true.\n",
+  "original_verified": true,
+  "prompt_hash": "fcb96c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

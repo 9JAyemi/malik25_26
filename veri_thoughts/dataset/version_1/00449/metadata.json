@@ -1,0 +1,27 @@
+{
+  "id": "00449",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.872131",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ec0e4f48190ae4f095907dbaf87",
+  "custom_id": "DLATCHR_a0da3b00",
+  "module_name": "DLATCHR",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `DLATCHR`. This module implements a positive edge-triggered D-type flip-flop with a synchronous, active-low reset.\n\nThe module should have the following interface:\nInputs:\n- `D`: The data input.\n- `nCLK`: The clock input (positive edge-triggered).\n- `nRST`: The active-low synchronous reset input.\n- `INIT`: The value to which the flip-flop is reset.\n\nOutput:\n- `Q`: The flip-flop's output. This output should be of type `reg`.\n\nBehavior:\n- On the positive edge of `nCLK`, the value of `Q` is updated.\n- If `nRST` is low, `Q` should be set to the value of `INIT`.\n- If `nRST` is high, `Q` should take the value of `D`.\n",
+  "original_verified": true,
+  "prompt_hash": "4fab23",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

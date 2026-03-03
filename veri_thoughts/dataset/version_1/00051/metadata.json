@@ -1,0 +1,27 @@
+{
+  "id": "00051",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.713190",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ded1db881908c17e22c57b79b91",
+  "custom_id": "altpcierd_icm_sideband_f9ef6d07",
+  "module_name": "altpcierd_icm_sideband",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `altpcierd_icm_sideband`. This module should implement a set of registers that capture input values on the positive edge of the clock `clk`, unless an asynchronous reset `rstn` is active (low).\n\nThe module's interface should be as follows:\nInputs:\n*   `clk` (1 bit)\n*   `rstn` (1 bit)\n*   `cfg_busdev` (13 bits)\n*   `cfg_devcsr` (32 bits)\n*   `cfg_linkcsr` (32 bits)\n*   `cfg_prmcsr` (32 bits)\n*   `cfg_tcvcmap` (24 bits)\n*   `cfg_msicsr` (16 bits)\n*   `pex_msi_num` (5 bits)\n*   `app_int_sts` (1 bit)\n*   `app_int_sts_ack` (1 bit)\n*   `cpl_err` (3 bits)\n*   `cpl_pending` (1 bit)\n\nOutputs:\n*   `cfg_busdev_del` (13 bits)\n*   `cfg_devcsr_del` (32 bits)\n*   `cfg_linkcsr_del` (32 bits)\n*   `cfg_prmcsr_del` (32 bits)\n*   `cfg_tcvcmap_del` (24 bits)\n*   `cfg_msicsr_del` (16 bits)\n*   `app_int_sts_del` (1 bit)\n*   `app_int_sts_ack_del` (1 bit)\n*   `pex_msi_num_del` (5 bits)\n*   `cpl_err_del` (3 bits)\n*   `cpl_pending_del` (1 bit)\n\nThe behavior is as follows:\n- If `rstn` is low, all output signals (`*_del`) should be immediately reset to 0 (or their equivalent for vectors).\n- If `rstn` is high, on the positive edge of `clk`, each output signal (`*_del`) should capture the current value of its corresponding input signal (e.g., `cfg_busdev_del` gets the value of `cfg_busdev`).\n\nDo not include any other modules in your answer.\n",
+  "original_verified": true,
+  "prompt_hash": "30c853",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 2
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

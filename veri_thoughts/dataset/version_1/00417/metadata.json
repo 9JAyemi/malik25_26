@@ -1,0 +1,27 @@
+{
+  "id": "00417",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.757117",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e98cf88819089360ef075885882",
+  "custom_id": "memoryProtection_ea40ff8b",
+  "module_name": "memoryProtection",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `memoryProtection`.\nThis module should have the following interface:\n-   An input port `addr` which is an `n`-bit wide vector.\n-   An output port `cs` which is an `m`-bit wide vector.\nThe module should accept two parameters:\n-   `n`: representing the number of address bits, with a default value of 8.\n-   `m`: representing the number of control signals, with a default value of 4.\n\nThe module implements a simple memory protection scheme where the output control signals `cs` are driven based on specific bit patterns in the input address `addr`. The control signals `cs[i]` are active-low, meaning they should be set to 0 when a particular address condition is met, and 1 otherwise.\n\nImplement the following logic for the `cs` outputs:\n-   `cs[0]` should be 0 if and only if the least significant bit of `addr` (`addr[0]`) is 1 AND the bit at index 1 (`addr[1]`) is 0.\n-   `cs[1]` should be 0 if and only if the bit at index 2 (`addr[2]`) is 1 OR the bit at index 3 (`addr[3]`) is 1.\n-   `cs[2]` should be 0 if and only if the bits at index 4 (`addr[4]`), index 5 (`addr[5]`), AND index 6 (`addr[6]`) are all 0.\n-   `cs[3]` should be 0 if and only if the bit at index 7 (`addr[7]`) is 1 (assuming the default value of n=8).\n\nFor all other address inputs, the corresponding `cs` bit should be 1. Assume the default parameter values (n=8, m=4) for specifying the bit indices unless the logic explicitly refers to the most/least significant bit or the parameter `n`.\n",
+  "original_verified": true,
+  "prompt_hash": "1d13fd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

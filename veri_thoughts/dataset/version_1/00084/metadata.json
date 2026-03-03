@@ -1,0 +1,27 @@
+{
+  "id": "00084",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.779586",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df38fe081908b951a95fd15745d",
+  "custom_id": "constant_voltage_driver_925621cb",
+  "module_name": "constant_voltage_driver",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `constant_voltage_driver`.\n\nThis module has the following interface:\n- Inputs:\n    - `control`: A 1-bit input.\n    - `vref`: An 8-bit input.\n- Output:\n    - `vout`: A 1-bit registered output.\n\nThe module should implement the following logic:\n- When the `control` input is high (1), the `vout` output should be assigned the value of the least significant bit (LSB) of the `vref` input.\n- When the `control` input is low (0), the `vout` output should be assigned the value 0.\n\nEnsure the output `vout` is declared as a registered type (`reg`).\n",
+  "original_verified": true,
+  "prompt_hash": "3a6b60",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "00271",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.717225",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3ceb488190b7e0da354bd8a5c3",
+  "custom_id": "xor_32_df85bb42",
+  "module_name": "xor_32",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `xor_32`.\nThe module should have the following interface:\nInputs:\n`input [31:0] a`\n`input [31:0] b`\nOutput:\n`output [31:0] out`\n\nThe module should implement a bitwise XOR operation between the two 32-bit inputs `a` and `b`. Specifically, for each bit position `i` from 0 to 31, the output bit `out[i]` should be the result of the XOR operation between input bit `a[i]` and input bit `b[i]`.\n",
+  "original_verified": true,
+  "prompt_hash": "28e4a6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 2
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

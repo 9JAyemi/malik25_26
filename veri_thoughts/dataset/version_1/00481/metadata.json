@@ -1,0 +1,27 @@
+{
+  "id": "00481",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.327802",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e40465c819082c0f6a9f0fbb3b8",
+  "custom_id": "CRC_serial_m_lfs_XOR_a8e009d7",
+  "module_name": "CRC_serial_m_lfs_XOR",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `CRC_serial_m_lfs_XOR` that calculates the next state of a serial Linear Feedback Shift Register (LFSR) suitable for Cyclic Redundancy Check (CRC) calculations. The module should be parameterized by `HASH_LENGTH`, which defaults to 64, representing the number of bits in the LFSR state.\n\nThe module has the following interface:\n*   An input `i_message` which is a single bit representing the new data bit entering the CRC calculation.\n*   An input `i_cur_parity` which is a `HASH_LENGTH`-bit vector representing the current state of the LFSR.\n*   An output `o_next_parity` which is a `HASH_LENGTH`-bit vector representing the calculated next state of the LFSR.\n\nThe LFSR state update follows these rules:\n1.  A feedback term is calculated by XORing the input bit (`i_message`) with the most significant bit of the current state (`i_cur_parity[HASH_LENGTH-1]`).\n2.  The least significant bit of the next state (`o_next_parity[0]`) is assigned the value of this feedback term.\n3.  For each bit position `i` from 1 up to `HASH_LENGTH-1`, the bit `o_next_parity[i]` is derived from the previous state bit `i_cur_parity[i-1]`. Specifically, `o_next_parity[i]` is the result of XORing `i_cur_parity[i-1]` with the feedback term *only if* the generator polynomial has a tap at position `i`. Otherwise, `o_next_parity[i]` is simply `i_cur_parity[i-1]`. The module should incorporate the specific generator polynomial bit pattern needed to implement these taps.\n\nYour implementation should reflect the structure of a combinational logic block calculating the next state based on the current inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "aa7141",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}

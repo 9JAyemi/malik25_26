@@ -1,0 +1,27 @@
+{
+  "id": "00367",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.985975",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5865448190933e6dc52bc1ded4",
+  "custom_id": "binary_to_gray_9850bdf0",
+  "module_name": "binary_to_gray",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_to_gray` that performs a 4-bit binary-to-Gray code conversion.\n\nThe module should have the following interface:\n- An input port `bin_in` which is a 4-bit wide vector (indexed [3:0]).\n- An output port `gray_out` which is a 4-bit wide vector (indexed [3:0]).\n\nImplement the standard combinational logic for converting a binary number to its Gray code equivalent.\n",
+  "original_verified": true,
+  "prompt_hash": "91a135",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  }
+}
