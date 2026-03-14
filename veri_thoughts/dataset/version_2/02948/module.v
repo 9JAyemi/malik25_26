@@ -1,0 +1,40 @@
+module pwm_controller(
+    input clk,
+    input [12:0] slow_rate,
+    output speaker_out
+);
+
+reg [12:0] counter;
+reg speaker;
+reg [12:0] slow_rate_old;
+
+initial begin
+    counter = 0;
+    slow_rate_old = 0;
+    speaker = 1'b0;
+end
+
+always @(posedge clk) begin
+    if(slow_rate_old != slow_rate) begin
+        counter <= 0;
+        speaker <= 1'b0;
+        slow_rate_old <= slow_rate;
+    end
+    else if (slow_rate != 0) begin
+        if(counter == slow_rate) begin
+            speaker <= ~speaker;
+            counter <= 0;
+        end
+        else begin
+            counter <= counter + 1;
+        end
+    end
+    else begin
+        speaker <= 1'b0;
+        counter <= 0;
+    end
+end
+
+assign speaker_out = speaker;
+
+endmodule
