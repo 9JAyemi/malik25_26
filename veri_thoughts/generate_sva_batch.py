@@ -14,20 +14,71 @@ load_dotenv()
 MAX_TOKENS = 2500
 CHARS_PER_TOKEN = 4
 BATCH_SIZE = 500  # Number of modules to process in one batch
-OUTPUT_DIR = "generated_modules"  # Folder for .v and .sv files
+OUTPUT_DIR = "generated_modules"  # Single folder for all .v and .sv files
 TRACKING_FILE = "processed_modules.json"  # Track what's been processed
 BATCH_REQUESTS_DIR = "batch_requests"  # Store batch request files
 
-# === Dataset layout config and helpers (ID width = 5) ===
+SYSTEM_PROMPT = """\
+You are an expert SystemVerilog verification engineer writing SVA for Jasper \
+formal verification.
+OUTPUT REQUIREMENTS:
+1. Output a single, complete .sv file that compiles in Jasper without modification.
+2. The file must be a module that takes the DUT's ports as inputs and contains \
+   SVA properties bound to those signals. You can use internal signals \
+   if they are present in the RTL, but do NOT invent new ones.
+3. Every property must use a clocked event (@(posedge clk) or the appropriate \
+   clock from the RTL). NEVER use combinational or level-sensitive events in \
+   property statements — Jasper rejects these. For modules with combinational \
+   logic, still clock your assertions to the appropriate clock edge.
+4. Use `disable iff` with the correct reset polarity as shown in the RTL.
+5. Use descriptive labels for every assertion (e.g., `check_grant_mutex`, not `a1`).
+6. Add a brief comment above each assertion explaining what it checks.
+7. Only assert behaviors that the RTL actually implements. Do not invent \
+   signals, states, or protocols that are not present in the code.
+8. Focus on QUALITY and CORRECTNESS — 10 correct, meaningful assertions are \
+   worth more than 30 trivial or speculative ones.
+9. Do NOT wrap output in markdown code fences or add explanation outside the code.
+10. Keep comments minimal — one short line per assertion. Do NOT include large \
+   comment blocks, file headers, or explanations of your approach.
+REFERENCE EXAMPLE — this is the style and quality level to target:
+```systemverilog
+module manual (
+    input logic CLK,
+    input logic RESETn,
+    input logic QREQn,
+    input logic QACCEPTn,
+    input logic QDENY,
+    input logic QACTIVE
+);
+    ///// Handshake rules /////
+    // QREQn can only transition from HIGH to LOW when QACCEPTn is HIGH and QDENY is LOW.
+    handshake_1: assume property (
+        @(posedge CLK) disable iff (!RESETn) $fell(QREQn) |-> (QACCEPTn == 1'b1) && (QDENY == 1'b0)
+    );
+    // QACCEPTn can only transition from HIGH to LOW when QREQn is LOW and QDENY is LOW.
+    handshake_3: assert property (
+        @(posedge CLK) disable iff (!RESETn) $fell(QACCEPTn) |-> (QREQn == 1'b0) && (QDENY == 1'b0)
+    );
+    // QDENY can only transition from LOW to HIGH when QREQn is LOW and QACCEPTn is HIGH.
+    handshake_6: assert property (
+        @(posedge CLK) disable iff (!RESETn) $rose(QDENY) |-> (QREQn == 1'b0) && (QACCEPTn == 1'b1)
+    );
+    ///// Device reset /////
+    // At reset assertion, a device must drive both QACCEPTn and QDENY LOW.
+    reset: assert property (
+        @(posedge CLK) !RESETn |-> (QACCEPTn == 1'b0) && (QDENY == 1'b0)
+    );
+endmodule
+```
+Note the pattern: module wrapper with DUT ports as inputs, descriptive labels, \
+comments explaining intent, proper clocking and reset disable on every property, \
+and appropriate use of assume vs assert."""
+
+# === New: dataset layout config and helpers (ID width = 5) ===
 DATASET_ROOT = "dataset"
-CURRENT_VERSION = os.getenv("DATASET_VERSION", "version_1")
+CURRENT_VERSION = os.getenv("DATASET_VERSION", "version_2")
 ID_WIDTH = 5  # 00000, 00001, ...
 GLOBAL_INDEX_FILE = os.path.join(DATASET_ROOT, "global_index.json")
-
-# VeriThoughts dataset identifier
-VERITHOUGHTS_DATASET = "wilyub/VeriThoughtsTrainSet"
-BATCH_TRACKING_FILE = "batch_tracking.json"
-
 
 def ensure_version_dirs():
     version_dir = os.path.join(DATASET_ROOT, CURRENT_VERSION)
@@ -49,10 +100,9 @@ def ensure_version_dirs():
             json.dump(
                 {"latest_version": CURRENT_VERSION, "next_id": 0, "versions": [CURRENT_VERSION]},
                 f,
-                indent=2,
+                indent=2
             )
     return version_dir, meta_dir
-
 
 def load_global_index():
     if os.path.exists(GLOBAL_INDEX_FILE):
@@ -60,13 +110,12 @@ def load_global_index():
             return json.load(f)
     return {"latest_version": CURRENT_VERSION, "next_id": 0, "versions": [CURRENT_VERSION]}
 
-
 def save_global_index(idx):
     with open(GLOBAL_INDEX_FILE, "w") as f:
         json.dump(idx, f, indent=2)
 
-
 def allocate_sample_id():
+    # Single-writer assumption. Add a lock if you introduce concurrency.
     idx = load_global_index()
     sid = idx.get("next_id", 0)
     idx["next_id"] = sid + 1
@@ -78,26 +127,26 @@ def allocate_sample_id():
     save_global_index(idx)
     return str(sid).zfill(ID_WIDTH)
 
-
 def compute_prompt_text(rtl_code: str) -> str:
-    return f"""You are a verification engineer. 
-Generate SVA assertions for the following verilog module.
-Make sure it has full coverage and checks all important
-signals and functions, but make sure it is also concise. We
-mostly care about quality over quantity and also mostly care
-about SVA, not DUT or testbench code, the SVA is the most
-important part of what you generate.:
-
-{rtl_code}"""
-
+    return f"""Analyze the following RTL module carefully. Identify:
+- The clock(s) and reset signal(s), including reset polarity
+- Whether the logic is sequential, combinational, or mixed
+- The key signals, interfaces, and functional behaviors
+Then generate a complete .sv assertion module following the style shown in \
+your reference example. Only write assertions for behaviors that are actually \
+present in this RTL — do not guess or assume functionality that isn't there. \
+For combinational logic, still use clocked assertions (@(posedge clk)).
+RTL module:
+```verilog
+{rtl_code}
+```"""
 
 def short_hash(text: str, n: int = 6) -> str:
     return hashlib.sha1(text.encode()).hexdigest()[:n]
 
-
 def count_assertions(sva_code: str) -> int:
+    # Simple heuristic; refine later if needed
     return sum(1 for line in sva_code.splitlines() if "assert" in line)
-
 
 def update_stats(meta_dir: str, increment: int = 1):
     stats_path = os.path.join(meta_dir, "stats.json")
@@ -109,7 +158,6 @@ def update_stats(meta_dir: str, increment: int = 1):
     stats["count"] = stats.get("count", 0) + increment
     with open(stats_path, "w") as f:
         json.dump(stats, f, indent=2)
-
 
 def write_dataset_sample(rtl_code: str, sva_code: str, metadata: dict) -> dict:
     """
@@ -141,8 +189,8 @@ def write_dataset_sample(rtl_code: str, sva_code: str, metadata: dict) -> dict:
             "status": "unjudged",
             "llm_scores": [],
             "aggregate_score": None,
-            "accepted": None,
-        },
+            "accepted": None
+        }
     }
     with open(os.path.join(sample_dir, "metadata.json"), "w") as f:
         json.dump(per_sample_meta, f, indent=2)
@@ -154,101 +202,98 @@ def write_dataset_sample(rtl_code: str, sva_code: str, metadata: dict) -> dict:
 
     update_stats(meta_dir, increment=1)
     return {"id": sample_id, "dir": sample_dir}
-
-
-# === VeriThoughts-specific helpers ===
-
-def get_rtl_field(sample):
-    """Get the ground-truth Verilog code from a VeriThoughts sample."""
-    if "ground_truth" in sample and sample["ground_truth"]:
-        return sample["ground_truth"]
-    elif "generated_verilog" in sample and sample["generated_verilog"]:
-        return sample["generated_verilog"]
-    else:
-        raise KeyError("No 'ground_truth' or 'generated_verilog' field found in sample")
-
-
-def get_module_name(rtl_code):
-    """Extract module name from Verilog code."""
-    lines = rtl_code.split("\n")
-    for line in lines:
-        line = line.strip()
-        if line.startswith("module "):
-            module_decl = line.split("module ")[1]
-            module_name = module_decl.split("(")[0].split(";")[0].split("#")[0].strip()
-            return module_name
-    return "unknown_module"
-
+# === end dataset helpers ===
 
 def estimate_tokens(text):
     """Estimate token count based on character count."""
     return len(text) // CHARS_PER_TOKEN
 
+def get_rtl_field(module):
+    """Get RTL from the ground_truth field (VeriThoughtsTrainSet)."""
+    if 'ground_truth' in module:
+        return module['ground_truth']
+    else:
+        raise KeyError("No 'ground_truth' field found in module")
+
+def get_module_name(rtl_code):
+    """Extract module name from Verilog code."""
+    lines = rtl_code.split('\n')
+    for line in lines:
+        line = line.strip()
+        if line.startswith('module '):
+            module_decl = line.split('module ')[1]
+            module_name = module_decl.split('(')[0].split(';')[0].strip()
+            return module_name
+    return "unknown_module"
 
 def get_module_hash(rtl_code):
     """Generate a hash of the RTL code to uniquely identify it."""
     return hashlib.md5(rtl_code.encode()).hexdigest()
 
-
 def load_processed_modules():
     """Load the tracking file of processed modules."""
     if os.path.exists(TRACKING_FILE):
-        with open(TRACKING_FILE, "r") as f:
+        with open(TRACKING_FILE, 'r') as f:
             return json.load(f)
     return {}
 
-
 def save_processed_modules(processed):
     """Save the tracking file of processed modules."""
-    with open(TRACKING_FILE, "w") as f:
+    with open(TRACKING_FILE, 'w') as f:
         json.dump(processed, f, indent=2)
-
 
 def is_module_processed(module_hash, processed_modules):
     """Check if a module has already been processed."""
     return module_hash in processed_modules
 
-
 def save_module_pair(rtl_code, sva_code, module_name, module_hash):
     """Save both .v and .sv files in the same folder with matching names."""
+    # Create the output directory if it doesn't exist
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+    
+    # Handle duplicate module names by appending a number
     base_name = module_name
     v_filename = os.path.join(OUTPUT_DIR, f"{base_name}.v")
     sv_filename = os.path.join(OUTPUT_DIR, f"{base_name}.sv")
-
+    
+    # If file already exists, check if it's the same module
     if os.path.exists(v_filename):
-        with open(v_filename, "r") as f:
+        with open(v_filename, 'r') as f:
             existing_rtl = f.read()
             existing_hash = get_module_hash(existing_rtl)
-
+        
         if existing_hash != module_hash:
+            # Different module with same name - find next available number
             counter = 2
             while True:
                 base_name = f"{module_name}_{counter}"
                 v_filename = os.path.join(OUTPUT_DIR, f"{base_name}.v")
                 sv_filename = os.path.join(OUTPUT_DIR, f"{base_name}.sv")
-
+                
                 if not os.path.exists(v_filename):
                     break
-
-                with open(v_filename, "r") as f:
+                
+                # Check if this numbered version is also different
+                with open(v_filename, 'r') as f:
                     existing_rtl = f.read()
                     existing_hash = get_module_hash(existing_rtl)
-
+                
                 if existing_hash == module_hash:
+                    # Found the same module already saved with this number
                     break
-
+                
                 counter += 1
-
-    with open(v_filename, "w") as f:
+    
+    # Save .v file
+    with open(v_filename, 'w') as f:
         f.write(rtl_code)
-    with open(sv_filename, "w") as f:
+    
+    # Save .sv file
+    with open(sv_filename, 'w') as f:
         f.write(sva_code)
-
+    
     print(f"Saved: {base_name}.v and {base_name}.sv")
     return base_name
-
 
 def create_batch_request(rtl_code, module_name, custom_id):
     """Create a single batch request object."""
@@ -260,89 +305,85 @@ def create_batch_request(rtl_code, module_name, custom_id):
         "body": {
             "model": "gpt-5",
             "input": [
-                {
-                    "role": "system",
-                    "content": "You are a verification engineer expert in SystemVerilog Assertions.",
-                },
-                {"role": "user", "content": prompt},
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt}
             ],
-            "reasoning": {"effort": "medium"},
-            "text": {"verbosity": "low"},
-        },
+            "reasoning": {"effort": "high"},
+            "text": {"verbosity": "low"}
+        }
     }
-
 
 def prepare_batch_file(modules_data, batch_num):
     """Prepare a .jsonl batch file for OpenAI Batch API."""
     os.makedirs(BATCH_REQUESTS_DIR, exist_ok=True)
-    batch_filename = os.path.join(
-        BATCH_REQUESTS_DIR,
-        f"batch_{batch_num}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jsonl",
-    )
-
-    with open(batch_filename, "w") as f:
+    batch_filename = os.path.join(BATCH_REQUESTS_DIR, f"batch_{batch_num}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jsonl")
+    
+    with open(batch_filename, 'w') as f:
         for module_data in modules_data:
             request = create_batch_request(
-                module_data["rtl_code"],
-                module_data["module_name"],
-                module_data["custom_id"],
+                module_data['rtl_code'],
+                module_data['module_name'],
+                module_data['custom_id']
             )
-            f.write(json.dumps(request) + "\n")
-
+            f.write(json.dumps(request) + '\n')
+    
     print(f"Created batch file: {batch_filename}")
     return batch_filename
 
-
 def upload_and_create_batch(client, batch_filename):
     """Upload batch file and create a batch job."""
-    with open(batch_filename, "rb") as f:
-        batch_input_file = client.files.create(file=f, purpose="batch")
-
+    # Upload the file
+    with open(batch_filename, 'rb') as f:
+        batch_input_file = client.files.create(
+            file=f,
+            purpose="batch"
+        )
+    
+    # Create the batch
     batch = client.batches.create(
         input_file_id=batch_input_file.id,
         endpoint="/v1/responses",
         completion_window="24h",
         metadata={
-            "description": "SVA generation for Verilog modules from VeriThoughts dataset"
-        },
+        "description": "SVA generation for Verilog modules from VeriThoughtsTrainSet"
+    }
     )
-
+    
     print(f"Batch created with ID: {batch.id}")
     return batch.id
-
 
 def check_batch_status(client, batch_id):
     """Check the status of a batch job."""
     batch = client.batches.retrieve(batch_id)
     return batch.status, batch
 
-
 def download_batch_results(client, batch):
     """Download and parse batch results."""
     if batch.status != "completed":
         print(f"Batch not completed. Status: {batch.status}")
         return None
-
+    
+    # Download output file
     output_file_id = batch.output_file_id
     content = client.files.content(output_file_id)
-
+    
     results = []
-    for line in content.text.strip().split("\n"):
+    for line in content.text.strip().split('\n'):
         results.append(json.loads(line))
-
+    
     return results
-
 
 def process_batch_results(results, modules_metadata, processed_modules):
     """Process batch results and save module pairs."""
     for result in results:
-        custom_id = result.get("custom_id")
-        metadata = modules_metadata.get(custom_id)
-        if not metadata:
-            print(f"⚠️ Unknown or missing custom_id: {custom_id}")
-            continue
-
         try:
+            custom_id = result.get("custom_id")
+            if not custom_id or custom_id not in modules_metadata:
+                print(f"⚠️ Unknown or missing custom_id: {custom_id}")
+                continue
+
+            metadata = modules_metadata[custom_id]
+
             # --- Navigate into response body ---
             response = result.get("response", {})
             body = response.get("body", {})
@@ -354,9 +395,7 @@ def process_batch_results(results, modules_metadata, processed_modules):
             for item in output:
                 if item.get("type") == "message" and isinstance(item.get("content"), list):
                     for content_item in item["content"]:
-                        if content_item.get("type") == "output_text" and isinstance(
-                            content_item.get("text"), str
-                        ):
+                        if content_item.get("type") == "output_text" and isinstance(content_item.get("text"), str):
                             sva_code = content_item["text"].strip()
                             break
                 if sva_code:
@@ -366,10 +405,7 @@ def process_batch_results(results, modules_metadata, processed_modules):
             if not sva_code:
                 sva_code = body.get("output_text") or body.get("text")
                 if isinstance(sva_code, dict):
-                    sva_code = next(
-                        (v for v in sva_code.values() if isinstance(v, str)),
-                        str(sva_code),
-                    )
+                    sva_code = next((v for v in sva_code.values() if isinstance(v, str)), str(sva_code))
                 if isinstance(sva_code, str):
                     sva_code = sva_code.strip()
 
@@ -380,6 +416,7 @@ def process_batch_results(results, modules_metadata, processed_modules):
             rtl_code = metadata["rtl_code"]
             module_name = metadata["module_name"]
 
+            # Skip if we've already processed this RTL hash (e.g., from another batch)
             module_hash = metadata.get("module_hash")
             if module_hash and module_hash in processed_modules:
                 print(f"↷ Skipping duplicate across batches: {module_name}")
@@ -393,13 +430,11 @@ def process_batch_results(results, modules_metadata, processed_modules):
                 "batch_id": result.get("id") or response.get("id"),
                 "custom_id": custom_id,
                 "module_name": module_name,
-                "original_dataset": VERITHOUGHTS_DATASET,
-                "original_question": metadata.get("question", ""),
-                "original_verified": metadata.get("verified", None),
+                "original_dataset": "wilyub/VeriThoughtsTrainSet",
                 "prompt_hash": short_hash(prompt_text),
                 "validation": {
-                    "syntax_check": True,
-                    "compiles_with_sv_linter": False,
+                    "syntax_check": True,              # placeholder; no linting as requested
+                    "compiles_with_sv_linter": False,  # placeholder
                     "num_assertions": count_assertions(sva_code),
                 },
             }
@@ -413,7 +448,7 @@ def process_batch_results(results, modules_metadata, processed_modules):
                 "saved_dir": saved["dir"],
                 "processed_date": datetime.now().isoformat(),
                 "custom_id": custom_id,
-                "version": CURRENT_VERSION,
+                "version": CURRENT_VERSION
             }
 
             print(f"✓ Processed: {module_name} -> {saved['id']}")
@@ -423,154 +458,158 @@ def process_batch_results(results, modules_metadata, processed_modules):
 
     save_processed_modules(processed_modules)
 
-
 def collect_modules_for_batch(dataset, processed_modules, batch_size):
     """Collect unprocessed modules for a batch."""
     modules_data = []
     modules_metadata = {}
-
+    
+    # Shuffle indices to get random modules
     indices = list(range(len(dataset)))
     random.shuffle(indices)
-
+    
     for idx in indices:
         if len(modules_data) >= batch_size:
             break
-
+        
         try:
-            sample = dataset[idx]
-
-            # Only use verified samples
-            if not sample.get("verified", False):
-                continue
-
-            rtl_code = get_rtl_field(sample)
-
+            module = dataset[idx]
+            rtl_code = get_rtl_field(module)
+            
             # Check token limit
             estimated_tokens = estimate_tokens(rtl_code)
             if estimated_tokens > MAX_TOKENS:
                 continue
-
+            
             # Check if already processed
             module_hash = get_module_hash(rtl_code)
             if is_module_processed(module_hash, processed_modules):
                 continue
-
+            
             # Extract module name
             module_name = get_module_name(rtl_code)
             custom_id = f"{module_name}_{module_hash[:8]}"
-
-            modules_data.append(
-                {
-                    "rtl_code": rtl_code,
-                    "module_name": module_name,
-                    "custom_id": custom_id,
-                    "module_hash": module_hash,
-                }
-            )
-
+            
+            # Add to batch
+            modules_data.append({
+                'rtl_code': rtl_code,
+                'module_name': module_name,
+                'custom_id': custom_id,
+                'module_hash': module_hash
+            })
+            
             modules_metadata[custom_id] = {
-                "rtl_code": rtl_code,
-                "module_name": module_name,
-                "module_hash": module_hash,
-                "dataset_index": idx,
-                "question": sample.get("question", ""),
-                "verified": sample.get("verified", None),
+                'rtl_code': rtl_code,
+                'module_name': module_name,
+                'module_hash': module_hash,
+                'dataset_index': idx
             }
-
+            
         except Exception as e:
             print(f"Error processing module at index {idx}: {e}")
             continue
-
+    
     return modules_data, modules_metadata
 
+def load_verified_dataset():
+    """Load VeriThoughtsTrainSet and filter to only verified rows."""
+    print("Loading VeriThoughtsTrainSet dataset...")
+    ds = load_dataset("wilyub/VeriThoughtsTrainSet", split="train")
+    total = len(ds)
+    print(f"Full dataset: {total} rows")
+
+    # Filter to only verified == True
+    ds = ds.filter(lambda row: row.get("verified") is True)
+    print(f"After filtering to verified only: {len(ds)} rows (filtered out {total - len(ds)})")
+    return ds
 
 def main_batch_mode(num_batches=10):
     """Main function for batch processing mode."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    # Get API key
+    api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         print("Error: OPENAI_API_KEY environment variable not set")
         exit(1)
-
+    
     client = OpenAI(api_key=api_key)
-
-    # Load dataset
-    print(f"Loading VeriThoughts dataset ({VERITHOUGHTS_DATASET})...")
-    ds = load_dataset(VERITHOUGHTS_DATASET, split="train")
-    print(f"Dataset loaded with {len(ds)} samples")
-
+    
+    # Load dataset (verified only)
+    ds = load_verified_dataset()
+    
     # Load processed modules
     processed_modules = load_processed_modules()
     print(f"Already processed: {len(processed_modules)} modules")
-
+    
     # Process batches
     batch_ids = []
     all_metadata = {}
-
+    
     for batch_num in range(num_batches):
         print(f"\n=== Preparing Batch {batch_num + 1}/{num_batches} ===")
-
+        
+        # Collect modules for this batch
         modules_data, modules_metadata = collect_modules_for_batch(
             ds, processed_modules, BATCH_SIZE
         )
-
+        
         if not modules_data:
             print("No more unprocessed modules available")
             break
-
+        
         print(f"Collected {len(modules_data)} modules for batch")
-
+        
+        # Prepare batch file
         batch_filename = prepare_batch_file(modules_data, batch_num)
-
+        
+        # Upload and create batch
         batch_id = upload_and_create_batch(client, batch_filename)
         batch_ids.append(batch_id)
         all_metadata[batch_id] = modules_metadata
-
+    
     # Save batch tracking info
     batch_tracking = {
-        "batch_ids": batch_ids,
-        "metadata": all_metadata,
-        "created_at": datetime.now().isoformat(),
-        "source_dataset": VERITHOUGHTS_DATASET,
+        'batch_ids': batch_ids,
+        'metadata': all_metadata,
+        'created_at': datetime.now().isoformat()
     }
-
-    with open(BATCH_TRACKING_FILE, "w") as f:
+    
+    with open('batch_tracking.json', 'w') as f:
         json.dump(batch_tracking, f, indent=2)
-
+    
     print(f"\n=== Created {len(batch_ids)} batches ===")
-    print(f"Batch IDs saved to {BATCH_TRACKING_FILE}")
+    print("Batch IDs saved to batch_tracking.json")
     print("\nTo check status and download results, run:")
     print("python generate_sva_batch.py --check-batches")
 
-
 def check_and_download_batches():
     """Check status of batches and download completed results."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         print("Error: OPENAI_API_KEY environment variable not set")
         exit(1)
-
+    
     client = OpenAI(api_key=api_key)
-
-    if not os.path.exists(BATCH_TRACKING_FILE):
-        print(f"No batch tracking file found ({BATCH_TRACKING_FILE})")
+    
+    # Load batch tracking
+    if not os.path.exists('batch_tracking.json'):
+        print("No batch tracking file found")
         return
-
-    with open(BATCH_TRACKING_FILE, "r") as f:
+    
+    with open('batch_tracking.json', 'r') as f:
         batch_tracking = json.load(f)
-
+    
     processed_modules = load_processed_modules()
-
-    for batch_id in batch_tracking["batch_ids"]:
+    
+    for batch_id in batch_tracking['batch_ids']:
         print(f"\n=== Checking Batch {batch_id} ===")
         status, batch = check_batch_status(client, batch_id)
         print(f"Status: {status}")
-
+        
         if status == "completed":
             print("Downloading results...")
             results = download_batch_results(client, batch)
-
+            
             if results:
-                modules_metadata = batch_tracking["metadata"][batch_id]
+                modules_metadata = batch_tracking['metadata'][batch_id]
                 process_batch_results(results, modules_metadata, processed_modules)
                 print(f"Processed {len(results)} results")
         elif status == "failed":
@@ -578,71 +617,58 @@ def check_and_download_batches():
         elif status in ["validating", "in_progress", "finalizing"]:
             print("Batch still processing...")
 
-
 def main_single_mode():
-    """Single-module generation mode for testing."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    """Original single-module generation mode for testing."""
+    api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
         print("Error: OPENAI_API_KEY environment variable not set")
         exit(1)
-
+    
     client = OpenAI(api_key=api_key)
-
-    print(f"Loading VeriThoughts dataset ({VERITHOUGHTS_DATASET})...")
-    ds = load_dataset(VERITHOUGHTS_DATASET, split="train")
-    print(f"Dataset loaded with {len(ds)} samples")
-
+    
+    # Load dataset (verified only)
+    ds = load_verified_dataset()
+    
     processed_modules = load_processed_modules()
-
+    
     max_attempts = 100
     for _ in range(max_attempts):
         random_index = random.randint(0, len(ds) - 1)
-        sample = ds[random_index]
-
+        module = ds[random_index]
+        
         try:
-            # Only use verified samples
-            if not sample.get("verified", False):
-                continue
-
-            rtl_code = get_rtl_field(sample)
+            rtl_code = get_rtl_field(module)
             module_hash = get_module_hash(rtl_code)
             if is_module_processed(module_hash, processed_modules):
                 continue
-
+            
             estimated_tokens = estimate_tokens(rtl_code)
             if estimated_tokens > MAX_TOKENS:
                 continue
-
+            
             module_name = get_module_name(rtl_code)
             print(f"Selected module: {module_name}")
             print(f"Estimated tokens: {estimated_tokens}")
-            if sample.get("question"):
-                print(f"Question: {sample['question'][:120]}...")
-
+            
             print("Generating SVA assertions...")
             prompt = compute_prompt_text(rtl_code)
             response = client.responses.create(
                 model="gpt-5",
                 input=[
-                    {
-                        "role": "system",
-                        "content": "You are a verification engineer expert in SystemVerilog Assertions.",
-                    },
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
                 ],
                 reasoning={"effort": "medium"},
-                text={"verbosity": "medium"},
+                text={"verbosity": "medium"}
             )
             sva_code = response.output_text
-
+            
             # Save into dataset (staging)
             meta_obj = {
                 "source": "single_mode",
                 "model_used": "gpt-5",
                 "module_name": module_name,
-                "original_dataset": VERITHOUGHTS_DATASET,
-                "original_question": sample.get("question", ""),
-                "original_verified": sample.get("verified", None),
+                "original_dataset": "wilyub/VeriThoughtsTrainSet",
                 "prompt_hash": short_hash(prompt),
                 "validation": {
                     "syntax_check": True,
@@ -651,59 +677,28 @@ def main_single_mode():
                 },
             }
             saved = write_dataset_sample(rtl_code, sva_code, meta_obj)
-
+            
             processed_modules[module_hash] = {
-                "module_name": module_name,
-                "saved_id": saved["id"],
-                "saved_dir": saved["dir"],
-                "processed_date": datetime.now().isoformat(),
-                "version": CURRENT_VERSION,
+                'module_name': module_name,
+                'saved_id': saved["id"],
+                'saved_dir': saved["dir"],
+                'processed_date': datetime.now().isoformat(),
+                'version': CURRENT_VERSION
             }
             save_processed_modules(processed_modules)
-
+            
             print("\nGeneration complete!")
             return
-
+            
         except Exception as e:
             print(f"Error: {e}")
             continue
-
+    
     print("Could not find an unprocessed module within attempt limit")
-
-
-def main_stats():
-    """Print statistics about dataset coverage."""
-    print(f"Loading VeriThoughts dataset ({VERITHOUGHTS_DATASET})...")
-    ds = load_dataset(VERITHOUGHTS_DATASET, split="train")
-    total = len(ds)
-    processed_modules = load_processed_modules()
-    processed_count = len(processed_modules)
-
-    # Count how many are under token limit
-    within_limit = 0
-    verified_count = 0
-    for i in range(total):
-        sample = ds[i]
-        try:
-            rtl_code = get_rtl_field(sample)
-            if estimate_tokens(rtl_code) <= MAX_TOKENS:
-                within_limit += 1
-            if sample.get("verified"):
-                verified_count += 1
-        except Exception:
-            pass
-
-    print(f"\n=== VeriThoughts Dataset Stats ===")
-    print(f"Total samples:        {total}")
-    print(f"Verified samples:     {verified_count}")
-    print(f"Within token limit:   {within_limit}")
-    print(f"Already processed:    {processed_count}")
-    print(f"Remaining eligible:   {within_limit - processed_count}")
-
 
 if __name__ == "__main__":
     import sys
-
+    
     if len(sys.argv) > 1 and sys.argv[1] == "--check-batches":
         check_and_download_batches()
     elif len(sys.argv) > 1 and sys.argv[1] == "--single":
@@ -711,11 +706,8 @@ if __name__ == "__main__":
     elif len(sys.argv) > 1 and sys.argv[1] == "--batch":
         num_batches = int(sys.argv[2]) if len(sys.argv) > 2 else 10
         main_batch_mode(num_batches)
-    elif len(sys.argv) > 1 and sys.argv[1] == "--stats":
-        main_stats()
     else:
         print("Usage:")
         print("  python generate_sva_batch.py --batch [num_batches]  # Create batch jobs")
         print("  python generate_sva_batch.py --check-batches        # Check and download results")
         print("  python generate_sva_batch.py --single               # Test single module")
-        print("  python generate_sva_batch.py --stats                # Show dataset stats")
