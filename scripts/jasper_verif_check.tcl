@@ -278,7 +278,7 @@ foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]]
 if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
   set OUT_DIR $::env(JG_OUT_DIR)
 } else {
-  set OUT_DIR [file join "verification_results" $DESIGN_ID]
+  set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
 }
 file mkdir $OUT_DIR
 set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
@@ -410,6 +410,35 @@ if {[catch { prove -all } pmsg]} {
 # ---- Covers (best effort) ----
 catch { cover -all }
 
+# ---- Collect CEX details ----
+set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+set cex_props {}
+catch { set cex_props [get_property_list -include {status cex}] }
+set ar_cex_props {}
+catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+
+set fp_cex [open $CEX_TXT "w"]
+puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+puts $fp_cex "# Format: property_name | cex_type | cex_length"
+puts $fp_cex ""
+
+foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+close $fp_cex
+
+set n_cex    [llength $cex_props]
+set n_ar_cex [llength $ar_cex_props]
+puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+puts "INFO: Wrote $CEX_TXT"
+
 # ---- Write summary ----
 set fp [open $SUMMARY_TXT "w"]
 puts $fp "DESIGN_ID=$DESIGN_ID"
@@ -417,7 +446,10 @@ puts $fp "TOP=$TOP"
 puts $fp "AUTO_BIND=$AUTO_BIND"
 puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
 puts $fp "COVER_COUNT=[llength $COVERS]"
+puts $fp "CEX_COUNT=$n_cex"
+puts $fp "AR_CEX_COUNT=$n_ar_cex"
 puts $fp "PROP_LIST=$PROP_LIST_TXT"
+puts $fp "CEX_DETAILS=$CEX_TXT"
 close $fp
 
 puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"

@@ -195,14 +195,16 @@ def main():
     args = parser.parse_args()
 
     results_dir = os.path.abspath(args.results_dir)
-    out_dir = os.path.abspath(args.out) if args.out else results_dir
+    # All outputs (CSVs, PNGs) now go in visual_data/ subfolder
+    visual_data_dir = os.path.join(results_dir, "visual_data")
+    if args.out:
+        visual_data_dir = os.path.abspath(args.out)
+    os.makedirs(visual_data_dir, exist_ok=True)
 
     csv_path = os.path.join(results_dir, "verif_summary.csv")
     if not os.path.isfile(csv_path):
         print(f"ERROR: {csv_path} not found.")
         sys.exit(1)
-
-    os.makedirs(out_dir, exist_ok=True)
 
     # ── Step 1: Read verif_summary.csv and collect IDs that completed verification ──
     EXCLUDE_IDS = {"jgproject", "metadata", "myenv"}
@@ -237,7 +239,8 @@ def main():
 
     skipped = 0
     for sid, csv_status in completed_ids:
-        log_path = os.path.join(results_dir, sid, "run.log")
+        id_dir = os.path.join(results_dir, "ids", sid)
+        log_path = os.path.join(id_dir, "run.log")
         if not os.path.isfile(log_path):
             skipped += 1
             continue
@@ -245,8 +248,6 @@ def main():
         result = parse_run_log(log_path)
         assertions = result["assertions"]
         covers = result["covers"]
-
-        id_dir = os.path.join(results_dir, sid)
         auto_bind = read_auto_bind(id_dir)
         if auto_bind:
             n_auto_bind += 1
@@ -283,7 +284,7 @@ def main():
         print(f"  (skipped {skipped} IDs with missing run.log)")
 
     # ── Step 3: Write property_results.csv ──
-    prop_csv = os.path.join(out_dir, "property_results.csv")
+    prop_csv = os.path.join(visual_data_dir, "property_results.csv")
     with open(prop_csv, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["id", "property_name", "type", "result"])
@@ -292,7 +293,7 @@ def main():
     print(f"Wrote {len(property_rows)} rows to {prop_csv}")
 
     # ── Step 4: Write id_summary.csv ──
-    id_csv = os.path.join(out_dir, "id_summary.csv")
+    id_csv = os.path.join(visual_data_dir, "id_summary.csv")
     with open(id_csv, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow([
@@ -375,7 +376,7 @@ def main():
     ax1.set_title("Assertion Results: Proven vs CEX", fontsize=14, fontweight="bold")
     ax1.set_ylim(0, max(counts1) * 1.2)
     fig1.tight_layout()
-    path1 = os.path.join(out_dir, "assertion_results.png")
+    path1 = os.path.join(visual_data_dir, "assertion_results.png")
     fig1.savefig(path1, dpi=150)
     plt.close(fig1)
     print(f"\nSaved {path1}")
@@ -399,7 +400,7 @@ def main():
     ax2.set_title("Cover Results: Covered vs Unreachable", fontsize=14, fontweight="bold")
     ax2.set_ylim(0, max(counts2) * 1.2)
     fig2.tight_layout()
-    path2 = os.path.join(out_dir, "cover_results.png")
+    path2 = os.path.join(visual_data_dir, "cover_results.png")
     fig2.savefig(path2, dpi=150)
     plt.close(fig2)
     print(f"Saved {path2}")
@@ -439,7 +440,7 @@ def main():
     ax3.legend(fontsize=11)
     ax3.set_ylim(0, max(max(proven_vals), max(cex_vals)) * 1.35)
     fig3.tight_layout()
-    path3 = os.path.join(out_dir, "avg_assertions_comparison.png")
+    path3 = os.path.join(visual_data_dir, "avg_assertions_comparison.png")
     fig3.savefig(path3, dpi=150)
     plt.close(fig3)
     print(f"Saved {path3}")
@@ -489,7 +490,7 @@ def main():
         ax_ab.legend(fontsize=11)
         ax_ab.set_ylim(0, max(max(proven_avgs), max(cex_avgs)) * 1.35 + 1)
         fig_ab.tight_layout()
-        path_ab = os.path.join(out_dir, "autobind_comparison.png")
+        path_ab = os.path.join(visual_data_dir, "autobind_comparison.png")
         fig_ab.savefig(path_ab, dpi=150)
         plt.close(fig_ab)
         print(f"Saved {path_ab}")
@@ -521,7 +522,7 @@ def main():
         ax4b.legend(fontsize=10)
 
     fig4.tight_layout()
-    path4 = os.path.join(out_dir, "assertion_distribution.png")
+    path4 = os.path.join(visual_data_dir, "assertion_distribution.png")
     fig4.savefig(path4, dpi=150)
     plt.close(fig4)
     print(f"Saved {path4}")

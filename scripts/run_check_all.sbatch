@@ -10,22 +10,30 @@
 # Generic SLURM wrapper for check_all.sh
 #
 # Usage:
-#   sbatch scripts/run_check_all.sbatch <syntax|verif> <dataset_dir>
+#   sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <dataset_dir>
 #
 # Examples:
 #   sbatch scripts/run_check_all.sbatch verif  metrex/dataset/version_1
 #   sbatch scripts/run_check_all.sbatch syntax metrex/dataset/version_1
 #   sbatch scripts/run_check_all.sbatch verif  veri_thoughts/dataset/version_1
+#   sbatch scripts/run_check_all.sbatch --force verif veri_thoughts/dataset/version_2
 # ============================================================
 
 set -euo pipefail
 
 # ── Validate arguments ───────────────────────────────────────
+FORCE_FLAG=""
+if [[ "${1:-}" == "--force" ]]; then
+  FORCE_FLAG="--force"
+  shift
+fi
+
 if [[ $# -lt 2 ]]; then
-  echo "Usage: sbatch scripts/run_check_all.sbatch <syntax|verif> <dataset_dir>"
+  echo "Usage: sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <dataset_dir>"
   echo ""
-  echo "  syntax  Compile/syntax check only"
-  echo "  verif   Full assertion verification"
+  echo "  --force  Re-run all IDs even if DONE marker exists"
+  echo "  syntax   Compile/syntax check only"
+  echo "  verif    Full assertion verification"
   echo ""
   echo "Examples:"
   echo "  sbatch scripts/run_check_all.sbatch verif  metrex/dataset/version_1"
@@ -42,6 +50,7 @@ echo "Start: $(date)"
 echo "PWD: $(pwd)"
 echo "JobID: ${SLURM_JOB_ID:-unknown}"
 echo "Mode: $MODE"
+echo "Force: ${FORCE_FLAG:-off}"
 echo "Dataset: $DATASET_DIR"
 
 # ── Environment setup ────────────────────────────────────────
@@ -68,6 +77,6 @@ jaspergold -version || true
 # SLURM copies the batch script to a spool dir, so BASH_SOURCE
 # won't point back to scripts/.  Use SLURM_SUBMIT_DIR instead.
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}/scripts"
-stdbuf -oL -eL bash "$SCRIPT_DIR/check_all.sh" "$MODE" "$DATASET_DIR"
+stdbuf -oL -eL bash "$SCRIPT_DIR/check_all.sh" $FORCE_FLAG "$MODE" "$DATASET_DIR"
 
 echo "End: $(date)"

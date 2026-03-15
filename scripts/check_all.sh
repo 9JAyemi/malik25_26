@@ -5,7 +5,10 @@ set -euo pipefail
 # Unified JasperGold checker for any dataset directory.
 #
 # Usage:
-#   ./check_all.sh <mode> <dataset_dir>
+#   ./check_all.sh [--force] <mode> <dataset_dir>
+#
+# Options:
+#   --force   Re-run all IDs even if DONE marker exists
 #
 # Modes:
 #   syntax  – compile/syntax check only     (uses jasper_syntax_check.tcl)
@@ -18,16 +21,24 @@ set -euo pipefail
 # Examples:
 #   ./scripts/check_all.sh syntax metrex/dataset/version_1
 #   ./scripts/check_all.sh verif  veri_thoughts/dataset/version_1
+#   ./scripts/check_all.sh --force verif veri_thoughts/dataset/version_2
 # ============================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ── Parse args ───────────────────────────────────────────────
+FORCE=0
+if [[ "${1:-}" == "--force" ]]; then
+  FORCE=1
+  shift
+fi
+
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <syntax|verif> <dataset_dir>"
+  echo "Usage: $0 [--force] <syntax|verif> <dataset_dir>"
   echo ""
-  echo "  syntax  Compile/syntax check only"
-  echo "  verif   Full assertion verification"
+  echo "  --force  Re-run all IDs even if DONE marker exists"
+  echo "  syntax   Compile/syntax check only"
+  echo "  verif    Full assertion verification"
   exit 1
 fi
 
@@ -148,7 +159,7 @@ run_syntax() {
 #  VERIF MODE
 # ============================================================
 run_verif() {
-  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME"
+  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME/ids"
 
   local SUMMARY_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/summary.csv"
   local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/verif_summary.csv"
@@ -171,13 +182,13 @@ run_verif() {
     local sva_file="${dir%/}/sva.sv"
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
-      local out_dir="$RESULTS_BASE/verification_results/$VERSION_NAME/$id"
+      local out_dir="$RESULTS_BASE/verification_results/$VERSION_NAME/ids/$id"
       mkdir -p "$out_dir"
       local done_marker="$out_dir/DONE"
       local proj_dir="$out_dir/jgproject"
 
-      # Resume: skip if already attempted
-      if [[ -f "$done_marker" ]]; then
+      # Resume: skip if already attempted (unless --force)
+      if [[ "$FORCE" -eq 0 && -f "$done_marker" ]]; then
         echo "⏭️  Skipping $id (already attempted)"
         local existing_log="$out_dir/run.log"
         if [[ -f "$existing_log" ]]; then
