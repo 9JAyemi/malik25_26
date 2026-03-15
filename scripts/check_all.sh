@@ -58,8 +58,9 @@ mkdir -p "$TMPDIR"
 trap 'rm -rf "$TMPDIR"' EXIT
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-4}"
 
-# Results go under the parent of the version dir (i.e., dataset/)
+# Results go under the parent of the version dir (i.e., dataset/), namespaced by version
 RESULTS_BASE="$(cd "$DATASET_DIR/.." && pwd)"
+VERSION_NAME="$(basename "$DATASET_DIR")"
 
 cd "$DATASET_DIR"
 
@@ -97,8 +98,8 @@ extract_reason() {
 #  SYNTAX MODE
 # ============================================================
 run_syntax() {
-  mkdir -p "$RESULTS_BASE/syntax_results"
-  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/summary.csv"
+  mkdir -p "$RESULTS_BASE/syntax_results/$VERSION_NAME"
+  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/$VERSION_NAME/summary.csv"
   echo "id,status" > "$SUMMARY_CSV"
 
   echo "=============================="
@@ -117,7 +118,7 @@ run_syntax() {
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
       echo "🔍 Checking $id ..."
-      local out_dir="$RESULTS_BASE/syntax_results/$id"
+      local out_dir="$RESULTS_BASE/syntax_results/$VERSION_NAME/$id"
       mkdir -p "$out_dir"
 
       JG_DIR="$dir" \
@@ -126,7 +127,7 @@ run_syntax() {
       JG_INCDIRS="${JG_INCDIRS:-}" \
       JG_DEFINES="${JG_DEFINES:-}" \
       JG_TOP="${JG_TOP:-}" \
-      jaspergold -batch -allow_unsupported_OS -tcl "$TCL_FILE" \
+      jaspergold -batch -allow_unsupported_OS -proj "$out_dir/jgproject" -tcl "$TCL_FILE" \
         >"$out_dir/log.txt" 2>&1 && {
           echo "✅ $id PASSED"
           echo "$id,ok" >> "$SUMMARY_CSV"
@@ -147,10 +148,10 @@ run_syntax() {
 #  VERIF MODE
 # ============================================================
 run_verif() {
-  mkdir -p "$RESULTS_BASE/verification_results"
+  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME"
 
-  local SUMMARY_CSV="$RESULTS_BASE/verification_results/summary.csv"
-  local VERIF_CSV="$RESULTS_BASE/verification_results/verif_summary.csv"
+  local SUMMARY_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/summary.csv"
+  local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/verif_summary.csv"
 
   echo "id,status" > "$SUMMARY_CSV"
   echo "id,status,reason" > "$VERIF_CSV"
@@ -170,7 +171,7 @@ run_verif() {
     local sva_file="${dir%/}/sva.sv"
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
-      local out_dir="$RESULTS_BASE/verification_results/$id"
+      local out_dir="$RESULTS_BASE/verification_results/$VERSION_NAME/$id"
       mkdir -p "$out_dir"
       local done_marker="$out_dir/DONE"
       local proj_dir="$out_dir/jgproject"
@@ -210,6 +211,7 @@ run_verif() {
       JG_INCDIRS="${JG_INCDIRS:-}" \
       JG_DEFINES="${JG_DEFINES:-}" \
       JG_NO_CLOCK="${JG_NO_CLOCK:-1}" \
+      JG_OUT_DIR="$out_dir" \
       jaspergold -batch -allow_unsupported_OS \
         -proj "$proj_dir" \
         -tcl "$TCL_FILE" \

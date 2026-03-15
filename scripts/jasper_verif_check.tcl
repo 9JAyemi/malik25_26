@@ -103,6 +103,122 @@ proc find_reset_signal {top files} {
   return ""
 }
 
+# ---- Auto-bind helpers ----
+
+proc sva_files_have_bind {sva_files} {
+  # Return 1 if any SVA file already contains a bind statement.
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    if {[regexp -nocase {(?m)^\s*bind\s+} $txt]} { return 1 }
+  }
+  return 0
+}
+
+proc extract_module_ports {mod_name files} {
+  # Extract port names for a given module from a list of files.
+  # Returns a list of port names (order preserved, keywords stripped).
+  set keywords {input output inout wire reg logic signed unsigned integer
+                parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${mod_name}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        if {[lsearch -exact $names $t] < 0} { lappend names $t }
+      }
+      return $names
+    }
+  }
+  return {}
+}
+
+proc generate_auto_bind {top dut_files sva_files out_dir} {
+  # If SVA files lack a bind statement, generate one.
+  # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
+  if {[sva_files_have_bind $sva_files]} {
+    puts "INFO: SVA files already contain a bind statement"
+    return ""
+  }
+
+  # Find the SVA module name (first module in SVA files that is NOT the DUT)
+  set sva_mod ""
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set matches [regexp -all -inline -nocase {(?m)^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt]
+    foreach {_ mname} $matches {
+      if {$mname ne $top} {
+        set sva_mod $mname
+        break
+      }
+    }
+    if {$sva_mod ne ""} { break }
+  }
+
+  if {$sva_mod eq ""} {
+    puts "WARN: Could not find SVA module name for auto-bind"
+    return ""
+  }
+
+  # Get port lists
+  set dut_ports [extract_module_ports $top $dut_files]
+  set sva_ports [extract_module_ports $sva_mod $sva_files]
+
+  if {[llength $sva_ports] == 0} {
+    puts "WARN: SVA module $sva_mod has no ports; cannot auto-bind"
+    return ""
+  }
+
+  # Build port connections: for each SVA port, connect to DUT port if name
+  # matches (case-insensitive), otherwise leave unconnected.
+  set dut_lower_map [dict create]
+  foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+
+  set connections {}
+  set unconnected {}
+  foreach sp $sva_ports {
+    set sp_lower [string tolower $sp]
+    if {[dict exists $dut_lower_map $sp_lower]} {
+      set dp [dict get $dut_lower_map $sp_lower]
+      lappend connections "    .${sp}(${dp})"
+    } else {
+      lappend unconnected $sp
+    }
+  }
+
+  if {[llength $connections] == 0} {
+    puts "WARN: No matching ports between DUT ($top) and SVA ($sva_mod); cannot auto-bind"
+    return ""
+  }
+
+  # Write the bind file
+  set bind_path [file join $out_dir "auto_bind.sv"]
+  set conn_str [join $connections ",\n"]
+  set fp [open $bind_path "w"]
+  puts $fp "// Auto-generated bind (no bind found in SVA files)"
+  if {[llength $unconnected] > 0} {
+    puts $fp "// NOTE: Unconnected SVA ports (not in DUT): [join $unconnected {, }]"
+  }
+  puts $fp "bind $top $sva_mod auto_sva_inst ("
+  puts $fp $conn_str
+  puts $fp ");"
+  close $fp
+
+  puts "INFO: Auto-generated bind: $bind_path"
+  puts "  DUT=$top  SVA=$sva_mod"
+  puts "  Connected ports: [llength $connections]"
+  if {[llength $unconnected] > 0} {
+    puts "  Unconnected SVA ports: [join $unconnected {, }]"
+  }
+  return $bind_path
+}
+
 # ---- Read config from environment ----
 if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
   puts "ERROR: DESIGN_ID not set."
@@ -158,10 +274,23 @@ set SVA_FILES {}
 foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 
 # ---- Output dir ----
-set OUT_DIR [file join "verification_results" $DESIGN_ID]
+# JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
+if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
+  set OUT_DIR $::env(JG_OUT_DIR)
+} else {
+  set OUT_DIR [file join "verification_results" $DESIGN_ID]
+}
 file mkdir $OUT_DIR
 set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
 set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+
+# ---- Auto-bind detection ----
+set AUTO_BIND 0
+set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
+if {$BIND_FILE ne ""} {
+  set AUTO_BIND 1
+  lappend SVA_FILES $BIND_FILE
+}
 
 puts "INFO: Verification run starting"
 puts "  DESIGN_ID : $DESIGN_ID"
@@ -170,6 +299,7 @@ puts "  STD       : $STD"
 puts "  INCDIRS   : $INCDIRS"
 puts "  DEFINES   : $DEFINES"
 puts "  NO_CLOCK  : $NO_CLOCK"
+puts "  AUTO_BIND : $AUTO_BIND"
 puts "  N_DESIGN  : [llength $DESIGN_FILES]"
 puts "  N_SVA     : [llength $SVA_FILES]"
 puts "  OUT_DIR   : $OUT_DIR"
@@ -284,6 +414,7 @@ catch { cover -all }
 set fp [open $SUMMARY_TXT "w"]
 puts $fp "DESIGN_ID=$DESIGN_ID"
 puts $fp "TOP=$TOP"
+puts $fp "AUTO_BIND=$AUTO_BIND"
 puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
 puts $fp "COVER_COUNT=[llength $COVERS]"
 puts $fp "PROP_LIST=$PROP_LIST_TXT"

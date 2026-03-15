@@ -58,6 +58,19 @@ RE_SUMMARY_ERROR = re.compile(r'^\s+- error\s+:\s+(\d+)')
 INTERNAL_PROPS = {":noDeadEnd", ":noConflict", ":live"}
 
 
+def read_auto_bind(id_dir: str) -> bool:
+    """Return True if summary.txt in id_dir indicates AUTO_BIND=1."""
+    summary_path = os.path.join(id_dir, "summary.txt")
+    try:
+        with open(summary_path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if line.strip().startswith("AUTO_BIND="):
+                    return line.strip().split("=", 1)[1] == "1"
+    except (OSError, IOError):
+        pass
+    return False
+
+
 def is_internal(prop_name: str) -> bool:
     """Return True if property is a Jasper internal/system property."""
     return prop_name in INTERNAL_PROPS or prop_name.startswith(":")
@@ -209,7 +222,7 @@ def main():
 
     # ── Step 2: Parse each run.log ──
     property_rows = []       # (id, prop_name, type, result)
-    id_summary_rows = []     # (id, csv_status, n_assert, n_proven, n_cex, n_cover, n_covered, n_unreachable)
+    id_summary_rows = []     # (id, csv_status, auto_bind, n_assert, n_proven, n_cex, n_cover, n_covered, n_unreachable)
     all_pass_ids = []        # IDs with zero CEX
     has_cex_ids = []         # IDs with at least one CEX
 
@@ -217,6 +230,10 @@ def main():
     total_cex_global = 0
     total_covered_global = 0
     total_unreachable_global = 0
+
+    # Auto-bind tracking
+    n_auto_bind = 0
+    n_native_bind = 0
 
     skipped = 0
     for sid, csv_status in completed_ids:
@@ -228,6 +245,13 @@ def main():
         result = parse_run_log(log_path)
         assertions = result["assertions"]
         covers = result["covers"]
+
+        id_dir = os.path.join(results_dir, sid)
+        auto_bind = read_auto_bind(id_dir)
+        if auto_bind:
+            n_auto_bind += 1
+        else:
+            n_native_bind += 1
 
         n_proven = sum(1 for _, r in assertions if r == "proven")
         n_cex = sum(1 for _, r in assertions if r == "cex")
@@ -245,7 +269,7 @@ def main():
             property_rows.append((sid, name, "cover", res))
 
         id_summary_rows.append((
-            sid, csv_status,
+            sid, csv_status, auto_bind,
             len(assertions), n_proven, n_cex,
             len(covers), n_covered, n_unreachable,
         ))
@@ -272,7 +296,7 @@ def main():
     with open(id_csv, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow([
-            "id", "csv_status",
+            "id", "csv_status", "auto_bind",
             "total_assertions", "proven", "cex",
             "total_covers", "covered", "unreachable",
         ])
@@ -299,6 +323,13 @@ def main():
     avg_total_cex = (
         np.mean([t for _, _, _, t in has_cex_ids]) if has_cex_ids else 0
     )
+
+    print()
+    print("=" * 60)
+    print("BIND STATISTICS")
+    print("=" * 60)
+    print(f"IDs with native bind  : {n_native_bind}")
+    print(f"IDs with auto-bind    : {n_auto_bind}")
 
     print()
     print("=" * 60)
@@ -413,7 +444,57 @@ def main():
     plt.close(fig3)
     print(f"Saved {path3}")
 
-    # --- Figure 4: Distribution of assertion counts per ID (histogram) ---
+    # --- Figure 4: Auto-bind vs native-bind comparison ---
+    native_rows = [r for r in id_summary_rows if not r[2]]
+    autobind_rows = [r for r in id_summary_rows if r[2]]
+
+    if native_rows or autobind_rows:
+        fig_ab, ax_ab = plt.subplots(figsize=(10, 5))
+        categories = ["Native Bind", "Auto Bind"]
+        group_rows = [native_rows, autobind_rows]
+        x = np.arange(len(categories))
+        width = 0.2
+
+        proven_avgs = []
+        cex_avgs = []
+        total_counts = []
+        for rows in group_rows:
+            if rows:
+                proven_avgs.append(np.mean([r[4] for r in rows]))
+                cex_avgs.append(np.mean([r[5] for r in rows]))
+                total_counts.append(len(rows))
+            else:
+                proven_avgs.append(0)
+                cex_avgs.append(0)
+                total_counts.append(0)
+
+        bars_ab_p = ax_ab.bar(x - width / 2, proven_avgs, width, label="Avg Proven",
+                              color="#4CAF50", edgecolor="black")
+        bars_ab_c = ax_ab.bar(x + width / 2, cex_avgs, width, label="Avg CEX",
+                              color="#F44336", edgecolor="black")
+        for bars in [bars_ab_p, bars_ab_c]:
+            for bar in bars:
+                h = bar.get_height()
+                if h > 0:
+                    ax_ab.text(bar.get_x() + bar.get_width() / 2, h + 0.1,
+                               f"{h:.1f}", ha="center", va="bottom", fontsize=11, fontweight="bold")
+
+        ax_ab.set_xticks(x)
+        ax_ab.set_xticklabels([
+            f"{c}\n(n={n})" for c, n in zip(categories, total_counts)
+        ], fontsize=11)
+        ax_ab.set_ylabel("Avg Assertions per ID", fontsize=12)
+        ax_ab.set_title("Assertion Results: Native Bind vs Auto Bind",
+                        fontsize=14, fontweight="bold")
+        ax_ab.legend(fontsize=11)
+        ax_ab.set_ylim(0, max(max(proven_avgs), max(cex_avgs)) * 1.35 + 1)
+        fig_ab.tight_layout()
+        path_ab = os.path.join(out_dir, "autobind_comparison.png")
+        fig_ab.savefig(path_ab, dpi=150)
+        plt.close(fig_ab)
+        print(f"Saved {path_ab}")
+
+    # --- Figure 5: Distribution of assertion counts per ID (histogram) ---
     fig4, (ax4a, ax4b) = plt.subplots(1, 2, figsize=(14, 5))
 
     if all_pass_ids:

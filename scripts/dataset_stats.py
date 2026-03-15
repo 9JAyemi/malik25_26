@@ -41,6 +41,7 @@ import numpy as np
 RE_ASSERT = re.compile(r'\bassert\s+property\b', re.IGNORECASE)
 RE_COVER  = re.compile(r'\bcover\s+property\b',  re.IGNORECASE)
 RE_ASSUME = re.compile(r'\bassume\s+property\b',  re.IGNORECASE)
+RE_BIND   = re.compile(r'(?m)^\s*bind\s+', re.IGNORECASE)
 
 
 # ── Chart configuration ──────────────────────────────────────────────────────
@@ -66,12 +67,15 @@ CHART_CONFIG = {
     "module_loc_vs_sva_loc":    ["scatter"],
     "module_loc_vs_sva_props":  ["scatter"],
 
-    # ── Breakdown metrics (support: stacked_bar) ──
-    "property_breakdown": ["stacked_bar"],
+    # ── Breakdown metrics (support: pie, stacked_bar) ──
+    "property_breakdown": ["pie"],
+
+    # ── Bind status (support: pie) ──
+    "bind_status": ["pie"],
 }
 
 VALID_CHART_TYPES = {"histogram", "histogram_log", "boxplot", "strip", "cdf",
-                     "scatter", "stacked_bar"}
+                     "scatter", "stacked_bar", "pie"}
 
 
 def _enabled(metric: str, chart_type: str) -> bool:
@@ -145,6 +149,16 @@ def file_size_bytes(filepath: str) -> int:
         return 0
 
 
+def sva_has_bind(filepath: str) -> bool:
+    """Return True if the SVA file contains a bind statement."""
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            text = f.read()
+    except (OSError, IOError):
+        return False
+    return bool(RE_BIND.search(text))
+
+
 def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
     """
     Scan a dataset's version_1 directory and collect per-ID stats.
@@ -191,6 +205,7 @@ def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
         sva_props = count_sva_properties(sva_path) if os.path.isfile(sva_path) else {
             "assert": 0, "cover": 0, "assume": 0, "total": 0
         }
+        has_bind = sva_has_bind(sva_path) if os.path.isfile(sva_path) else False
 
         records.append({
             "id": entry,
@@ -206,6 +221,7 @@ def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
             "sva_covers": sva_props["cover"],
             "sva_assumes": sva_props["assume"],
             "sva_total_props": sva_props["total"],
+            "has_bind": has_bind,
         })
 
     return records
@@ -221,6 +237,8 @@ def print_summary(records: list[dict], label: str):
     sva_locs = [r["sva_loc"] for r in records if r["sva_loc"] > 0]
     sva_props = [r["sva_total_props"] for r in records if r["sva_total_props"] > 0]
     sva_asserts = [r["sva_asserts"] for r in records if r["sva_asserts"] > 0]
+    n_with_bind = sum(1 for r in records if r["has_bind"])
+    n_without_bind = len(records) - n_with_bind
 
     print(f"\n{'=' * 60}")
     print(f"  {label} — {len(records)} design IDs")
@@ -245,6 +263,8 @@ def print_summary(records: list[dict], label: str):
         print(f"    count={len(sva_asserts)}  min={min(sva_asserts)}  "
               f"median={int(np.median(sva_asserts))}  mean={np.mean(sva_asserts):.1f}  "
               f"max={max(sva_asserts)}")
+    print(f"  Bind statement in SVA:")
+    print(f"    with_bind={n_with_bind}  without_bind={n_without_bind}")
 
 
 # ── Plotting helpers ─────────────────────────────────────────────────────────
@@ -402,13 +422,19 @@ def plot_histogram_single(data, label, xlabel, title, out_path, bins=50, log_y=F
         return
     lo, hi = 0, np.percentile(data, 99) if len(data) > 10 else max(data)
     bins_arr = np.linspace(lo, hi, bins + 1)
-    ax.hist(data, bins=bins_arr, alpha=0.75, color=COLORS.get(label, "#2196F3"),
-            edgecolor="black", linewidth=0.4, label=f"{label} (n={len(data)})")
-    ax.set_xlabel(xlabel, fontsize=12)
-    ax.set_ylabel("Number of Design IDs", fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight="bold")
     if log_y:
-        ax.set_yscale("log")
+        ax.hist(data, bins=bins_arr, alpha=0.75, color=COLORS.get(label, "#2196F3"),
+                edgecolor="black", linewidth=0.4, label=f"{label} (n={len(data)})",
+                orientation="horizontal")
+        ax.set_xscale("log")
+        ax.set_xlabel("Number of Design IDs", fontsize=12)
+        ax.set_ylabel(xlabel, fontsize=12)
+    else:
+        ax.hist(data, bins=bins_arr, alpha=0.75, color=COLORS.get(label, "#2196F3"),
+                edgecolor="black", linewidth=0.4, label=f"{label} (n={len(data)})")
+        ax.set_xlabel(xlabel, fontsize=12)
+        ax.set_ylabel("Number of Design IDs", fontsize=12)
+    ax.set_title(title, fontsize=14, fontweight="bold")
     ax.legend(fontsize=11)
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -508,16 +534,37 @@ def plot_cdf_single(data, label, xlabel, title, out_path):
     print(f"  Saved {out_path}")
 
 
-def plot_scatter_single(records, label, x_key, y_key, xlabel, ylabel, title, out_path):
-    """Scatter plot for a single dataset."""
-    fig, ax = plt.subplots(figsize=(10, 6))
+def plot_scatter_single(records, label, x_key, y_key, xlabel, ylabel, title, out_path,
+                        outlier_std=2.5):
+    """Scatter plot for a single dataset with line of best fit and outlier labels."""
+    fig, ax = plt.subplots(figsize=(12, 7))
     if not records:
         plt.close(fig)
         return
-    xs = [r[x_key] for r in records]
-    ys = [r[y_key] for r in records]
+    xs = np.array([r[x_key] for r in records], dtype=float)
+    ys = np.array([r[y_key] for r in records], dtype=float)
+    ids = [r["id"] for r in records]
+
     ax.scatter(xs, ys, alpha=0.25, s=12, color=COLORS.get(label, "#2196F3"),
               label=f"{label} (n={len(records)})")
+
+    # Line of best fit
+    if len(xs) >= 2:
+        coeffs = np.polyfit(xs, ys, 1)
+        poly = np.poly1d(coeffs)
+        x_sorted = np.sort(xs)
+        ax.plot(x_sorted, poly(x_sorted), color="red", linewidth=1.5, linestyle="--",
+                label=f"fit: y={coeffs[0]:.2f}x + {coeffs[1]:.1f}")
+
+        # Label outliers: points whose residual exceeds outlier_std * std(residuals)
+        residuals = ys - poly(xs)
+        res_std = np.std(residuals)
+        if res_std > 0:
+            for i, (x, y, rid) in enumerate(zip(xs, ys, ids)):
+                if abs(residuals[i]) > outlier_std * res_std:
+                    ax.annotate(rid, (x, y), fontsize=7, alpha=0.8,
+                                textcoords="offset points", xytext=(4, 4))
+
     ax.set_xlabel(xlabel, fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
     ax.set_title(title, fontsize=14, fontweight="bold")
@@ -561,9 +608,45 @@ def plot_stacked_bar_single(records, label, title, out_path):
     print(f"  Saved {out_path}")
 
 
+def plot_property_breakdown_pie(records, label, title, out_path):
+    """Pie chart of total assert / cover / assume counts across the dataset."""
+    fig, ax = plt.subplots(figsize=(8, 6))
+    total_asserts = sum(r["sva_asserts"] for r in records)
+    total_covers  = sum(r["sva_covers"]  for r in records)
+    total_assumes = sum(r["sva_assumes"] for r in records)
+    sizes  = [total_asserts, total_covers, total_assumes]
+    labels = [f"Assertions\n({total_asserts:,})",
+              f"Covers\n({total_covers:,})",
+              f"Assumes\n({total_assumes:,})"]
+    colors = [COLORS["assert"], COLORS["cover"], COLORS["assume"]]
+    # Filter out zero slices
+    filtered = [(s, l, c) for s, l, c in zip(sizes, labels, colors) if s > 0]
+    if not filtered:
+        plt.close(fig)
+        return
+    sizes, labels, colors = zip(*filtered)
+    wedges, texts, autotexts = ax.pie(
+        sizes, labels=labels, colors=colors, autopct="%1.1f%%",
+        startangle=90, pctdistance=0.6,
+        wedgeprops=dict(edgecolor="black", linewidth=0.5),
+    )
+    for t in autotexts:
+        t.set_fontsize(11)
+        t.set_fontweight("bold")
+    ax.set_title(title, fontsize=14, fontweight="bold")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved {out_path}")
+
+
 def generate_charts_for_dataset(records, label, out_dir):
     """Generate chart types for a single dataset, driven by CHART_CONFIG."""
     os.makedirs(out_dir, exist_ok=True)
+
+    # Remove stale PNGs from previous runs so disabled charts don't linger
+    for old_png in glob.glob(os.path.join(out_dir, "*.png")):
+        os.remove(old_png)
 
     mod_loc = [r["module_loc"] for r in records if r["module_loc"] > 0]
     sva_loc = [r["sva_loc"] for r in records if r["sva_loc"] > 0]
@@ -638,13 +721,48 @@ def generate_charts_for_dataset(records, label, out_dir):
             out_path=os.path.join(out_dir, "scatter_module_loc_vs_props.png"),
         )
 
-    # ── Stacked bar: property breakdown ──
+    # ── Property breakdown ──
+    if _enabled("property_breakdown", "pie"):
+        plot_property_breakdown_pie(
+            records, label,
+            title=f"SVA Property Breakdown — {label}\n(Assertions / Covers / Assumes)",
+            out_path=os.path.join(out_dir, "pie_property_breakdown.png"),
+        )
     if _enabled("property_breakdown", "stacked_bar"):
         plot_stacked_bar_single(
             records, label,
             title=f"Avg SVA Property Breakdown per File — {label}\n(Assertions / Covers / Assumes)",
             out_path=os.path.join(out_dir, "bar_avg_property_breakdown.png"),
         )
+
+    # ── Bind status pie chart ──
+    if _enabled("bind_status", "pie"):
+        n_bind = sum(1 for r in records if r["has_bind"])
+        n_no_bind = len(records) - n_bind
+        if n_bind > 0 or n_no_bind > 0:
+            fig_bs, ax_bs = plt.subplots(figsize=(7, 7))
+            sizes = [n_bind, n_no_bind]
+            labels_bs = [
+                f"Has Bind\n({n_bind})",
+                f"No Bind (needs auto-bind)\n({n_no_bind})",
+            ]
+            colors_bs = ["#4CAF50", "#FF9800"]
+            wedges, texts, autotexts = ax_bs.pie(
+                sizes, labels=labels_bs, colors=colors_bs,
+                autopct="%1.1f%%", startangle=140,
+                textprops={"fontsize": 12},
+            )
+            for at in autotexts:
+                at.set_fontweight("bold")
+            ax_bs.set_title(
+                f"Bind Statement Status — {label}\n(n={len(records)})",
+                fontsize=14, fontweight="bold",
+            )
+            fig_bs.tight_layout()
+            path_bs = os.path.join(out_dir, "pie_bind_status.png")
+            fig_bs.savefig(path_bs, dpi=150)
+            plt.close(fig_bs)
+            print(f"  Saved {path_bs}")
 
     print(f"  All {label} charts saved to {out_dir}")
 
@@ -672,6 +790,60 @@ def plot_cdf_comparison(data_a, data_b, label_a, label_b,
     print(f"  Saved {out_path}")
 
 
+# ── Per-dataset CSV + charts helper ──────────────────────────────────────────
+def process_single_dataset(dataset_dir, label):
+    """Scan one dataset, write its CSV, print summary, and generate charts.
+    Output goes to <dataset_dir>/dataset_stats/.
+    """
+    import csv
+
+    out_dir = os.path.join(dataset_dir, "dataset_stats")
+    os.makedirs(out_dir, exist_ok=True)
+
+    print(f"Scanning {label} dataset …")
+    records = scan_dataset(dataset_dir, label)
+    print(f"  Found {len(records)} design IDs")
+
+    if not records:
+        print(f"  Nothing to do for {label}.\n")
+        return
+
+    print_summary(records, label)
+
+    # ── Write CSV ──
+    csv_path = os.path.join(out_dir, "dataset_stats.csv")
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=[
+            "id", "module_name",
+            "module_loc", "module_total_lines", "module_bytes",
+            "sva_loc", "sva_total_lines", "sva_bytes",
+            "sva_asserts", "sva_covers", "sva_assumes", "sva_total_props",
+            "has_bind",
+        ])
+        w.writeheader()
+        for r in sorted(records, key=lambda x: x["id"]):
+            w.writerow({
+                "id": r["id"],
+                "module_name": r["module_name"],
+                "module_loc": r["module_loc"],
+                "module_total_lines": r["module_total_lines"],
+                "module_bytes": r["module_bytes"],
+                "sva_loc": r["sva_loc"],
+                "sva_total_lines": r["sva_total_lines"],
+                "sva_bytes": r["sva_bytes"],
+                "sva_asserts": r["sva_asserts"],
+                "sva_covers": r["sva_covers"],
+                "sva_assumes": r["sva_assumes"],
+                "sva_total_props": r["sva_total_props"],
+                "has_bind": r["has_bind"],
+            })
+    print(f"\nWrote {len(records)} rows to {csv_path}")
+
+    # ── Generate charts ──
+    generate_charts_for_dataset(records, label, out_dir)
+    print(f"\nAll {label} outputs saved to {out_dir}\n")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
@@ -686,156 +858,16 @@ def main():
         help="Workspace root containing metrex/ and veri_thoughts/ subdirs "
              f"(default: {_default_base})",
     )
-    parser.add_argument(
-        "--out", "-o", default=None,
-        help="Output directory for PNGs and CSVs (default: <base-dir>/dataset_stats)",
-    )
     args = parser.parse_args()
 
     base = os.path.abspath(args.base_dir)
-    out_dir = os.path.abspath(args.out) if args.out else os.path.join(base, "dataset_stats")
-    os.makedirs(out_dir, exist_ok=True)
 
     metrex_dir = os.path.join(base, "metrex", "dataset")
     vt_dir = os.path.join(base, "veri_thoughts", "dataset")
 
-    print("Scanning metrex dataset …")
-    metrex_records = scan_dataset(metrex_dir, "metrex")
-    print(f"  Found {len(metrex_records)} design IDs")
+    process_single_dataset(metrex_dir, "metrex")
+    process_single_dataset(vt_dir, "veri_thoughts")
 
-    print("Scanning veri_thoughts dataset …")
-    vt_records = scan_dataset(vt_dir, "veri_thoughts")
-    print(f"  Found {len(vt_records)} design IDs")
-
-    all_records = metrex_records + vt_records
-
-    # ── Print summaries ──
-    print_summary(metrex_records, "metrex")
-    print_summary(vt_records, "veri_thoughts")
-
-    # ── Write CSV ──
-    import csv
-    csv_path = os.path.join(out_dir, "dataset_stats.csv")
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=[
-            "dataset", "id", "module_name",
-            "module_loc", "module_total_lines", "module_bytes",
-            "sva_loc", "sva_total_lines", "sva_bytes",
-            "sva_asserts", "sva_covers", "sva_assumes", "sva_total_props",
-        ])
-        w.writeheader()
-        for r in sorted(all_records, key=lambda x: (x["label"], x["id"])):
-            w.writerow({
-                "dataset": r["label"],
-                "id": r["id"],
-                "module_name": r["module_name"],
-                "module_loc": r["module_loc"],
-                "module_total_lines": r["module_total_lines"],
-                "module_bytes": r["module_bytes"],
-                "sva_loc": r["sva_loc"],
-                "sva_total_lines": r["sva_total_lines"],
-                "sva_bytes": r["sva_bytes"],
-                "sva_asserts": r["sva_asserts"],
-                "sva_covers": r["sva_covers"],
-                "sva_assumes": r["sva_assumes"],
-                "sva_total_props": r["sva_total_props"],
-            })
-    print(f"\nWrote {len(all_records)} rows to {csv_path}")
-
-    # ── Extract arrays for plotting ──
-    m_mod_loc = [r["module_loc"] for r in metrex_records if r["module_loc"] > 0]
-    v_mod_loc = [r["module_loc"] for r in vt_records if r["module_loc"] > 0]
-
-    m_sva_loc = [r["sva_loc"] for r in metrex_records if r["sva_loc"] > 0]
-    v_sva_loc = [r["sva_loc"] for r in vt_records if r["sva_loc"] > 0]
-
-    m_sva_props = [r["sva_total_props"] for r in metrex_records if r["sva_total_props"] > 0]
-    v_sva_props = [r["sva_total_props"] for r in vt_records if r["sva_total_props"] > 0]
-
-    m_sva_asserts = [r["sva_asserts"] for r in metrex_records if r["sva_asserts"] > 0]
-    v_sva_asserts = [r["sva_asserts"] for r in vt_records if r["sva_asserts"] > 0]
-
-    print("\nGenerating charts (driven by CHART_CONFIG) …")
-
-    # ── Distribution metrics: comparison charts ──
-    dist_metrics = [
-        ("module_loc",     m_mod_loc,     v_mod_loc,     "Module Lines of Code (non-blank, non-comment)",  "Module LOC"),
-        ("sva_loc",        m_sva_loc,     v_sva_loc,     "SVA Lines of Code (non-blank, non-comment)",     "SVA LOC"),
-        ("sva_properties", m_sva_props,   v_sva_props,   "Number of SVA Properties (assert + cover + assume)", "SVA Properties per File"),
-        ("sva_assertions", m_sva_asserts, v_sva_asserts, "Number of Assertions (assert property)",         "Assertions per SVA File"),
-    ]
-
-    for metric_key, m_data, v_data, xlabel_long, ylabel_short in dist_metrics:
-        if _enabled(metric_key, "histogram"):
-            plot_histogram_comparison(
-                m_data, v_data, "metrex", "veri_thoughts",
-                xlabel=xlabel_long,
-                title=f"{ylabel_short} Distribution — metrex vs veri_thoughts",
-                out_path=os.path.join(out_dir, f"hist_{metric_key}.png"),
-            )
-        if _enabled(metric_key, "histogram_log"):
-            plot_histogram_comparison(
-                m_data, v_data, "metrex", "veri_thoughts",
-                xlabel=ylabel_short,
-                title=f"{ylabel_short} Distribution (log scale) — metrex vs veri_thoughts",
-                out_path=os.path.join(out_dir, f"hist_{metric_key}_log.png"),
-                log_y=True,
-            )
-        if _enabled(metric_key, "boxplot"):
-            plot_boxplot_comparison(
-                {"metrex": m_data, "veri_thoughts": v_data},
-                ylabel=ylabel_short,
-                title=f"{ylabel_short} Box Plot — metrex vs veri_thoughts",
-                out_path=os.path.join(out_dir, f"boxplot_{metric_key}.png"),
-            )
-        if _enabled(metric_key, "strip"):
-            plot_strip_comparison(
-                {"metrex": m_data, "veri_thoughts": v_data},
-                ylabel=ylabel_short,
-                title=f"{ylabel_short} per Design — metrex vs veri_thoughts",
-                out_path=os.path.join(out_dir, f"strip_{metric_key}.png"),
-            )
-        if _enabled(metric_key, "cdf"):
-            plot_cdf_comparison(
-                m_data, v_data, "metrex", "veri_thoughts",
-                xlabel=ylabel_short,
-                title=f"CDF of {ylabel_short} — metrex vs veri_thoughts",
-                out_path=os.path.join(out_dir, f"cdf_{metric_key}.png"),
-            )
-
-    # ── Scatter metrics: comparison charts ──
-    if _enabled("module_loc_vs_sva_loc", "scatter"):
-        plot_scatter(
-            [r for r in all_records if r["module_loc"] > 0 and r["sva_loc"] > 0],
-            x_key="module_loc", y_key="sva_loc",
-            xlabel="Module LOC", ylabel="SVA LOC",
-            title="Module LOC vs SVA LOC",
-            out_path=os.path.join(out_dir, "scatter_module_vs_sva_loc.png"),
-        )
-    if _enabled("module_loc_vs_sva_props", "scatter"):
-        plot_scatter(
-            [r for r in all_records if r["module_loc"] > 0 and r["sva_total_props"] > 0],
-            x_key="module_loc", y_key="sva_total_props",
-            xlabel="Module LOC", ylabel="Number of SVA Properties",
-            title="Module LOC vs Number of SVA Properties",
-            out_path=os.path.join(out_dir, "scatter_module_loc_vs_props.png"),
-        )
-
-    # ── Stacked bar: property breakdown comparison ──
-    if _enabled("property_breakdown", "stacked_bar"):
-        plot_stacked_bar_comparison(
-            metrex_records, vt_records,
-            title="Avg SVA Property Breakdown per File\n(Assertions / Covers / Assumes)",
-            out_path=os.path.join(out_dir, "bar_avg_property_breakdown.png"),
-        )
-
-    # ── Per-dataset individual charts ──
-    generate_charts_for_dataset(metrex_records, "metrex",
-                                os.path.join(out_dir, "metrex"))
-    generate_charts_for_dataset(vt_records, "veri_thoughts",
-                                os.path.join(out_dir, "veri_thoughts"))
-
-    print(f"\nAll outputs saved to {out_dir}")
     print("Done!")
 
 

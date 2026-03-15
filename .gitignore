@@ -1,2 +1,34 @@
 .DS_Store
+
+# SLURM job logs
+jg_check.*.err
+jg_check.*.out
+
+# JasperGold project directories
+jgproject/
+
+# Verification & syntax results (regeneratable)
+**/syntax_results/
+**/verification_results/
+
+# Misplaced TCL output (version_X/verification_results/)
+**/version_*/verification_results/
+**/version_*/syntax_results/
+
+# Python / env artifacts
+__pycache__/
+*.pyc
+myenv/
+
+# Jasper logs
+.jasper_logs/
+
+# SLURM logs inside dataset
+**/slurm_logs/
+
+# Metadata dirs
+**/metadata/
+
+# External repos (distillation_test)
+distillation_test/complex_designs/external/
 .env
