@@ -18,8 +18,9 @@ else
 fi
 
 mkdir -p syntax_results
-: > syntax_results/summary.csv
-echo "id,status" >> syntax_results/summary.csv
+: > syntax_results/visual_data/summary.csv
+mkdir -p syntax_results/visual_data
+echo "id,status" >> syntax_results/visual_data/summary.csv
 
 echo "=============================="
 echo "Running Jasper syntax checks..."
@@ -37,7 +38,7 @@ for dir in "$ROOT"/*/; do
 
   if [[ -f "$module_file" && -f "$sva_file" ]]; then
     echo "🔍 Checking $id ..."
-    out_dir="syntax_results/$id"
+    out_dir="syntax_results/ids/$id"
     mkdir -p "$out_dir"
 
     # Env → Tcl; log via shell redirection
@@ -50,10 +51,10 @@ for dir in "$ROOT"/*/; do
     jaspergold -batch -allow_unsupported_OS -tcl "$JASPER_TCL" \
       >"$out_dir/log.txt" 2>&1 && {
         echo "✅ $id PASSED"
-        echo "$id,ok" >> syntax_results/summary.csv
+        echo "$id,ok" >> syntax_results/visual_data/summary.csv
       } || {
         echo "❌ $id FAILED"
-        echo "$id,fail" >> syntax_results/summary.csv
+        echo "$id,fail" >> syntax_results/visual_data/summary.csv
       }
   else
     echo "⚠️  Skipping $id (missing module.v or sva.sv)"
@@ -61,6 +62,6 @@ for dir in "$ROOT"/*/; do
 done
 
 echo "=============================="
-echo "Summary written to syntax_results/summary.csv"
-cat syntax_results/summary.csv
+echo "Summary written to syntax_results/visual_data/summary.csv"
+cat syntax_results/visual_data/summary.csv
   

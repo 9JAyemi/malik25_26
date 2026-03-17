@@ -23,6 +23,7 @@ Customisation:
 """
 
 import argparse
+import csv
 import glob
 import json
 import os
@@ -159,27 +160,129 @@ def sva_has_bind(filepath: str) -> bool:
     return bool(RE_BIND.search(text))
 
 
-def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
+def _parse_summary_txt(summary_path: str) -> dict:
+    """Parse a per-ID summary.txt and return key=value pairs."""
+    data = {}
+    try:
+        with open(summary_path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if "=" in line:
+                    k, _, v = line.strip().partition("=")
+                    data[k.strip()] = v.strip()
+    except (OSError, IOError):
+        pass
+    return data
+
+
+def parse_verif_summary(verif_version_dir: str) -> dict:
+    """Parse verif_summary.csv (with or without header) and enrich with per-ID data.
+
+    verif_version_dir: e.g. metrex/dataset/verification_results/version_1
+    Looks for verif_summary.csv in visual_data/ subfolder only.
+    Per-ID data from ids/{ID}/summary.txt and ids/{ID}/cex_details.txt.
     """
-    Scan a dataset's version_1 directory and collect per-ID stats.
+    # Find verif_summary.csv — canonical location is visual_data/
+    ids_dir = os.path.join(verif_version_dir, "ids")
+    candidates = [
+        os.path.join(verif_version_dir, "visual_data", "verif_summary.csv"),
+    ]
+    summary_path = None
+    for c in candidates:
+        if os.path.isfile(c):
+            summary_path = c
+            break
+    if summary_path is None or not os.path.isdir(ids_dir):
+        return {}
+
+    results = {}
+    with open(summary_path, newline="", encoding="utf-8") as f:
+        first_line = f.readline()
+        f.seek(0)
+        # Detect header: if first field is 'id' it has a header
+        if first_line.startswith("id,"):
+            reader = csv.DictReader(f)
+            rows = [(row["id"].strip(), row["status"].strip().lower(),
+                     row.get("reason", "").strip()) for row in reader]
+        else:
+            reader = csv.reader(f)
+            rows = []
+            for parts in reader:
+                if len(parts) >= 2:
+                    rows.append((parts[0].strip(), parts[1].strip().lower(),
+                                 parts[2].strip() if len(parts) > 2 else ""))
+
+    for sid, status, reason in rows:
+        # Read per-ID summary.txt for assertion/cover counts
+        id_dir = os.path.join(ids_dir, sid)
+        summary_kv = _parse_summary_txt(os.path.join(id_dir, "summary.txt"))
+        assert_count = int(summary_kv.get("ASSERT_COUNT", 0))
+        cover_count = int(summary_kv.get("COVER_COUNT", 0))
+
+        entry = {
+            "status": status,
+            "reason": reason,
+            "assert_count": assert_count,
+            "cover_count": cover_count,
+            "timeout": "timeout" in reason.lower(),
+            "cex_details": [],
+        }
+
+        # Parse cex_details.txt if present
+        cex_path = os.path.join(id_dir, "cex_details.txt")
+        if os.path.isfile(cex_path):
+            with open(cex_path, "r", encoding="utf-8", errors="replace") as cf:
+                for line in cf:
+                    if line.strip() and not line.startswith("#"):
+                        parts = [x.strip() for x in line.split("|")]
+                        if len(parts) == 3:
+                            entry["cex_details"].append({
+                                "property": parts[0],
+                                "cex_type": parts[1],
+                                "cex_length": int(parts[2]) if parts[2].isdigit() else None,
+                            })
+
+        results[sid] = entry
+    return results
+
+
+def collect_all_verif_stats(dataset_dir: str) -> dict:
+    """Collect verification stats across all version_X dirs under dataset_dir/verification_results/.
+    Returns a dict keyed by ID, using the latest version if an ID appears in multiple.
+    """
+    verif_base = os.path.join(dataset_dir, "verification_results")
+    if not os.path.isdir(verif_base):
+        return {}
+    merged = {}
+    version_dirs = sorted(
+        [d for d in os.listdir(verif_base) if d.startswith("version_") and
+         os.path.isdir(os.path.join(verif_base, d))]
+    )
+    for vdir in version_dirs:
+        vpath = os.path.join(verif_base, vdir)
+        stats = parse_verif_summary(vpath)
+        merged.update(stats)  # later versions overwrite earlier
+    return merged
+
+
+def scan_dataset(version_dir: str, label: str, verif_stats: dict) -> list[dict]:
+    """
+    Scan a single version_X directory and collect per-ID stats.
+    verif_stats is a pre-collected dict keyed by ID from collect_all_verif_stats.
     Returns list of dicts with keys:
         id, label, module_name, module_loc, module_total_lines, module_bytes,
         sva_loc, sva_total_lines, sva_bytes, sva_asserts, sva_covers,
-        sva_assumes, sva_total_props
+        sva_assumes, sva_total_props, verif_status, verif_reason,
+        verif_assert_count, verif_cover_count, verif_timeout,
+        verif_cex_details, verif_cex_cycles
     """
-    version_dir = os.path.join(dataset_dir, "version_1")
     if not os.path.isdir(version_dir):
-        print(f"WARNING: {version_dir} not found, skipping {label}")
+        print(f"WARNING: {version_dir} not found, skipping")
         return []
 
-    entries = sorted(os.listdir(version_dir))
     records = []
-    for entry in entries:
+    for entry in sorted(os.listdir(version_dir)):
         entry_path = os.path.join(version_dir, entry)
-        if not os.path.isdir(entry_path):
-            continue
-        # Skip non-numeric directories
-        if not entry.isdigit():
+        if not os.path.isdir(entry_path) or not entry.isdigit():
             continue
 
         module_path = os.path.join(entry_path, "module.v")
@@ -207,7 +310,7 @@ def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
         }
         has_bind = sva_has_bind(sva_path) if os.path.isfile(sva_path) else False
 
-        records.append({
+        record = {
             "id": entry,
             "label": label,
             "module_name": module_name,
@@ -222,8 +325,26 @@ def scan_dataset(dataset_dir: str, label: str) -> list[dict]:
             "sva_assumes": sva_props["assume"],
             "sva_total_props": sva_props["total"],
             "has_bind": has_bind,
-        })
-
+        }
+        # Add verification stats if available
+        if entry in verif_stats:
+            v = verif_stats[entry]
+            record["verif_status"] = v["status"]
+            record["verif_reason"] = v["reason"]
+            record["verif_assert_count"] = v["assert_count"]
+            record["verif_cover_count"] = v["cover_count"]
+            record["verif_timeout"] = v["timeout"]
+            record["verif_cex_details"] = v["cex_details"]
+            record["verif_cex_cycles"] = [d["cex_length"] for d in v["cex_details"] if d["cex_length"] is not None]
+        else:
+            record["verif_status"] = None
+            record["verif_reason"] = None
+            record["verif_assert_count"] = 0
+            record["verif_cover_count"] = 0
+            record["verif_timeout"] = False
+            record["verif_cex_details"] = []
+            record["verif_cex_cycles"] = []
+        records.append(record)
     return records
 
 
@@ -640,6 +761,141 @@ def plot_property_breakdown_pie(records, label, title, out_path):
     print(f"  Saved {out_path}")
 
 
+def print_verification_summary(records, label, out_dir):
+    """Print verification/counterexample summary and save PNGs to out_dir."""
+    os.makedirs(out_dir, exist_ok=True)
+
+    verified = [r for r in records if r.get("verif_status") is not None]
+    n_total = len(verified)
+    if n_total == 0:
+        print(f"\n  {label}: no verification results found, skipping verification summary.\n")
+        return
+
+    n_pass = sum(1 for r in verified if r["verif_status"] == "pass")
+    n_fail = sum(1 for r in verified if r["verif_status"] == "fail")
+    n_timeout = sum(1 for r in verified if r.get("verif_timeout"))
+    n_has_cex = sum(1 for r in verified if len(r.get("verif_cex_details", [])) > 0)
+
+    # Assertion counts from summary.txt ASSERT_COUNT
+    assert_counts = [r["verif_assert_count"] for r in verified if r.get("verif_assert_count", 0) > 0]
+    avg_assert_count = np.mean(assert_counts) if assert_counts else 0
+
+    cex_cycles = [c for r in verified for c in r.get("verif_cex_cycles", []) if c is not None]
+    n_counterexamples = sum(len(r.get("verif_cex_details", [])) for r in verified)
+
+    # Categorize failure reasons
+    fail_reasons = defaultdict(int)
+    for r in verified:
+        if r["verif_status"] == "fail":
+            reason = r.get("verif_reason", "")
+            if "No properties found" in reason:
+                fail_reasons["No properties found (bind issue)"] += 1
+            elif "compile/elab errors" in reason:
+                fail_reasons["Compile/elaboration errors"] += 1
+            elif "timeout" in reason.lower():
+                fail_reasons["Timeout"] += 1
+            else:
+                fail_reasons["Other"] += 1
+
+    print(f"\n{'=' * 60}")
+    print(f"  {label} — Verification Results Summary")
+    print(f"{'=' * 60}")
+    print(f"  Total modules with verification results : {n_total}")
+    print(f"  Pass                                    : {n_pass}")
+    print(f"  Fail                                    : {n_fail}")
+    print(f"  Timeout                                 : {n_timeout}")
+    print(f"  Modules with counter-examples           : {n_has_cex}")
+    print(f"  Avg assertions per passing module       : {avg_assert_count:.2f}")
+    print(f"  Total counter-examples                  : {n_counterexamples}")
+    if cex_cycles:
+        print(f"  CEX cycles — avg: {np.mean(cex_cycles):.2f}  "
+              f"median: {np.median(cex_cycles):.1f}  max: {max(cex_cycles)}")
+    else:
+        print(f"  No CEX cycle data available.")
+
+    if fail_reasons:
+        print(f"\n  Failure Reason Breakdown:")
+        for reason, count in sorted(fail_reasons.items(), key=lambda x: -x[1]):
+            print(f"    {reason:40s} : {count}")
+
+    # ── Pie chart: verification outcomes (pass vs fail) ──
+    pie_labels = []
+    pie_sizes = []
+    pie_colors_list = []
+    for lbl, sz, clr in [("Pass", n_pass, "#4CAF50"),
+                          ("Fail", n_fail, "#F44336")]:
+        if sz > 0:
+            pie_labels.append(f"{lbl}\n({sz})")
+            pie_sizes.append(sz)
+            pie_colors_list.append(clr)
+
+    if pie_sizes:
+        fig, ax = plt.subplots(figsize=(7, 7))
+        ax.pie(pie_sizes, labels=pie_labels, colors=pie_colors_list,
+               autopct="%1.1f%%", startangle=90, pctdistance=0.7,
+               wedgeprops=dict(edgecolor="black", linewidth=0.5))
+        ax.set_title(f"Verification Outcome — {label}\n(n={n_total})",
+                     fontsize=14, fontweight="bold")
+        fig.tight_layout()
+        path = os.path.join(out_dir, "pie_verification_outcomes.png")
+        fig.savefig(path, dpi=150)
+        plt.close(fig)
+        print(f"  Saved {path}")
+
+    # ── Pie chart: failure reason breakdown ──
+    if fail_reasons:
+        fr_labels = []
+        fr_sizes = []
+        fr_colors = ["#F44336", "#FF9800", "#9E9E9E", "#795548"]
+        for (reason, count), clr in zip(
+            sorted(fail_reasons.items(), key=lambda x: -x[1]),
+            fr_colors,
+        ):
+            fr_labels.append(f"{reason}\n({count})")
+            fr_sizes.append(count)
+        fig_fr, ax_fr = plt.subplots(figsize=(8, 8))
+        ax_fr.pie(fr_sizes, labels=fr_labels, colors=fr_colors[:len(fr_sizes)],
+                  autopct="%1.1f%%", startangle=90, pctdistance=0.7,
+                  wedgeprops=dict(edgecolor="black", linewidth=0.5))
+        ax_fr.set_title(f"Failure Reason Breakdown — {label}\n(n={n_fail})",
+                        fontsize=14, fontweight="bold")
+        fig_fr.tight_layout()
+        path_fr = os.path.join(out_dir, "pie_failure_reasons.png")
+        fig_fr.savefig(path_fr, dpi=150)
+        plt.close(fig_fr)
+        print(f"  Saved {path_fr}")
+
+    # ── Histogram: assertion count per passing module ──
+    if assert_counts:
+        fig2, ax2 = plt.subplots(figsize=(10, 5))
+        max_val = max(assert_counts)
+        bins = min(30, max_val + 1) if max_val > 0 else 1
+        ax2.hist(assert_counts, bins=bins, color="#4CAF50", edgecolor="black", alpha=0.75)
+        ax2.set_xlabel("Number of Assertions (from ASSERT_COUNT)", fontsize=12)
+        ax2.set_ylabel("Number of Modules", fontsize=12)
+        ax2.set_title(f"Distribution of Assertion Counts per Module — {label}",
+                      fontsize=14, fontweight="bold")
+        fig2.tight_layout()
+        path2 = os.path.join(out_dir, "hist_assertion_counts.png")
+        fig2.savefig(path2, dpi=150)
+        plt.close(fig2)
+        print(f"  Saved {path2}")
+
+    # ── Histogram: CEX cycle lengths ──
+    if cex_cycles:
+        fig3, ax3 = plt.subplots(figsize=(10, 5))
+        ax3.hist(cex_cycles, bins=30, color="#F44336", edgecolor="black", alpha=0.75)
+        ax3.set_xlabel("CEX Cycle Length", fontsize=12)
+        ax3.set_ylabel("Number of Counter-Examples", fontsize=12)
+        ax3.set_title(f"Distribution of CEX Cycles — {label}",
+                      fontsize=14, fontweight="bold")
+        fig3.tight_layout()
+        path3 = os.path.join(out_dir, "hist_cex_cycles.png")
+        fig3.savefig(path3, dpi=150)
+        plt.close(fig3)
+        print(f"  Saved {path3}")
+
+
 def generate_charts_for_dataset(records, label, out_dir):
     """Generate chart types for a single dataset, driven by CHART_CONFIG."""
     os.makedirs(out_dir, exist_ok=True)
@@ -791,24 +1047,25 @@ def plot_cdf_comparison(data_a, data_b, label_a, label_b,
 
 
 # ── Per-dataset CSV + charts helper ──────────────────────────────────────────
-def process_single_dataset(dataset_dir, label):
-    """Scan one dataset, write its CSV, print summary, and generate charts.
-    Output goes to <dataset_dir>/dataset_stats/.
+def _process_version(version_dir, dataset_dir, label, version_name, verif_stats):
+    """Process a single version_X: scan, write CSV, print summary, generate charts.
+    Output goes to <dataset_dir>/dataset_stats/<version_name>/.
     """
     import csv
 
-    out_dir = os.path.join(dataset_dir, "dataset_stats")
+    out_dir = os.path.join(dataset_dir, "dataset_stats", version_name)
     os.makedirs(out_dir, exist_ok=True)
 
-    print(f"Scanning {label} dataset …")
-    records = scan_dataset(dataset_dir, label)
+    version_label = f"{label} {version_name}"
+    print(f"\nScanning {version_label} …")
+    records = scan_dataset(version_dir, label, verif_stats)
     print(f"  Found {len(records)} design IDs")
 
     if not records:
-        print(f"  Nothing to do for {label}.\n")
+        print(f"  Nothing to do for {version_label}.\n")
         return
 
-    print_summary(records, label)
+    print_summary(records, version_label)
 
     # ── Write CSV ──
     csv_path = os.path.join(out_dir, "dataset_stats.csv")
@@ -840,8 +1097,32 @@ def process_single_dataset(dataset_dir, label):
     print(f"\nWrote {len(records)} rows to {csv_path}")
 
     # ── Generate charts ──
-    generate_charts_for_dataset(records, label, out_dir)
-    print(f"\nAll {label} outputs saved to {out_dir}\n")
+    generate_charts_for_dataset(records, version_label, out_dir)
+
+    # ── Verification/counterexample summary and plots ──
+    print_verification_summary(records, version_label, out_dir)
+
+    print(f"\nAll {version_label} outputs saved to {out_dir}")
+
+
+def process_single_dataset(dataset_dir, label):
+    """Process each version_X in a dataset separately.
+    Output goes to <dataset_dir>/dataset_stats/<version_X>/.
+    """
+    version_dirs = sorted(
+        [d for d in os.listdir(dataset_dir)
+         if d.startswith("version_") and os.path.isdir(os.path.join(dataset_dir, d))]
+    )
+    if not version_dirs:
+        print(f"WARNING: no version_X dirs found in {dataset_dir}, skipping {label}")
+        return
+
+    # Collect verification stats once (across all verif version_X dirs)
+    verif_stats = collect_all_verif_stats(dataset_dir)
+
+    for vdir in version_dirs:
+        vpath = os.path.join(dataset_dir, vdir)
+        _process_version(vpath, dataset_dir, label, vdir, verif_stats)
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────

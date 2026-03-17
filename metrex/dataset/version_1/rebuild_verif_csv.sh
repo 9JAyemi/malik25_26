@@ -1,10 +1,11 @@
 #!/bin/bash
 # Rebuild verif_summary.csv from existing run.logs using improved error extraction.
-# Backs up old CSV first, then re-parses every verification_results/<ID>/run.log.
+# Backs up old CSV first, then re-parses every verification_results/ids/<ID>/run.log.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERIF_CSV="verification_results/verif_summary.csv"
+VERIF_CSV="verification_results/visual_data/verif_summary.csv"
+mkdir -p "$(dirname "$VERIF_CSV")"
 BACKUP="${VERIF_CSV}.bak.$(date +%Y%m%d_%H%M%S)"
 
 if [[ -f "$VERIF_CSV" ]]; then
@@ -15,7 +16,7 @@ fi
 echo "id,status,reason" > "$VERIF_CSV"
 
 count=0
-for done_marker in verification_results/*/DONE; do
+for done_marker in verification_results/ids/*/DONE; do
   dir="$(dirname "$done_marker")"
   ID="$(basename "$dir")"
   run_log="$dir/run.log"

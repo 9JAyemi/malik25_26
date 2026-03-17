@@ -201,9 +201,12 @@ def main():
         visual_data_dir = os.path.abspath(args.out)
     os.makedirs(visual_data_dir, exist_ok=True)
 
-    csv_path = os.path.join(results_dir, "verif_summary.csv")
+    # Look for verif_summary.csv in visual_data/ first, then version dir root
+    csv_path = os.path.join(visual_data_dir, "verif_summary.csv")
     if not os.path.isfile(csv_path):
-        print(f"ERROR: {csv_path} not found.")
+        csv_path = os.path.join(results_dir, "verif_summary.csv")
+    if not os.path.isfile(csv_path):
+        print(f"ERROR: verif_summary.csv not found in {visual_data_dir} or {results_dir}.")
         sys.exit(1)
 
     # ── Step 1: Read verif_summary.csv and collect IDs that completed verification ──

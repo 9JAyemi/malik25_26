@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SUMMARY="syntax_results/summary.csv"
-OUTDIR="syntax_results"
+SUMMARY="syntax_results/visual_data/summary.csv"
+OUTDIR="syntax_results/visual_data"
 
 if [[ ! -f "$SUMMARY" ]]; then
   echo "❌ Missing $SUMMARY"

@@ -21,13 +21,11 @@ else
   exit 1
 fi
 
-mkdir -p verification_results
+mkdir -p verification_results/visual_data
 
 # Always regenerate CSVs so stale entries are replaced
-SUMMARY_CSV="verification_results/summary.csv"
-VERIF_CSV="verification_results/verif_summary.csv"
+VERIF_CSV="verification_results/visual_data/verif_summary.csv"
 
-echo "id,status" > "$SUMMARY_CSV"
 echo "id,status,reason" > "$VERIF_CSV"
 
 # ----------------------------
@@ -81,7 +79,7 @@ for dir in "$ROOT"/*/; do
 
   if [[ -f "$module_file" && -f "$sva_file" ]]; then
 
-    out_dir="verification_results/$id"
+    out_dir="verification_results/ids/$id"
     mkdir -p "$out_dir"
     done_marker="$out_dir/DONE"
     proj_dir="$out_dir/jgproject"
@@ -126,7 +124,6 @@ for dir in "$ROOT"/*/; do
       >"$out_dir/run.log" 2>&1 && {
 
       echo "✅ $id VERIF RUN OK"
-      echo "$id,ok" >> "$SUMMARY_CSV"
 
       if grep -q '\- cex' "$out_dir/run.log" 2>/dev/null; then
         cex_count=$(grep -oP '(?<=- cex\s{1,20}: )\d+' "$out_dir/run.log" 2>/dev/null || echo "0")
@@ -144,7 +141,6 @@ for dir in "$ROOT"/*/; do
     } || {
 
       echo "❌ $id VERIF RUN FAIL"
-      echo "$id,fail" >> "$SUMMARY_CSV"
       reason=$(extract_reason "$out_dir/run.log")
       echo "$id,fail,\"$reason\"" >> "$VERIF_CSV"
 
@@ -159,5 +155,4 @@ done
 
 echo "=============================="
 echo "Verification complete."
-echo "Summary CSV : $SUMMARY_CSV"
-echo "Detail CSV  : $VERIF_CSV"
+echo "Verif CSV : $VERIF_CSV"

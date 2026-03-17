@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("syntax_results/veri_error_counts_total.csv")
+df = pd.read_csv("syntax_results/visual_data/veri_error_counts_total.csv")
 
 plt.figure(figsize=(14,6))
 plt.bar(df["veri_code"], df["total_count"])
@@ -12,7 +12,7 @@ plt.title("Distribution of Jasper VERI Errors (Log Scale)")
 plt.xticks(rotation=60, ha="right")
 plt.tight_layout()
 plt.tight_layout()
-plt.savefig("syntax_results/veri_error_counts.png", dpi=300)
+plt.savefig("syntax_results/visual_data/veri_error_counts.png", dpi=300)
 plt.close()
 plt.figure(figsize=(14,6))
 plt.bar(df["veri_code"], df["total_count"])
@@ -21,5 +21,5 @@ plt.xlabel("VERI Error Code")
 plt.title("Distribution of Jasper VERI Errors")
 plt.xticks(rotation=60, ha="right")
 plt.tight_layout()
-plt.savefig("syntax_results/veri_error_counts_linear.png", dpi=300)
+plt.savefig("syntax_results/visual_data/veri_error_counts_linear.png", dpi=300)
 plt.close()

@@ -1,71 +1,2354 @@
-id,status,reason
-00574,pass,
-00575,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00575/sva.sv(12): syntax error near '['"
-00576,pass,
-00577,pass,
-00578,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00578/auto_bind.sv(9): cannot find port 'b1' on this module"
-00579,fail,"❌ FAILED: compile/elab errors | "
-00580,pass,
-00581,pass,
-00582,pass,
-00583,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00583/sva.sv(10): syntax error near '$global_clock'"
-00584,pass,
-00585,pass,
-00586,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00586/sva.sv(32): syntax error near '['"
-00587,pass,
-00588,pass,
-00589,pass,
-00590,pass,
-00591,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00591/module.v(3): syntax error near 'cross'"
-00592,fail,"❌ FAILED: compile/elab errors | "
-00593,pass,
-00594,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00594/auto_bind.sv(8): cannot find port 'b0' on this module"
-00595,pass,
-00596,pass,
-00597,pass,
-00598,pass,
-00599,pass,
-00600,pass,
-00601,pass,
-00602,pass,
-00603,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00603/auto_bind.sv(8): cannot find port 'd0' on this module"
-00604,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00604/sva.sv(28): unknown system function call 'initstate' not supported"
-00605,pass,
-00606,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00606/auto_bind.sv(9): cannot find port 'b1' on this module"
-00607,pass,
-00608,pass,
-00609,pass,
-00610,pass,
-00611,pass,
-00612,pass,
-00613,pass,
-00614,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00614/auto_bind.sv(9): cannot find port 'b1' on this module"
-00615,pass,
-00616,pass,
-00617,pass,
-00618,pass,
-00619,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00619/auto_bind.sv(10): cannot find port 'b1' on this module"
-00620,pass,
-00621,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00621/auto_bind.sv(18): syntax error near 'posedge'"
-00622,pass,
-00623,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00623/auto_bind.sv(10): cannot find port 'b1' on this module"
-00624,pass,
-00625,pass,
-00626,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00626/auto_bind.sv(7): syntax error near 'function'"
-00627,pass,
-00628,pass,
-00629,pass,
-00630,pass,
-00631,pass,
-00632,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00632/auto_bind.sv(9): syntax error near 'posedge'"
-00633,pass,
-00634,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00634/sva.sv(18): syntax error near '['"
-00635,pass,
-00636,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00636/sva.sv(12): syntax error near '$global_clock'"
-00637,pass,
-00638,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00638/auto_bind.sv(9): cannot find port 'b1' on this module"
-00639,pass,
-00640,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00640/auto_bind.sv(10): syntax error near 'posedge'"
-00641,pass,
-00642,pass,
-00643,pass,
+00644,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00644/auto_bind.sv(10): cannot find port 'b1' on this module"
+00645,pass,
+00646,pass,
+00647,pass,
+00648,pass,
+00649,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00649/auto_bind.sv(8): cannot find port 'INIT_DONE' on this module"
+00650,pass,
+00651,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00651/auto_bind.sv(7): syntax error near 'posedge'"
+00652,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00652/auto_bind.sv(9): cannot find port 'b1' on this module"
+00653,pass,
+00654,pass,
+00655,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00655/sva.sv(10): syntax error near '$global_clock'"
+00656,fail,"❌ FAILED: compile/elab errors | "
+00657,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00657/sva.sv(19): syntax error near '$global_clock'"
+00658,pass,
+00659,pass,
+00660,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00660/auto_bind.sv(10): syntax error near 'posedge'"
+00661,pass,
+00662,pass,
+00663,pass,
+00664,pass,
+00665,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00665/sva.sv(39): unknown system function call 'initstate' not supported"
+00666,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00666/auto_bind.sv(10): syntax error near 'posedge'"
+00667,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00667/sva.sv(15): syntax error near '['"
+00668,pass,
+00669,pass,
+00670,pass,
+00671,pass,
+00672,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00672/sva.sv(11): syntax error near '['"
+00673,pass,
+00674,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00674/auto_bind.sv(13): cannot find port 'b1' on this module"
+00675,pass,
+00676,pass,
+00677,pass,
+00678,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00678/auto_bind.sv(15): cannot find port 'b1' on this module"
+00679,pass,
+00680,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00680/auto_bind.sv(19): syntax error near 'posedge'"
+00681,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00681/auto_bind.sv(10): cannot find port 'b1' on this module"
+00682,fail,"❌ FAILED: compile/elab errors | "
+00683,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00683/sva.sv(11): syntax error near '$global_clock'"
+00684,pass,
+00685,pass,
+00686,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00686/auto_bind.sv(8): syntax error near 'posedge'"
+00687,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00687/auto_bind.sv(19): syntax error near 'posedge'"
+00688,pass,
+00689,pass,
+00690,pass,
+00691,pass,
+00692,pass,
+00693,pass,
+00694,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00694/auto_bind.sv(11): cannot find port 'b1' on this module"
+00695,pass,
+00696,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00696/sva.sv(43): syntax error near '['"
+00697,pass,
+00698,pass,
+00699,pass,
+00700,pass,
+00701,pass,
+00702,pass,
+00703,pass,
+00704,pass,
+00705,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00705/auto_bind.sv(6): cannot find port 'b1' on this module"
+00706,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00706/sva.sv(9): syntax error near '$global_clock'"
+00707,pass,
+00708,pass,
+00709,pass,
+00710,pass,
+00711,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00711/auto_bind.sv(8): syntax error near 'posedge'"
+00712,fail,"❌ FAILED: compile/elab errors | "
+00713,pass,
+00714,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00714/sva.sv(20): syntax error near '['"
+00715,pass,
+00716,pass,
+00717,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00717/sva.sv(10): syntax error near '$global_clock'"
+00718,pass,
+00719,pass,
+00720,pass,
+00721,pass,
+00722,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00722/auto_bind.sv(13): cannot find port 'b1' on this module"
+00723,pass,
+00724,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00724/auto_bind.sv(5): cannot find port 'i' on this module"
+00725,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00725/auto_bind.sv(9): syntax error near 'assign'"
+00726,pass,
+00727,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00727/sva.sv(20): syntax error near '['"
+00728,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00728/auto_bind.sv(10): syntax error near 'or'"
+00729,pass,
+00730,pass,
+00731,pass,
+00732,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00732/auto_bind.sv(10): cannot find port 'b1' on this module"
+00733,pass,
+00734,pass,
+00735,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00735/auto_bind.sv(9): syntax error near 'assign'"
+00736,pass,
+00737,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00737/sva.sv(15): syntax error near '['"
+00738,pass,
+00739,pass,
+00740,pass,
+00741,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00741/auto_bind.sv(9): cannot find port 'b1' on this module"
+00742,pass,
+00743,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00743/auto_bind.sv(13): syntax error near 'or'"
+00744,pass,
+00745,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1243)] ./00745/sva.sv(24): operator |-> is only allowed in a property; not in sequence"
+00746,pass,
+00747,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00747/auto_bind.sv(10): cannot find port 'b1' on this module"
+00748,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00748/sva.sv(16): syntax error near '['"
+00749,pass,
+00750,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00750/auto_bind.sv(11): syntax error near 'posedge'"
+00751,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00751/sva.sv(13): syntax error near '['"
+00752,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00752/sva.sv(13): syntax error near '$global_clock'"
+00753,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00753/sva.sv(33): syntax error near '['"
+00754,pass,
+00755,pass,
+00756,pass,
+00757,pass,
+00758,pass,
+00759,pass,
+00760,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00760/auto_bind.sv(10): cannot find port 'b1' on this module"
+00761,pass,
+00762,pass,
+00763,pass,
+00764,pass,
+00765,pass,
+00766,fail,"❌ FAILED: compile/elab errors | "
+00767,pass,
+00768,pass,
+00769,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00769/sva.sv(34): unknown system function call 'initstate' not supported"
+00770,pass,
+00771,pass,
+00772,pass,
+00773,fail,"❌ FAILED: compile/elab errors | "
+00774,pass,
+00775,pass,
+00776,pass,
+00777,pass,
+00778,pass,
+00779,pass,
+00780,pass,
+00781,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00781/auto_bind.sv(9): syntax error near 'posedge'"
+00782,pass,
+00783,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./00783/sva.sv(32): event expression is not allowed here"
+00784,pass,
+00785,pass,
+00786,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00786/sva.sv(13): syntax error near '['"
+00787,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00787/sva.sv(25): syntax error near '['"
+00788,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00788/auto_bind.sv(12): syntax error near 'or'"
+00789,pass,
+00790,pass,
+00791,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00791/sva.sv(10): unknown system function call 'initstate' not supported"
+00792,pass,
+00793,pass,
+00794,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00794/auto_bind.sv(8): syntax error near 'posedge'"
+00795,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00795/auto_bind.sv(8): syntax error near 'posedge'"
+00796,pass,
+00797,pass,
+00798,pass,
+00799,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00799/module.v(10): syntax error near 'new'"
+00800,pass,
+00801,pass,
+00802,pass,
+00803,pass,
+00804,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00804/auto_bind.sv(11): syntax error near 'posedge'"
+00805,pass,
+00806,pass,
+00807,pass,
+00808,pass,
+00809,pass,
+00810,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00810/auto_bind.sv(8): cannot find port 'b1' on this module"
+00811,pass,
+00812,pass,
+00813,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1216)] ./00813/sva.sv(11): index 46 is out of range [31:0] for 'in'"
+00814,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00814/sva.sv(59): syntax error near '['"
+00815,fail,"❌ FAILED: compile/elab errors | "
+00816,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00816/auto_bind.sv(8): syntax error near 'posedge'"
+00817,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00817/auto_bind.sv(10): cannot find port 'b1' on this module"
+00818,pass,
+00819,pass,
+00820,pass,
+00821,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00821/sva.sv(29): syntax error near '['"
+00822,pass,
+00823,pass,
+00824,pass,
+00825,pass,
+00826,pass,
+00827,pass,
+00828,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00828/auto_bind.sv(6): cannot find port 'm' on this module"
+00829,fail,"❌ FAILED: compile/elab errors | "
+00830,pass,
+00831,pass,
+00832,pass,
+00833,pass,
+00834,pass,
+00835,pass,
+00836,pass,
+00837,pass,
+00838,pass,
+00839,pass,
+00840,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00840/sva.sv(21): syntax error near '['"
+00841,pass,
+00842,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00842/sva.sv(16): syntax error near '['"
+00843,pass,
+00844,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00844/auto_bind.sv(10): cannot find port 'b1' on this module"
+00845,pass,
+00846,pass,
+00847,pass,
+00848,pass,
+00849,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00849/sva.sv(7): syntax error near '$global_clock'"
+00850,pass,
+00851,pass,
+00852,pass,
+00853,pass,
+00854,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00854/sva.sv(21): syntax error near '['"
+00855,pass,
+00856,pass,
+00857,pass,
+00858,pass,
+00859,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00859/sva.sv(83): syntax error near ')'"
+00860,pass,
+00861,pass,
+00862,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00862/sva.sv(35): syntax error near '['"
+00863,pass,
+00864,pass,
+00865,pass,
+00866,pass,
+00867,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00867/sva.sv(14): syntax error near '['"
+00868,pass,
+00869,pass,
+00870,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00870/auto_bind.sv(12): cannot find port 'b1' on this module"
+00871,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00871/sva.sv(11): unknown system function call 'initstate' not supported"
+00872,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00872/auto_bind.sv(9): cannot find port 'b1' on this module"
+00873,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00873/auto_bind.sv(9): cannot find port 'b1' on this module"
+00874,pass,
+00875,pass,
+00876,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00876/auto_bind.sv(8): cannot find port 'b1' on this module"
+00877,pass,
+00878,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00878/auto_bind.sv(9): cannot find port 'b1' on this module"
+00879,pass,
+00880,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00880/auto_bind.sv(8): syntax error near 'posedge'"
+00881,pass,
+00882,pass,
+00883,pass,
+00884,pass,
+00885,pass,
+00886,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00886/auto_bind.sv(12): syntax error near 'always'"
+00887,pass,
+00888,pass,
+00889,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00889/auto_bind.sv(14): cannot find port 'b1' on this module"
+00890,pass,
+00891,pass,
+00892,pass,
+00893,pass,
+00894,pass,
+00895,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1243)] ./00895/sva.sv(40): operator |-> is only allowed in a property; not in sequence"
+00896,pass,
+00897,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00897/sva.sv(12): unknown system function call 'initstate' not supported"
+00898,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00898/sva.sv(11): syntax error near '['"
+00899,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00899/auto_bind.sv(9): cannot find port 'b0' on this module"
+00900,pass,
+00901,fail,"❌ FAILED: compile/elab errors | "
+00902,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00902/auto_bind.sv(43): cannot find port 'b0111000' on this module"
+00903,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00903/sva.sv(29): syntax error near '['"
+00904,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00904/sva.sv(16): unknown system function call 'initstate' not supported"
+00905,pass,
+00906,pass,
+00907,pass,
+00908,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00908/auto_bind.sv(10): cannot find port 'b0' on this module"
+00909,pass,
+00910,pass,
+00911,pass,
+00912,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00912/sva.sv(14): unknown system function call 'initstate' not supported"
+00913,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00913/sva.sv(12): syntax error near '['"
+00914,pass,
+00915,pass,
+00916,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00916/sva.sv(10): syntax error near '['"
+00917,pass,
+00918,pass,
+00919,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00919/sva.sv(32): syntax error near '['"
+00920,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00920/auto_bind.sv(11): syntax error near 'always'"
+00921,pass,
+00922,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00922/auto_bind.sv(13): cannot find port 'b0' on this module"
+00923,pass,
+00924,pass,
+00925,pass,
+00926,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00926/auto_bind.sv(8): cannot find port 'b1' on this module"
+00927,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00927/auto_bind.sv(13): cannot find port 'b0' on this module"
+00928,pass,
+00929,pass,
+00930,pass,
+00931,fail,"❌ FAILED: compile/elab errors | "
+00932,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00932/auto_bind.sv(8): syntax error near 'posedge'"
+00933,pass,
+00934,pass,
+00935,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00935/auto_bind.sv(10): cannot find port 'b1' on this module"
+00936,fail,"❌ FAILED: compile/elab errors | "
+00937,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00937/auto_bind.sv(7): syntax error near 'or'"
+00938,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00938/auto_bind.sv(9): syntax error near 'assign'"
+00939,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00939/sva.sv(18): syntax error near '['"
+00940,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00940/auto_bind.sv(7): cannot find port 'b00000000' on this module"
+00941,pass,
+00942,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00942/auto_bind.sv(9): cannot find port 'b1' on this module"
+00943,pass,
+00944,pass,
+00945,fail,"❌ FAILED: compile/elab errors | "
+00946,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00946/auto_bind.sv(10): cannot find port 'b1' on this module"
+00947,pass,
+00948,pass,
+00949,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00949/auto_bind.sv(7): syntax error near 'posedge'"
+00950,pass,
+00951,pass,
+00952,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00952/sva.sv(27): syntax error near '['"
+00953,pass,
+00954,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./00954/sva.sv(9): unknown system function call 'initstate' not supported"
+00955,pass,
+00956,pass,
+00957,pass,
+00958,pass,
+00959,pass,
+00960,pass,
+00961,pass,
+00962,pass,
+00963,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00963/sva.sv(13): syntax error near '['"
+00964,pass,
+00965,pass,
+00966,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00966/auto_bind.sv(7): cannot find port 'lvl' on this module"
+00967,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00967/auto_bind.sv(10): cannot find port 'b1' on this module"
+00968,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00968/auto_bind.sv(8): syntax error near 'endmodule'"
+00969,pass,
+00970,pass,
+00971,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00971/auto_bind.sv(9): syntax error near 'posedge'"
+00972,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00972/auto_bind.sv(9): cannot find port 'b1' on this module"
+00973,fail,"❌ FAILED: compile/elab errors | "
+00974,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00974/sva.sv(17): syntax error near '['"
+00975,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00975/sva.sv(11): syntax error near '$global_clock'"
+00976,pass,
+00977,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00977/sva.sv(31): syntax error near '['"
+00978,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00978/auto_bind.sv(9): cannot find port 'b1' on this module"
+00979,pass,
+00980,pass,
+00981,pass,
+00982,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00982/auto_bind.sv(5): cannot find port 'WIDTH' on this module"
+00983,pass,
+00984,pass,
+00985,pass,
+00986,pass,
+00987,pass,
+00988,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./00988/sva.sv(41): syntax error near '['"
+00989,pass,
+00990,pass,
+00991,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00991/auto_bind.sv(9): cannot find port 'b10' on this module"
+00992,pass,
+00993,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1540)] ./00993/sva.sv(21): explicit clocking event must be specified for 'past' in disable iff condition"
+00994,pass,
+00995,pass,
+00996,pass,
+00997,pass,
+00998,fail,"❌ FAILED: compile/elab errors | "
+00999,pass,
+01000,pass,
+01001,pass,
+01002,pass,
+01003,pass,
+01004,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01004/auto_bind.sv(13): syntax error near 'posedge'"
+01005,pass,
+01006,pass,
+01007,pass,
+01008,pass,
+01009,pass,
+01010,pass,
+01011,pass,
+01012,pass,
+01013,pass,
+01014,pass,
+01015,fail,"❌ FAILED: compile/elab errors | "
+01016,fail,"❌ FAILED: compile/elab errors | "
+01017,pass,
+01018,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01018/sva.sv(48): syntax error near '['"
+01019,pass,
+01020,pass,
+01021,fail,"❌ FAILED: compile/elab errors | "
+01022,pass,
+01023,pass,
+01024,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01024/auto_bind.sv(9): syntax error near 'negedge'"
+01025,pass,
+01026,pass,
+01027,pass,
+01028,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01028/auto_bind.sv(10): cannot find port 'b1' on this module"
+01029,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1243)] ./01029/sva.sv(34): operator |-> is only allowed in a property; not in sequence"
+01030,pass,
+01031,pass,
+01032,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01032/auto_bind.sv(9): syntax error near 'or'"
+01033,pass,
+01034,pass,
+01035,pass,
+01036,pass,
+01037,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01037/sva.sv(8): syntax error near '$global_clock'"
+01038,pass,
+01039,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01039/auto_bind.sv(8): cannot find port 'b1' on this module"
+01040,pass,
+01041,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01041/sva.sv(9): syntax error near '$global_clock'"
+01042,pass,
+01043,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01043/auto_bind.sv(9): cannot find port 'b1' on this module"
+01044,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01044/sva.sv(8): syntax error near '['"
+01045,pass,
+01046,pass,
+01047,pass,
+01048,pass,
+01049,pass,
+01050,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01050/sva.sv(12): syntax error near '$global_clock'"
+01051,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01051/auto_bind.sv(10): cannot find port 'b1' on this module"
+01052,pass,
+01053,pass,
+01054,pass,
+01055,pass,
+01056,pass,
+01057,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01057/auto_bind.sv(11): syntax error near 'assign'"
+01058,pass,
+01059,pass,
+01060,pass,
+01061,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01061/auto_bind.sv(8): cannot find port 'count_d2_reg' on this module"
+01062,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01062/auto_bind.sv(9): syntax error near 'assign'"
+01063,pass,
+01064,fail,"❌ FAILED: compile/elab errors | "
+01065,pass,
+01066,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01066/auto_bind.sv(10): cannot find port 'b1' on this module"
+01067,pass,
+01068,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01068/auto_bind.sv(4): cannot find port 'n' on this module"
+01069,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01069/sva.sv(11): syntax error near '$global_clock'"
+01070,pass,
+01071,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01071/sva.sv(12): syntax error near '$global_clock'"
+01072,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01072/auto_bind.sv(9): syntax error near 'assign'"
+01073,pass,
+01074,pass,
+01075,pass,
+01076,pass,
+01077,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01077/auto_bind.sv(10): cannot find port 'b1' on this module"
+01078,pass,
+01079,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01079/auto_bind.sv(9): syntax error near 'posedge'"
+01080,pass,
+01081,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01081/auto_bind.sv(14): cannot find port 'b1' on this module"
+01082,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01082/sva.sv(11): syntax error near '['"
+01083,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01083/sva.sv(16): syntax error near '['"
+01084,pass,
+01085,pass,
+01086,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01086/auto_bind.sv(17): cannot find port 'b0' on this module"
+01087,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01087/sva.sv(53): syntax error near '['"
+01088,pass,
+01089,fail,"❌ FAILED: compile/elab errors | "
+01090,pass,
+01091,pass,
+01092,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01092/auto_bind.sv(7): cannot find port 'w' on this module"
+01093,pass,
+01094,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01094/auto_bind.sv(5): cannot find port 'n' on this module"
+01095,pass,
+01096,pass,
+01097,pass,
+01098,pass,
+01099,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01099/auto_bind.sv(19): cannot find port 'b11' on this module"
+01100,pass,
+01101,pass,
+01102,pass,
+01103,pass,
+01104,pass,
+01105,pass,
+01106,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01106/auto_bind.sv(10): cannot find port 'b0' on this module"
+01107,pass,
+01108,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01108/auto_bind.sv(46): cannot find port 'd9' on this module"
+01109,pass,
+01110,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01110/auto_bind.sv(10): cannot find port 'b10' on this module"
+01111,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01111/auto_bind.sv(5): cannot find port 'WIDTH' on this module"
+01112,fail,"❌ FAILED: compile/elab errors | "
+01113,pass,
+01114,pass,
+01115,pass,
+01116,pass,
+01117,pass,
+01118,pass,
+01119,fail,"❌ FAILED: compile/elab errors | "
+01120,pass,
+01121,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01121/auto_bind.sv(17): syntax error near 'posedge'"
+01122,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01122/sva.sv(9): syntax error near '$global_clock'"
+01123,pass,
+01124,pass,
+01125,fail,"❌ FAILED: compile/elab errors | "
+01126,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01126/sva.sv(10): unknown system function call 'initstate' not supported"
+01127,pass,
+01128,pass,
+01129,pass,
+01130,pass,
+01131,pass,
+01132,pass,
+01133,pass,
+01134,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01134/auto_bind.sv(10): cannot find port 'b1' on this module"
+01135,pass,
+01136,pass,
+01137,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01137/auto_bind.sv(12): cannot find port 'b00' on this module"
+01138,pass,
+01139,pass,
+01140,pass,
+01141,pass,
+01142,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01142/auto_bind.sv(13): syntax error near 'posedge'"
+01143,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./01143/sva.sv(14): event expression is not allowed here"
+01144,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01144/auto_bind.sv(10): syntax error near 'assign'"
+01145,pass,
+01146,pass,
+01147,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01147/auto_bind.sv(9): syntax error near 'negedge'"
+01148,fail,"❌ FAILED: compile/elab errors | "
+01149,fail,"❌ FAILED: compile/elab errors | "
+01150,pass,
+01151,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01151/sva.sv(13): syntax error near '$global_clock'"
+01152,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01152/sva.sv(11): syntax error near '['"
+01153,pass,
+01154,pass,
+01155,pass,
+01156,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01156/sva.sv(39): syntax error near '['"
+01157,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01157/auto_bind.sv(10): syntax error near 'posedge'"
+01158,pass,
+01159,pass,
+01160,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01160/auto_bind.sv(6): cannot find port 'WIDTH' on this module"
+01161,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01161/sva.sv(53): syntax error near '['"
+01162,pass,
+01163,pass,
+01164,pass,
+01165,pass,
+01166,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01166/auto_bind.sv(10): syntax error near 'posedge'"
+01167,pass,
+01168,pass,
+01169,pass,
+01170,pass,
+01171,fail,"❌ FAILED: compile/elab errors | "
+01172,fail,"❌ FAILED: compile/elab errors | "
+01173,pass,
+01174,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01174/sva.sv(30): unknown system function call 'initstate' not supported"
+01175,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01175/sva.sv(12): syntax error near '$global_clock'"
+01176,pass,
+01177,pass,
+01178,fail,"❌ FAILED: compile/elab errors | "
+01179,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01179/auto_bind.sv(8): cannot find port 'b0' on this module"
+01180,pass,
+01181,pass,
+01182,pass,
+01183,fail,"❌ FAILED: compile/elab errors | "
+01184,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01184/auto_bind.sv(9): cannot find port 'W' on this module"
+01185,fail,"❌ FAILED: compile/elab errors | "
+01186,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01186/auto_bind.sv(11): cannot find port 'b1' on this module"
+01187,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01187/auto_bind.sv(12): cannot find port 'b1' on this module"
+01188,pass,
+01189,pass,
+01190,pass,
+01191,pass,
+01192,pass,
+01193,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01193/auto_bind.sv(10): cannot find port 'b1' on this module"
+01194,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01194/sva.sv(16): syntax error near '$global_clock'"
+01195,fail,"❌ FAILED: compile/elab errors | "
+01196,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01196/sva.sv(8): syntax error near '['"
+01197,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01197/auto_bind.sv(9): cannot find port 'b1' on this module"
+01198,pass,
+01199,pass,
+01200,pass,
+01201,pass,
+01202,pass,
+01203,pass,
+01204,pass,
+01205,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01205/auto_bind.sv(13): syntax error near 'posedge'"
+01206,fail,"❌ FAILED: compile/elab errors | "
+01207,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01207/auto_bind.sv(13): cannot find port 'b1' on this module"
+01208,pass,
+01209,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01209/auto_bind.sv(9): syntax error near 'posedge'"
+01210,pass,
+01211,pass,
+01212,pass,
+01213,pass,
+01214,pass,
+01215,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01215/auto_bind.sv(15): syntax error near 'posedge'"
+01216,pass,
+01217,pass,
+01218,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01218/auto_bind.sv(9): cannot find port 'b0' on this module"
+01219,pass,
+01220,fail,"❌ FAILED: compile/elab errors | "
+01221,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01221/sva.sv(11): syntax error near '['"
+01222,pass,
+01223,fail,"❌ FAILED: compile/elab errors | "
+01224,pass,
+01225,pass,
+01226,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01226/sva.sv(12): syntax error near '['"
+01227,pass,
+01228,pass,
+01229,pass,
+01230,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01230/auto_bind.sv(9): cannot find port 'b1' on this module"
+01231,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01231/auto_bind.sv(8): cannot find port 'b0' on this module"
+01232,pass,
+01233,pass,
+01234,pass,
+01235,fail,"❌ FAILED: compile/elab errors | "
+01236,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01236/sva.sv(21): syntax error near '['"
+01237,pass,
+01238,pass,
+01239,pass,
+01240,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01240/sva.sv(50): syntax error near '##'"
+01241,pass,
+01242,pass,
+01243,pass,
+01244,pass,
+01245,pass,
+01246,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01246/sva.sv(16): syntax error near '''"
+01247,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01247/auto_bind.sv(17): syntax error near 'posedge'"
+01248,pass,
+01249,pass,
+01250,pass,
+01251,pass,
+01252,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01252/auto_bind.sv(6): syntax error near 'endmodule'"
+01253,pass,
+01254,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01254/auto_bind.sv(15): cannot find port 'b11' on this module"
+01255,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01255/auto_bind.sv(14): cannot find port 'b1' on this module"
+01256,pass,
+01257,pass,
+01258,pass,
+01259,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01259/auto_bind.sv(9): cannot find port 'b1' on this module"
+01260,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01260/auto_bind.sv(10): syntax error near 'posedge'"
+01261,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01261/sva.sv(25): unknown system function call 'initstate' not supported"
+01262,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01262/sva.sv(11): unknown system function call 'initstate' not supported"
+01263,pass,
+01264,pass,
+01265,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01265/sva.sv(15): unknown system function call 'initstate' not supported"
+01266,pass,
+01267,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01267/sva.sv(9): syntax error near '['"
+01268,pass,
+01269,fail,"❌ FAILED: compile/elab errors | "
+01270,pass,
+01271,fail,"❌ FAILED: compile/elab errors | "
+01272,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01272/auto_bind.sv(10): cannot find port 'b1' on this module"
+01273,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01273/auto_bind.sv(7): cannot find port 'b0' on this module"
+01274,pass,
+01275,pass,
+01276,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01276/sva.sv(19): syntax error near '['"
+01277,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01277/sva.sv(54): syntax error near '|->'"
+01278,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01278/sva.sv(27): syntax error near '['"
+01279,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01279/auto_bind.sv(14): cannot find port 'b1' on this module"
+01280,pass,
+01281,pass,
+01282,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01282/auto_bind.sv(9): cannot find port 'b1' on this module"
+01283,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01283/auto_bind.sv(10): cannot find port 'b' on this module"
+01284,pass,
+01285,pass,
+01286,pass,
+01287,pass,
+01288,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01288/auto_bind.sv(10): cannot find port 'b1' on this module"
+01289,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01289/auto_bind.sv(10): cannot find port 'b1' on this module"
+01290,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01290/sva.sv(25): syntax error near '['"
+01291,pass,
+01292,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01292/auto_bind.sv(15): syntax error near 'posedge'"
+01293,pass,
+01294,pass,
+01295,pass,
+01296,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01296/auto_bind.sv(11): cannot find port 'b0' on this module"
+01297,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01297/auto_bind.sv(10): syntax error near 'posedge'"
+01298,pass,
+01299,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01299/sva.sv(25): syntax error near '['"
+01300,pass,
+01301,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01301/auto_bind.sv(8): cannot find port 'b0' on this module"
+01302,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01302/auto_bind.sv(9): cannot find port 'b1' on this module"
+01303,pass,
+01304,pass,
+01305,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01305/auto_bind.sv(10): cannot find port 'b1' on this module"
+01306,pass,
+01307,pass,
+01308,pass,
+01309,pass,
+01310,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01310/sva.sv(11): unknown system function call 'initstate' not supported"
+01311,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01311/auto_bind.sv(11): syntax error near 'posedge'"
+01312,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01312/auto_bind.sv(14): cannot find port 'b1' on this module"
+01313,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01313/auto_bind.sv(8): syntax error near 'posedge'"
+01314,pass,
+01315,pass,
+01316,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01316/sva.sv(17): syntax error near '['"
+01317,pass,
+01318,pass,
+01319,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01319/sva.sv(49): syntax error near '['"
+01320,pass,
+01321,pass,
+01322,pass,
+01323,fail,"❌ FAILED: compile/elab errors | "
+01324,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01324/auto_bind.sv(7): syntax error near 'or'"
+01325,pass,
+01326,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01326/auto_bind.sv(9): syntax error near 'posedge'"
+01327,pass,
+01328,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01328/sva.sv(12): unknown system function call 'initstate' not supported"
+01329,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01329/sva.sv(19): syntax error near '['"
+01330,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01330/auto_bind.sv(11): syntax error near 'posedge'"
+01331,pass,
+01332,fail,"❌ FAILED: compile/elab errors | "
+01333,pass,
+01334,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01334/auto_bind.sv(8): cannot find port 'b1' on this module"
+01335,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01335/auto_bind.sv(8): syntax error near 'begin'"
+01336,pass,
+01337,pass,
+01338,pass,
+01339,pass,
+01340,pass,
+01341,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01341/auto_bind.sv(9): cannot find port 'b1' on this module"
+01342,pass,
+01343,pass,
+01344,pass,
+01345,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01345/sva.sv(17): syntax error near '['"
+01346,pass,
+01347,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01347/sva.sv(22): unknown system function call 'initstate' not supported"
+01348,pass,
+01349,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01349/auto_bind.sv(8): cannot find port 'b1' on this module"
+01350,pass,
+01351,pass,
+01352,pass,
+01353,pass,
+01354,pass,
+01355,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01355/auto_bind.sv(9): cannot find port 'b1' on this module"
+01356,pass,
+01357,pass,
+01358,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01358/sva.sv(10): unknown system function call 'initstate' not supported"
+01359,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01359/sva.sv(15): unknown system function call 'initstate' not supported"
+01360,pass,
+01361,fail,"❌ FAILED: compile/elab errors | "
+01362,pass,
+01363,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01363/auto_bind.sv(7): syntax error near 'or'"
+01364,pass,
+01365,pass,
+01366,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01366/auto_bind.sv(9): cannot find port 'b1' on this module"
+01367,pass,
+01368,pass,
+01369,pass,
+01370,fail,"❌ FAILED: compile/elab errors | "
+01371,fail,"❌ FAILED: compile/elab errors | "
+01372,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01372/auto_bind.sv(9): syntax error near 'or'"
+01373,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01373/auto_bind.sv(11): cannot find port 'b0' on this module"
+01374,pass,
+01375,pass,
+01376,pass,
+01377,pass,
+01378,pass,
+01379,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01379/sva.sv(13): unknown system function call 'initstate' not supported"
+01380,pass,
+01381,pass,
+01382,pass,
+01383,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01383/auto_bind.sv(9): syntax error near 'assign'"
+01384,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01384/sva.sv(45): syntax error near '['"
+01385,pass,
+01386,pass,
+01387,pass,
+01388,fail,"❌ FAILED: compile/elab errors | "
+01389,pass,
+01390,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01390/auto_bind.sv(8): cannot find port 'b0' on this module"
+01391,pass,
+01392,pass,
+01393,pass,
+01394,pass,
+01395,pass,
+01396,pass,
+01397,pass,
+01398,fail,"❌ FAILED: compile/elab errors | "
+01399,pass,
+01400,fail,"❌ FAILED: compile/elab errors | "
+01401,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01401/sva.sv(41): syntax error near '['"
+01402,pass,
+01403,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01403/sva.sv(18): syntax error near '$global_clock'"
+01404,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01404/sva.sv(13): syntax error near '['"
+01405,pass,
+01406,pass,
+01407,fail,"❌ FAILED: compile/elab errors | "
+01408,pass,
+01409,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01409/auto_bind.sv(14): syntax error near 'or'"
+01410,pass,
+01411,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01411/auto_bind.sv(9): cannot find port 'b1' on this module"
+01412,pass,
+01413,pass,
+01414,pass,
+01415,pass,
+01416,pass,
+01417,pass,
+01418,pass,
+01419,pass,
+01420,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01420/sva.sv(24): syntax error near '['"
+01421,pass,
+01422,pass,
+01423,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01423/auto_bind.sv(7): syntax error near 'posedge'"
+01424,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-9024)] ./01424/module.v(56): invalid initialization in port declaration"
+01425,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01425/auto_bind.sv(10): cannot find port 'b1' on this module"
+01426,pass,
+01427,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01427/sva.sv(76): unknown system function call 'initstate' not supported"
+01428,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01428/auto_bind.sv(9): cannot find port 'b1' on this module"
+01429,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1075)] ./01429/module.v(29): name-based port connection not allowed in gate-instantiation"
+01430,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01430/sva.sv(20): syntax error near '['"
+01431,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01431/auto_bind.sv(10): cannot find port 'b1' on this module"
+01432,pass,
+01433,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01433/auto_bind.sv(10): syntax error near 'posedge'"
+01434,pass,
+01435,fail,"❌ FAILED: compile/elab errors | "
+01436,pass,
+01437,fail,"❌ FAILED: compile/elab errors | "
+01438,pass,
+01439,pass,
+01440,pass,
+01441,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01441/sva.sv(9): syntax error near '['"
+01442,pass,
+01443,pass,
+01444,pass,
+01445,pass,
+01446,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01446/sva.sv(44): syntax error near '['"
+01447,pass,
+01448,pass,
+01449,pass,
+01450,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01450/auto_bind.sv(10): syntax error near 'or'"
+01451,pass,
+01452,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01452/auto_bind.sv(14): syntax error near 'posedge'"
+01453,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01453/auto_bind.sv(21): syntax error near 'posedge'"
+01454,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01454/auto_bind.sv(14): syntax error near 'posedge'"
+01455,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01455/auto_bind.sv(11): syntax error near 'posedge'"
+01456,pass,
+01457,fail,"❌ FAILED: compile/elab errors | "
+01458,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01458/auto_bind.sv(9): cannot find port 'b1' on this module"
+01459,pass,
+01460,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01460/auto_bind.sv(6): cannot find port 'b10' on this module"
+01461,pass,
+01462,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01462/auto_bind.sv(8): syntax error near 'assign'"
+01463,fail,"❌ FAILED: compile/elab errors | "
+01464,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01464/auto_bind.sv(9): cannot find port 'b1' on this module"
+01465,pass,
+01466,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01466/sva.sv(56): syntax error near '['"
+01467,pass,
+01468,pass,
+01469,pass,
+01470,pass,
+01471,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01471/auto_bind.sv(6): cannot find port 'n' on this module"
+01472,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01472/sva.sv(52): syntax error near '['"
+01473,pass,
+01474,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01474/auto_bind.sv(19): syntax error near 'posedge'"
+01475,pass,
+01476,pass,
+01477,pass,
+01478,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01478/sva.sv(18): syntax error near '['"
+01479,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01479/auto_bind.sv(8): cannot find port 'b1' on this module"
+01480,pass,
+01481,pass,
+01482,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01482/sva.sv(29): syntax error near '['"
+01483,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01483/sva.sv(52): syntax error near '['"
+01484,pass,
+01485,pass,
+01486,pass,
+01487,pass,
+01488,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01488/sva.sv(15): syntax error near '['"
+01489,pass,
+01490,pass,
+01491,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01491/sva.sv(17): syntax error near '['"
+01492,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01492/auto_bind.sv(11): cannot find port 'b0' on this module"
+01493,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01493/auto_bind.sv(10): cannot find port 'b1' on this module"
+01494,pass,
+01495,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01495/sva.sv(17): syntax error near '['"
+01496,pass,
+01497,pass,
+01498,pass,
+01499,pass,
+01500,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01500/sva.sv(8): unknown system function call 'initstate' not supported"
+01501,pass,
+01502,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01502/sva.sv(25): syntax error near '$global_clock'"
+01503,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01503/auto_bind.sv(7): cannot find port 'COUNT' on this module"
+01504,pass,
+01505,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01505/sva.sv(13): syntax error near '['"
+01506,pass,
+01507,pass,
+01508,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01508/auto_bind.sv(14): cannot find port 'b1' on this module"
+01509,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01509/auto_bind.sv(11): syntax error near 'posedge'"
+01510,pass,
+01511,pass,
+01512,pass,
+01513,pass,
+01514,pass,
+01515,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01515/auto_bind.sv(10): syntax error near 'posedge'"
+01516,pass,
+01517,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01517/auto_bind.sv(10): cannot find port 'b1' on this module"
+01518,fail,"❌ FAILED: compile/elab errors | "
+01519,pass,
+01520,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01520/auto_bind.sv(14): syntax error near 'posedge'"
+01521,pass,
+01522,pass,
+01523,pass,
+01524,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01524/auto_bind.sv(9): cannot find port 'OWIDTH' on this module"
+01525,pass,
+01526,pass,
+01527,pass,
+01528,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01528/sva.sv(57): unknown system function call 'initstate' not supported"
+01529,pass,
+01530,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01530/auto_bind.sv(13): cannot find port 'b1' on this module"
+01531,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01531/sva.sv(10): syntax error near '['"
+01532,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01532/auto_bind.sv(10): cannot find port 'b11' on this module"
+01533,pass,
+01534,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01534/sva.sv(15): syntax error near '['"
+01535,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01535/sva.sv(38): syntax error near '['"
+01536,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01536/auto_bind.sv(9): cannot find port 'b1' on this module"
+01537,pass,
+01538,pass,
+01539,pass,
+01540,pass,
+01541,fail,"❌ FAILED: compile/elab errors | "
+01542,pass,
+01543,pass,
+01544,pass,
+01545,fail,"❌ FAILED: compile/elab errors | "
+01546,pass,
+01547,pass,
+01548,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01548/auto_bind.sv(12): syntax error near 'posedge'"
+01549,pass,
+01550,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01550/sva.sv(37): syntax error near '['"
+01551,pass,
+01552,pass,
+01553,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01553/sva.sv(13): syntax error near '['"
+01554,pass,
+01555,pass,
+01556,fail,"❌ FAILED: compile/elab errors | "
+01557,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01557/auto_bind.sv(16): cannot find port 'd8' on this module"
+01558,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01558/auto_bind.sv(9): syntax error near 'assign'"
+01559,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01559/sva.sv(18): unknown system function call 'initstate' not supported"
+01560,pass,
+01561,pass,
+01562,pass,
+01563,pass,
+01564,pass,
+01565,fail,"❌ FAILED: compile/elab errors | "
+01566,pass,
+01567,pass,
+01568,pass,
+01569,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01569/sva.sv(20): syntax error near '['"
+01570,fail,"❌ FAILED: compile/elab errors | "
+01571,pass,
+01572,pass,
+01573,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01573/auto_bind.sv(8): syntax error near 'posedge'"
+01574,pass,
+01575,pass,
+01576,pass,
+01577,pass,
+01578,pass,
+01579,pass,
+01580,fail,"❌ FAILED: compile/elab errors | "
+01581,pass,
+01582,pass,
+01583,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01583/auto_bind.sv(9): cannot find port 'b1' on this module"
+01584,pass,
+01585,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01585/auto_bind.sv(10): cannot find port 'b1' on this module"
+01586,pass,
+01587,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01587/sva.sv(32): syntax error near '['"
+01588,pass,
+01589,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01589/auto_bind.sv(9): syntax error near 'or'"
+01590,pass,
+01591,pass,
+01592,pass,
+01593,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01593/sva.sv(17): unknown system function call 'initstate' not supported"
+01594,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01594/sva.sv(19): syntax error near '['"
+01595,pass,
+01596,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01596/auto_bind.sv(10): cannot find port 'b1' on this module"
+01597,pass,
+01598,pass,
+01599,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01599/auto_bind.sv(9): cannot find port 'b1' on this module"
+01600,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01600/sva.sv(10): syntax error near '['"
+01601,pass,
+01602,pass,
+01603,pass,
+01604,pass,
+01605,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01605/sva.sv(80): syntax error near '|->'"
+01606,pass,
+01607,pass,
+01608,pass,
+01609,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01609/sva.sv(22): syntax error near '['"
+01610,pass,
+01611,pass,
+01612,fail,"❌ FAILED: compile/elab errors | "
+01613,pass,
+01614,pass,
+01615,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01615/sva.sv(9): syntax error near '['"
+01616,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01616/sva.sv(13): syntax error near '$global_clock'"
+01617,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01617/auto_bind.sv(8): syntax error near 'or'"
+01618,pass,
+01619,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01619/sva.sv(26): syntax error near 'or'"
+01620,pass,
+01621,pass,
+01622,pass,
+01623,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01623/auto_bind.sv(9): cannot find port 'b1' on this module"
+01624,pass,
+01625,pass,
+01626,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01626/module.v(2): syntax error near 'timeunit'"
+01627,fail,"❌ FAILED: compile/elab errors | "
+01628,pass,
+01629,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01629/sva.sv(17): syntax error near '['"
+01630,pass,
+01631,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01631/sva.sv(10): syntax error near '$global_clock'"
+01632,pass,
+01633,pass,
+01634,pass,
+01635,pass,
+01636,pass,
+01637,pass,
+01638,fail,"❌ FAILED: compile/elab errors | "
+01639,pass,
+01640,pass,
+01641,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01641/sva.sv(56): syntax error near '['"
+01642,pass,
+01643,pass,
+01644,pass,
+01645,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01645/auto_bind.sv(13): syntax error near 'posedge'"
+01646,pass,
+01647,fail,"❌ FAILED: compile/elab errors | "
+01648,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01648/auto_bind.sv(8): syntax error near 'endmodule'"
+01649,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01649/sva.sv(8): unknown system function call 'initstate' not supported"
+01650,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01650/sva.sv(17): unknown system function call 'initstate' not supported"
+01651,pass,
+01652,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01652/auto_bind.sv(9): syntax error near 'or'"
+01653,pass,
+01654,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01654/auto_bind.sv(51): syntax error near 'posedge'"
+01655,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01655/sva.sv(19): unknown system function call 'initstate' not supported"
+01656,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01656/sva.sv(15): syntax error near '['"
+01657,pass,
+01658,pass,
+01659,pass,
+01660,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01660/sva.sv(13): syntax error near '['"
+01661,pass,
+01662,pass,
+01663,pass,
+01664,pass,
+01665,pass,
+01666,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01666/sva.sv(21): syntax error near '$global_clock'"
+01667,pass,
+01668,fail,"❌ FAILED: compile/elab errors | "
+01669,pass,
+01670,fail,"❌ FAILED: compile/elab errors | "
+01671,pass,
+01672,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01672/auto_bind.sv(8): syntax error near 'endmodule'"
+01673,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01673/auto_bind.sv(9): cannot find port 'b0' on this module"
+01674,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01674/auto_bind.sv(13): syntax error near 'posedge'"
+01675,fail,"❌ FAILED: compile/elab errors | "
+01676,pass,
+01677,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01677/sva.sv(10): syntax error near '['"
+01678,pass,
+01679,pass,
+01680,pass,
+01681,pass,
+01682,pass,
+01683,pass,
+01684,pass,
+01685,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01685/sva.sv(10): syntax error near '$global_clock'"
+01686,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01686/sva.sv(15): syntax error near '['"
+01687,pass,
+01688,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01688/sva.sv(9): syntax error near '$global_clock'"
+01689,pass,
+01690,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01690/sva.sv(11): syntax error near '['"
+01691,pass,
+01692,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01692/auto_bind.sv(29): syntax error near 'posedge'"
+01693,pass,
+01694,pass,
+01695,pass,
+01696,pass,
+01697,pass,
+01698,pass,
+01699,pass,
+01700,pass,
+01701,pass,
+01702,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01702/auto_bind.sv(10): cannot find port 'b1' on this module"
+01703,pass,
+01704,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01704/auto_bind.sv(13): syntax error near 'posedge'"
+01705,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01705/sva.sv(29): syntax error near '['"
+01706,pass,
+01707,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01707/auto_bind.sv(7): syntax error near 'negedge'"
+01708,pass,
+01709,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01709/auto_bind.sv(10): syntax error near 'or'"
+01710,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01710/sva.sv(10): syntax error near '$global_clock'"
+01711,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01711/sva.sv(10): syntax error near '['"
+01712,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01712/sva.sv(24): unknown system function call 'initstate' not supported"
+01713,pass,
+01714,pass,
+01715,pass,
+01716,pass,
+01717,pass,
+01718,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01718/auto_bind.sv(10): cannot find port 'b1' on this module"
+01719,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01719/sva.sv(35): syntax error near '['"
+01720,pass,
+01721,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01721/auto_bind.sv(13): cannot find port 'b1' on this module"
+01722,pass,
+01723,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01723/auto_bind.sv(16): syntax error near 'or'"
+01724,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./01724/sva.sv(11): event expression is not allowed here"
+01725,pass,
+01726,pass,
+01727,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01727/sva.sv(65): syntax error near '['"
+01728,pass,
+01729,pass,
+01730,pass,
+01731,fail,"❌ FAILED: compile/elab errors | "
+01732,pass,
+01733,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01733/sva.sv(13): syntax error near '$global_clock'"
+01734,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01734/auto_bind.sv(12): syntax error near 'or'"
+01735,fail,"❌ FAILED: compile/elab errors | "
+01736,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01736/auto_bind.sv(11): syntax error near 'or'"
+01737,pass,
+01738,pass,
+01739,pass,
+01740,pass,
+01741,pass,
+01742,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01742/auto_bind.sv(11): syntax error near 'assign'"
+01743,fail,"❌ FAILED: compile/elab errors | "
+01744,pass,
+01745,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01745/auto_bind.sv(8): cannot find port 'b0' on this module"
+01746,fail,"❌ FAILED: compile/elab errors | "
+01747,pass,
+01748,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01748/sva.sv(79): unknown system function call 'initstate' not supported"
+01749,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01749/auto_bind.sv(9): cannot find port 'n' on this module"
+01750,pass,
+01751,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./01751/sva.sv(21): event expression is not allowed here"
+01752,pass,
+01753,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01753/sva.sv(25): syntax error near '$global_clock'"
+01754,pass,
+01755,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01755/sva.sv(28): syntax error near '['"
+01756,pass,
+01757,fail,"❌ FAILED: compile/elab errors | "
+01758,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01758/sva.sv(10): syntax error near '['"
+01759,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01759/sva.sv(10): syntax error near '$global_clock'"
+01760,pass,
+01761,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01761/sva.sv(19): syntax error near '['"
+01762,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01762/auto_bind.sv(8): syntax error near 'posedge'"
+01763,pass,
+01764,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01764/auto_bind.sv(9): syntax error near 'posedge'"
+01765,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01765/sva.sv(8): unknown system function call 'initstate' not supported"
+01766,fail,"❌ FAILED: compile/elab errors | "
+01767,pass,
+01768,pass,
+01769,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01769/auto_bind.sv(9): syntax error near 'for'"
+01770,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./01770/sva.sv(14): event expression is not allowed here"
+01771,pass,
+01772,pass,
+01773,pass,
+01774,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01774/auto_bind.sv(4): cannot find port 'i' on this module"
+01775,pass,
+01776,pass,
+01777,pass,
+01778,fail,"❌ FAILED: compile/elab errors | "
+01779,pass,
+01780,pass,
+01781,fail,"❌ FAILED: compile/elab errors | "
+01782,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01782/sva.sv(10): unknown system function call 'initstate' not supported"
+01783,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01783/auto_bind.sv(10): cannot find port 'b1' on this module"
+01784,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01784/auto_bind.sv(6): syntax error near 'begin'"
+01785,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01785/sva.sv(14): syntax error near '$global_clock'"
+01786,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01786/sva.sv(15): unknown system function call 'initstate' not supported"
+01787,pass,
+01788,pass,
+01789,pass,
+01790,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01790/sva.sv(42): syntax error near '['"
+01791,pass,
+01792,pass,
+01793,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01793/sva.sv(10): unknown system function call 'initstate' not supported"
+01794,pass,
+01795,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01795/auto_bind.sv(11): syntax error near 'posedge'"
+01796,pass,
+01797,pass,
+01798,pass,
+01799,pass,
+01800,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01800/sva.sv(13): syntax error near '['"
+01801,pass,
+01802,pass,
+01803,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01803/sva.sv(20): syntax error near '['"
+01804,pass,
+01805,pass,
+01806,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01806/sva.sv(9): syntax error near '['"
+01807,pass,
+01808,pass,
+01809,pass,
+01810,pass,
+01811,pass,
+01812,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01812/auto_bind.sv(13): cannot find port 'b1' on this module"
+01813,pass,
+01814,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01814/auto_bind.sv(10): cannot find port 'b1' on this module"
+01815,pass,
+01816,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01816/sva.sv(33): syntax error near '['"
+01817,fail,"❌ FAILED: compile/elab errors | "
+01818,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01818/auto_bind.sv(9): cannot find port 'b1' on this module"
+01819,pass,
+01820,pass,
+01821,pass,
+01822,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01822/auto_bind.sv(9): syntax error near 'or'"
+01823,pass,
+01824,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2369)] ./01824/sva.sv(9): declaration without an explicit type name violates IEEE 1800 syntax; assuming 'logic'"
+01825,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01825/auto_bind.sv(9): syntax error near 'posedge'"
+01826,pass,
+01827,pass,
+01828,pass,
+01829,pass,
+01830,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01830/auto_bind.sv(13): syntax error near 'assign'"
+01831,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01831/auto_bind.sv(11): syntax error near 'begin'"
+01832,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01832/sva.sv(19): syntax error near '['"
+01833,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01833/auto_bind.sv(8): cannot find port 'b0' on this module"
+01834,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01834/sva.sv(47): syntax error near '['"
+01835,pass,
+01836,pass,
+01837,pass,
+01838,pass,
+01839,pass,
+01840,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01840/sva.sv(21): syntax error near '['"
+01841,pass,
+01842,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01842/auto_bind.sv(7): cannot find port 'b0' on this module"
+01843,pass,
+01844,pass,
+01845,pass,
+01846,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01846/auto_bind.sv(8): cannot find port 'b1' on this module"
+01847,pass,
+01848,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01848/sva.sv(34): syntax error near '['"
+01849,pass,
+01850,pass,
+01851,pass,
+01852,pass,
+01853,pass,
+01854,pass,
+01855,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01855/sva.sv(10): syntax error near '$global_clock'"
+01856,pass,
+01857,pass,
+01858,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01858/sva.sv(48): syntax error near '['"
+01859,pass,
+01860,fail,"❌ FAILED: compile/elab errors | "
+01861,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01861/auto_bind.sv(10): cannot find port 'b1' on this module"
+01862,pass,
+01863,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01863/sva.sv(10): syntax error near '$global_clock'"
+01864,pass,
+01865,fail,"❌ FAILED: compile/elab errors | "
+01866,pass,
+01867,pass,
+01868,pass,
+01869,pass,
+01870,pass,
+01871,pass,
+01872,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01872/auto_bind.sv(8): syntax error near 'endmodule'"
+01873,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01873/auto_bind.sv(5): cannot find port 'n' on this module"
+01874,pass,
+01875,pass,
+01876,pass,
+01877,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01877/sva.sv(15): syntax error near '['"
+01878,pass,
+01879,pass,
+01880,pass,
+01881,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01881/auto_bind.sv(10): cannot find port 'b1' on this module"
+01882,pass,
+01883,pass,
+01884,pass,
+01885,pass,
+01886,pass,
+01887,pass,
+01888,pass,
+01889,fail,"❌ FAILED: compile/elab errors | "
+01890,pass,
+01891,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01891/sva.sv(28): syntax error near '['"
+01892,pass,
+01893,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01893/sva.sv(59): syntax error near '['"
+01894,pass,
+01895,fail,"❌ FAILED: compile/elab errors | "
+01896,pass,
+01897,pass,
+01898,pass,
+01899,fail,"❌ FAILED: compile/elab errors | "
+01900,fail,"❌ FAILED: compile/elab errors | "
+01901,pass,
+01902,pass,
+01903,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01903/sva.sv(55): syntax error near '['"
+01904,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01904/sva.sv(21): syntax error near '2'"
+01905,pass,
+01906,pass,
+01907,pass,
+01908,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01908/auto_bind.sv(12): syntax error near 'posedge'"
+01909,pass,
+01910,pass,
+01911,pass,
+01912,fail,"❌ FAILED: compile/elab errors | "
+01913,pass,
+01914,pass,
+01915,pass,
+01916,pass,
+01917,pass,
+01918,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01918/sva.sv(12): syntax error near '['"
+01919,pass,
+01920,pass,
+01921,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01921/auto_bind.sv(13): syntax error near 'posedge'"
+01922,pass,
+01923,fail,"❌ FAILED: compile/elab errors | "
+01924,pass,
+01925,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01925/sva.sv(12): unknown system function call 'initstate' not supported"
+01926,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1128)] ./01926/sva.sv(10): 'synch_d' is not declared"
+01927,pass,
+01928,fail,"❌ FAILED: compile/elab errors | "
+01929,pass,
+01930,pass,
+01931,pass,
+01932,pass,
+01933,pass,
+01934,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01934/auto_bind.sv(7): cannot find port 'b00' on this module"
+01935,fail,"❌ FAILED: compile/elab errors | "
+01936,pass,
+01937,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01937/sva.sv(17): syntax error near '['"
+01938,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01938/auto_bind.sv(9): syntax error near 'posedge'"
+01939,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01939/auto_bind.sv(9): cannot find port 'b1' on this module"
+01940,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01940/sva.sv(30): syntax error near '['"
+01941,pass,
+01942,pass,
+01943,pass,
+01944,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01944/sva.sv(20): unknown system function call 'initstate' not supported"
+01945,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01945/auto_bind.sv(9): cannot find port 'b1' on this module"
+01946,pass,
+01947,pass,
+01948,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01948/sva.sv(16): syntax error near '['"
+01949,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01949/auto_bind.sv(10): syntax error near 'posedge'"
+01950,pass,
+01951,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01951/auto_bind.sv(10): cannot find port 'b1' on this module"
+01952,fail,"❌ FAILED: compile/elab errors | "
+01953,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01953/sva.sv(26): syntax error near '['"
+01954,pass,
+01955,pass,
+01956,fail,"❌ FAILED: compile/elab errors | "
+01957,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01957/sva.sv(15): syntax error near '['"
+01958,pass,
+01959,pass,
+01960,pass,
+01961,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1116)] ./01961/module.v(13): 'not_A' is already declared"
+01962,pass,
+01963,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01963/auto_bind.sv(7): syntax error near 'posedge'"
+01964,pass,
+01965,pass,
+01966,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01966/auto_bind.sv(10): syntax error near 'or'"
+01967,pass,
+01968,pass,
+01969,fail,"❌ FAILED: compile/elab errors | "
+01970,pass,
+01971,pass,
+01972,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01972/auto_bind.sv(10): syntax error near 'assign'"
+01973,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01973/auto_bind.sv(9): syntax error near 'or'"
+01974,pass,
+01975,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01975/sva.sv(42): syntax error near '['"
+01976,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01976/auto_bind.sv(13): cannot find port 'b1' on this module"
+01977,pass,
+01978,pass,
+01979,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01979/auto_bind.sv(7): syntax error near 'posedge'"
+01980,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01980/auto_bind.sv(8): syntax error near 'endmodule'"
+01981,pass,
+01982,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01982/sva.sv(9): syntax error near '$global_clock'"
+01983,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./01983/sva.sv(32): syntax error near '['"
+01984,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./01984/sva.sv(9): unknown system function call 'initstate' not supported"
+01985,pass,
+01986,pass,
+01987,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01987/auto_bind.sv(11): syntax error near 'posedge'"
+01988,pass,
+01989,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01989/auto_bind.sv(10): syntax error near 'posedge'"
+01990,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01990/auto_bind.sv(10): syntax error near 'endmodule'"
+01991,fail,"❌ FAILED: compile/elab errors | "
+01992,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01992/auto_bind.sv(12): cannot find port 'b1111' on this module"
+01993,pass,
+01994,pass,
+01995,pass,
+01996,fail,"❌ FAILED: compile/elab errors | "
+01997,pass,
+01998,pass,
+01999,fail,"❌ FAILED: compile/elab errors | "
+02000,pass,
+02001,pass,
+02002,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02002/auto_bind.sv(10): cannot find port 'b0' on this module"
+02003,pass,
+02004,pass,
+02005,fail,"❌ FAILED: compile/elab errors | "
+02006,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02006/auto_bind.sv(7): syntax error near 'posedge'"
+02007,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02007/sva.sv(33): syntax error near '['"
+02008,pass,
+02009,pass,
+02010,pass,
+02011,pass,
+02012,pass,
+02013,pass,
+02014,pass,
+02015,pass,
+02016,pass,
+02017,pass,
+02018,pass,
+02019,pass,
+02020,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02020/sva.sv(13): syntax error near '['"
+02021,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1321)] ./02021/sva.sv(15): event expression is not allowed here"
+02022,pass,
+02023,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02023/auto_bind.sv(12): syntax error near 'assign'"
+02024,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02024/auto_bind.sv(9): syntax error near 'posedge'"
+02025,pass,
+02026,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02026/auto_bind.sv(8): cannot find port 'b1' on this module"
+02027,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02027/sva.sv(10): syntax error near '$global_clock'"
+02028,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02028/sva.sv(10): unknown system function call 'initstate' not supported"
+02029,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02029/auto_bind.sv(9): cannot find port 'b1' on this module"
+02030,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02030/auto_bind.sv(7): syntax error near 'endmodule'"
+02031,pass,
+02032,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02032/auto_bind.sv(12): syntax error near 'or'"
+02033,pass,
+02034,pass,
+02035,fail,"❌ FAILED: compile/elab errors | "
+02036,pass,
+02037,fail,"❌ FAILED: compile/elab errors | "
+02038,pass,
+02039,pass,
+02040,pass,
+02041,fail,"❌ FAILED: compile/elab errors | "
+02042,pass,
+02043,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02043/auto_bind.sv(8): cannot find port 'COUNT' on this module"
+02044,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02044/sva.sv(10): syntax error near '$global_clock'"
+02045,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02045/sva.sv(21): syntax error near '['"
+02046,fail,"❌ FAILED: compile/elab errors | "
+02047,pass,
+02048,pass,
+02049,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02049/auto_bind.sv(11): syntax error near 'posedge'"
+02050,pass,
+02051,pass,
+02052,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02052/auto_bind.sv(20): cannot find port 'b101' on this module"
+02053,pass,
+02054,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02054/sva.sv(17): syntax error near '['"
+02055,pass,
+02056,pass,
+02057,pass,
+02058,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02058/sva.sv(10): syntax error near '$global_clock'"
+02059,pass,
+02060,pass,
+02061,pass,
+02062,pass,
+02063,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02063/sva.sv(14): unknown system function call 'initstate' not supported"
+02064,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02064/auto_bind.sv(10): cannot find port 'b1' on this module"
+02065,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02065/auto_bind.sv(4): cannot find port 'max' on this module"
+02066,pass,
+02067,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02067/auto_bind.sv(13): cannot find port 'endif' on this module"
+02068,pass,
+02069,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02069/auto_bind.sv(7): syntax error near 'posedge'"
+02070,pass,
+02071,pass,
+02072,pass,
+02073,pass,
+02074,pass,
+02075,fail,"❌ FAILED: compile/elab errors | "
+02076,pass,
+02077,pass,
+02078,pass,
+02079,pass,
+02080,pass,
+02081,pass,
+02082,fail,"❌ FAILED: compile/elab errors | "
+02083,pass,
+02084,pass,
+02085,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02085/auto_bind.sv(10): cannot find port 'b1' on this module"
+02086,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02086/auto_bind.sv(10): syntax error near 'posedge'"
+02087,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02087/auto_bind.sv(9): syntax error near 'assign'"
+02088,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02088/auto_bind.sv(10): cannot find port 'b1' on this module"
+02089,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02089/auto_bind.sv(23): syntax error near 'posedge'"
+02090,pass,
+02091,pass,
+02092,fail,"❌ FAILED: compile/elab errors | "
+02093,pass,
+02094,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02094/auto_bind.sv(12): cannot find port 'b1' on this module"
+02095,pass,
+02096,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02096/auto_bind.sv(19): cannot find port 'b101' on this module"
+02097,pass,
+02098,pass,
+02099,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02099/sva.sv(11): syntax error near '['"
+02100,pass,
+02101,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02101/sva.sv(15): syntax error near '['"
+02102,pass,
+02103,pass,
+02104,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02104/auto_bind.sv(8): cannot find port 'b1' on this module"
+02105,pass,
+02106,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02106/auto_bind.sv(8): syntax error near 'or'"
+02107,pass,
+02108,pass,
+02109,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02109/sva.sv(40): syntax error near '|=>'"
+02110,pass,
+02111,pass,
+02112,fail,"❌ FAILED: compile/elab errors | "
+02113,pass,
+02114,pass,
+02115,pass,
+02116,fail,"❌ FAILED: compile/elab errors | "
+02117,pass,
+02118,pass,
+02119,pass,
+02120,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02120/auto_bind.sv(13): cannot find port 'b1' on this module"
+02121,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02121/sva.sv(11): syntax error near '['"
+02122,pass,
+02123,pass,
+02124,pass,
+02125,pass,
+02126,pass,
+02127,fail,"❌ FAILED: compile/elab errors | "
+02128,pass,
+02129,pass,
+02130,pass,
+02131,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02131/sva.sv(10): syntax error near '['"
+02132,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02132/sva.sv(23): syntax error near '['"
+02133,pass,
+02134,pass,
+02135,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02135/sva.sv(14): unknown system function call 'initstate' not supported"
+02136,fail,"❌ FAILED: compile/elab errors | "
+02137,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02137/auto_bind.sv(10): cannot find port 'b0' on this module"
+02138,pass,
+02139,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02139/auto_bind.sv(11): syntax error near 'posedge'"
+02140,pass,
+02141,pass,
+02142,pass,
+02143,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02143/sva.sv(11): syntax error near '['"
+02144,fail,"❌ FAILED: compile/elab errors | "
+02145,pass,
+02146,pass,
+02147,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02147/sva.sv(17): unknown system function call 'initstate' not supported"
+02148,pass,
+02149,pass,
+02150,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02150/auto_bind.sv(12): cannot find port 'b1' on this module"
+02151,pass,
+02152,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02152/sva.sv(8): unknown system function call 'initstate' not supported"
+02153,pass,
+02154,pass,
+02155,pass,
+02156,pass,
+02157,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02157/auto_bind.sv(8): cannot find port 'b1' on this module"
+02158,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02158/sva.sv(20): syntax error near '['"
+02159,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02159/sva.sv(11): unknown system function call 'initstate' not supported"
+02160,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02160/auto_bind.sv(10): syntax error near 'posedge'"
+02161,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02161/sva.sv(8): unknown system function call 'initstate' not supported"
+02162,pass,
+02163,pass,
+02164,pass,
+02165,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02165/sva.sv(18): syntax error near '$global_clock'"
+02166,pass,
+02167,fail,"❌ FAILED: compile/elab errors | "
+02168,pass,
+02169,pass,
+02170,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02170/auto_bind.sv(13): syntax error near 'endmodule'"
+02171,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02171/auto_bind.sv(11): syntax error near 'or'"
+02172,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02172/sva.sv(19): syntax error near '['"
+02173,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02173/auto_bind.sv(7): syntax error near 'negedge'"
+02174,pass,
+02175,pass,
+02176,pass,
+02177,pass,
+02178,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1540)] ./02178/sva.sv(33): explicit clocking event must be specified for 'past' in disable iff condition"
+02179,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02179/sva.sv(16): syntax error near '['"
+02180,pass,
+02181,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02181/auto_bind.sv(13): syntax error near 'posedge'"
+02182,pass,
+02183,pass,
+02184,pass,
+02185,pass,
+02186,pass,
+02187,pass,
+02188,pass,
+02189,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02189/sva.sv(16): syntax error near '['"
+02190,pass,
+02191,pass,
+02192,pass,
+02193,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02193/auto_bind.sv(7): syntax error near 'negedge'"
+02194,pass,
+02195,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02195/auto_bind.sv(14): cannot find port 'b1' on this module"
+02196,pass,
+02197,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02197/auto_bind.sv(10): syntax error near 'posedge'"
+02198,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02198/auto_bind.sv(19): syntax error near 'posedge'"
+02199,pass,
+02200,pass,
+02201,pass,
+02202,pass,
+02203,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02203/auto_bind.sv(5): cannot find port 'W' on this module"
+02204,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02204/sva.sv(69): syntax error near '['"
+02205,pass,
+02206,pass,
+02207,pass,
+02208,pass,
+02209,pass,
+02210,pass,
+02211,pass,
+02212,pass,
+02213,pass,
+02214,pass,
+02215,pass,
+02216,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02216/sva.sv(15): syntax error near '$global_clock'"
+02217,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02217/sva.sv(9): syntax error near '['"
+02218,pass,
+02219,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02219/sva.sv(33): unknown system function call 'initstate' not supported"
+02220,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02220/sva.sv(9): syntax error near '['"
+02221,pass,
+02222,fail,"❌ FAILED: compile/elab errors | "
+02223,pass,
+02224,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02224/auto_bind.sv(12): syntax error near 'or'"
+02225,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02225/sva.sv(17): unknown system function call 'initstate' not supported"
+02226,pass,
+02227,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02227/auto_bind.sv(7): syntax error near 'assign'"
+02228,pass,
+02229,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02229/sva.sv(16): syntax error near '['"
+02230,pass,
+02231,pass,
+02232,pass,
+02233,pass,
+02234,pass,
+02235,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02235/auto_bind.sv(7): cannot find port 'b0' on this module"
+02236,pass,
+02237,pass,
+02238,pass,
+02239,pass,
+02240,pass,
+02241,fail,"❌ FAILED: compile/elab errors | "
+02242,pass,
+02243,pass,
+02244,pass,
+02245,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02245/sva.sv(23): syntax error near 'or'"
+02246,pass,
+02247,pass,
+02248,pass,
+02249,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1165)] ./02249/sva.sv(38): part-select direction is opposite from prefix index direction"
+02250,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02250/auto_bind.sv(10): syntax error near 'posedge'"
+02251,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02251/auto_bind.sv(10): syntax error near 'posedge'"
+02252,pass,
+02253,pass,
+02254,pass,
+02255,pass,
+02256,pass,
+02257,fail,"❌ FAILED: compile/elab errors | "
+02258,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02258/sva.sv(14): syntax error near '['"
+02259,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02259/sva.sv(12): syntax error near '$global_clock'"
+02260,pass,
+02261,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02261/sva.sv(18): syntax error near '$global_clock'"
+02262,pass,
+02263,pass,
+02264,fail,"❌ FAILED: compile/elab errors | "
+02265,pass,
+02266,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02266/sva.sv(21): syntax error near '['"
+02267,pass,
+02268,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02268/sva.sv(25): unknown system function call 'initstate' not supported"
+02269,pass,
+02270,pass,
+02271,pass,
+02272,pass,
+02273,pass,
+02274,fail,"❌ FAILED: compile/elab errors | "
+02275,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02275/auto_bind.sv(8): cannot find port 'b1' on this module"
+02276,pass,
+02277,pass,
+02278,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02278/auto_bind.sv(8): syntax error near 'posedge'"
+02279,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02279/auto_bind.sv(10): cannot find port 'b1' on this module"
+02280,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02280/auto_bind.sv(15): syntax error near 'or'"
+02281,pass,
+02282,pass,
+02283,pass,
+02284,pass,
+02285,pass,
+02286,pass,
+02287,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02287/auto_bind.sv(8): syntax error near 'assert'"
+02288,pass,
+02289,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02289/auto_bind.sv(11): cannot find port 'b1' on this module"
+02290,pass,
+02291,pass,
+02292,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02292/sva.sv(20): syntax error near '['"
+02293,pass,
+02294,fail,"❌ FAILED: compile/elab errors | "
+02295,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02295/sva.sv(83): syntax error near '['"
+02296,pass,
+02297,pass,
+02298,pass,
+02299,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02299/auto_bind.sv(11): syntax error near 'posedge'"
+02300,pass,
+02301,pass,
+02302,pass,
+02303,pass,
+02304,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02304/sva.sv(17): syntax error near '['"
+02305,pass,
+02306,pass,
+02307,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02307/auto_bind.sv(7): syntax error near 'posedge'"
+02308,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02308/auto_bind.sv(8): syntax error near 'posedge'"
+02309,pass,
+02310,pass,
+02311,pass,
+02312,pass,
+02313,pass,
+02314,pass,
+02315,pass,
+02316,fail,"❌ FAILED: compile/elab errors | "
+02317,fail,"❌ FAILED: compile/elab errors | "
+02318,pass,
+02319,fail,"❌ FAILED: compile/elab errors | "
+02320,pass,
+02321,pass,
+02322,pass,
+02323,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02323/sva.sv(11): syntax error near '$global_clock'"
+02324,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02324/auto_bind.sv(9): cannot find port 'b1' on this module"
+02325,pass,
+02326,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02326/auto_bind.sv(14): cannot find port 'b1' on this module"
+02327,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02327/sva.sv(42): syntax error near '['"
+02328,pass,
+02329,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02329/sva.sv(18): syntax error near '['"
+02330,pass,
+02331,pass,
+02332,pass,
+02333,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02333/auto_bind.sv(10): syntax error near 'posedge'"
+02334,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02334/auto_bind.sv(10): cannot find port 'b1' on this module"
+02335,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02335/auto_bind.sv(14): cannot find port 'b000' on this module"
+02336,pass,
+02337,fail,"❌ FAILED: compile/elab errors | "
+02338,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02338/sva.sv(8): syntax error near '$global_clock'"
+02339,pass,
+02340,pass,
+02341,pass,
+02342,pass,
+02343,pass,
+02344,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02344/sva.sv(11): syntax error near '['"
+02345,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02345/auto_bind.sv(7): cannot find port 'b0' on this module"
+02346,pass,
+02347,pass,
+02348,pass,
+02349,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02349/auto_bind.sv(10): cannot find port 'b1' on this module"
+02350,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02350/auto_bind.sv(9): syntax error near 'or'"
+02351,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02351/sva.sv(40): unknown system function call 'initstate' not supported"
+02352,pass,
+02353,pass,
+02354,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02354/sva.sv(19): syntax error near '['"
+02355,pass,
+02356,pass,
+02357,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02357/auto_bind.sv(8): syntax error near 'posedge'"
+02358,pass,
+02359,pass,
+02360,pass,
+02361,fail,"❌ FAILED: compile/elab errors | "
+02362,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02362/sva.sv(17): syntax error near '['"
+02363,pass,
+02364,pass,
+02365,fail,"❌ FAILED: compile/elab errors | "
+02366,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02366/auto_bind.sv(10): syntax error near 'posedge'"
+02367,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02367/sva.sv(11): syntax error near '$global_clock'"
+02368,pass,
+02369,pass,
+02370,pass,
+02371,pass,
+02372,pass,
+02373,pass,
+02374,pass,
+02375,pass,
+02376,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02376/sva.sv(14): syntax error near '['"
+02377,pass,
+02378,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02378/sva.sv(13): syntax error near '$global_clock'"
+02379,pass,
+02380,pass,
+02381,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02381/sva.sv(10): syntax error near 'if'"
+02382,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02382/module.v(4): syntax error near 'do'"
+02383,fail,"❌ FAILED: compile/elab errors | "
+02384,fail,"❌ FAILED: compile/elab errors | "
+02385,pass,
+02386,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02386/sva.sv(11): syntax error near '$global_clock'"
+02387,pass,
+02388,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02388/sva.sv(11): syntax error near ';'"
+02389,pass,
+02390,pass,
+02391,fail,"❌ FAILED: compile/elab errors | "
+02392,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02392/auto_bind.sv(8): cannot find port 'b1' on this module"
+02393,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02393/auto_bind.sv(8): syntax error near 'posedge'"
+02394,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02394/auto_bind.sv(12): cannot find port 'b1' on this module"
+02395,fail,"❌ FAILED: compile/elab errors | "
+02396,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02396/auto_bind.sv(9): syntax error near 'assign'"
+02397,pass,
+02398,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02398/sva.sv(24): syntax error near '['"
+02399,pass,
+02400,pass,
+02401,pass,
+02402,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02402/auto_bind.sv(7): syntax error near 'posedge'"
+02403,pass,
+02404,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02404/auto_bind.sv(10): cannot find port 'b0' on this module"
+02405,pass,
+02406,fail,"❌ FAILED: compile/elab errors | "
+02407,pass,
+02408,pass,
+02409,pass,
+02410,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02410/auto_bind.sv(10): syntax error near 'or'"
+02411,pass,
+02412,pass,
+02413,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02413/sva.sv(35): syntax error near '['"
+02414,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02414/sva.sv(28): syntax error near '['"
+02415,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02415/sva.sv(18): syntax error near '$global_clock'"
+02416,pass,
+02417,pass,
+02418,pass,
+02419,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02419/auto_bind.sv(6): syntax error near 'case'"
+02420,pass,
+02421,pass,
+02422,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02422/auto_bind.sv(9): syntax error near 'or'"
+02423,pass,
+02424,pass,
+02425,pass,
+02426,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02426/auto_bind.sv(9): syntax error near 'assign'"
+02427,pass,
+02428,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02428/sva.sv(11): unknown system function call 'initstate' not supported"
+02429,pass,
+02430,pass,
+02431,pass,
+02432,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02432/auto_bind.sv(9): cannot find port 'b0' on this module"
+02433,pass,
+02434,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02434/auto_bind.sv(14): cannot find port 'b1' on this module"
+02435,pass,
+02436,pass,
+02437,pass,
+02438,pass,
+02439,pass,
+02440,pass,
+02441,pass,
+02442,pass,
+02443,fail,"❌ FAILED: compile/elab errors | "
+02444,pass,
+02445,pass,
+02446,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02446/auto_bind.sv(17): syntax error near 'posedge'"
+02447,pass,
+02448,pass,
+02449,pass,
+02450,pass,
+02451,pass,
+02452,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02452/sva.sv(10): syntax error near '['"
+02453,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02453/sva.sv(16): syntax error near '['"
+02454,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02454/auto_bind.sv(8): syntax error near 'posedge'"
+02455,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02455/sva.sv(17): syntax error near '['"
+02456,fail,"❌ FAILED: compile/elab errors | "
+02457,pass,
+02458,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02458/auto_bind.sv(10): cannot find port 'b1' on this module"
+02459,pass,
+02460,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02460/auto_bind.sv(10): syntax error near 'or'"
+02461,pass,
+02462,pass,
+02463,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02463/sva.sv(11): unknown system function call 'initstate' not supported"
+02464,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02464/sva.sv(9): unknown system function call 'initstate' not supported"
+02465,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02465/auto_bind.sv(9): cannot find port 'b1' on this module"
+02466,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02466/sva.sv(16): syntax error near '['"
+02467,fail,"❌ FAILED: compile/elab errors | "
+02468,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02468/auto_bind.sv(8): syntax error near 'posedge'"
+02469,pass,
+02470,pass,
+02471,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02471/sva.sv(21): syntax error near '['"
+02472,pass,
+02473,pass,
+02474,pass,
+02475,pass,
+02476,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02476/auto_bind.sv(19): syntax error near 'posedge'"
+02477,pass,
+02478,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02478/sva.sv(29): unknown system function call 'past_valid' not supported"
+02479,pass,
+02480,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02480/sva.sv(10): syntax error near '['"
+02481,pass,
+02482,pass,
+02483,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02483/auto_bind.sv(14): cannot find port 'h2' on this module"
+02484,pass,
+02485,pass,
+02486,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02486/auto_bind.sv(10): cannot find port 'b1' on this module"
+02487,pass,
+02488,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02488/sva.sv(10): syntax error near '['"
+02489,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02489/sva.sv(17): syntax error near '['"
+02490,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02490/auto_bind.sv(9): syntax error near 'posedge'"
+02491,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02491/auto_bind.sv(9): cannot find port 'b1' on this module"
+02492,pass,
+02493,pass,
+02494,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02494/sva.sv(12): syntax error near '['"
+02495,pass,
+02496,pass,
+02497,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02497/sva.sv(26): syntax error near '['"
+02498,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02498/auto_bind.sv(6): syntax error near 'case'"
+02499,pass,
+02500,pass,
+02501,pass,
+02502,fail,"❌ FAILED: compile/elab errors | "
+02503,pass,
+02504,pass,
+02505,pass,
+02506,pass,
+02507,pass,
+02508,fail,"❌ FAILED: compile/elab errors | "
+02509,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02509/auto_bind.sv(9): cannot find port 'b0001' on this module"
+02510,pass,
+02511,pass,
+02512,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02512/sva.sv(46): syntax error near '['"
+02513,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02513/auto_bind.sv(12): syntax error near 'assign'"
+02514,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02514/sva.sv(14): syntax error near '['"
+02515,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02515/auto_bind.sv(10): cannot find port 'b11' on this module"
+02516,pass,
+02517,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02517/auto_bind.sv(14): cannot find port 'b1' on this module"
+02518,pass,
+02519,pass,
+02520,pass,
+02521,pass,
+02522,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02522/auto_bind.sv(9): syntax error near 'endmodule'"
+02523,pass,
+02524,pass,
+02525,pass,
+02526,pass,
+02527,pass,
+02528,pass,
+02529,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02529/sva.sv(13): syntax error near '['"
+02530,pass,
+02531,pass,
+02532,pass,
+02533,pass,
+02534,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02534/sva.sv(20): syntax error near '['"
+02535,pass,
+02536,pass,
+02537,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02537/auto_bind.sv(9): cannot find port 'b1' on this module"
+02538,pass,
+02539,pass,
+02540,pass,
+02541,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02541/sva.sv(10): syntax error near '['"
+02542,fail,"❌ FAILED: compile/elab errors | "
+02543,pass,
+02544,pass,
+02545,pass,
+02546,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02546/sva.sv(44): syntax error near '['"
+02547,pass,
+02548,fail,"❌ FAILED: compile/elab errors | "
+02549,pass,
+02550,pass,
+02551,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02551/sva.sv(40): unknown system function call 'initstate' not supported"
+02552,pass,
+02553,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02553/sva.sv(11): syntax error near '['"
+02554,pass,
+02555,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02555/auto_bind.sv(10): cannot find port 'b1' on this module"
+02556,pass,
+02557,pass,
+02558,pass,
+02559,fail,"❌ FAILED: compile/elab errors | "
+02560,pass,
+02561,pass,
+02562,pass,
+02563,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02563/auto_bind.sv(13): cannot find port 'b0' on this module"
+02564,pass,
+02565,pass,
+02566,pass,
+02567,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02567/auto_bind.sv(8): cannot find port 'b1' on this module"
+02568,pass,
+02569,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02569/sva.sv(12): syntax error near '$global_clock'"
+02570,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02570/auto_bind.sv(11): syntax error near 'or'"
+02571,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02571/auto_bind.sv(12): cannot find port 'b1' on this module"
+02572,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02572/sva.sv(46): unknown system function call 'initstate' not supported"
+02573,pass,
+02574,pass,
+02575,fail,"❌ FAILED: compile/elab errors | "
+02576,pass,
+02577,pass,
+02578,pass,
+02579,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02579/sva.sv(15): syntax error near '['"
+02580,pass,
+02581,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02581/auto_bind.sv(15): cannot find port 'b111' on this module"
+02582,pass,
+02583,fail,"❌ FAILED: compile/elab errors | "
+02584,pass,
+02585,pass,
+02586,pass,
+02587,pass,
+02588,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02588/auto_bind.sv(9): cannot find port 'b1' on this module"
+02589,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02589/sva.sv(19): syntax error near '['"
+02590,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02590/sva.sv(11): syntax error near ';'"
+02591,pass,
+02592,pass,
+02593,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02593/sva.sv(51): syntax error near '['"
+02594,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02594/sva.sv(18): unknown system function call 'initstate' not supported"
+02595,fail,"❌ FAILED: compile/elab errors | "
+02596,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02596/auto_bind.sv(13): cannot find port 'b1' on this module"
+02597,pass,
+02598,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02598/sva.sv(21): syntax error near '['"
+02599,pass,
+02600,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02600/sva.sv(15): syntax error near '['"
+02601,pass,
+02602,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02602/auto_bind.sv(11): cannot find port 'b0' on this module"
+02603,pass,
+02604,pass,
+02605,pass,
+02606,pass,
+02607,pass,
+02608,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02608/sva.sv(24): syntax error near '['"
+02609,pass,
+02610,pass,
+02611,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02611/sva.sv(13): unknown system function call 'initstate' not supported"
+02612,pass,
+02613,pass,
+02614,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02614/auto_bind.sv(10): cannot find port 'b1' on this module"
+02615,pass,
+02616,pass,
+02617,pass,
+02618,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02618/auto_bind.sv(8): syntax error near 'posedge'"
+02619,fail,"❌ FAILED: compile/elab errors | "
+02620,fail,"❌ FAILED: compile/elab errors | "
+02621,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02621/sva.sv(10): unknown system function call 'initstate' not supported"
+02622,pass,
+02623,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02623/sva.sv(18): syntax error near '['"
+02624,pass,
+02625,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02625/sva.sv(19): syntax error near '['"
+02626,pass,
+02627,pass,
+02628,pass,
+02629,pass,
+02630,pass,
+02631,pass,
+02632,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02632/auto_bind.sv(10): syntax error near 'or'"
+02633,fail,"❌ FAILED: compile/elab errors | "
+02634,pass,
+02635,pass,
+02636,pass,
+02637,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02637/auto_bind.sv(10): syntax error near 'case'"
+02638,pass,
+02639,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02639/sva.sv(26): syntax error near '['"
+02640,pass,
+02641,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02641/auto_bind.sv(12): syntax error near 'posedge'"
+02642,pass,
+02643,pass,
+02644,pass,
+02645,pass,
+02646,pass,
+02647,fail,"❌ FAILED: compile/elab errors | "
+02648,pass,
+02649,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02649/auto_bind.sv(5): cannot find port 'WIDTH' on this module"
+02650,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02650/auto_bind.sv(15): syntax error near 'posedge'"
+02651,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02651/auto_bind.sv(8): cannot find port 'b1' on this module"
+02652,pass,
+02653,pass,
+02654,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02654/sva.sv(14): unknown system function call 'initstate' not supported"
+02655,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02655/auto_bind.sv(14): syntax error near 'or'"
+02656,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02656/auto_bind.sv(9): cannot find port 'b10' on this module"
+02657,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02657/auto_bind.sv(7): syntax error near 'posedge'"
+02658,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02658/sva.sv(11): syntax error near '['"
+02659,pass,
+02660,pass,
+02661,pass,
+02662,pass,
+02663,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02663/sva.sv(11): unknown system function call 'initstate' not supported"
+02664,pass,
+02665,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02665/auto_bind.sv(12): cannot find port 'b100' on this module"
+02666,fail,"❌ FAILED: compile/elab errors | "
+02667,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02667/sva.sv(28): syntax error near '['"
+02668,pass,
+02669,pass,
+02670,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02670/auto_bind.sv(8): syntax error near 'posedge'"
+02671,pass,
+02672,pass,
+02673,pass,
+02674,pass,
+02675,pass,
+02676,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02676/sva.sv(12): syntax error near '['"
+02677,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02677/sva.sv(27): syntax error near '['"
+02678,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02678/sva.sv(9): syntax error near '$global_clock'"
+02679,pass,
+02680,pass,
+02681,pass,
+02682,pass,
+02683,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02683/auto_bind.sv(6): cannot find port 'N' on this module"
+02684,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02684/auto_bind.sv(7): syntax error near 'posedge'"
+02685,pass,
+02686,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02686/sva.sv(51): syntax error near '['"
+02687,pass,
+02688,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02688/auto_bind.sv(23): syntax error near 'posedge'"
+02689,pass,
+02690,pass,
+02691,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02691/auto_bind.sv(9): cannot find port 'b0' on this module"
+02692,pass,
+02693,pass,
+02694,pass,
+02695,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02695/sva.sv(11): unknown system function call 'initstate' not supported"
+02696,pass,
+02697,pass,
+02698,pass,
+02699,pass,
+02700,pass,
+02701,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02701/auto_bind.sv(9): cannot find port 'b1' on this module"
+02702,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02702/sva.sv(23): unknown system function call 'initstate' not supported"
+02703,pass,
+02704,fail,"❌ FAILED: compile/elab errors | "
+02705,fail,"❌ FAILED: compile/elab errors | "
+02706,pass,
+02707,pass,
+02708,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02708/auto_bind.sv(13): cannot find port 'b1' on this module"
+02709,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02709/auto_bind.sv(8): cannot find port 'b0' on this module"
+02710,pass,
+02711,fail,"❌ FAILED: compile/elab errors | "
+02712,pass,
+02713,pass,
+02714,pass,
+02715,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02715/sva.sv(16): syntax error near '['"
+02716,pass,
+02717,pass,
+02718,pass,
+02719,pass,
+02720,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02720/sva.sv(15): syntax error near '$global_clock'"
+02721,pass,
+02722,pass,
+02723,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02723/sva.sv(17): syntax error near '['"
+02724,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02724/auto_bind.sv(6): cannot find port 'MARKER_WIDTH' on this module"
+02725,pass,
+02726,pass,
+02727,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02727/auto_bind.sv(10): cannot find port 'b1' on this module"
+02728,pass,
+02729,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02729/sva.sv(14): syntax error near '['"
+02730,pass,
+02731,pass,
+02732,pass,
+02733,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02733/auto_bind.sv(15): cannot find port 'b11' on this module"
+02734,pass,
+02735,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02735/sva.sv(26): syntax error near '['"
+02736,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02736/sva.sv(10): syntax error near '['"
+02737,pass,
+02738,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02738/sva.sv(62): syntax error near '['"
+02739,pass,
+02740,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02740/auto_bind.sv(10): syntax error near 'posedge'"
+02741,pass,
+02742,pass,
+02743,pass,
+02744,pass,
+02745,pass,
+02746,pass,
+02747,pass,
+02748,pass,
+02749,fail,"❌ FAILED: compile/elab errors | "
+02750,pass,
+02751,pass,
+02752,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02752/auto_bind.sv(9): cannot find port 'b1' on this module"
+02753,pass,
+02754,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1216)] ./02754/sva.sv(17): index 22 is out of range [15:0] for 'in'"
+02755,pass,
+02756,pass,
+02757,pass,
+02758,pass,
+02759,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02759/sva.sv(10): unknown system function call 'initstate' not supported"
+02760,fail,"❌ FAILED: compile/elab errors | "
+02761,pass,
+02762,pass,
+02763,pass,
+02764,pass,
+02765,pass,
+02766,pass,
+02767,pass,
+02768,pass,
+02769,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02769/auto_bind.sv(10): cannot find port 'b1' on this module"
+02770,pass,
+02771,pass,
+02772,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02772/auto_bind.sv(18): cannot find port 'b01' on this module"
+02773,fail,"❌ FAILED: compile/elab errors | "
+02774,fail,"❌ FAILED: compile/elab errors | "
+02775,pass,
+02776,pass,
+02777,pass,
+02778,pass,
+02779,fail,"❌ FAILED: compile/elab errors | "
+02780,pass,
+02781,pass,
+02782,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1586)] ./02782/sva.sv(20): number of ticks for $past must be 1 or greater"
+02783,pass,
+02784,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02784/sva.sv(16): syntax error near '$global_clock'"
+02785,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02785/sva.sv(12): syntax error near '['"
+02786,pass,
+02787,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02787/sva.sv(8): syntax error near '['"
+02788,pass,
+02789,pass,
+02790,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02790/auto_bind.sv(10): cannot find port 'b1' on this module"
+02791,pass,
+02792,pass,
+02793,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02793/auto_bind.sv(9): cannot find port 'b1' on this module"
+02794,pass,
+02795,pass,
+02796,pass,
+02797,pass,
+02798,pass,
+02799,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02799/sva.sv(8): unknown system function call 'initstate' not supported"
+02800,pass,
+02801,pass,
+02802,pass,
+02803,pass,
+02804,pass,
+02805,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02805/auto_bind.sv(11): syntax error near 'posedge'"
+02806,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02806/auto_bind.sv(8): syntax error near 'posedge'"
+02807,pass,
+02808,pass,
+02809,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02809/auto_bind.sv(8): syntax error near 'posedge'"
+02810,pass,
+02811,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02811/auto_bind.sv(8): syntax error near 'or'"
+02812,pass,
+02813,pass,
+02814,pass,
+02815,pass,
+02816,fail,"❌ FAILED: compile/elab errors | "
+02817,pass,
+02818,pass,
+02819,pass,
+02820,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02820/sva.sv(85): syntax error near '|->'"
+02821,pass,
+02822,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02822/auto_bind.sv(4): cannot find port 'M' on this module"
+02823,fail,"❌ FAILED: compile/elab errors | "
+02824,pass,
+02825,pass,
+02826,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02826/sva.sv(10): syntax error near '$global_clock'"
+02827,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02827/auto_bind.sv(12): syntax error near 'posedge'"
+02828,fail,"❌ FAILED: compile/elab errors | "
+02829,pass,
+02830,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1188)] ./02830/sva.sv(71): 'shift_amount' is not a constant"
+02831,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02831/module.v(9): syntax error near '='"
+02832,pass,
+02833,pass,
+02834,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02834/auto_bind.sv(9): syntax error near 'posedge'"
+02835,pass,
+02836,pass,
+02837,pass,
+02838,pass,
+02839,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02839/sva.sv(19): syntax error near '['"
+02840,pass,
+02841,pass,
+02842,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02842/sva.sv(17): syntax error near '$global_clock'"
+02843,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02843/auto_bind.sv(10): cannot find port 'b1' on this module"
+02844,pass,
+02845,pass,
+02846,pass,
+02847,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02847/auto_bind.sv(7): syntax error near 'negedge'"
+02848,pass,
+02849,pass,
+02850,pass,
+02851,pass,
+02852,pass,
+02853,pass,
+02854,pass,
+02855,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02855/sva.sv(14): syntax error near '$global_clock'"
+02856,pass,
+02857,pass,
+02858,pass,
+02859,pass,
+02860,pass,
+02861,pass,
+02862,pass,
+02863,pass,
+02864,pass,
+02865,pass,
+02866,pass,
+02867,pass,
+02868,pass,
+02869,pass,
+02870,pass,
+02871,pass,
+02872,pass,
+02873,fail,"❌ FAILED: compile/elab errors | "
+02874,pass,
+02875,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02875/auto_bind.sv(9): syntax error near 'posedge'"
+02876,pass,
+02877,pass,
+02878,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02878/sva.sv(11): syntax error near '$global_clock'"
+02879,pass,
+02880,pass,
+02881,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02881/sva.sv(12): syntax error near '$global_clock'"
+02882,pass,
+02883,pass,
+02884,fail,"❌ FAILED: compile/elab errors | "
+02885,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02885/auto_bind.sv(9): syntax error near 'or'"
+02886,pass,
+02887,pass,
+02888,pass,
+02889,pass,
+02890,pass,
+02891,pass,
+02892,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02892/auto_bind.sv(9): syntax error near 'posedge'"
+02893,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02893/auto_bind.sv(4): cannot find port 'n' on this module"
+02894,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02894/sva.sv(9): syntax error near '['"
+02895,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02895/auto_bind.sv(14): cannot find port 'b1' on this module"
+02896,pass,
+02897,pass,
+02898,pass,
+02899,pass,
+02900,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02900/auto_bind.sv(9): syntax error near 'or'"
+02901,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02901/sva.sv(19): syntax error near '['"
+02902,pass,
+02903,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02903/sva.sv(10): syntax error near '$global_clock'"
+02904,fail,"❌ FAILED: compile/elab errors | "
+02905,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02905/auto_bind.sv(11): cannot find port 'c3' on this module"
+02906,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02906/auto_bind.sv(9): syntax error near 'posedge'"
+02907,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02907/sva.sv(19): syntax error near '$global_clock'"
+02908,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02908/auto_bind.sv(8): syntax error near 'posedge'"
+02909,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02909/auto_bind.sv(9): syntax error near 'posedge'"
+02910,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02910/sva.sv(21): syntax error near '['"
+02911,fail,"❌ FAILED: compile/elab errors | "
+02912,pass,
+02913,pass,
+02914,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02914/auto_bind.sv(8): syntax error near 'posedge'"
+02915,pass,
+02916,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02916/sva.sv(33): syntax error near '['"
+02917,fail,"❌ FAILED: compile/elab errors | "
+02918,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02918/auto_bind.sv(9): cannot find port 'b1' on this module"
+02919,pass,
+02920,pass,
+02921,pass,
+02922,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02922/auto_bind.sv(12): cannot find port 'b1' on this module"
+02923,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02923/sva.sv(7): syntax error near '$global_clock'"
+02924,fail,"❌ FAILED: compile/elab errors | "
+02925,pass,
+02926,pass,
+02927,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02927/auto_bind.sv(12): syntax error near 'assign'"
+02928,pass,
+02929,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02929/sva.sv(15): syntax error near '$global_clock'"
+02930,pass,
+02931,pass,
+02932,pass,
+02933,pass,
+02934,pass,
+02935,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02935/sva.sv(15): syntax error near '['"
+02936,pass,
+02937,pass,
+02938,pass,
+02939,pass,
+02940,pass,
+02941,pass,
+02942,pass,
+02943,pass,
+02944,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02944/auto_bind.sv(8): syntax error near 'posedge'"
+02945,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02945/auto_bind.sv(9): syntax error near 'posedge'"
+02946,pass,
+02947,pass,
+02948,pass,
+02949,pass,
+02950,fail,"❌ FAILED: compile/elab errors | "
+02951,pass,
+02952,fail,"❌ FAILED: compile/elab errors | "
+02953,pass,
+02954,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02954/sva.sv(10): syntax error near '$global_clock'"
+02955,pass,
+02956,pass,
+02957,fail,"❌ FAILED: compile/elab errors | "
+02958,pass,
+02959,pass,
+02960,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02960/auto_bind.sv(12): cannot find port 'b00' on this module"
+02961,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02961/auto_bind.sv(10): cannot find port 'b1' on this module"
+02962,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02962/sva.sv(29): syntax error near '['"
+02963,pass,
+02964,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02964/auto_bind.sv(9): cannot find port 'b1' on this module"
+02965,pass,
+02966,fail,"❌ FAILED: compile/elab errors | "
+02967,pass,
+02968,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02968/auto_bind.sv(9): syntax error near 'assign'"
+02969,fail,"❌ FAILED: compile/elab errors | "
+02970,pass,
+02971,pass,
+02972,pass,
+02973,pass,
+02974,fail,"❌ FAILED: compile/elab errors | "
+02975,pass,
+02976,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02976/sva.sv(15): syntax error near '['"
+02977,pass,
+02978,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02978/auto_bind.sv(9): cannot find port 'b1' on this module"
+02979,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02979/auto_bind.sv(9): syntax error near 'or'"
+02980,pass,
+02981,pass,
+02982,pass,
+02983,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1010)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02983/auto_bind.sv(8): cannot find port 'b0' on this module"
+02984,pass,
+02985,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-2072)] ./02985/sva.sv(10): unknown system function call 'initstate' not supported"
+02986,fail,"❌ FAILED: compile/elab errors | "
+02987,pass,
+02988,pass,
+02989,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] ./02989/sva.sv(22): syntax error near '['"
+02990,pass,
+02991,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02991/auto_bind.sv(10): syntax error near 'or'"
+02992,fail,"❌ FAILED: compile/elab errors | "
+02993,pass,
+02994,pass,
+02995,fail,"❌ FAILED: compile/elab errors | "
+02996,fail,"❌ FAILED: compile/elab errors | [ERROR (VERI-1137)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02996/auto_bind.sv(9): syntax error near 'posedge'"
+jgproject,skip,missing module.v or sva.sv

@@ -26,7 +26,7 @@ dir="$ROOT/$ID"
 module_file="$dir/module.v"
 sva_file="$dir/sva.sv"
 
-out_dir="$ROOT/verification_results/$ID"
+out_dir="$ROOT/verification_results/ids/$ID"
 proj_dir="$out_dir/jgproject"
 done_marker="$out_dir/DONE"
 run_log="$out_dir/run.log"
@@ -37,8 +37,8 @@ mkdir -p "$out_dir"
 if [[ -f "$done_marker" ]]; then
   echo "⏭️  Skipping $ID (already attempted)"
   # Record as pass (previously completed)
-  mkdir -p "$ROOT/verification_results"
-  VERIF_CSV="$ROOT/verification_results/verif_summary.csv"
+  mkdir -p "$ROOT/verification_results/visual_data"
+  VERIF_CSV="$ROOT/verification_results/visual_data/verif_summary.csv"
   [[ -f "$VERIF_CSV" ]] || echo "id,status,reason" > "$VERIF_CSV"
   echo "$ID,pass,already completed" >> "$VERIF_CSV"
   exit 0
@@ -47,7 +47,7 @@ fi
 # Validate inputs
 if [[ ! -f "$module_file" || ! -f "$sva_file" ]]; then
   echo "⚠️  Skipping $ID (missing module.v or sva.sv)"
-  echo "$ID,skip,missing module.v or sva.sv" >> "$ROOT/verification_results/verif_summary.csv" || true
+  echo "$ID,skip,missing module.v or sva.sv" >> "$ROOT/verification_results/visual_data/verif_summary.csv" || true
   touch "$done_marker"
   exit 0
 fi
@@ -78,16 +78,13 @@ rc=$?
 set -e
 
 # Append CSV headers if missing (safe if multiple tasks start at once)
-mkdir -p "$ROOT/verification_results"
-SUMMARY_CSV="$ROOT/verification_results/summary.csv"
-VERIF_CSV="$ROOT/verification_results/verif_summary.csv"
-[[ -f "$SUMMARY_CSV" ]] || echo "id,status" > "$SUMMARY_CSV"
+mkdir -p "$ROOT/verification_results/visual_data"
+VERIF_CSV="$ROOT/verification_results/visual_data/verif_summary.csv"
 [[ -f "$VERIF_CSV"   ]] || echo "id,status,reason" > "$VERIF_CSV"
 
 # Minimal result parsing (reuse your earlier logic pattern)
 if [[ $rc -eq 0 ]]; then
   echo "✅ $ID VERIF RUN OK"
-  echo "$ID,ok" >> "$SUMMARY_CSV"
 
   if grep -q '\- cex' "$run_log" 2>/dev/null; then
     cex_count=$(grep -oP '(?<=- cex\s{1,20}: )\d+' "$run_log" 2>/dev/null || echo "0")
@@ -101,7 +98,6 @@ if [[ $rc -eq 0 ]]; then
   fi
 else
   echo "❌ $ID VERIF RUN FAIL (rc=$rc)"
-  echo "$ID,fail" >> "$SUMMARY_CSV"
 
   # ---- Extract real error from Jasper log ----
   reason=""

@@ -1,6 +1,6 @@
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
-# Output: verification_results/<DESIGN_ID>/
+# Output: verification_results/ids/<DESIGN_ID>/
 #
 # Env:
 #   DESIGN_ID     : required (subfolder name)

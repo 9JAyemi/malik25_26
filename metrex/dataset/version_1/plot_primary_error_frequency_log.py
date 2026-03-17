@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 # ============================
 # Config
 # ============================
-INPUT_CSV = "syntax_results/error_catalog.csv"
-OUT_PNG = "syntax_results/primary_error_frequency_log.png"
+INPUT_CSV = "syntax_results/visual_data/error_catalog.csv"
+OUT_PNG = "syntax_results/visual_data/primary_error_frequency_log.png"
 
 # ============================
 # Load data

@@ -1,6 +1,6 @@
 # ============================================================
 # JasperGold Assertion Verification Runner (env-driven)
-# Output: verification_results/<DESIGN_ID>/
+# Output: verification_results/ids/<DESIGN_ID>/
 #
 # Env:
 #   DESIGN_ID     : required (subfolder name)
@@ -158,7 +158,7 @@ set SVA_FILES {}
 foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 
 # ---- Output dir ----
-set OUT_DIR [file join "verification_results" $DESIGN_ID]
+set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
 file mkdir $OUT_DIR
 set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
 set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]

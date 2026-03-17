@@ -109,8 +109,8 @@ extract_reason() {
 #  SYNTAX MODE
 # ============================================================
 run_syntax() {
-  mkdir -p "$RESULTS_BASE/syntax_results/$VERSION_NAME"
-  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/$VERSION_NAME/summary.csv"
+  mkdir -p "$RESULTS_BASE/syntax_results/$VERSION_NAME/visual_data"
+  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/$VERSION_NAME/visual_data/summary.csv"
   echo "id,status" > "$SUMMARY_CSV"
 
   echo "=============================="
@@ -129,7 +129,7 @@ run_syntax() {
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
       echo "🔍 Checking $id ..."
-      local out_dir="$RESULTS_BASE/syntax_results/$VERSION_NAME/$id"
+      local out_dir="$RESULTS_BASE/syntax_results/$VERSION_NAME/ids/$id"
       mkdir -p "$out_dir"
 
       JG_DIR="$dir" \
@@ -160,11 +160,10 @@ run_syntax() {
 # ============================================================
 run_verif() {
   mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME/ids"
+  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME/visual_data"
 
-  local SUMMARY_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/summary.csv"
-  local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/verif_summary.csv"
+  local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/visual_data/verif_summary.csv"
 
-  echo "id,status" > "$SUMMARY_CSV"
   echo "id,status,reason" > "$VERIF_CSV"
 
   echo "=============================="
@@ -229,7 +228,6 @@ run_verif() {
         >"$out_dir/run.log" 2>&1 && {
 
         echo "✅ $id VERIF RUN OK"
-        echo "$id,ok" >> "$SUMMARY_CSV"
 
         if grep -q '\- cex' "$out_dir/run.log" 2>/dev/null; then
           local cex_count
@@ -248,7 +246,6 @@ run_verif() {
       } || {
 
         echo "❌ $id VERIF RUN FAIL"
-        echo "$id,fail" >> "$SUMMARY_CSV"
         local reason
         reason=$(extract_reason "$out_dir/run.log")
         echo "$id,fail,\"$reason\"" >> "$VERIF_CSV"
@@ -264,8 +261,7 @@ run_verif() {
 
   echo "=============================="
   echo "Verification complete."
-  echo "Summary CSV : $SUMMARY_CSV"
-  echo "Detail CSV  : $VERIF_CSV"
+  echo "Verif CSV : $VERIF_CSV"
 }
 
 # ── Dispatch ─────────────────────────────────────────────────

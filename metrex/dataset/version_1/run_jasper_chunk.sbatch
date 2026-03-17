@@ -31,7 +31,7 @@ for i in $(seq "$START" "$END"); do
   [[ -z "$ID" ]] && break
 
   # Skip if already done
-  if [[ -f "verification_results/${ID}/DONE" ]]; then
+  if [[ -f "verification_results/ids/${ID}/DONE" ]]; then
     echo "⏭️  Skipping $ID (already done)"
     continue
   fi
