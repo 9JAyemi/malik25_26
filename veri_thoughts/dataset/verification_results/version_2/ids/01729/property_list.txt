@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+sum_4bit.auto_sva_inst.check_sum_functional
+sum_4bit.auto_sva_inst.check_lower_nibble_increment
+sum_4bit.auto_sva_inst.check_carry_out_condition
+sum_4bit.auto_sva_inst.check_bit0_toggle
+sum_4bit.auto_sva_inst.check_bit1_logic
+sum_4bit.auto_sva_inst.check_bit2_logic
+sum_4bit.auto_sva_inst.check_bit3_logic
+sum_4bit.auto_sva_inst.check_overflow_case
+sum_4bit.auto_sva_inst.check_zero_input_case
+sum_4bit.auto_sva_inst.check_functional_stability
+
+COVER PROPERTIES:
+sum_4bit.auto_sva_inst.check_overflow_case:precondition1
+sum_4bit.auto_sva_inst.check_zero_input_case:precondition1
+sum_4bit.auto_sva_inst.check_functional_stability:precondition1

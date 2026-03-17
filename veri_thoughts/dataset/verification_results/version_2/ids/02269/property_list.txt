@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.decoder_matches_onehot_sel
+top_module.auto_sva_inst.decoder_zero_when_not_onehot
+top_module.auto_sva_inst.decoder_out_onehot0
+top_module.auto_sva_inst.mux2_sel0_replication
+top_module.auto_sva_inst.mux2_sel1_replication
+top_module.auto_sva_inst.mux2_bits_identical
+top_module.auto_sva_inst.final_mux_select
+top_module.auto_sva_inst.end_to_end_out_value
+top_module.auto_sva_inst.end_to_end_sel0
+top_module.auto_sva_inst.end_to_end_sel1
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.decoder_matches_onehot_sel:precondition1
+top_module.auto_sva_inst.decoder_zero_when_not_onehot:precondition1
+top_module.auto_sva_inst.mux2_sel0_replication:precondition1
+top_module.auto_sva_inst.mux2_sel1_replication:precondition1
+top_module.auto_sva_inst.end_to_end_sel0:precondition1
+top_module.auto_sva_inst.end_to_end_sel1:precondition1

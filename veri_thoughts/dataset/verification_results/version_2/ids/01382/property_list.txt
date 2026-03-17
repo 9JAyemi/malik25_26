@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_outputs_onehot
+comparator.auto_sva_inst.check_equal_maps_to_EQ
+comparator.auto_sva_inst.check_greater_maps_to_GT
+comparator.auto_sva_inst.check_less_maps_to_LT
+comparator.auto_sva_inst.check_EQ_implies_equal
+comparator.auto_sva_inst.check_GT_implies_greater
+comparator.auto_sva_inst.check_LT_implies_less
+comparator.auto_sva_inst.check_not_all_zero
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.check_equal_maps_to_EQ:precondition1
+comparator.auto_sva_inst.check_greater_maps_to_GT:precondition1
+comparator.auto_sva_inst.check_less_maps_to_LT:precondition1
+comparator.auto_sva_inst.check_EQ_implies_equal:precondition1
+comparator.auto_sva_inst.check_GT_implies_greater:precondition1
+comparator.auto_sva_inst.check_LT_implies_less:precondition1

@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+Counter.auto_sva_inst.reset_drives_zero
+Counter.auto_sva_inst.zero_on_reset_release
+Counter.auto_sva_inst.stable_while_reset_held
+Counter.auto_sva_inst.hold_when_disabled
+Counter.auto_sva_inst.update_when_enabled
+Counter.auto_sva_inst.change_requires_enable
+Counter.auto_sva_inst.overflow_wrap_to_zero
+Counter.auto_sva_inst.enabled_zero_next_cycle_has_cause
+
+COVER PROPERTIES:
+Counter.auto_sva_inst.reset_drives_zero:precondition1
+Counter.auto_sva_inst.zero_on_reset_release:precondition1
+Counter.auto_sva_inst.stable_while_reset_held:precondition1
+Counter.auto_sva_inst.hold_when_disabled:precondition1
+Counter.auto_sva_inst.update_when_enabled:precondition1
+Counter.auto_sva_inst.change_requires_enable:precondition1
+Counter.auto_sva_inst.overflow_wrap_to_zero:precondition1
+Counter.auto_sva_inst.enabled_zero_next_cycle_has_cause:precondition1

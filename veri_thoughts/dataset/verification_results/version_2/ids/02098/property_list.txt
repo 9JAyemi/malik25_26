@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+DFFSR.auto_sva_inst.check_reset_forces_zero
+DFFSR.auto_sva_inst.check_set_forces_one_no_reset
+DFFSR.auto_sva_inst.check_reset_priority_over_set
+DFFSR.auto_sva_inst.check_data_captured_when_no_set_reset
+DFFSR.auto_sva_inst.check_q_rise_cause
+DFFSR.auto_sva_inst.check_q_fall_cause
+
+COVER PROPERTIES:
+DFFSR.auto_sva_inst.check_reset_forces_zero:precondition1
+DFFSR.auto_sva_inst.check_set_forces_one_no_reset:precondition1
+DFFSR.auto_sva_inst.check_reset_priority_over_set:precondition1
+DFFSR.auto_sva_inst.check_data_captured_when_no_set_reset:precondition1
+DFFSR.auto_sva_inst.check_q_rise_cause:precondition1
+DFFSR.auto_sva_inst.check_q_fall_cause:precondition1

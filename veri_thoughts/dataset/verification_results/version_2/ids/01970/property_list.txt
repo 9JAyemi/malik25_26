@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+d_ff_asr.auto_sva_inst.check_state_equation
+d_ff_asr.auto_sva_inst.check_set_forces_one
+d_ff_asr.auto_sva_inst.check_reset_forces_zero
+d_ff_asr.auto_sva_inst.check_data_capture
+d_ff_asr.auto_sva_inst.check_set_overrides_reset
+d_ff_asr.auto_sva_inst.check_no_spurious_change_when_idle
+
+COVER PROPERTIES:
+d_ff_asr.auto_sva_inst.check_state_equation:precondition1
+d_ff_asr.auto_sva_inst.check_set_forces_one:precondition1
+d_ff_asr.auto_sva_inst.check_reset_forces_zero:precondition1
+d_ff_asr.auto_sva_inst.check_data_capture:precondition1
+d_ff_asr.auto_sva_inst.check_set_overrides_reset:precondition1
+d_ff_asr.auto_sva_inst.check_no_spurious_change_when_idle:precondition1
+d_ff_asr.auto_sva_inst.check_no_spurious_change_when_idle:precondition2

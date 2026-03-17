@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+nand4.auto_sva_inst.check_y_eq_nands_and_form
+nand4.auto_sva_inst.check_y_eq_demorgan_or_form
+nand4.auto_sva_inst.check_ab_high_forces_y_low
+nand4.auto_sva_inst.check_cd_high_forces_y_low
+nand4.auto_sva_inst.check_no_pair_and_implies_y_high
+nand4.auto_sva_inst.check_y_high_implies_no_pair_and
+nand4.auto_sva_inst.check_y_low_implies_some_pair_and
+
+COVER PROPERTIES:
+nand4.auto_sva_inst.check_ab_high_forces_y_low:precondition1
+nand4.auto_sva_inst.check_cd_high_forces_y_low:precondition1
+nand4.auto_sva_inst.check_no_pair_and_implies_y_high:precondition1
+nand4.auto_sva_inst.check_y_high_implies_no_pair_and:precondition1
+nand4.auto_sva_inst.check_y_low_implies_some_pair_and:precondition1

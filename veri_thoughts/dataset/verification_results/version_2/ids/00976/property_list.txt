@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_matches_add
+adder.auto_sva_inst.check_cout_always_zero
+adder.auto_sva_inst.check_concat_zeroext_add
+adder.auto_sva_inst.check_pass_through_a
+adder.auto_sva_inst.check_pass_through_b
+adder.auto_sva_inst.check_only_cin
+adder.auto_sva_inst.check_twos_complement_cancel
+adder.auto_sva_inst.check_sum_bit0_parity
+adder.auto_sva_inst.check_sum_commutative
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_pass_through_a:precondition1
+adder.auto_sva_inst.check_pass_through_b:precondition1
+adder.auto_sva_inst.check_only_cin:precondition1
+adder.auto_sva_inst.check_twos_complement_cancel:precondition1

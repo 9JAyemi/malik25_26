@@ -1,0 +1,11 @@
+# Counter-example details for DESIGN_ID=01901
+# Format: property_name | cex_type | cex_length
+
+<embedded>::pipeline_module.auto_sva_inst.check_out_two_cycle_delay | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_prev_out_three_cycle_in | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_input_change_propagates_2cycles | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_out_change_implies_in_change_2cycles_earlier | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_out_change_matches_past_in_change | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_equal_in_last_two_cycles_impl_out_stable | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_inequal_in_last_two_cycles_impl_out_change | cex | 
+<embedded>::pipeline_module.auto_sva_inst.check_out_stable_reflects_past_in_stable | cex | 

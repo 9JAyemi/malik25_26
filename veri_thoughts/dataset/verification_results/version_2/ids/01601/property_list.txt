@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nor2.auto_sva_inst.check_y_equals_nor
+nor2.auto_sva_inst.check_any_input_one_forces_y_zero
+nor2.auto_sva_inst.check_both_inputs_zero_gives_y_one
+nor2.auto_sva_inst.check_y_one_implies_inputs_zero
+nor2.auto_sva_inst.check_y_zero_implies_some_input_one
+
+COVER PROPERTIES:
+nor2.auto_sva_inst.check_any_input_one_forces_y_zero:precondition1
+nor2.auto_sva_inst.check_both_inputs_zero_gives_y_one:precondition1
+nor2.auto_sva_inst.check_y_one_implies_inputs_zero:precondition1
+nor2.auto_sva_inst.check_y_zero_implies_some_input_one:precondition1

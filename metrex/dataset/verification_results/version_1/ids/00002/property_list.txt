@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+counter_4bit.u_counter_4bit_sva.a_no_x
+counter_4bit.u_counter_4bit_sva.a_async_immediate_zero
+counter_4bit.u_counter_4bit_sva.a_reset_holds_zero
+counter_4bit.u_counter_4bit_sva.a_reset_stable
+counter_4bit.u_counter_4bit_sva.a_inc_mod16
+counter_4bit.u_counter_4bit_sva.a_rollover
+counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one
+
+COVER PROPERTIES:
+counter_4bit.u_counter_4bit_sva.a_reset_holds_zero:precondition1
+counter_4bit.u_counter_4bit_sva.a_reset_stable:precondition1
+counter_4bit.u_counter_4bit_sva.a_rollover:precondition1
+counter_4bit.u_counter_4bit_sva.a_first_after_reset_is_one:precondition1
+counter_4bit.u_counter_4bit_sva.c_reset_to_run
+counter_4bit.u_counter_4bit_sva.c_rollover
+counter_4bit.u_counter_4bit_sva.c_16_steps

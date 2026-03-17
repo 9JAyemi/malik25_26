@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+d_ff_async_reset.auto_sva_inst.check_reset_clears_next
+d_ff_async_reset.auto_sva_inst.check_q_zero_while_reset_held
+d_ff_async_reset.auto_sva_inst.check_q_zero_on_reset_release_sample
+
+COVER PROPERTIES:
+d_ff_async_reset.auto_sva_inst.check_reset_clears_next:precondition1
+d_ff_async_reset.auto_sva_inst.check_q_zero_while_reset_held:precondition1
+d_ff_async_reset.auto_sva_inst.check_q_zero_on_reset_release_sample:precondition1

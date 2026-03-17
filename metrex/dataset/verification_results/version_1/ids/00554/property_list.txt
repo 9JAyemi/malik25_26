@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+d_flip_flop.u_dff_sva.a_complement
+d_flip_flop.u_dff_sva.a_hold_on_clk_when_ce0
+d_flip_flop.u_dff_sva.a_no_change_on_negedge_ce
+d_flip_flop.u_dff_sva.a_set_prio
+d_flip_flop.u_dff_sva.a_reset
+d_flip_flop.u_dff_sva.a_data_cap
+d_flip_flop.u_dff_sva.a_no_x_out
+d_flip_flop.u_dff_sva.a_no_x_in_when_used
+
+COVER PROPERTIES:
+d_flip_flop.u_dff_sva.a_hold_on_clk_when_ce0:precondition1
+d_flip_flop.u_dff_sva.a_set_prio:precondition1
+d_flip_flop.u_dff_sva.a_reset:precondition1
+d_flip_flop.u_dff_sva.a_data_cap:precondition1
+d_flip_flop.u_dff_sva.a_no_x_in_when_used:precondition1
+d_flip_flop.u_dff_sva.c_data_0_to_1
+d_flip_flop.u_dff_sva.c_data_1_to_0
+d_flip_flop.u_dff_sva.c_set_over_reset
+d_flip_flop.u_dff_sva.c_reset_only
+d_flip_flop.u_dff_sva.c_ce_gate_hold_then_enable

@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_next
+counter.auto_sva_inst.check_reset_held_forces_zero
+counter.auto_sva_inst.check_increment_no_wrap
+counter.auto_sva_inst.check_wrap_from_ff
+counter.auto_sva_inst.check_first_cycle_after_reset_deassert
+counter.auto_sva_inst.check_monotonic_increase_no_wrap
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_next:precondition1
+counter.auto_sva_inst.check_reset_held_forces_zero:precondition1
+counter.auto_sva_inst.check_increment_no_wrap:precondition1
+counter.auto_sva_inst.check_wrap_from_ff:precondition1
+counter.auto_sva_inst.check_first_cycle_after_reset_deassert:precondition1
+counter.auto_sva_inst.check_monotonic_increase_no_wrap:precondition1

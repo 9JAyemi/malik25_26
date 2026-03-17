@@ -1,0 +1,26 @@
+ASSERT PROPERTIES:
+control.auto_sva_inst.check_cisel_bsel_decode
+control.auto_sva_inst.check_add_outputs
+control.auto_sva_inst.check_sub_outputs
+control.auto_sva_inst.check_sra_outputs
+control.auto_sva_inst.check_srl_outputs
+control.auto_sva_inst.check_sll_outputs
+control.auto_sva_inst.check_and_outputs
+control.auto_sva_inst.check_or_outputs
+control.auto_sva_inst.check_default_111_outputs
+control.auto_sva_inst.check_shift_la_implies_osel01
+control.auto_sva_inst.check_shift_lr_implies_osel01
+control.auto_sva_inst.check_logical_op_implies_and
+
+COVER PROPERTIES:
+control.auto_sva_inst.check_add_outputs:precondition1
+control.auto_sva_inst.check_sub_outputs:precondition1
+control.auto_sva_inst.check_sra_outputs:precondition1
+control.auto_sva_inst.check_srl_outputs:precondition1
+control.auto_sva_inst.check_sll_outputs:precondition1
+control.auto_sva_inst.check_and_outputs:precondition1
+control.auto_sva_inst.check_or_outputs:precondition1
+control.auto_sva_inst.check_default_111_outputs:precondition1
+control.auto_sva_inst.check_shift_la_implies_osel01:precondition1
+control.auto_sva_inst.check_shift_lr_implies_osel01:precondition1
+control.auto_sva_inst.check_logical_op_implies_and:precondition1

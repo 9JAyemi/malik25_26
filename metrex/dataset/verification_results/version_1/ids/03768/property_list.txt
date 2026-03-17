@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+AddReg.sva.a_inputs_known
+AddReg.sva.a_Q_known
+AddReg.sva.a_reset_next_zero
+AddReg.sva.a_load_captures_D
+AddReg.sva.a_normal_update_xor
+
+COVER PROPERTIES:
+AddReg.sva.a_reset_next_zero:precondition1
+AddReg.sva.a_load_captures_D:precondition1
+AddReg.sva.a_normal_update_xor:precondition1
+AddReg.sva.c_reset
+AddReg.sva.c_load
+AddReg.sva.c_hold_when_D0
+AddReg.sva.c_toggle_when_D1
+AddReg.sva.c_rst_over_load

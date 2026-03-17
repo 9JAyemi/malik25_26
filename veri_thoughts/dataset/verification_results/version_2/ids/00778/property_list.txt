@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+bin2gray.auto_sva_inst.check_gray_vector_map
+bin2gray.auto_sva_inst.check_msb_direct_map
+bin2gray.auto_sva_inst.check_bit2_xor_map
+bin2gray.auto_sva_inst.check_bit1_xor_map
+bin2gray.auto_sva_inst.check_bit0_xor_map
+bin2gray.auto_sva_inst.check_recover_in2_from_out
+bin2gray.auto_sva_inst.check_recover_in1_from_out
+bin2gray.auto_sva_inst.check_recover_in0_from_out
+bin2gray.auto_sva_inst.check_out_stable_when_prev_in_stable
+bin2gray.auto_sva_inst.check_gray_onebit_change_for_inc_by1
+
+COVER PROPERTIES:
+bin2gray.auto_sva_inst.check_out_stable_when_prev_in_stable:precondition1
+bin2gray.auto_sva_inst.check_gray_onebit_change_for_inc_by1:precondition1

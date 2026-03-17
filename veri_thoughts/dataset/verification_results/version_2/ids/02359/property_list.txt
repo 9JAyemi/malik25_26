@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.sync_clear_zero
+counter.auto_sva_inst.inc_on_ce
+counter.auto_sva_inst.hold_when_ce_low
+counter.auto_sva_inst.clr_priority_over_ce
+counter.auto_sva_inst.rollover_ff_to_00
+counter.auto_sva_inst.two_cycle_increment
+counter.auto_sva_inst.hold_two_cycles_no_enable
+counter.auto_sva_inst.change_implies_cause
+
+COVER PROPERTIES:
+counter.auto_sva_inst.sync_clear_zero:precondition1
+counter.auto_sva_inst.inc_on_ce:precondition1
+counter.auto_sva_inst.hold_when_ce_low:precondition1
+counter.auto_sva_inst.clr_priority_over_ce:precondition1
+counter.auto_sva_inst.rollover_ff_to_00:precondition1
+counter.auto_sva_inst.two_cycle_increment:precondition1
+counter.auto_sva_inst.hold_two_cycles_no_enable:precondition1
+counter.auto_sva_inst.change_implies_cause:precondition1

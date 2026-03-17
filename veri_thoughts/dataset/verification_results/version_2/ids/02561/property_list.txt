@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+calculator.auto_sva_inst.check_result_matches_equation
+calculator.auto_sva_inst.check_add_priority
+calculator.auto_sva_inst.check_sub_when_no_add
+calculator.auto_sva_inst.check_zero_when_no_ops
+calculator.auto_sva_inst.check_both_ops_add_wins
+
+COVER PROPERTIES:
+calculator.auto_sva_inst.check_add_priority:precondition1
+calculator.auto_sva_inst.check_sub_when_no_add:precondition1
+calculator.auto_sva_inst.check_zero_when_no_ops:precondition1
+calculator.auto_sva_inst.check_both_ops_add_wins:precondition1

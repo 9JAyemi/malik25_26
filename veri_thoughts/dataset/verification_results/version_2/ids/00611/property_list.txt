@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero
+counter.auto_sva_inst.check_prev_cycle_reset_value_zero
+counter.auto_sva_inst.check_first_value_after_reset_is_one
+counter.auto_sva_inst.check_zero_advances_to_one
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero:precondition1
+counter.auto_sva_inst.check_prev_cycle_reset_value_zero:precondition1
+counter.auto_sva_inst.check_first_value_after_reset_is_one:precondition1
+counter.auto_sva_inst.check_zero_advances_to_one:precondition1

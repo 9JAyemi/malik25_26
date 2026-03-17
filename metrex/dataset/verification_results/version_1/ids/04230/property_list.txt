@@ -1,0 +1,36 @@
+ASSERT PROPERTIES:
+traffic_light_fsm.sva.a_knowns
+traffic_light_fsm.sva.a_reset_state
+traffic_light_fsm.sva.a_reset_outputs
+traffic_light_fsm.sva.a_reset_cnt_hold
+traffic_light_fsm.sva.a_out_NSG
+traffic_light_fsm.sva.a_out_NSGY
+traffic_light_fsm.sva.a_out_EWG
+traffic_light_fsm.sva.a_out_EWGY
+traffic_light_fsm.sva.a_nsg_rules
+traffic_light_fsm.sva.a_nsgy_rules
+traffic_light_fsm.sva.a_ewg_rules
+traffic_light_fsm.sva.a_ewgy_rules
+
+COVER PROPERTIES:
+traffic_light_fsm.sva.a_reset_state:precondition1
+traffic_light_fsm.sva.a_reset_outputs:precondition1
+traffic_light_fsm.sva.a_reset_cnt_hold:precondition1
+traffic_light_fsm.sva.a_out_NSG:precondition1
+traffic_light_fsm.sva.a_out_NSGY:precondition1
+traffic_light_fsm.sva.a_out_EWG:precondition1
+traffic_light_fsm.sva.a_out_EWGY:precondition1
+traffic_light_fsm.sva.a_nsg_rules:precondition1
+traffic_light_fsm.sva.a_nsg_rules:precondition2
+traffic_light_fsm.sva.a_nsgy_rules:precondition1
+traffic_light_fsm.sva.a_nsgy_rules:precondition2
+traffic_light_fsm.sva.a_ewg_rules:precondition1
+traffic_light_fsm.sva.a_ewg_rules:precondition2
+traffic_light_fsm.sva.a_ewgy_rules:precondition1
+traffic_light_fsm.sva.a_ewgy_rules:precondition2
+traffic_light_fsm.sva.c_seen_NSG
+traffic_light_fsm.sva.c_seen_NSGY
+traffic_light_fsm.sva.c_seen_EWG
+traffic_light_fsm.sva.c_seen_EWGY
+traffic_light_fsm.sva.c_full_cycle
+traffic_light_fsm.sva.c_reset_seen

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+subfxp.auto_sva_inst.check_end_to_end
+subfxp.auto_sva_inst.check_zero_diff_propagates_zero
+subfxp.auto_sva_inst.check_b_zero_passthrough
+subfxp.auto_sva_inst.check_a_zero_negate
+subfxp.auto_sva_inst.gen_c1_stability.check_stable_inputs_imply_stable_q_c1
+
+COVER PROPERTIES:
+subfxp.auto_sva_inst.check_end_to_end:precondition1
+subfxp.auto_sva_inst.check_zero_diff_propagates_zero:precondition1
+subfxp.auto_sva_inst.check_b_zero_passthrough:precondition1
+subfxp.auto_sva_inst.check_a_zero_negate:precondition1
+subfxp.auto_sva_inst.gen_c1_stability.check_stable_inputs_imply_stable_q_c1:precondition1

@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_xor_out_function
+top_module.auto_sva_inst.check_sum_function
+top_module.auto_sva_inst.check_cout_function
+top_module.auto_sva_inst.check_sum_equals_xor_out
+top_module.auto_sva_inst.check_tt_00
+top_module.auto_sva_inst.check_tt_11
+top_module.auto_sva_inst.check_tt_10
+top_module.auto_sva_inst.check_tt_01
+top_module.auto_sva_inst.check_cout1_implies_sum0
+top_module.auto_sva_inst.check_sum1_implies_cout0
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_tt_00:precondition1
+top_module.auto_sva_inst.check_tt_11:precondition1
+top_module.auto_sva_inst.check_tt_10:precondition1
+top_module.auto_sva_inst.check_tt_01:precondition1
+top_module.auto_sva_inst.check_cout1_implies_sum0:precondition1
+top_module.auto_sva_inst.check_sum1_implies_cout0:precondition1

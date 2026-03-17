@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_mux_equation
+mux_2to1.auto_sva_inst.check_sel0_path
+mux_2to1.auto_sva_inst.check_sel1_path
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough
+mux_2to1.auto_sva_inst.check_in1_masked_when_sel0
+mux_2to1.auto_sva_inst.check_in0_masked_when_sel1
+mux_2to1.auto_sva_inst.check_sel_rise_selects_in1
+mux_2to1.auto_sva_inst.check_sel_fall_selects_in0
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_sel0_path:precondition1
+mux_2to1.auto_sva_inst.check_sel1_path:precondition1
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough:precondition1
+mux_2to1.auto_sva_inst.check_in1_masked_when_sel0:precondition1
+mux_2to1.auto_sva_inst.check_in0_masked_when_sel1:precondition1
+mux_2to1.auto_sva_inst.check_sel_rise_selects_in1:precondition1
+mux_2to1.auto_sva_inst.check_sel_fall_selects_in0:precondition1

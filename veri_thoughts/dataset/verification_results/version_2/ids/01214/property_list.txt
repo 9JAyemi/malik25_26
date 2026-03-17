@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+simple_counter.auto_sva_inst.reset_value
+simple_counter.auto_sva_inst.hold_when_en_low
+simple_counter.auto_sva_inst.update_on_en_high
+simple_counter.auto_sva_inst.change_requires_en
+simple_counter.auto_sva_inst.update_changes_value
+simple_counter.auto_sva_inst.wrap_from_15_only
+simple_counter.auto_sva_inst.sync_reset_effect
+
+COVER PROPERTIES:
+simple_counter.auto_sva_inst.reset_value:precondition1
+simple_counter.auto_sva_inst.hold_when_en_low:precondition1
+simple_counter.auto_sva_inst.update_on_en_high:precondition1
+simple_counter.auto_sva_inst.change_requires_en:precondition1
+simple_counter.auto_sva_inst.update_changes_value:precondition1
+simple_counter.auto_sva_inst.wrap_from_15_only:precondition1
+simple_counter.auto_sva_inst.sync_reset_effect:precondition1

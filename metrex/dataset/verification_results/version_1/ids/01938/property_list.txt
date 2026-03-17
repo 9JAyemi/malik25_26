@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+binary_counter.sva_i.a_reset_clears
+binary_counter.sva_i.a_reset_holds_zero
+binary_counter.sva_i.a_inc_when_enable
+binary_counter.sva_i.a_hold_when_disabled
+binary_counter.sva_i.a_change_only_when_ok
+binary_counter.sva_i.a_no_x_when_active
+
+COVER PROPERTIES:
+binary_counter.sva_i.a_reset_clears:precondition1
+binary_counter.sva_i.a_reset_holds_zero:precondition1
+binary_counter.sva_i.a_inc_when_enable:precondition1
+binary_counter.sva_i.a_hold_when_disabled:precondition1
+binary_counter.sva_i.a_change_only_when_ok:precondition1
+binary_counter.sva_i.a_no_x_when_active:precondition1
+binary_counter.sva_i.c_reset_seen
+binary_counter.sva_i.c_hold_seen
+binary_counter.sva_i.c_inc_seen
+binary_counter.sva_i.c_wrap_seen

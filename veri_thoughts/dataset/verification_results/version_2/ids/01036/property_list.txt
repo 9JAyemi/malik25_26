@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+abs_difference.auto_sva_inst.reset_forces_zero
+abs_difference.auto_sva_inst.diff_matches_abs
+abs_difference.auto_sva_inst.diff_zero_when_equal
+abs_difference.auto_sva_inst.diff_positive_when_unequal
+abs_difference.auto_sva_inst.diff_bounded_by_max
+abs_difference.auto_sva_inst.add_inverse_relation
+
+COVER PROPERTIES:
+abs_difference.auto_sva_inst.reset_forces_zero:precondition1
+abs_difference.auto_sva_inst.diff_zero_when_equal:precondition1
+abs_difference.auto_sva_inst.diff_positive_when_unequal:precondition1

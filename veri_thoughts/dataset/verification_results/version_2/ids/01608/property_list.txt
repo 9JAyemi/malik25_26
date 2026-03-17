@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+clock_gate_register.auto_sva_inst.reset_clears_output
+clock_gate_register.auto_sva_inst.te_low_forces_zero
+clock_gate_register.auto_sva_inst.enclk_high_requires_te
+clock_gate_register.auto_sva_inst.enclk_rise_requires_te
+
+COVER PROPERTIES:
+clock_gate_register.auto_sva_inst.reset_clears_output:precondition1
+clock_gate_register.auto_sva_inst.te_low_forces_zero:precondition1
+clock_gate_register.auto_sva_inst.enclk_high_requires_te:precondition1
+clock_gate_register.auto_sva_inst.enclk_rise_requires_te:precondition1

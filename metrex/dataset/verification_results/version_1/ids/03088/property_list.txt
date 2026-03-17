@@ -1,0 +1,29 @@
+ASSERT PROPERTIES:
+FSM.u_fsm_sva.a_no_x
+FSM.u_fsm_sva.a_state_legal
+FSM.u_fsm_sva.a_sync_reset
+FSM.u_fsm_sva.a_out_lsb
+FSM.u_fsm_sva.a_in01_to_s1
+FSM.u_fsm_sva.a_s0_in00
+FSM.u_fsm_sva.a_s1_in00
+FSM.u_fsm_sva.a_s2_in00
+FSM.u_fsm_sva.a_hold_others
+
+COVER PROPERTIES:
+FSM.u_fsm_sva.a_sync_reset:precondition1
+FSM.u_fsm_sva.a_in01_to_s1:precondition1
+FSM.u_fsm_sva.a_s0_in00:precondition1
+FSM.u_fsm_sva.a_s1_in00:precondition1
+FSM.u_fsm_sva.a_s2_in00:precondition1
+FSM.u_fsm_sva.a_hold_others:precondition1
+FSM.u_fsm_sva.c_reach_s0
+FSM.u_fsm_sva.c_reach_s1
+FSM.u_fsm_sva.c_reach_s2
+FSM.u_fsm_sva.c_s0_00_s0
+FSM.u_fsm_sva.c_s0_01_s1
+FSM.u_fsm_sva.c_s1_00_s2
+FSM.u_fsm_sva.c_s1_01_s1
+FSM.u_fsm_sva.c_s2_00_s0
+FSM.u_fsm_sva.c_s2_01_s1
+FSM.u_fsm_sva.c_hold_10_11
+FSM.u_fsm_sva.c_reset_to_s0

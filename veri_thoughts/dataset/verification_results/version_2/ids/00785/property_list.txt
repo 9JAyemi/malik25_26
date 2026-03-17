@@ -1,0 +1,30 @@
+ASSERT PROPERTIES:
+XOR4.auto_sva_inst.check_z_eq_a_xor_b
+XOR4.auto_sva_inst.check_unxor_back_to_a
+XOR4.auto_sva_inst.check_a_xor_z_is_b
+XOR4.auto_sva_inst.check_lsb_inverted
+XOR4.auto_sva_inst.check_upper_pass_through
+XOR4.auto_sva_inst.check_stability_propagation
+XOR4.auto_sva_inst.check_no_spurious_z_change
+XOR4.auto_sva_inst.check_toggle_pattern_matches
+XOR4.auto_sva_inst.check_upper_rose_maps
+XOR4.auto_sva_inst.check_upper_rose_maps_2
+XOR4.auto_sva_inst.check_upper_rose_maps_1
+XOR4.auto_sva_inst.check_upper_fell_maps
+XOR4.auto_sva_inst.check_upper_fell_maps_2
+XOR4.auto_sva_inst.check_upper_fell_maps_1
+XOR4.auto_sva_inst.check_lsb_rose_inverts
+XOR4.auto_sva_inst.check_lsb_fell_inverts
+
+COVER PROPERTIES:
+XOR4.auto_sva_inst.check_stability_propagation:precondition1
+XOR4.auto_sva_inst.check_no_spurious_z_change:precondition1
+XOR4.auto_sva_inst.check_toggle_pattern_matches:precondition1
+XOR4.auto_sva_inst.check_upper_rose_maps:precondition1
+XOR4.auto_sva_inst.check_upper_rose_maps_2:precondition1
+XOR4.auto_sva_inst.check_upper_rose_maps_1:precondition1
+XOR4.auto_sva_inst.check_upper_fell_maps:precondition1
+XOR4.auto_sva_inst.check_upper_fell_maps_2:precondition1
+XOR4.auto_sva_inst.check_upper_fell_maps_1:precondition1
+XOR4.auto_sva_inst.check_lsb_rose_inverts:precondition1
+XOR4.auto_sva_inst.check_lsb_fell_inverts:precondition1

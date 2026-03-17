@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+MUX2to1.auto_sva_inst.check_mux_function
+MUX2to1.auto_sva_inst.check_sel0_routes_a
+MUX2to1.auto_sva_inst.check_sel1_routes_b
+MUX2to1.auto_sva_inst.check_out_change_cause
+MUX2to1.auto_sva_inst.check_ignore_b_when_sel0
+MUX2to1.auto_sva_inst.check_ignore_a_when_sel1
+MUX2to1.auto_sva_inst.check_selected_a_change_propagates
+MUX2to1.auto_sva_inst.check_selected_b_change_propagates
+
+COVER PROPERTIES:
+MUX2to1.auto_sva_inst.check_sel0_routes_a:precondition1
+MUX2to1.auto_sva_inst.check_sel1_routes_b:precondition1
+MUX2to1.auto_sva_inst.check_out_change_cause:precondition1
+MUX2to1.auto_sva_inst.check_ignore_b_when_sel0:precondition1
+MUX2to1.auto_sva_inst.check_ignore_a_when_sel1:precondition1
+MUX2to1.auto_sva_inst.check_selected_a_change_propagates:precondition1
+MUX2to1.auto_sva_inst.check_selected_b_change_propagates:precondition1

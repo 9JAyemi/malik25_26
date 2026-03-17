@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+memory.u_memory_sva.assert_spo_taps_memout
+memory.u_memory_sva.assert_no_x_on_write
+memory.u_memory_sva.assert_read_matches_model
+memory.u_memory_sva.assert_wr_rdback_1cyc
+memory.u_memory_sva.assert_stable_when_idle
+memory.u_memory_sva.assert_no_x_after_init
+
+COVER PROPERTIES:
+memory.u_memory_sva.assert_no_x_on_write:precondition1
+memory.u_memory_sva.assert_read_matches_model:precondition1
+memory.u_memory_sva.assert_wr_rdback_1cyc:precondition1
+memory.u_memory_sva.assert_stable_when_idle:precondition1
+memory.u_memory_sva.assert_no_x_after_init:precondition1
+memory.u_memory_sva.cover_any_write
+memory.u_memory_sva.cover_min_addr_write
+memory.u_memory_sva.cover_max_addr_write
+memory.u_memory_sva.cover_wr_then_rdback_same_addr
+memory.u_memory_sva.cover_b2b_writes_same_addr
+memory.u_memory_sva.cover_b2b_writes_diff_addr

@@ -1,0 +1,2735 @@
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Auto-bind helpers ----
+% 
+% proc sva_files_have_bind {sva_files} {
+  # Return 1 if any SVA file already contains a bind statement.
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    if {[regexp -nocase {(?m)^\s*bind\s+} $txt]} { return 1 }
+  }
+  return 0
+}
+% 
+% proc extract_module_ports {mod_name files} {
+  # Extract port names for a given module from a list of files.
+  # Returns a list of port names (order preserved, keywords stripped).
+  set keywords {input output inout wire reg logic signed unsigned integer
+                parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${mod_name}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        if {[lsearch -exact $names $t] < 0} { lappend names $t }
+      }
+      return $names
+    }
+  }
+  return {}
+}
+% 
+% proc generate_auto_bind {top dut_files sva_files out_dir} {
+  # If SVA files lack a bind statement, generate one.
+  # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
+  if {[sva_files_have_bind $sva_files]} {
+    puts "INFO: SVA files already contain a bind statement"
+    return ""
+  }
+
+  # Find the SVA module name (first module in SVA files that is NOT the DUT)
+  set sva_mod ""
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set matches [regexp -all -inline -nocase {(?m)^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt]
+    foreach {_ mname} $matches {
+      if {$mname ne $top} {
+        set sva_mod $mname
+        break
+      }
+    }
+    if {$sva_mod ne ""} { break }
+  }
+
+  if {$sva_mod eq ""} {
+    puts "WARN: Could not find SVA module name for auto-bind"
+    return ""
+  }
+
+  # Get port lists
+  set dut_ports [extract_module_ports $top $dut_files]
+  set sva_ports [extract_module_ports $sva_mod $sva_files]
+
+  if {[llength $sva_ports] == 0} {
+    puts "WARN: SVA module $sva_mod has no ports; cannot auto-bind"
+    return ""
+  }
+
+  # Build port connections: for each SVA port, connect to DUT port if name
+  # matches (case-insensitive), otherwise leave unconnected.
+  set dut_lower_map [dict create]
+  foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+
+  set connections {}
+  set unconnected {}
+  foreach sp $sva_ports {
+    set sp_lower [string tolower $sp]
+    if {[dict exists $dut_lower_map $sp_lower]} {
+      set dp [dict get $dut_lower_map $sp_lower]
+      lappend connections "    .${sp}(${dp})"
+    } else {
+      lappend unconnected $sp
+    }
+  }
+
+  if {[llength $connections] == 0} {
+    puts "WARN: No matching ports between DUT ($top) and SVA ($sva_mod); cannot auto-bind"
+    return ""
+  }
+
+  # Write the bind file
+  set bind_path [file join $out_dir "auto_bind.sv"]
+  set conn_str [join $connections ",\n"]
+  set fp [open $bind_path "w"]
+  puts $fp "// Auto-generated bind (no bind found in SVA files)"
+  if {[llength $unconnected] > 0} {
+    puts $fp "// NOTE: Unconnected SVA ports (not in DUT): [join $unconnected {, }]"
+  }
+  puts $fp "bind $top $sva_mod auto_sva_inst ("
+  puts $fp $conn_str
+  puts $fp ");"
+  close $fp
+
+  puts "INFO: Auto-generated bind: $bind_path"
+  puts "  DUT=$top  SVA=$sva_mod"
+  puts "  Connected ports: [llength $connections]"
+  if {[llength $unconnected] > 0} {
+    puts "  Unconnected SVA ports: [join $unconnected {, }]"
+  }
+  return $bind_path
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+01807
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./01807/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./01807/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = Control
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
+% if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
+  set OUT_DIR $::env(JG_OUT_DIR)
+} else {
+  set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
+}
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/summary.txt
+% 
+% # ---- Auto-bind detection ----
+% set AUTO_BIND 0
+0
+% set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
+INFO: Auto-generated bind: /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/auto_bind.sv
+  DUT=Control  SVA=Control_assertions
+  Connected ports: 8
+  Unconnected SVA ports: reset_outputs_select0, assert, property, posedge, b1110, anodo_valid_values, disable, iff, inside, b1101, b1011, b0111, map_sel0_cat_from_in0, map_sel1_cat_from_in1, map_sel2_cat_from_in2, map_sel3_cat_from_in3, anodo_onehot_active_low, onehot, catodo_matches_some_input, stable_catodo_when_sel0_stable, stable, stable_catodo_when_sel1_stable, stable_catodo_when_sel2_stable, stable_catodo_when_sel3_stable
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/auto_bind.sv
+% if {$BIND_FILE ne ""} {
+  set AUTO_BIND 1
+  lappend SVA_FILES $BIND_FILE
+}
+./01807/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/auto_bind.sv
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 01807
+% puts "  TOP       : $TOP"
+  TOP       : Control
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  AUTO_BIND : $AUTO_BIND"
+  AUTO_BIND : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 2
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./01807/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./01807/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/auto_bind.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './01807/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './01807/sva.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/auto_bind.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='Control'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "Control".
+[INFO (HIER-8002)] ./01807/module.v(47): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./01807/sva.sv(1): compiling module 'Control_assertions'
+[INFO (VERI-1018)] ./01807/module.v(2): compiling module 'Control'
+[WARN (VERI-1209)] ./01807/module.v(19): expression size 32 truncated to fit in target size 18
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+rst
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using reset signal: rst
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "rst".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 12 asserts, 9 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 21 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 3 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned values for 18 of 18 design flops, 0 of 0 design latches, 21 of 101 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "Control.auto_sva_inst.reset_outputs_select0" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "Control.auto_sva_inst.reset_outputs_select0:precondition1" was proven unreachable in 0.00 s.
+0: Found proofs for 2 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "Control.auto_sva_inst.anodo_valid_values" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "Control.auto_sva_inst.anodo_onehot_active_low" was proven in 0.00 s.
+0.0.PRE: Proof Simplification completed in 0.00 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 17
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 1561502@della-r3c3n2(local) jg_1561435_della-r3c3n2_1
+0.0.N: Proofgrid shell started at 1561501@della-r3c3n2(local) jg_1561435_della-r3c3n2_1
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Lemmas used(1): ?2
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.map_sel0_cat_from_in0" was proven in 0.00 s.
+0.0.Hp: Lemmas used(1): ?2
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.map_sel1_cat_from_in1" was proven in 0.00 s.
+0.0.Hp: Lemmas used(1): ?2
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.map_sel2_cat_from_in2" was proven in 0.00 s.
+0.0.Hp: Lemmas used(1): ?2
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.map_sel3_cat_from_in3" was proven in 0.00 s.
+0.0.Hp: Lemmas used(1): ?2
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.catodo_matches_some_input" was proven in 0.00 s.
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "Control.auto_sva_inst.map_sel0_cat_from_in0:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "Control.auto_sva_inst.stable_catodo_when_sel0_stable" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "Control.auto_sva_inst.stable_catodo_when_sel0_stable:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: Trace Attempt  2	[0.01 s]
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 524288 was found for the property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Hp: Trace Attempt  3	[0.03 s]
+0.0.Ht: Proofgrid shell started at 1561515@della-r3c3n2(local) jg_1561435_della-r3c3n2_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Hp: Lemmas used(4): ?2
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.stable_catodo_when_sel1_stable" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.stable_catodo_when_sel2_stable" was proven in 0.06 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "Control.auto_sva_inst.stable_catodo_when_sel3_stable" was proven in 0.06 s.
+0.0.B: Proofgrid shell started at 1561516@della-r3c3n2(local) jg_1561435_della-r3c3n2_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0: ProofGrid usable level: 6
+0.0.B: Trace Attempt 198	[0.92 s]
+0.0.B: Per property time limit expired (0.93 s) [0.93 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.93 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 524288 was found for the property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 218	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.99 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 205	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 524288 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 524288 was found for the property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 183	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 195	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 217	[0.72 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[1.01 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 346	[4.01 s]
+0.0.B: Trace Attempt 184	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 172	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[1.00 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[1.01 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 451	[8.02 s]
+0.0.B: Trace Attempt 295	[4.00 s]
+0.0.N: Trace Attempt 510	[4.00 s]
+0.0.Ht: Trace Attempt 516	[12.03 s]
+0.0.N: Trace Attempt 738	[8.01 s]
+0.0.B: Trace Attempt 354	[8.60 s]
+0.0.B: Trace Attempt 385	[9.24 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[10.04 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 565	[16.16 s]
+0.0.Ht: Trace Attempt 615	[20.26 s]
+0.0.B: Trace Attempt 302	[4.56 s]
+0.0.N: Trace Attempt 278	[6.28 s]
+0.0.Ht: Trace Attempt 674	[24.35 s]
+0.0.B: Trace Attempt 343	[8.66 s]
+0.0.B: Trace Attempt 351	[9.95 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[10.00 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.77 s]
+0.0.N: Trace Attempt  2	[0.77 s]
+0.0.N: Trace Attempt  3	[0.77 s]
+0.0.N: Trace Attempt  5	[0.77 s]
+0.0.Ht: Trace Attempt 702	[28.39 s]
+0.0.B: Trace Attempt 247	[4.81 s]
+0.0.N: Trace Attempt 375	[4.78 s]
+0.0.Ht: Trace Attempt 740	[32.50 s]
+0.0.B: Trace Attempt 302	[8.92 s]
+0.0.B: Trace Attempt 326	[9.70 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[10.02 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 756	[36.60 s]
+0.0.B: Trace Attempt 274	[4.25 s]
+0.0.N: Trace Attempt 329	[4.51 s]
+0.0.Ht: Trace Attempt 793	[40.70 s]
+0.0.B: Trace Attempt 308	[8.33 s]
+0.0.N: Trace Attempt 598	[9.85 s]
+0.0.B: Trace Attempt 332	[9.63 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[9.99 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 814	[46.12 s]
+0.0.Ht: Trace Attempt 845	[50.15 s]
+0.0.B: Trace Attempt 280	[4.26 s]
+0.0.N: Trace Attempt 334	[6.23 s]
+0.0.Ht: Trace Attempt 875	[54.36 s]
+0.0.B: Trace Attempt 328	[8.59 s]
+0.0.B: Trace Attempt 349	[9.63 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[10.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[10.00 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[1.06 s]
+0.0.N: Trace Attempt  2	[1.06 s]
+0.0.N: Trace Attempt  3	[1.06 s]
+0.0.N: Trace Attempt  5	[1.06 s]
+0.0.Ht: Trace Attempt 883	[58.52 s]
+0.0.B: Trace Attempt 283	[4.34 s]
+0.0.N: Trace Attempt 415	[5.23 s]
+0.0.Ht: Trace Attempt 907	[62.64 s]
+0.0.B: Trace Attempt 344	[9.21 s]
+0.0.B: Trace Attempt 355	[9.99 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[10.00 s].
+0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[10.00 s].
+0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 932	[66.67 s]
+0.0.B: Trace Attempt 302	[4.00 s]
+0.0.N: Trace Attempt 512	[4.01 s]
+0.0.Ht: Trace Attempt 952	[73.32 s]
+0.0.N: Trace Attempt 746	[8.01 s]
+0.0.B: Trace Attempt 354	[8.34 s]
+0.0.Ht: Trace Attempt 978	[77.45 s]
+0.0.N: Trace Attempt 935	[12.02 s]
+0.0.B: Trace Attempt 387	[12.87 s]
+0.0.Ht: Trace Attempt 1003	[81.49 s]
+0.0.N: Trace Attempt 1050	[16.04 s]
+0.0.B: Trace Attempt 392	[19.08 s]
+0.0.Ht: Trace Attempt 1025	[85.52 s]
+0.0.N: Trace Attempt 1252	[20.19 s]
+0.0.Ht: Trace Attempt 1028	[89.57 s]
+0.0.B: Trace Attempt 405	[23.72 s]
+0.0.N: Trace Attempt 1308	[24.36 s]
+0.0.B: Trace Attempt 418	[27.75 s]
+0.0.Ht: Trace Attempt 1048	[94.07 s]
+0.0.Ht: Trace Attempt 1068	[98.15 s]
+0.0.B: Trace Attempt 428	[32.61 s]
+0.0.Ht: Trace Attempt 1092	[102.27 s]
+0.0.B: Trace Attempt 435	[37.67 s]
+0.0.B: Trace Attempt 439	[42.90 s]
+0.0.Ht: Trace Attempt 1104	[109.19 s]
+0.0.Ht: Trace Attempt 1125	[113.19 s]
+0.0.B: Trace Attempt 447	[47.37 s]
+0.0.Ht: Trace Attempt 1146	[117.44 s]
+0.0.B: Trace Attempt 457	[51.52 s]
+0.0.Ht: Trace Attempt 1163	[121.61 s]
+0.0.B: Trace Attempt 461	[55.76 s]
+0.0.Ht: Trace Attempt 1181	[125.62 s]
+0.0.B: Trace Attempt 466	[61.51 s]
+0.0.Ht: Trace Attempt 1190	[131.99 s]
+0.0.B: Trace Attempt 470	[66.22 s]
+0.0.Ht: Trace Attempt 1207	[136.01 s]
+0.0.B: Trace Attempt 484	[70.23 s]
+0.0.B: Trace Attempt 495	[74.29 s]
+0.0.Ht: Trace Attempt 1226	[140.32 s]
+0.0.Ht: Trace Attempt 1244	[144.41 s]
+0.0.B: Trace Attempt 499	[78.75 s]
+0.0.Ht: Trace Attempt 1258	[148.42 s]
+0.0.B: Trace Attempt 502	[83.53 s]
+0.0.B: Trace Attempt 506	[87.64 s]
+0.0.Ht: Trace Attempt 1266	[155.16 s]
+0.0.B: Trace Attempt 509	[92.86 s]
+0.0.Ht: Trace Attempt 1278	[159.50 s]
+0.0.Ht: Trace Attempt 1293	[163.75 s]
+0.0.B: Trace Attempt 518	[97.89 s]
+0.0.B: Trace Attempt 519	[99.03 s]
+0.0.B: Per property time limit expired (100.00 s) [100.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[100.01 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[100.04 s].
+0.0.N: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 1306	[168.08 s]
+0.0.B: Trace Attempt 302	[4.55 s]
+0.0.Ht: Trace Attempt 1320	[172.17 s]
+0.0.N: Trace Attempt 278	[6.27 s]
+0.0.B: Trace Attempt 343	[8.62 s]
+0.0.Ht: Trace Attempt 1332	[176.27 s]
+0.0.B: Trace Attempt 363	[12.71 s]
+0.0.N: Trace Attempt 436	[12.71 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[14.92 s].
+0.0.B: Morphing to Hts
+0.0.B: Trace Attempt 378	[14.80 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[14.91 s].
+0.0.N: Morphing to AM
+0.0.N: Trace Attempt 475	[14.77 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt 303	[0.91 s]
+0.0.AM: Per property time limit expired (0.94 s) [0.95 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.95 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
+0.0.Hts: Trace Attempt 1335	[0.12 s]
+0.0.Hts: Per property time limit expired (1.00 s) [1.08 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[1.08 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt 209	[0.97 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[1.00 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.97 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.04 s]
+0.0.Hts: Trace Attempt  2	[0.04 s]
+0.0.Hts: Trace Attempt  3	[0.04 s]
+0.0.Hts: Trace Attempt  4	[0.04 s]
+0.0.Hts: Trace Attempt  5	[0.04 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.15 s]
+0.0.Ht: Trace Attempt 1336	[184.01 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[3.14 s].
+0.0.Hts: Morphing to AB
+0.0.Hts: Trace Attempt 1335	[0.16 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[3.19 s].
+0.0.AM: Morphing to K
+0.0.AM: Trace Attempt 235	[2.78 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt 275	[1.84 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 221	[1.99 s]
+0.0.K: Per property time limit expired (1.99 s) [1.99 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[1.99 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 128	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Ht: Trace Attempt 1346	[188.21 s]
+0.0.K: Trace Attempt  1	[0.60 s]
+0.0.K: Trace Attempt  2	[0.60 s]
+0.0.K: Trace Attempt  3	[0.60 s]
+0.0.K: Trace Attempt  4	[0.60 s]
+0.0.K: Trace Attempt  5	[0.60 s]
+0.0.AB: Trace Attempt 213	[1.92 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 205	[2.00 s]
+0.0.K: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[2.00 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.64 s].
+0.0.K: Morphing to AM
+0.0.K: Trace Attempt 220	[1.62 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.65 s].
+0.0.AB: Morphing to Hts
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt 245	[1.64 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.13 s]
+0.0.AM: Trace Attempt  2	[0.13 s]
+0.0.AM: Trace Attempt  3	[0.13 s]
+0.0.Ht: Trace Attempt 1361	[192.39 s]
+0.0.Hts: Trace Attempt 1359	[0.13 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.00 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[4.00 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt 390	[3.82 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.02 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[4.02 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1371	[196.75 s]
+0.0.Hts: Trace Attempt 1370	[0.24 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.01 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[4.01 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[4.01 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.14 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.89 s].
+0.0.AM: Morphing to K
+0.0.AM: Trace Attempt 138	[0.88 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 12	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 1386	[200.99 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.65 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.K: Trace Attempt 241	[4.19 s]
+0.0.Ht: Trace Attempt 1396	[205.84 s]
+0.0.K: Trace Attempt 286	[7.48 s]
+0.0.K: Per property time limit expired (8.00 s) [8.00 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[8.00 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[7.26 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1408	[210.24 s]
+0.0.K: Trace Attempt 259	[4.03 s]
+0.0.K: Trace Attempt 301	[7.74 s]
+0.0.K: Per property time limit expired (8.00 s) [8.00 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[8.00 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.Hts: Trace Attempt 1405	[0.25 s]
+0.0.Hts: Per property time limit expired (8.00 s) [8.01 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[8.01 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.57 s].
+0.0.K: Morphing to AB
+0.0.K: Trace Attempt 214	[1.56 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.69 s].
+0.0.Hts: Morphing to Tri
+0.0.Hts: Trace Attempt 1414	[0.14 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.23" ---- Launching abstraction thread ----
+0.0.Tri:    0.25" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.43 s]
+0.0.Tri: Trace Attempt  3	[0.43 s]
+0.0.Tri: Trace Attempt  4	[0.43 s]
+0.0.Tri: Trace Attempt  5	[0.43 s]
+0.0.Ht: Trace Attempt 1415	[219.73 s]
+0.0.Tri:    1.52" Simplification phase 1 complete
+0.0.Tri:    3.72" Simplification phase 2 complete
+0.0.AB: Trace Attempt 353	[4.07 s]
+0.0.Tri:    3.77" Simplification phase 3 complete
+   3.77" ---- Completed simplification thread ----
+   3.77" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    3.90" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1424	[223.75 s]
+0.0.Tri: Trace Attempt 7134	[5.57 s]
+0.0.AB: Trace Attempt 500	[8.28 s]
+0.0.Ht: Trace Attempt 1431	[227.87 s]
+0.0.Tri: Trace Attempt 16302	[9.80 s]
+0.0.AB: Trace Attempt 522	[12.31 s]
+0.0.Ht: Trace Attempt 1442	[232.20 s]
+0.0.Tri: Trace Attempt 26963	[13.80 s]
+0.0.AB: Trace Attempt 541	[15.61 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.01 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[16.01 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[15.82 s].
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri:   15.74" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.Tri:   15.87" ---- Launching abstraction thread ----
+0.0.Tri:   15.89" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   17.45" Simplification phase 1 complete
+0.0.Tri:   17.49" Simplification phase 2 complete
+0.0.Tri:   17.54" Simplification phase 3 complete
+  17.54" ---- Completed simplification thread ----
+  17.54" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   17.67" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1449	[236.31 s]
+0.0.AB: Trace Attempt 295	[4.15 s]
+0.0.Ht: Trace Attempt 1457	[240.33 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.00 s]
+0.0.Bm: Trace Attempt  3	[0.00 s]
+0.0.Bm: Trace Attempt  4	[0.00 s]
+0.0.Bm: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt 436	[8.20 s]
+0.0.Ht: Trace Attempt 1467	[244.42 s]
+0.0.Bm: Trace Attempt 248	[4.04 s]
+0.0.AB: Trace Attempt 495	[12.26 s]
+0.0.Ht: Trace Attempt 1475	[248.52 s]
+0.0.Tri: Trace Attempt 31838	[14.68 s]
+0.0.Bm: Trace Attempt 302	[8.06 s]
+0.0.AB: Trace Attempt 522	[15.79 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[16.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Tri: Trace Attempt 34925	[16.01 s]
+0.0.Tri: Per property time limit expired (16.00 s) [16.01 s]
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[16.01 s].
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   31.77" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.15 s]
+0.0.AB: Trace Attempt  2	[0.15 s]
+0.0.AB: Trace Attempt  3	[0.15 s]
+0.0.AB: Trace Attempt  4	[0.15 s]
+0.0.AB: Trace Attempt  5	[0.15 s]
+0.0.Tri:   31.89" ---- Launching abstraction thread ----
+0.0.Tri:   31.92" ---- Launching multi-phase simplification thread ----
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.71 s].
+0.0.AB: Morphing to Hts
+0.0.AB: Trace Attempt 195	[0.65 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.70 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Tri: Morphing to AM
+0.0.Tri: Trace Attempt 35033	[0.03 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  5	[0.03 s]
+0.0.Ht: Trace Attempt 1484	[252.63 s]
+0.0.Bm: Trace Attempt 321	[12.26 s]
+0.0.AM: Trace Attempt 374	[4.04 s]
+0.0.Bm: Trace Attempt 353	[16.61 s]
+0.0.Ht: Trace Attempt 1491	[262.76 s]
+0.0.Bm: Trace Attempt 389	[22.11 s]
+0.0.AM: Trace Attempt 416	[15.00 s]
+0.0.Ht: Trace Attempt 1500	[267.06 s]
+0.0.Bm: Trace Attempt 403	[28.37 s]
+0.0.Ht: Trace Attempt 1515	[271.09 s]
+0.0.Bm: Trace Attempt 451	[32.62 s]
+0.0.AM: Trace Attempt 768	[23.40 s]
+0.0.Ht: Trace Attempt 1528	[275.28 s]
+0.0.Bm: Trace Attempt 468	[37.28 s]
+0.0.Ht: Trace Attempt 1538	[279.30 s]
+0.0.AM: Trace Attempt 853	[30.70 s]
+0.0.Bm: Trace Attempt 503	[41.47 s]
+0.0.Hts: Trace Attempt 1481	[0.12 s]
+0.0.Hts: Per property time limit expired (32.00 s) [32.00 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[32.00 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[32.09 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.15 s]
+0.0.AM: Trace Attempt  2	[0.15 s]
+0.0.AM: Trace Attempt  3	[0.16 s]
+0.0.Ht: Trace Attempt 1547	[283.32 s]
+0.0.Bm: Trace Attempt 532	[45.49 s]
+0.0.Ht: Trace Attempt 1558	[287.54 s]
+0.0.AM: Trace Attempt 236	[5.20 s]
+0.0.Bm: Trace Attempt 535	[49.55 s]
+0.0.Ht: Trace Attempt 1570	[291.67 s]
+0.0.AM: Trace Attempt 393	[10.15 s]
+0.0.Bm: Trace Attempt 542	[54.34 s]
+0.0.AM: Trace Attempt 462	[15.46 s]
+0.0.Bm: Trace Attempt 563	[58.39 s]
+0.0.Ht: Trace Attempt 1575	[301.20 s]
+0.0.Bm: Trace Attempt 578	[62.51 s]
+0.0.AM: Trace Attempt 520	[21.14 s]
+0.0.Ht: Trace Attempt 1584	[305.34 s]
+0.0.Bm: Trace Attempt 597	[66.76 s]
+0.0.AM: Trace Attempt 703	[25.54 s]
+0.0.Ht: Trace Attempt 1597	[309.88 s]
+0.0.Ht: Trace Attempt 1608	[314.34 s]
+0.0.Hts: Trace Attempt 1581	[0.17 s]
+0.0.Hts: Per property time limit expired (32.00 s) [32.00 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[32.00 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[32.03 s].
+0.0.AM: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.16 s]
+0.0.AM: Trace Attempt  2	[0.16 s]
+0.0.AM: Trace Attempt  3	[0.16 s]
+0.0.Bm: Trace Attempt 614	[75.12 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[2.97 s].
+0.0.Hts: Morphing to K
+0.0.Hts: Trace Attempt 1609	[0.17 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.AM: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[2.85 s].
+0.0.AM: Morphing to B
+0.0.AM: Trace Attempt 228	[2.83 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.K: Trace Attempt 170	[0.01 s]
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 1616	[318.52 s]
+0.0.K: Trace Attempt  1	[0.94 s]
+0.0.K: Trace Attempt  2	[0.94 s]
+0.0.K: Trace Attempt  3	[0.94 s]
+0.0.K: Trace Attempt  4	[0.94 s]
+0.0.K: Trace Attempt  5	[0.94 s]
+0.0.Bm: Trace Attempt 616	[79.35 s]
+0.0.B: Trace Attempt 282	[4.02 s]
+0.0.Ht: Trace Attempt 1625	[323.20 s]
+0.0.K: Trace Attempt 265	[6.26 s]
+0.0.B: Trace Attempt 343	[8.39 s]
+0.0.Bm: Trace Attempt 618	[85.48 s]
+0.0.Ht: Trace Attempt 1632	[327.61 s]
+0.0.K: Trace Attempt 357	[10.31 s]
+0.0.B: Trace Attempt 364	[12.68 s]
+0.0.Ht: Trace Attempt 1641	[331.76 s]
+0.0.K: Trace Attempt 367	[14.79 s]
+0.0.Bm: Trace Attempt 627	[91.82 s]
+0.0.B: Trace Attempt 378	[17.33 s]
+0.0.Ht: Trace Attempt 1651	[335.90 s]
+0.0.Bm: Trace Attempt 655	[95.83 s]
+0.0.K: Trace Attempt 391	[19.78 s]
+0.0.B: Trace Attempt 387	[21.36 s]
+0.0.K: Trace Attempt 401	[23.81 s]
+0.0.Bm: Trace Attempt 658	[101.13 s]
+0.0.B: Trace Attempt 399	[25.47 s]
+0.0.Ht: Trace Attempt 1653	[347.51 s]
+0.0.B: Trace Attempt 439	[29.77 s]
+0.0.K: Trace Attempt 421	[30.31 s]
+0.0.Bm: Trace Attempt 663	[109.05 s]
+0.0.Ht: Trace Attempt 1660	[351.79 s]
+0.0.B: Trace Attempt 442	[34.71 s]
+0.0.K: Trace Attempt 426	[34.99 s]
+0.0.Ht: Trace Attempt 1669	[355.95 s]
+0.0.Bm: Trace Attempt 665	[117.29 s]
+0.0.B: Trace Attempt 458	[40.77 s]
+0.0.K: Trace Attempt 534	[41.71 s]
+0.0.Ht: Trace Attempt 1681	[360.45 s]
+0.0.B: Trace Attempt 470	[45.24 s]
+0.0.Ht: Trace Attempt 1694	[364.54 s]
+0.0.K: Trace Attempt 536	[46.87 s]
+0.0.Bm: Trace Attempt 669	[123.74 s]
+0.0.B: Trace Attempt 473	[49.91 s]
+0.0.Ht: Trace Attempt 1701	[368.77 s]
+0.0.Bm: Trace Attempt 670	[127.79 s]
+0.0.K: Trace Attempt 538	[54.56 s]
+0.0.Ht: Trace Attempt 1710	[372.82 s]
+0.0.B: Trace Attempt 480	[55.60 s]
+0.0.Bm: Trace Attempt 672	[132.92 s]
+0.0.K: Trace Attempt 555	[58.84 s]
+0.0.Ht: Trace Attempt 1722	[377.01 s]
+0.0.B: Trace Attempt 486	[60.02 s]
+0.0.Bm: Trace Attempt 674	[138.39 s]
+0.0.K: Trace Attempt 556	[63.09 s]
+0.0.K: Per property time limit expired (64.00 s) [64.01 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[64.01 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt 488	[63.70 s]
+0.0.B: Per property time limit expired (63.99 s) [64.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[64.00 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 261	[4.12 s]
+0.0.Ht: Trace Attempt 1727	[386.31 s]
+0.0.B: Trace Attempt 302	[4.63 s]
+0.0.Bm: Trace Attempt 700	[146.46 s]
+0.0.K: Trace Attempt 303	[8.15 s]
+0.0.B: Trace Attempt 343	[8.80 s]
+0.0.Ht: Trace Attempt 1735	[391.05 s]
+0.0.K: Trace Attempt 330	[12.39 s]
+0.0.Bm: Trace Attempt 702	[153.68 s]
+0.0.B: Trace Attempt 363	[13.00 s]
+0.0.Ht: Trace Attempt 1745	[395.17 s]
+0.0.K: Trace Attempt 343	[16.76 s]
+0.0.Ht: Trace Attempt 1749	[399.25 s]
+0.0.B: Trace Attempt 381	[17.29 s]
+0.0.Bm: Trace Attempt 707	[159.83 s]
+0.0.Ht: Trace Attempt 1765	[403.26 s]
+0.0.B: Trace Attempt 403	[21.67 s]
+0.0.K: Trace Attempt 358	[21.96 s]
+0.0.Bm: Trace Attempt 710	[164.57 s]
+0.0.Ht: Trace Attempt 1774	[407.32 s]
+0.0.B: Trace Attempt 411	[25.89 s]
+0.0.K: Trace Attempt 427	[26.30 s]
+0.0.Bm: Trace Attempt 711	[168.94 s]
+0.0.Ht: Trace Attempt 1781	[411.66 s]
+0.0.K: Trace Attempt 436	[30.46 s]
+0.0.B: Trace Attempt 416	[30.68 s]
+0.0.Bm: Trace Attempt 713	[174.40 s]
+0.0.Ht: Trace Attempt 1790	[416.13 s]
+0.0.B: Trace Attempt 431	[34.69 s]
+0.0.K: Trace Attempt 445	[34.95 s]
+0.0.Ht: Trace Attempt 1797	[420.27 s]
+0.0.Bm: Trace Attempt 715	[179.04 s]
+0.0.K: Trace Attempt 460	[39.40 s]
+0.0.B: Trace Attempt 438	[39.85 s]
+0.0.Bm: Trace Attempt 716	[183.17 s]
+0.0.Ht: Trace Attempt 1804	[424.42 s]
+0.0.K: Trace Attempt 469	[43.40 s]
+0.0.B: Trace Attempt 448	[43.93 s]
+0.0.Bm: Trace Attempt 717	[187.75 s]
+0.0.K: Trace Attempt 474	[48.36 s]
+0.0.B: Trace Attempt 463	[48.93 s]
+0.0.Bm: Trace Attempt 718	[192.69 s]
+0.0.K: Trace Attempt 480	[52.80 s]
+0.0.B: Trace Attempt 480	[52.93 s]
+0.0.Ht: Trace Attempt 1808	[435.72 s]
+0.0.Bm: Trace Attempt 719	[196.83 s]
+0.0.B: Trace Attempt 484	[57.57 s]
+0.0.K: Trace Attempt 485	[57.84 s]
+0.0.Ht: Trace Attempt 1816	[439.87 s]
+0.0.Bm: Trace Attempt 720	[201.50 s]
+0.0.K: Trace Attempt 491	[62.25 s]
+0.0.Ht: Trace Attempt 1823	[444.50 s]
+0.0.B: Trace Attempt 491	[62.88 s]
+0.0.K: Trace Attempt 492	[63.15 s]
+0.0.K: Per property time limit expired (64.00 s) [64.00 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[64.00 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 15	[0.00 s]
+0.0.K: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.00 s]
+0.0.K: Trace Attempt  4	[0.00 s]
+0.0.K: Trace Attempt  5	[0.00 s]
+0.0.B: Per property time limit expired (64.00 s) [64.01 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[64.01 s].
+0.0.B: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Bm: Trace Attempt 723	[206.17 s]
+0.0.B: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.87 s].
+0.0.B: Morphing to D
+0.0.B: Trace Attempt 244	[1.74 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.88 s].
+0.0.K: Morphing to I
+0.0.K: Trace Attempt 222	[1.87 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  9	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt 23	[0.03 s]
+0.0.D: Per property time limit expired (1.00 s) [1.00 s]
+0.0.D: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[1.00 s].
+0.0.I: Trace Attempt 55	[0.76 s]
+0.0.I: Per property time limit expired (1.00 s) [1.00 s]
+0.0.D: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.I: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[1.00 s].
+0.0.I: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  7	[0.00 s]
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 1836	[449.39 s]
+0.0.D: Trace Attempt 55	[0.63 s]
+0.0.D: Per property time limit expired (1.00 s) [1.00 s]
+0.0.D: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.00 s].
+0.0.D: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.I: Trace Attempt 56	[0.96 s]
+0.0.I: Per property time limit expired (1.00 s) [1.00 s]
+0.0.I: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.00 s].
+0.0.I: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  7	[0.00 s]
+0.0.I: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt 55	[0.00 s]
+0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt  1	[1.71 s]
+0.0.I: Trace Attempt  2	[1.71 s]
+0.0.I: Trace Attempt  3	[1.71 s]
+0.0.I: Trace Attempt  5	[1.72 s]
+0.0.Ht: Trace Attempt 1846	[453.45 s]
+0.0.D: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[4.65 s].
+0.0.D: Morphing to Ncustom1
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.I: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[4.65 s].
+0.0.I: Morphing to AB
+0.0.I: Trace Attempt 72	[4.08 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.Ncustom1: Trace Attempt 128	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Bm: Trace Attempt 725	[213.80 s]
+0.0.Ncustom1: Trace Attempt  1	[0.81 s]
+0.0.Ncustom1: Trace Attempt  2	[0.81 s]
+0.0.Ncustom1: Trace Attempt  3	[0.81 s]
+0.0.Ncustom1: Trace Attempt  5	[0.81 s]
+0.0.AB: Trace Attempt 213	[1.93 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Ncustom1: Trace Attempt 317	[1.94 s]
+0.0.Ncustom1: Per property time limit expired (2.00 s) [2.01 s]
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[2.01 s].
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 12	[0.00 s]
+0.0.Ncustom1: Trace Attempt  1	[0.01 s]
+0.0.Ncustom1: Trace Attempt  2	[0.01 s]
+0.0.Ncustom1: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Ht: Trace Attempt 1856	[457.67 s]
+0.0.AB: Trace Attempt 261	[1.98 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[2.01 s].
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt  1	[0.14 s]
+0.0.Ncustom1: Trace Attempt  2	[0.14 s]
+0.0.Ncustom1: Trace Attempt  3	[0.14 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.83 s].
+0.0.AB: Morphing to K
+0.0.AB: Trace Attempt 205	[0.83 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.82 s].
+0.0.Ncustom1: Morphing to AMcustom2
+0.0.Ncustom1: Trace Attempt 154	[0.74 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.K: Trace Attempt 170	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.03 s]
+0.0.AMcustom2: Trace Attempt  2	[0.03 s]
+0.0.AMcustom2: Trace Attempt  3	[0.03 s]
+0.0.AMcustom2: Trace Attempt  5	[0.03 s]
+0.0.K: Trace Attempt  1	[0.92 s]
+0.0.K: Trace Attempt  2	[0.92 s]
+0.0.K: Trace Attempt  3	[0.92 s]
+0.0.K: Trace Attempt  4	[0.92 s]
+0.0.K: Trace Attempt  5	[0.92 s]
+0.0.Ht: Trace Attempt 1863	[461.92 s]
+0.0.Bm: Trace Attempt 727	[221.32 s]
+0.0.K: Trace Attempt 227	[3.84 s]
+0.0.K: Per property time limit expired (4.00 s) [4.00 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[4.00 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt 281	[3.05 s]
+0.0.AMcustom2: Per property time limit expired (4.00 s) [4.01 s]
+0.0.AMcustom2: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[4.02 s].
+0.0.AMcustom2: Starting proof for property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.K: Trace Attempt 1344	[0.04 s]
+0.0.AMcustom2: Trace Attempt  1	[0.15 s]
+0.0.AMcustom2: Trace Attempt  2	[0.15 s]
+0.0.AMcustom2: Trace Attempt  3	[0.15 s]
+0.0.Ht: Trace Attempt 1871	[465.93 s]
+0.0.K: Per property time limit expired (4.00 s) [4.02 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[4.02 s].
+0.0.K: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt 390	[3.88 s]
+0.0.AMcustom2: Per property time limit expired (4.00 s) [4.02 s]
+0.0.AMcustom2: Stopped processing property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1"	[4.02 s].
+0.0.AMcustom2: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.01 s]
+0.0.AMcustom2: Trace Attempt  2	[0.01 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.K: Trace Attempt  1	[0.11 s]
+0.0.K: Trace Attempt  2	[0.11 s]
+0.0.K: Trace Attempt  3	[0.11 s]
+0.0.K: Trace Attempt  4	[0.11 s]
+0.0.K: Trace Attempt  5	[0.11 s]
+0.0.AMcustom2: Trace Attempt  1	[0.16 s]
+0.0.AMcustom2: Trace Attempt  2	[0.16 s]
+0.0.AMcustom2: Trace Attempt  3	[0.16 s]
+0.0.K: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.24 s].
+0.0.K: Morphing to AD
+0.0.K: Trace Attempt 215	[1.24 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AD: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.23 s].
+0.0.AMcustom2: Morphing to M
+0.0.AMcustom2: Trace Attempt 149	[0.99 s]
+0.0.AMcustom2: All properties determined. [0.00 s]
+0.0.AMcustom2: Exited with Success (@ 0.00 s)
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.M: Starting proof for property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.M: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.05 s]
+0.0.AD: Trace Attempt  2	[0.05 s]
+0.0.AD: Trace Attempt  3	[0.05 s]
+0.0.Ht: Trace Attempt 1880	[470.49 s]
+0.0.Bm: Trace Attempt 729	[229.91 s]
+0.0.M: Trace Attempt 375	[4.04 s]
+0.0.Ht: Trace Attempt 1892	[474.69 s]
+0.0.AD: Trace Attempt 60	[1.40 s]
+0.0.AD: Per property time limit expired (8.00 s) [8.00 s]
+0.0.AD: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[8.00 s].
+0.0.AD: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.M: Stopped processing property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1"	[8.04 s].
+0.0.M: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  1	[1.86 s]
+0.0.AD: Trace Attempt  2	[1.86 s]
+0.0.AD: Trace Attempt  3	[1.86 s]
+0.0.AD: Trace Attempt  5	[1.87 s]
+0.0.Bm: Trace Attempt 731	[239.03 s]
+0.0.M: Trace Attempt 199	[4.17 s]
+0.0.AD: Trace Attempt 62	[2.35 s]
+0.0.AD: Per property time limit expired (8.00 s) [8.00 s]
+0.0.AD: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[8.00 s].
+0.0.AD: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.M: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[7.99 s].
+0.0.M: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.Bm: Trace Attempt 732	[244.37 s]
+0.0.AD: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.81 s].
+0.0.AD: Morphing to AB
+0.0.AD: Trace Attempt 58	[1.81 s]
+0.0.AD: All properties determined. [0.00 s]
+0.0.AD: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.M: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.79 s].
+0.0.M: Morphing to Hts
+0.0.M: Trace Attempt 196	[1.52 s]
+0.0.M: All properties determined. [0.00 s]
+0.0.M: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.Ht: Trace Attempt 1899	[486.46 s]
+0.0.AB: Trace Attempt 353	[4.04 s]
+0.0.Ht: Trace Attempt 1909	[490.59 s]
+0.0.Hts: Trace Attempt 31837	[6.16 s]
+0.0.Bm: Trace Attempt 735	[252.15 s]
+0.0.AB: Trace Attempt 500	[8.25 s]
+0.0.Ht: Trace Attempt 1915	[494.90 s]
+0.0.AB: Trace Attempt 524	[12.37 s]
+0.0.Bm: Trace Attempt 736	[257.88 s]
+0.0.Ht: Trace Attempt 1920	[499.43 s]
+0.0.Hts: Per property time limit expired (15.99 s) [15.99 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[15.99 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt 543	[15.98 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.01 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[16.01 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.Hts: Trace Attempt  1	[1.55 s]
+0.0.Hts: Trace Attempt  2	[1.55 s]
+0.0.Hts: Trace Attempt  3	[1.55 s]
+0.0.Hts: Trace Attempt  4	[1.55 s]
+0.0.Hts: Trace Attempt  5	[1.55 s]
+0.0.Bm: Trace Attempt 737	[263.19 s]
+0.0.Ht: Trace Attempt 1928	[504.50 s]
+0.0.AB: Trace Attempt 310	[4.18 s]
+0.0.Ht: Trace Attempt 1937	[508.75 s]
+0.0.AB: Trace Attempt 366	[8.24 s]
+0.0.Ht: Trace Attempt 1948	[513.06 s]
+0.0.AB: Trace Attempt 417	[12.26 s]
+0.0.Bm: Trace Attempt 740	[274.24 s]
+0.0.Ht: Trace Attempt 1953	[517.08 s]
+0.0.AB: Trace Attempt 455	[15.96 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[16.00 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Hts: Trace Attempt 1927	[1.74 s]
+0.0.Hts: Per property time limit expired (16.00 s) [16.14 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[16.14 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.73 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[2.43 s].
+0.0.Hts: Morphing to Tri
+0.0.Hts: Trace Attempt 1954	[0.21 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.13" ---- Launching abstraction thread ----
+0.0.Tri:    0.15" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.24 s]
+0.0.Tri: Trace Attempt  3	[0.24 s]
+0.0.Tri: Trace Attempt  4	[0.24 s]
+0.0.Tri: Trace Attempt  5	[0.24 s]
+0.0.Ht: Trace Attempt 1958	[521.40 s]
+0.0.Tri:    1.41" Simplification phase 1 complete
+0.0.Tri:    1.46" Simplification phase 2 complete
+0.0.Tri:    1.51" Simplification phase 3 complete
+   1.51" ---- Completed simplification thread ----
+   1.51" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    1.64" ---- Restarting abstraction thread on simplified netlist ----
+0.0.AB: Trace Attempt 331	[4.09 s]
+0.0.Tri: Trace Attempt 7431	[4.24 s]
+0.0.Ht: Trace Attempt 1966	[525.40 s]
+0.0.Bm: Trace Attempt 743	[284.38 s]
+0.0.AB: Trace Attempt 392	[8.10 s]
+0.0.Tri: Trace Attempt 15049	[8.24 s]
+0.0.Bm: Trace Attempt 744	[288.65 s]
+0.0.Ht: Trace Attempt 1972	[530.42 s]
+0.0.AB: Trace Attempt 445	[12.11 s]
+0.0.Tri: Trace Attempt 22686	[12.53 s]
+0.0.Ht: Trace Attempt 1977	[534.54 s]
+0.0.Bm: Trace Attempt 745	[295.02 s]
+0.0.AB: Trace Attempt 508	[16.14 s]
+0.0.Tri: Trace Attempt 34370	[16.54 s]
+0.0.AB: Trace Attempt 545	[20.21 s]
+0.0.Tri: Trace Attempt 44617	[20.54 s]
+0.0.Bm: Trace Attempt 746	[302.40 s]
+0.0.AB: Trace Attempt 591	[24.28 s]
+0.0.Tri: Trace Attempt 50271	[24.70 s]
+0.0.Ht: Trace Attempt 1980	[546.03 s]
+0.0.Bm: Trace Attempt 748	[306.61 s]
+0.0.AB: Trace Attempt 631	[28.32 s]
+0.0.Tri: Trace Attempt 57013	[28.74 s]
+0.0.Ht: Trace Attempt 1986	[550.06 s]
+0.0.AB: Trace Attempt 684	[31.97 s]
+0.0.AB: Per property time limit expired (32.00 s) [32.01 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[32.01 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Trace Attempt 62417	[30.27 s]
+0.0.Tri: Per property time limit expired (31.17 s) [31.27 s]
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[31.27 s].
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   31.23" ---- Launching main thread ----
+0.0.Tri:   31.37" ---- Launching abstraction thread ----
+0.0.Tri:   31.39" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.21 s]
+0.0.Tri: Trace Attempt  3	[0.21 s]
+0.0.Tri: Trace Attempt  4	[0.21 s]
+0.0.Tri: Trace Attempt  5	[0.21 s]
+0.0.Tri:   32.63" Simplification phase 1 complete
+0.0.Tri:   32.68" Simplification phase 2 complete
+0.0.Tri:   32.73" Simplification phase 3 complete
+  32.73" ---- Completed simplification thread ----
+  32.73" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   32.86" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1993	[554.36 s]
+0.0.AB: Trace Attempt 281	[4.06 s]
+0.0.Tri: Trace Attempt 9229	[5.44 s]
+0.0.Bm: Trace Attempt 750	[316.59 s]
+0.0.Ht: Trace Attempt 2001	[558.48 s]
+0.0.AB: Trace Attempt 338	[8.08 s]
+0.0.Ht: Trace Attempt 2008	[562.85 s]
+0.0.Tri: Trace Attempt 18599	[10.94 s]
+0.0.Bm: Trace Attempt 751	[322.29 s]
+0.0.AB: Trace Attempt 388	[12.21 s]
+0.0.Ht: Trace Attempt 2012	[567.19 s]
+0.0.Tri: Trace Attempt 30741	[14.95 s]
+0.0.AB: Trace Attempt 430	[16.21 s]
+0.0.Bm: Trace Attempt 752	[328.38 s]
+0.0.Tri: Trace Attempt 36871	[18.96 s]
+0.0.AB: Trace Attempt 464	[20.33 s]
+0.0.Ht: Trace Attempt 2018	[572.73 s]
+0.0.Tri: Trace Attempt 44005	[23.40 s]
+0.0.AB: Trace Attempt 502	[24.41 s]
+0.0.Ht: Trace Attempt 2024	[577.32 s]
+0.0.Tri: Trace Attempt 51380	[28.46 s]
+0.0.AB: Trace Attempt 538	[28.79 s]
+0.0.Ht: Trace Attempt 2029	[581.71 s]
+0.0.Bm: Trace Attempt 754	[340.73 s]
+0.0.AB: Trace Attempt 565	[32.00 s]
+0.0.AB: Per property time limit expired (32.00 s) [32.01 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[32.01 s].
+0.0.AB: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[31.97 s].
+0.0.Tri: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   63.23" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.Tri:   63.37" ---- Launching abstraction thread ----
+0.0.Tri:   63.39" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.24 s]
+0.0.Tri: Trace Attempt  3	[0.24 s]
+0.0.Tri: Trace Attempt  4	[0.24 s]
+0.0.Tri: Trace Attempt  5	[0.24 s]
+0.0.AB: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.78 s].
+0.0.AB: Morphing to Tricustom6
+0.0.AB: Trace Attempt 204	[0.77 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.Tri: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.67 s].
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Morphing to Hts
+0.0.Tri: Trace Attempt 1611	[0.67 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Tricustom6:    0.14" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.17" ---- Launching multi-phase simplification thread ----
+0.0.Ht: Trace Attempt 2031	[585.84 s]
+0.0.Tricustom6:    1.00" Simplification phase 1 complete
+0.0.Tricustom6:    1.05" Simplification phase 2 complete
+0.0.Tricustom6:    2.42" Simplification phase 3 complete
+   2.42" ---- Completed simplification thread ----
+0.0.Tricustom6:    2.42" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:    2.55" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 755	[346.40 s]
+0.0.Hts: Trace Attempt 49698	[4.01 s]
+0.0.Tricustom6: Trace Attempt 39840	[5.23 s]
+0.0.Ht: Trace Attempt 2037	[590.24 s]
+0.0.Bm: Trace Attempt 756	[351.16 s]
+0.0.Tricustom6: Trace Attempt 84888	[9.23 s]
+0.0.Ht: Trace Attempt 2045	[594.95 s]
+0.0.Hts: Trace Attempt 63265	[12.34 s]
+0.0.Bm: Trace Attempt 757	[357.45 s]
+0.0.Ht: Trace Attempt 2051	[599.14 s]
+0.0.Ht: Trace Attempt 2056	[604.21 s]
+0.0.Ht: Trace Attempt 2061	[608.41 s]
+0.0.Bm: Trace Attempt 759	[368.54 s]
+0.0.Tricustom6: Trace Attempt 131076	[12.80 s]
+0.0.Tricustom6: A trace with 131075 cycles was found. There may exist shorter traces (as short as 131073 cycles) [26.39 s]
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1" was covered in 131075 cycles in 31.48 s.
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.map_sel1_cat_from_in1:precondition1" was covered in 131073 cycles in 31.48 s by the incidental trace "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1".
+0: ProofGrid usable level: 4
+0.0.Bm: Trace Attempt 760	[374.60 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[31.50 s].
+0.0.Hts: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel1_stable:precondition1"	[31.48 s].
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   31.24" ---- Launching main thread ----
+0.0.Tricustom6:   31.53" ---- Launching abstraction thread ----
+0.0.Tricustom6:   31.55" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.50 s].
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   31.99" ---- Launching main thread ----
+0.0.Tricustom6:   32.16" ---- Launching abstraction thread ----
+0.0.Tricustom6:   32.18" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:   33.07" Simplification phase 1 complete
+0.0.Tricustom6:   33.13" Simplification phase 2 complete
+0.0.Tricustom6:   33.52" Simplification phase 3 complete
+  33.52" ---- Completed simplification thread ----
+  33.52" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   33.66" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 2063	[619.83 s]
+0.0.Hts: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[3.62 s].
+0.0.Hts: Morphing to Ncustom1
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 15	[0.00 s]
+0.0.Ncustom1: Trace Attempt  1	[0.00 s]
+0.0.Ncustom1: Trace Attempt  2	[0.00 s]
+0.0.Ncustom1: Trace Attempt  3	[0.00 s]
+0.0.Tricustom6: Trace Attempt 31632	[4.62 s]
+0.0.Bm: Trace Attempt 761	[380.44 s]
+0.0.Tricustom6: Trace Attempt 87584	[8.62 s]
+0.0.Bm: Trace Attempt 881	[384.45 s]
+0.0.Ncustom1: Trace Attempt 334	[6.31 s]
+0.0.Tricustom6: Trace Attempt 119196	[12.62 s]
+0.0.Bm: Trace Attempt 933	[388.52 s]
+0.0.Ncustom1: Trace Attempt 528	[10.32 s]
+0.0.Tricustom6: Trace Attempt 159708	[16.62 s]
+0.0.Bm: Trace Attempt 974	[392.55 s]
+0.0.Ncustom1: Trace Attempt 668	[14.35 s]
+0.0.Tricustom6: Trace Attempt 207916	[20.62 s]
+0.0.Bm: Trace Attempt 1003	[397.73 s]
+0.0.Ncustom1: Trace Attempt 708	[19.87 s]
+0.0.Bm: Trace Attempt 1025	[401.75 s]
+0.0.Ncustom1: Trace Attempt 772	[24.28 s]
+0.0.Tricustom6: Trace Attempt 252412	[27.53 s]
+0.0.Bm: Trace Attempt 1043	[405.82 s]
+0.0.Ncustom1: Trace Attempt 991	[31.73 s]
+0.0.Bm: Trace Attempt 1049	[412.03 s]
+0.0.Ht: Trace Attempt 2554	[657.23 s]
+0.0.Bm: Trace Attempt 1073	[416.11 s]
+0.0.Ncustom1: Trace Attempt 1086	[37.92 s]
+0.0.Bm: Trace Attempt 1093	[420.17 s]
+0.0.Ncustom1: Trace Attempt 1145	[43.25 s]
+0.0.Bm: Trace Attempt 1113	[425.62 s]
+0.0.Ncustom1: Trace Attempt 1257	[47.97 s]
+0.0.Bm: Trace Attempt 1116	[430.02 s]
+0.0.Ht: Trace Attempt 2555	[672.14 s]
+0.0.Ncustom1: Trace Attempt 1338	[53.94 s]
+0.0.Bm: Trace Attempt 1121	[434.19 s]
+0.0.Ht: Trace Attempt 2630	[676.20 s]
+0.0.Ncustom1: Trace Attempt 1476	[57.96 s]
+0.0.Ht: Trace Attempt 2683	[680.22 s]
+0.0.Bm: Trace Attempt 1129	[439.34 s]
+0.0.Tricustom6: Trace Attempt 262148	[28.03 s]
+0.0.Tricustom6: Per property time limit expired (64.00 s) [64.03 s]
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[64.03 s].
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   95.96" ---- Launching main thread ----
+0.0.Tricustom6:   96.11" ---- Launching abstraction thread ----
+0.0.Ncustom1: Trace Attempt 1586	[60.87 s]
+0.0.Ncustom1: Per property time limit expired (60.88 s) [61.08 s]
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1"	[61.08 s].
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tricustom6:   96.14" ---- Launching multi-phase simplification thread ----
+0.0.Ncustom1: Trace Attempt 65	[0.01 s]
+0.0.Ncustom1: Trace Attempt  1	[0.14 s]
+0.0.Ncustom1: Trace Attempt  2	[0.14 s]
+0.0.Ncustom1: Trace Attempt  3	[0.14 s]
+0.0.Tricustom6:   97.68" Simplification phase 1 complete
+0.0.Tricustom6:   97.73" Simplification phase 2 complete
+0.0.Tricustom6:   98.66" Simplification phase 3 complete
+0.0.Tricustom6:   98.66" ---- Completed simplification thread ----
+0.0.Tricustom6:   98.71" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   98.85" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 30320	[4.05 s]
+0.0.Bm: Trace Attempt 1131	[443.84 s]
+0.0.Ncustom1: Trace Attempt 199	[4.54 s]
+0.0.Ht: Trace Attempt 3056	[688.23 s]
+0.0.Bm: Trace Attempt 1134	[448.09 s]
+0.0.Tricustom6: Trace Attempt 66180	[8.79 s]
+0.0.Ht: Trace Attempt 5924	[692.23 s]
+0.0.Tricustom6: Trace Attempt 111784	[12.79 s]
+0.0.Bm: Trace Attempt 1136	[452.80 s]
+0.0.Ncustom1: Trace Attempt 291	[13.66 s]
+0.0.Ht: Trace Attempt 15653	[696.23 s]
+0.0.Tricustom6: Trace Attempt 128220	[16.81 s]
+0.0.Bm: Trace Attempt 1138	[458.46 s]
+0.0.Ht: Trace Attempt 18545	[700.23 s]
+0.0.Ncustom1: Trace Attempt 340	[20.36 s]
+0.0.Tricustom6: Trace Attempt 161436	[20.90 s]
+0.0.Bm: Trace Attempt 1140	[462.95 s]
+0.0.Ht: Trace Attempt 27948	[704.23 s]
+0.0.Tricustom6: Trace Attempt 171924	[24.90 s]
+0.0.Ncustom1: Trace Attempt 406	[25.15 s]
+0.0.Ht: Trace Attempt 34901	[708.23 s]
+0.0.Bm: Trace Attempt 1142	[468.27 s]
+0.0.Tricustom6: Trace Attempt 213300	[29.59 s]
+0.0.Ncustom1: Trace Attempt 537	[30.17 s]
+0.0.Tricustom6: Trace Attempt 258600	[33.61 s]
+0.0.Bm: Trace Attempt 1154	[474.13 s]
+0.0.Ncustom1: Trace Attempt 614	[35.92 s]
+0.0.Bm: Trace Attempt 1161	[481.70 s]
+0.0.Ncustom1: Trace Attempt 683	[45.52 s]
+0.0.Bm: Trace Attempt 1163	[485.92 s]
+0.0.Bm: Trace Attempt 1165	[491.79 s]
+0.0.Bm: Trace Attempt 1167	[497.22 s]
+0.0.Ncustom1: Trace Attempt 747	[59.85 s]
+0.0.Bm: Trace Attempt 1169	[502.33 s]
+0.0.Tricustom6: Trace Attempt 262148	[33.91 s]
+0.0.Tricustom6: Per property time limit expired (64.00 s) [64.05 s]
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[64.05 s].
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  160.02" ---- Launching main thread ----
+0.0.Tricustom6:  160.15" ---- Launching abstraction thread ----
+0.0.Tricustom6:  160.18" ---- Launching multi-phase simplification thread ----
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[64.09 s].
+0.0.Ncustom1: Starting proof for property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[0.00 s].
+0.0.Ncustom1: Trace Attempt  1	[0.13 s]
+0.0.Ncustom1: Trace Attempt  2	[0.14 s]
+0.0.Ncustom1: Trace Attempt  3	[0.14 s]
+0.0.Tricustom6:  161.03" Simplification phase 1 complete
+0.0.Tricustom6:  161.08" Simplification phase 2 complete
+0.0.Tricustom6:  161.14" Simplification phase 3 complete
+ 161.14" ---- Completed simplification thread ----
+ 161.14" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  161.27" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 36065	[746.35 s]
+0.0.Ncustom1: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.21 s].
+0.0.Ncustom1: Morphing to D
+0.0.Ncustom1: Trace Attempt 172	[1.17 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1"	[1.45 s].
+0.0.Tricustom6: Starting proof for property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  161.47" ---- Launching main thread ----
+0.0.Tricustom6:  161.60" ---- Launching abstraction thread ----
+0.0.Tricustom6:  161.62" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:  162.51" Simplification phase 1 complete
+0.0.Tricustom6:  162.56" Simplification phase 2 complete
+0.0.Tricustom6:  162.79" Simplification phase 3 complete
+ 162.79" ---- Completed simplification thread ----
+ 162.79" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  162.92" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 1171	[508.87 s]
+0.0.Tricustom6: Trace Attempt 23560	[4.05 s]
+0.0.Tricustom6: Trace Attempt 94180	[8.05 s]
+0.0.Bm: Trace Attempt 1173	[515.03 s]
+0.0.Tricustom6: Trace Attempt 155908	[12.13 s]
+0.0.Bm: Trace Attempt 1175	[521.25 s]
+0.0.Tricustom6: Trace Attempt 224104	[16.13 s]
+0.0.Bm: Trace Attempt 1177	[527.00 s]
+0.0.Tricustom6: Trace Attempt 254236	[23.32 s]
+0.0.Bm: Trace Attempt 1179	[532.24 s]
+0.0.Tricustom6: Trace Attempt 295296	[27.32 s]
+0.0.Tricustom6: Trace Attempt 337472	[31.62 s]
+0.0.Bm: Trace Attempt 1181	[538.05 s]
+0.0.Bm: Trace Attempt 1184	[542.57 s]
+0.0.D: Trace Attempt 136	[37.89 s]
+0.0.Bm: Trace Attempt 1187	[547.11 s]
+0.0.Bm: Trace Attempt 1189	[552.72 s]
+0.0.Bm: Trace Attempt 1191	[562.47 s]
+0.0.Bm: Trace Attempt 1193	[569.15 s]
+0.0.Bm: Trace Attempt 1195	[576.23 s]
+0.0.Bm: Trace Attempt 1197	[583.32 s]
+0.0.Bm: Trace Attempt 1199	[590.40 s]
+0.0.Bm: Trace Attempt 1201	[596.23 s]
+0.0.Bm: Trace Attempt 1203	[601.30 s]
+0.0.Bm: Trace Attempt 1205	[607.35 s]
+0.0.Bm: Trace Attempt 1206	[613.19 s]
+0.0.Bm: Trace Attempt 1208	[617.92 s]
+0.0.Bm: Trace Attempt 1210	[623.47 s]
+0.0.D: Requesting engine job to stop
+0.0.Tricustom6: Requesting engine job to stop
+0.0.Ht: Requesting engine job to terminate
+0.0.Bm: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [878.29 s]
+0.0.Tricustom6: Trace Attempt 393220	[35.04 s]
+0.0.Tricustom6: A trace with 393219 cycles was found. There may exist shorter traces (as short as 393217 cycles) [108.39 s]
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1" was covered in 393219 cycles in 132.66 s.
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.map_sel2_cat_from_in2:precondition1" was covered in 262145 cycles in 132.66 s by the incidental trace "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1".
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.map_sel3_cat_from_in3:precondition1" was covered in 393217 cycles in 132.66 s by the incidental trace "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1".
+INFO (IPF047): 0.0.Tricustom6: The cover property "Control.auto_sva_inst.stable_catodo_when_sel2_stable:precondition1" was covered in 262147 cycles in 132.66 s by the incidental trace "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1".
+0: ProofGrid usable level: 0
+0.0.Tricustom6: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[132.66 s].
+0.0.Bm: Trace Attempt 1212	[629.04 s]
+0.0.Bm: Trace Attempt 1214	[635.18 s]
+0.0.D: Per property time limit expired (127.99 s) [128.00 s]
+0.0.D: Stopped processing property "Control.auto_sva_inst.stable_catodo_when_sel3_stable:precondition1"	[132.70 s].
+0.0.D: All properties determined. [131.77 s]
+0.0.Tricustom6: All properties determined. [293.30 s]
+0.0.Tricustom6: Exited with Success (@ 878.35 s)
+0.0.Bm: Trace Attempt 1215	[636.05 s]
+0.0.Bm: All properties determined. [637.05 s]
+0.0.D: Exited with Success (@ 880.10 s)
+0.0.Bm: Exited with Success (@ 880.10 s)
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Trace Attempt 36325	[746.64 s]
+0.0.Ht: All properties determined. [880.04 s]
+0.0.Ht: Exited with Success (@ 880.21 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.99 %)
+--------------------------------------------------------------
+     engines started                               :    17
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Ht        0.06      878.23        0.00       99.99 %
+     Bm        0.05      877.95        0.00       99.99 %
+      D        0.08      874.01        0.00       99.99 %
+    Tricustom6        0.05      878.17        0.00       99.99 %
+    all        0.06      877.09        0.00       99.99 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.24     3508.36        0.00
+
+    Data read    : 90.47 MiB
+    Data written : 12.26 MiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 21
+                 assertions                   : 12
+                  - proven                    : 11 (91.6667%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 1 (8.33333%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 9
+                  - unreachable               : 1 (11.1111%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 8 (88.8889%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Collect CEX details ----
+[<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/cex_details.txt
+[<embedded>] % set cex_props {}
+[<embedded>] % catch { set cex_props [get_property_list -include {status cex}] }
+0
+[<embedded>] % set ar_cex_props {}
+[<embedded>] % catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_cex [open $CEX_TXT "w"]
+file43
+[<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
+[<embedded>] % puts $fp_cex ""
+[<embedded>] % 
+[<embedded>] % foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+[<embedded>] % foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+[<embedded>] % close $fp_cex
+[<embedded>] % 
+[<embedded>] % set n_cex    [llength $cex_props]
+1
+[<embedded>] % set n_ar_cex [llength $ar_cex_props]
+0
+[<embedded>] % puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+INFO: CEX properties: 1 cex, 0 ar_cex
+[<embedded>] % puts "INFO: Wrote $CEX_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/cex_details.txt
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "CEX_COUNT=$n_cex"
+[<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01807/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 7.675 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

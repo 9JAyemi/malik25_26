@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count
+counter.auto_sva_inst.check_next_state_function
+counter.auto_sva_inst.check_wrap_from_max
+counter.auto_sva_inst.check_zero_only_from_wrap
+counter.auto_sva_inst.check_free_running_no_hold
+counter.auto_sva_inst.check_deassert_to_one
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count:precondition1
+counter.auto_sva_inst.check_next_state_function:precondition1
+counter.auto_sva_inst.check_wrap_from_max:precondition1
+counter.auto_sva_inst.check_zero_only_from_wrap:precondition1
+counter.auto_sva_inst.check_free_running_no_hold:precondition1
+counter.auto_sva_inst.check_deassert_to_one:precondition1

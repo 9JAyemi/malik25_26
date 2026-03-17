@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+timebase.auto_sva_inst.check_reset_drives_outputs
+timebase.auto_sva_inst.check_tick_matches_enable_when_not_reset
+timebase.auto_sva_inst.check_tick_requires_enable_and_no_reset
+timebase.auto_sva_inst.check_enable_sets_tick
+timebase.auto_sva_inst.check_disable_clears_tick
+
+COVER PROPERTIES:
+timebase.auto_sva_inst.check_reset_drives_outputs:precondition1
+timebase.auto_sva_inst.check_tick_requires_enable_and_no_reset:precondition1
+timebase.auto_sva_inst.check_enable_sets_tick:precondition1
+timebase.auto_sva_inst.check_disable_clears_tick:precondition1

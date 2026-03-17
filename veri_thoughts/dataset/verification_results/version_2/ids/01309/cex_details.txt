@@ -1,0 +1,10 @@
+# Counter-example details for DESIGN_ID=01309
+# Format: property_name | cex_type | cex_length
+
+<embedded>::hd_data_reader.auto_sva_inst.enable_rise_clears_error | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.error_fall_requires_clear_event_prev | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.error_rise_requires_read_prev | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.error_rise_not_after_prev_reset_or_enrise | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.no_error_rise_without_prev_read_or_enrise | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.error_sticky_without_prev_clear | cex | 
+<embedded>::hd_data_reader.auto_sva_inst.error_stable_without_prev_activity | cex | 

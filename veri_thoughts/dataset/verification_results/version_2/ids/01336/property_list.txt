@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.reset_clears_next
+shift_register.auto_sva_inst.reset_holds_zero
+shift_register.auto_sva_inst.load_updates_output
+shift_register.auto_sva_inst.shift_updates_output
+shift_register.auto_sva_inst.shift_msb_from_bit2
+shift_register.auto_sva_inst.shift_lsb_from_datain_msb
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.reset_clears_next:precondition1
+shift_register.auto_sva_inst.reset_holds_zero:precondition1
+shift_register.auto_sva_inst.load_updates_output:precondition1
+shift_register.auto_sva_inst.shift_updates_output:precondition1
+shift_register.auto_sva_inst.shift_msb_from_bit2:precondition1
+shift_register.auto_sva_inst.shift_lsb_from_datain_msb:precondition1

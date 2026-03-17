@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+RCA_N4_17.auto_sva_inst.check_sum_matches_adder
+RCA_N4_17.auto_sva_inst.check_carry_is_msb_of_sum
+RCA_N4_17.auto_sva_inst.check_s0_xor
+RCA_N4_17.auto_sva_inst.check_s1_xor
+RCA_N4_17.auto_sva_inst.check_s2_xor
+RCA_N4_17.auto_sva_inst.check_s3_xor
+RCA_N4_17.auto_sva_inst.check_co_chained_majority
+RCA_N4_17.auto_sva_inst.check_propagate_A_when_B_zero
+RCA_N4_17.auto_sva_inst.check_propagate_B_when_A_zero
+RCA_N4_17.auto_sva_inst.check_stability_when_inputs_stable
+
+COVER PROPERTIES:
+RCA_N4_17.auto_sva_inst.check_propagate_A_when_B_zero:precondition1
+RCA_N4_17.auto_sva_inst.check_propagate_B_when_A_zero:precondition1
+RCA_N4_17.auto_sva_inst.check_stability_when_inputs_stable:precondition1

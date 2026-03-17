@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+cclk_detector.cclk_detector_sva_i.a_next_ready
+cclk_detector.cclk_detector_sva_i.a_next_ctr
+cclk_detector.cclk_detector_sva_i.a_ready_is_reg
+cclk_detector.cclk_detector_sva_i.a_no_overflow
+cclk_detector.cclk_detector_sva_i.a_ready_implies_prev_sat
+
+COVER PROPERTIES:
+cclk_detector.cclk_detector_sva_i.a_next_ready:precondition1
+cclk_detector.cclk_detector_sva_i.a_next_ctr:precondition1
+cclk_detector.cclk_detector_sva_i.a_ready_implies_prev_sat:precondition1
+cclk_detector.cclk_detector_sva_i.c_inc
+cclk_detector.cclk_detector_sva_i.c_sat
+cclk_detector.cclk_detector_sva_i.c_clear
+cclk_detector.cclk_detector_sva_i.c_ready_rise
+cclk_detector.cclk_detector_sva_i.c_run2ready

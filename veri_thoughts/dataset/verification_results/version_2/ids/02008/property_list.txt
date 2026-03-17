@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+nor4.auto_sva_inst.check_y_is_or
+nor4.auto_sva_inst.check_no_false_high
+nor4.auto_sva_inst.check_all_low_implies_y_low
+nor4.auto_sva_inst.check_y_low_only_if_all_low
+nor4.auto_sva_inst.check_A_dominates
+nor4.auto_sva_inst.check_B_dominates
+nor4.auto_sva_inst.check_C_N_dominates
+nor4.auto_sva_inst.check_D_N_dominates
+nor4.auto_sva_inst.check_y_rise_requires_input_high
+nor4.auto_sva_inst.check_y_fall_requires_all_low
+
+COVER PROPERTIES:
+nor4.auto_sva_inst.check_no_false_high:precondition1
+nor4.auto_sva_inst.check_all_low_implies_y_low:precondition1
+nor4.auto_sva_inst.check_y_low_only_if_all_low:precondition1
+nor4.auto_sva_inst.check_A_dominates:precondition1
+nor4.auto_sva_inst.check_B_dominates:precondition1
+nor4.auto_sva_inst.check_C_N_dominates:precondition1
+nor4.auto_sva_inst.check_D_N_dominates:precondition1
+nor4.auto_sva_inst.check_y_rise_requires_input_high:precondition1
+nor4.auto_sva_inst.check_y_fall_requires_all_low:precondition1

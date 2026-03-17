@@ -1,0 +1,24 @@
+ASSERT PROPERTIES:
+binary_to_gray.sva_i.a_00_to_01
+binary_to_gray.sva_i.a_01_to_00
+binary_to_gray.sva_i.a_illegal_to_00
+binary_to_gray.sva_i.a_out_conn
+binary_to_gray.sva_i.a_gray_update_ok
+binary_to_gray.sva_i.a_hold_when_s0
+binary_to_gray.sva_i.a_reg_hold_not_s1
+binary_to_gray.sva_i.a_change_only_on_s1
+
+COVER PROPERTIES:
+binary_to_gray.sva_i.a_00_to_01:precondition1
+binary_to_gray.sva_i.a_01_to_00:precondition1
+binary_to_gray.sva_i.a_illegal_to_00:precondition1
+binary_to_gray.sva_i.a_gray_update_ok:precondition1
+binary_to_gray.sva_i.a_hold_when_s0:precondition1
+binary_to_gray.sva_i.a_reg_hold_not_s1:precondition1
+binary_to_gray.sva_i.a_change_only_on_s1:precondition1
+binary_to_gray.sva_i.cover_state_cycle
+binary_to_gray.sva_i.cover_update_event
+binary_to_gray.sva_i.cbit[0]._cover_11
+binary_to_gray.sva_i.cbit[1]._cover_11
+binary_to_gray.sva_i.cbit[2]._cover_11
+binary_to_gray.sva_i.cbit[3]._cover_11

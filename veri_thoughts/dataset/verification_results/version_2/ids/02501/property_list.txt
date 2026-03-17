@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_add_pos_cin
+adder.auto_sva_inst.check_cout_majority_pos_cin
+adder.auto_sva_inst.check_sum0_xor_pos_cin
+adder.auto_sva_inst.check_cin0_behavior_negedge
+adder.auto_sva_inst.check_cin1_behavior_posedge
+adder.auto_sva_inst.check_cout_zero_when_msb_zero
+adder.auto_sva_inst.check_cout_one_when_msb_one
+adder.auto_sva_inst.check_cout_tracks_cin_when_msb_mismatch
+adder.auto_sva_inst.check_cout_alt_form
+adder.auto_sva_inst.check_zero_inputs_behavior
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_cout_zero_when_msb_zero:precondition1
+adder.auto_sva_inst.check_cout_one_when_msb_one:precondition1
+adder.auto_sva_inst.check_cout_tracks_cin_when_msb_mismatch:precondition1
+adder.auto_sva_inst.check_zero_inputs_behavior:precondition1

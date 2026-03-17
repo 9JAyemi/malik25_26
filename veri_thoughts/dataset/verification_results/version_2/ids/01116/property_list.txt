@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+clock_gating.auto_sva_inst.check_gclk_eq_gate_on_clk_high
+clock_gating.auto_sva_inst.check_gclk_low_on_clk_low
+clock_gating.auto_sva_inst.check_gclk_rises_with_gate_rise
+clock_gating.auto_sva_inst.check_gclk_falls_with_gate_fall
+
+COVER PROPERTIES:
+clock_gating.auto_sva_inst.check_gclk_rises_with_gate_rise:precondition1
+clock_gating.auto_sva_inst.check_gclk_falls_with_gate_fall:precondition1

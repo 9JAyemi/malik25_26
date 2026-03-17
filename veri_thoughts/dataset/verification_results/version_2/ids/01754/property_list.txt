@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+add8.auto_sva_inst.check_concat_sum_matches_8b_add
+add8.auto_sva_inst.check_sum_matches_8b_add
+add8.auto_sva_inst.check_carry_const_zero
+add8.auto_sva_inst.check_zero_b_identity
+add8.auto_sva_inst.check_zero_a_identity
+add8.auto_sva_inst.check_ff_b_decrement
+add8.auto_sva_inst.check_ff_a_decrement
+add8.auto_sva_inst.check_both_zero_result_zero
+add8.auto_sva_inst.check_both_ff_result_fe
+
+COVER PROPERTIES:
+add8.auto_sva_inst.check_zero_b_identity:precondition1
+add8.auto_sva_inst.check_zero_a_identity:precondition1
+add8.auto_sva_inst.check_ff_b_decrement:precondition1
+add8.auto_sva_inst.check_ff_a_decrement:precondition1
+add8.auto_sva_inst.check_both_zero_result_zero:precondition1
+add8.auto_sva_inst.check_both_ff_result_fe:precondition1

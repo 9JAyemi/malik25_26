@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+wb_mux.auto_sva_inst.reset_drives_regs_zero
+wb_mux.auto_sva_inst.freeze_holds_muxreg
+wb_mux.auto_sva_inst.freeze_holds_muxreg_valid
+wb_mux.auto_sva_inst.capture_muxout_when_not_frozen
+wb_mux.auto_sva_inst.capture_valid_when_not_frozen
+wb_mux.auto_sva_inst.muxout_select_a
+wb_mux.auto_sva_inst.muxout_select_b
+wb_mux.auto_sva_inst.muxout_select_c
+wb_mux.auto_sva_inst.muxout_select_d_plus8
+wb_mux.auto_sva_inst.capture_d_plus8_on_unfreeze
+
+COVER PROPERTIES:
+wb_mux.auto_sva_inst.reset_drives_regs_zero:precondition1
+wb_mux.auto_sva_inst.freeze_holds_muxreg:precondition1
+wb_mux.auto_sva_inst.freeze_holds_muxreg_valid:precondition1
+wb_mux.auto_sva_inst.capture_muxout_when_not_frozen:precondition1
+wb_mux.auto_sva_inst.capture_valid_when_not_frozen:precondition1
+wb_mux.auto_sva_inst.muxout_select_a:precondition1
+wb_mux.auto_sva_inst.muxout_select_b:precondition1
+wb_mux.auto_sva_inst.muxout_select_c:precondition1
+wb_mux.auto_sva_inst.muxout_select_d_plus8:precondition1
+wb_mux.auto_sva_inst.capture_d_plus8_on_unfreeze:precondition1

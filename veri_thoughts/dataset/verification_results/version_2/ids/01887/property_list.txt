@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_even_parity_const_high
+top_module.auto_sva_inst.check_out_lsb_is_one
+top_module.auto_sva_inst.check_out_upper_bits_mux_function
+top_module.auto_sva_inst.check_sel_high_path_upper_bits
+top_module.auto_sva_inst.check_sel_low_path_upper_bits
+top_module.auto_sva_inst.check_out_vec_full_concat
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_sel_high_path_upper_bits:precondition1
+top_module.auto_sva_inst.check_sel_low_path_upper_bits:precondition1

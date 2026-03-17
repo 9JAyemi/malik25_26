@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+register.auto_sva_inst.set_only_loads_ones
+register.auto_sva_inst.reset_only_loads_zeros
+register.auto_sva_inst.both_low_loads_d
+register.auto_sva_inst.both_high_loads_d
+register.auto_sva_inst.set_rise_loads_ones
+register.auto_sva_inst.reset_rise_loads_zeros
+
+COVER PROPERTIES:
+register.auto_sva_inst.set_only_loads_ones:precondition1
+register.auto_sva_inst.reset_only_loads_zeros:precondition1
+register.auto_sva_inst.both_low_loads_d:precondition1
+register.auto_sva_inst.both_high_loads_d:precondition1
+register.auto_sva_inst.set_rise_loads_ones:precondition1
+register.auto_sva_inst.reset_rise_loads_zeros:precondition1

@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+xor_module.auto_sva_inst.check_out_xor_def
+xor_module.auto_sva_inst.check_out_and_def
+xor_module.auto_sva_inst.check_out_func_concat_outputs
+xor_module.auto_sva_inst.check_out_func_upper_equals_out_xor
+xor_module.auto_sva_inst.check_out_func_lower_equals_out_and
+xor_module.auto_sva_inst.check_out_func_direct_from_inputs
+xor_module.auto_sva_inst.check_xor_and_mutex
+xor_module.auto_sva_inst.check_or_relation
+xor_module.auto_sva_inst.check_equal_inputs_behavior
+xor_module.auto_sva_inst.check_zero_in1_behavior
+
+COVER PROPERTIES:
+xor_module.auto_sva_inst.check_equal_inputs_behavior:precondition1
+xor_module.auto_sva_inst.check_zero_in1_behavior:precondition1

@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+bitwise_or.auto_sva_inst.check_or_function
+bitwise_or.auto_sva_inst.check_no_spurious_ones
+bitwise_or.auto_sva_inst.check_no_missing_ones
+bitwise_or.auto_sva_inst.check_zero_identity_A
+bitwise_or.auto_sva_inst.check_zero_identity_B
+bitwise_or.auto_sva_inst.check_both_zero_yields_zero
+bitwise_or.auto_sva_inst.check_stability_when_inputs_stable
+
+COVER PROPERTIES:
+bitwise_or.auto_sva_inst.check_zero_identity_A:precondition1
+bitwise_or.auto_sva_inst.check_zero_identity_B:precondition1
+bitwise_or.auto_sva_inst.check_both_zero_yields_zero:precondition1
+bitwise_or.auto_sva_inst.check_stability_when_inputs_stable:precondition1

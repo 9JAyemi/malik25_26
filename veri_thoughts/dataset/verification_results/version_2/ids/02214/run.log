@@ -1,0 +1,3720 @@
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Auto-bind helpers ----
+% 
+% proc sva_files_have_bind {sva_files} {
+  # Return 1 if any SVA file already contains a bind statement.
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    if {[regexp -nocase {(?m)^\s*bind\s+} $txt]} { return 1 }
+  }
+  return 0
+}
+% 
+% proc extract_module_ports {mod_name files} {
+  # Extract port names for a given module from a list of files.
+  # Returns a list of port names (order preserved, keywords stripped).
+  set keywords {input output inout wire reg logic signed unsigned integer
+                parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${mod_name}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        if {[lsearch -exact $names $t] < 0} { lappend names $t }
+      }
+      return $names
+    }
+  }
+  return {}
+}
+% 
+% proc generate_auto_bind {top dut_files sva_files out_dir} {
+  # If SVA files lack a bind statement, generate one.
+  # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
+  if {[sva_files_have_bind $sva_files]} {
+    puts "INFO: SVA files already contain a bind statement"
+    return ""
+  }
+
+  # Find the SVA module name (first module in SVA files that is NOT the DUT)
+  set sva_mod ""
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set matches [regexp -all -inline -nocase {(?m)^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt]
+    foreach {_ mname} $matches {
+      if {$mname ne $top} {
+        set sva_mod $mname
+        break
+      }
+    }
+    if {$sva_mod ne ""} { break }
+  }
+
+  if {$sva_mod eq ""} {
+    puts "WARN: Could not find SVA module name for auto-bind"
+    return ""
+  }
+
+  # Get port lists
+  set dut_ports [extract_module_ports $top $dut_files]
+  set sva_ports [extract_module_ports $sva_mod $sva_files]
+
+  if {[llength $sva_ports] == 0} {
+    puts "WARN: SVA module $sva_mod has no ports; cannot auto-bind"
+    return ""
+  }
+
+  # Build port connections: for each SVA port, connect to DUT port if name
+  # matches (case-insensitive), otherwise leave unconnected.
+  set dut_lower_map [dict create]
+  foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+
+  set connections {}
+  set unconnected {}
+  foreach sp $sva_ports {
+    set sp_lower [string tolower $sp]
+    if {[dict exists $dut_lower_map $sp_lower]} {
+      set dp [dict get $dut_lower_map $sp_lower]
+      lappend connections "    .${sp}(${dp})"
+    } else {
+      lappend unconnected $sp
+    }
+  }
+
+  if {[llength $connections] == 0} {
+    puts "WARN: No matching ports between DUT ($top) and SVA ($sva_mod); cannot auto-bind"
+    return ""
+  }
+
+  # Write the bind file
+  set bind_path [file join $out_dir "auto_bind.sv"]
+  set conn_str [join $connections ",\n"]
+  set fp [open $bind_path "w"]
+  puts $fp "// Auto-generated bind (no bind found in SVA files)"
+  if {[llength $unconnected] > 0} {
+    puts $fp "// NOTE: Unconnected SVA ports (not in DUT): [join $unconnected {, }]"
+  }
+  puts $fp "bind $top $sva_mod auto_sva_inst ("
+  puts $fp $conn_str
+  puts $fp ");"
+  close $fp
+
+  puts "INFO: Auto-generated bind: $bind_path"
+  puts "  DUT=$top  SVA=$sva_mod"
+  puts "  Connected ports: [llength $connections]"
+  if {[llength $unconnected] > 0} {
+    puts "  Unconnected SVA ports: [join $unconnected {, }]"
+  }
+  return $bind_path
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+02214
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./02214/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./02214/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = ir_rcv
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
+% if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
+  set OUT_DIR $::env(JG_OUT_DIR)
+} else {
+  set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
+}
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/summary.txt
+% 
+% # ---- Auto-bind detection ----
+% set AUTO_BIND 0
+0
+% set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
+INFO: Auto-generated bind: /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv
+  DUT=ir_rcv  SVA=ir_rcv_sva
+  Connected ports: 5
+  Unconnected SVA ports: state, databuf, bits_detected, act_cnt, leadvrf_cnt, datarcv_cnt, rpt_cnt, STATE_IDLE, b00, STATE_LEADVERIFY, b01, STATE_DATARCV, b10, int, LEADCODE_LO_THOLD, LEADCODE_HI_THOLD, LEADCODE_HI_RPT_THOLD, RPT_RELEASE_THOLD, BIT_ONE_THOLD, BIT_DETECT_THOLD, IDLE_THOLD, check_reset_values, assert, property, posedge, d0, h0000_0000, b0, check_act_cnt_incr, disable, iff, past, check_act_cnt_clear, check_leadvrf_incr, b1, check_leadvrf_clear, check_datarcv_incr, check_datarcv_clear, check_bits_clear_outside_datarcv, check_bits_incr_on_detect, check_bits_hold_no_detect, check_databuf_clear_outside_datarcv, check_databuf_hold_no_one_thold, check_databuf_set_on_one_thold, d32, check_ack_equals_decode, check_code_updates_on_ack, check_release_clears_code_ack, check_code_holds_no_event, check_rpt_cnt_reset_on_lead_rpt, check_rpt_cnt_incr_otherwise, check_idle_to_leadverify, check_leadverify_to_datarcv, check_datarcv_to_idle, d33
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv
+% if {$BIND_FILE ne ""} {
+  set AUTO_BIND 1
+  lappend SVA_FILES $BIND_FILE
+}
+./02214/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 02214
+% puts "  TOP       : $TOP"
+  TOP       : ir_rcv
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  AUTO_BIND : $AUTO_BIND"
+  AUTO_BIND : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 2
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./02214/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./02214/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './02214/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './02214/sva.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='ir_rcv'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "ir_rcv".
+[INFO (HIER-8002)] ./02214/module.v(127): Disabling old hierarchical reference handler
+[WARN (VERI-1927)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv(9): port 'state' remains unconnected for this instance
+[INFO (VERI-1018)] ./02214/sva.sv(1): compiling module 'ir_rcv_sva'
+[WARN (VERI-9005)] ./02214/sva.sv(124): 32-bit index expression '(32 - $past(bits_detected))' is larger than the required 5 bits. This might lead to an out-of-bound access
+[INFO (VERI-1018)] ./02214/module.v(5): compiling module 'ir_rcv'
+[WARN (VERI-9005)] ./02214/module.v(61): 32-bit index expression '(32 - bits_detected)' is larger than the required 5 bits. This might lead to an out-of-bound access
+[WARN (VERI-9028)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv(3): missing/open ports on instance auto_sva_inst of module ir_rcv_sva
+[WARN (VDB-1013)] /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/auto_bind.sv(9): input port 'state[1]' is not connected on this instance
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+reset_n
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using active-low reset expression: !reset_n
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "reset_n".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 22 asserts, 21 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 43 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 3 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned values for 150 of 150 design flops, 0 of 0 design latches, 43 of 560 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "ir_rcv.auto_sva_inst.check_reset_values" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF051): 0.0.PRE: The cover property "ir_rcv.auto_sva_inst.check_reset_values:precondition1" was proven unreachable in 0.00 s.
+0: Found proofs for 2 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0.002s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: Proof Simplification completed in 0.01 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 41
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 1605629@della-r3c3n2(local) jg_1605562_della-r3c3n2_1
+0.0.N: Proofgrid shell started at 1605628@della-r3c3n2(local) jg_1605562_della-r3c3n2_1
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_act_cnt_incr"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_act_cnt_incr" in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_act_cnt_incr:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_leadvrf_clear:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_datarcv_clear:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_bits_clear_outside_datarcv:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_databuf_clear_outside_datarcv:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_code_holds_no_event:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_rpt_cnt_incr_otherwise" in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_rpt_cnt_incr_otherwise:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_incr".
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_act_cnt_incr"	[0.01 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_act_cnt_clear"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_act_cnt_clear" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_act_cnt_clear:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "ir_rcv.auto_sva_inst.check_act_cnt_clear".
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_act_cnt_clear"	[0.00 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_leadvrf_incr"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_leadvrf_incr" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_leadvrf_incr:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "ir_rcv.auto_sva_inst.check_leadvrf_incr".
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_leadvrf_incr"	[0.00 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_leadvrf_clear"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_leadvrf_clear" in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_datarcv_clear" in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_bits_clear_outside_datarcv" in 0.02 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_databuf_clear_outside_datarcv" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_release_clears_code_ack:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_leadvrf_clear"	[0.00 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_datarcv_incr"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_datarcv_incr" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_datarcv_incr:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "ir_rcv.auto_sva_inst.check_datarcv_incr".
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_datarcv_incr"	[0.01 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_bits_incr_on_detect"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_bits_incr_on_detect" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_bits_incr_on_detect:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_bits_incr_on_detect"	[0.01 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_bits_hold_no_detect"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_bits_hold_no_detect" in 0.00 s.
+INFO (IPF047): 0.0.N: The cover property "ir_rcv.auto_sva_inst.check_bits_hold_no_detect:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "ir_rcv.auto_sva_inst.check_bits_hold_no_detect".
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_bits_hold_no_detect"	[0.00 s].
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_databuf_hold_no_one_thold" in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_databuf_hold_no_one_thold:precondition1" was covered in 1 cycles in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_databuf_set_on_one_thold" in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_databuf_set_on_one_thold:precondition1" was covered in 1 cycles in 0.04 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_ack_equals_decode" in 0.04 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_code_holds_no_event" in 0.05 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_rpt_cnt_reset_on_lead_rpt" in 0.05 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_rpt_cnt_reset_on_lead_rpt:precondition1" was covered in 1 cycles in 0.05 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_idle_to_leadverify" in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_idle_to_leadverify:precondition1" was covered in 1 cycles in 0.06 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_leadverify_to_datarcv" in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_leadverify_to_datarcv:precondition1" was covered in 1 cycles in 0.06 s.
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_databuf_hold_no_one_thold"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_databuf_hold_no_one_thold"	[0.00 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "ir_rcv.auto_sva_inst.check_datarcv_to_idle" in 0.06 s.
+INFO (IPF047): 0.0.Hp: The cover property "ir_rcv.auto_sva_inst.check_datarcv_to_idle:precondition1" was covered in 1 cycles in 0.06 s.
+0.0.Hp: Trace Attempt  2	[0.04 s]
+0.0.Hp: Trace Attempt  3	[0.06 s]
+0.0.Ht: Proofgrid shell started at 1605642@della-r3c3n2(local) jg_1605562_della-r3c3n2_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.B: Proofgrid shell started at 1605643@della-r3c3n2(local) jg_1605562_della-r3c3n2_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.17 s]
+0.0.N: Trace Attempt  2	[0.17 s]
+0.0.N: Trace Attempt  3	[0.17 s]
+0: ProofGrid usable level: 3
+0.0.N: Trace Attempt 97	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.97 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.95 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  1	[0.06 s]
+0.0.N: Trace Attempt  2	[0.06 s]
+0.0.N: Trace Attempt  3	[0.06 s]
+0.0.N: Trace Attempt  1	[0.12 s]
+0.0.N: Trace Attempt  2	[0.12 s]
+0.0.N: Trace Attempt  3	[0.12 s]
+0.0.N: Trace Attempt  1	[0.16 s]
+0.0.N: Trace Attempt  2	[0.16 s]
+0.0.N: Trace Attempt  3	[0.16 s]
+0.0.N: Trace Attempt  1	[0.68 s]
+0.0.N: Trace Attempt  2	[0.68 s]
+0.0.N: Trace Attempt  3	[0.68 s]
+0.0.N: Trace Attempt 43	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.06 s]
+0.0.N: Trace Attempt  2	[0.06 s]
+0.0.N: Trace Attempt  3	[0.06 s]
+0.0.N: Trace Attempt  1	[0.11 s]
+0.0.N: Trace Attempt  2	[0.11 s]
+0.0.N: Trace Attempt  3	[0.11 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[1.13 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.54 s]
+0.0.N: Trace Attempt  2	[0.54 s]
+0.0.N: Trace Attempt  3	[0.54 s]
+0.0.N: Trace Attempt 73	[0.86 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[1.00 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.87 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 29	[0.01 s]
+0.0.N: Trace Attempt  1	[0.14 s]
+0.0.N: Trace Attempt  2	[0.14 s]
+0.0.N: Trace Attempt  3	[0.14 s]
+0.0.Ht: Trace Attempt 121	[4.61 s]
+0.0.B: Trace Attempt 212	[4.07 s]
+0.0.N: Trace Attempt 226	[4.21 s]
+0.0.Ht: Trace Attempt 155	[8.98 s]
+0.0.N: Trace Attempt 415	[8.21 s]
+0.0.N: Trace Attempt 417	[9.86 s]
+0.0.N: Per property time limit expired (10.00 s) [10.03 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[10.03 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 44	[0.01 s]
+0.0.Ht: Trace Attempt 169	[13.05 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[10.50 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.56 s]
+0.0.N: Trace Attempt  2	[0.56 s]
+0.0.N: Trace Attempt  3	[0.57 s]
+0.0.Ht: Trace Attempt 186	[17.08 s]
+0.0.B: Trace Attempt 173	[4.01 s]
+0.0.N: Trace Attempt 114	[4.69 s]
+0.0.B: Trace Attempt 215	[8.21 s]
+0.0.Ht: Trace Attempt 204	[22.83 s]
+0.0.N: Trace Attempt 279	[8.42 s]
+0.0.N: Per property time limit expired (10.00 s) [10.03 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[10.03 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.N: Trace Attempt 28	[0.01 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[9.58 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.42 s]
+0.0.N: Trace Attempt  2	[0.42 s]
+0.0.N: Trace Attempt  3	[0.43 s]
+0.0.Ht: Trace Attempt 229	[26.86 s]
+0.0.B: Trace Attempt 109	[4.15 s]
+0.0.N: Trace Attempt 172	[4.54 s]
+0.0.Ht: Trace Attempt 243	[31.06 s]
+0.0.B: Trace Attempt 116	[8.39 s]
+0.0.N: Trace Attempt 260	[8.56 s]
+0.0.N: Trace Attempt 269	[9.12 s]
+0.0.N: Per property time limit expired (10.00 s) [10.02 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[10.03 s].
+0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[10.01 s].
+0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt 29	[0.01 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.15 s]
+0.0.N: Trace Attempt  2	[0.15 s]
+0.0.N: Trace Attempt  3	[0.15 s]
+0.0.Ht: Trace Attempt 255	[35.25 s]
+0.0.B: Trace Attempt 217	[4.02 s]
+0.0.N: Trace Attempt 272	[4.16 s]
+0.0.Ht: Trace Attempt 263	[39.39 s]
+0.0.N: Trace Attempt 409	[8.21 s]
+0.0.B: Trace Attempt 249	[10.52 s]
+0.0.Ht: Trace Attempt 280	[45.76 s]
+0.0.B: Trace Attempt 275	[14.53 s]
+0.0.Ht: Trace Attempt 282	[50.44 s]
+0.0.B: Trace Attempt 304	[18.60 s]
+0.0.Ht: Trace Attempt 299	[54.69 s]
+0.0.B: Trace Attempt 327	[22.79 s]
+0.0.B: Trace Attempt 348	[27.05 s]
+0.0.Ht: Trace Attempt 304	[60.71 s]
+0.0.B: Trace Attempt 365	[31.10 s]
+0.0.Ht: Trace Attempt 314	[64.76 s]
+0.0.B: Trace Attempt 382	[35.38 s]
+0.0.Ht: Trace Attempt 323	[71.68 s]
+0.0.B: Trace Attempt 398	[39.61 s]
+0.0.Ht: Trace Attempt 334	[75.74 s]
+0.0.B: Trace Attempt 414	[43.70 s]
+0.0.Ht: Trace Attempt 343	[80.05 s]
+0.0.B: Trace Attempt 425	[47.98 s]
+0.0.B: Trace Attempt 438	[52.22 s]
+0.0.Ht: Trace Attempt 356	[87.37 s]
+0.0.B: Trace Attempt 450	[56.28 s]
+0.0.Ht: Trace Attempt 366	[91.37 s]
+0.0.B: Trace Attempt 460	[60.64 s]
+0.0.Ht: Trace Attempt 380	[95.79 s]
+0.0.B: Trace Attempt 468	[64.90 s]
+0.0.Ht: Trace Attempt 391	[99.95 s]
+0.0.B: Trace Attempt 472	[71.20 s]
+0.0.Ht: Trace Attempt 394	[104.94 s]
+0.0.B: Trace Attempt 481	[75.52 s]
+0.0.Ht: Trace Attempt 402	[109.41 s]
+0.0.B: Trace Attempt 488	[80.15 s]
+0.0.Ht: Trace Attempt 411	[113.69 s]
+0.0.B: Trace Attempt 496	[84.56 s]
+0.0.Ht: Trace Attempt 418	[118.57 s]
+0.0.B: Trace Attempt 504	[89.06 s]
+0.0.Ht: Trace Attempt 422	[124.97 s]
+0.0.B: Trace Attempt 512	[93.23 s]
+0.0.Ht: Trace Attempt 431	[129.44 s]
+0.0.B: Trace Attempt 518	[97.26 s]
+0.0.B: Trace Attempt 524	[100.00 s]
+0.0.B: Per property time limit expired (100.00 s) [100.08 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[100.09 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 432	[10.40 s]
+0.0.N: Per property time limit expired (100.00 s) [100.10 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[100.10 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 44	[0.01 s]
+0.0.N: Trace Attempt  1	[0.50 s]
+0.0.N: Trace Attempt  2	[0.51 s]
+0.0.N: Trace Attempt  3	[0.51 s]
+0.0.Ht: Trace Attempt 441	[134.15 s]
+0.0.B: Trace Attempt 171	[4.02 s]
+0.0.N: Trace Attempt 126	[4.54 s]
+0.0.Ht: Trace Attempt 448	[138.16 s]
+0.0.B: Trace Attempt 215	[8.13 s]
+0.0.N: Trace Attempt 205	[8.70 s]
+0.0.Ht: Trace Attempt 458	[142.17 s]
+0.0.B: Trace Attempt 247	[12.16 s]
+0.0.N: Trace Attempt 224	[14.64 s]
+0.0.Ht: Trace Attempt 460	[148.14 s]
+0.0.B: Trace Attempt 271	[16.62 s]
+0.0.N: Trace Attempt 258	[18.69 s]
+0.0.Ht: Trace Attempt 465	[152.44 s]
+0.0.B: Trace Attempt 296	[20.68 s]
+0.0.Ht: Trace Attempt 476	[156.45 s]
+0.0.N: Trace Attempt 285	[23.77 s]
+0.0.B: Trace Attempt 332	[24.70 s]
+0.0.Ht: Trace Attempt 481	[160.47 s]
+0.0.N: Trace Attempt 309	[27.85 s]
+0.0.B: Trace Attempt 355	[28.70 s]
+0.0.Ht: Trace Attempt 488	[164.82 s]
+0.0.B: Trace Attempt 373	[32.84 s]
+0.0.N: Trace Attempt 345	[33.06 s]
+0.0.B: Trace Attempt 396	[36.86 s]
+0.0.N: Trace Attempt 493	[37.10 s]
+0.0.Ht: Trace Attempt 493	[173.22 s]
+0.0.B: Trace Attempt 411	[40.88 s]
+0.0.N: Trace Attempt 541	[41.33 s]
+0.0.B: Trace Attempt 429	[44.93 s]
+0.0.N: Trace Attempt 561	[45.40 s]
+0.0.B: Trace Attempt 444	[49.23 s]
+0.0.N: Trace Attempt 601	[49.41 s]
+0.0.B: Trace Attempt 466	[53.43 s]
+0.0.N: Trace Attempt 619	[56.28 s]
+0.0.B: Trace Attempt 486	[57.72 s]
+0.0.N: Trace Attempt 763	[60.41 s]
+0.0.B: Trace Attempt 500	[61.87 s]
+0.0.N: Trace Attempt 804	[64.52 s]
+0.0.B: Trace Attempt 512	[65.97 s]
+0.0.B: Trace Attempt 523	[70.39 s]
+0.0.N: Trace Attempt 836	[72.32 s]
+0.0.B: Trace Attempt 531	[74.89 s]
+0.0.N: Trace Attempt 869	[78.33 s]
+0.0.B: Trace Attempt 542	[79.14 s]
+0.0.N: Trace Attempt 920	[82.37 s]
+0.0.B: Trace Attempt 553	[83.37 s]
+0.0.B: Trace Attempt 566	[87.61 s]
+0.0.N: Trace Attempt 977	[87.78 s]
+0.0.B: Trace Attempt 578	[91.70 s]
+0.0.N: Trace Attempt 1153	[91.82 s]
+0.0.Ht: Trace Attempt 533	[225.03 s]
+0.0.B: Trace Attempt 589	[95.92 s]
+0.0.N: Trace Attempt 1195	[96.01 s]
+0.0.B: Trace Attempt 596	[99.64 s]
+0.0.B: Per property time limit expired (100.00 s) [100.06 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[100.06 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 1213	[97.20 s]
+0.0.N: Per property time limit expired (100.00 s) [100.24 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack:precondition1"	[100.24 s].
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.N: Trace Attempt 28	[0.02 s]
+0.0.N: Trace Attempt  1	[0.34 s]
+0.0.N: Trace Attempt  2	[0.34 s]
+0.0.N: Trace Attempt  3	[0.34 s]
+0.0.Ht: Trace Attempt 651	[235.28 s]
+0.0.B: Trace Attempt 109	[4.02 s]
+0.0.N: Trace Attempt 153	[4.39 s]
+0.0.B: Trace Attempt 116	[8.05 s]
+0.0.N: Trace Attempt 216	[8.53 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.00 s]
+0.0.Bm: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt  4	[0.01 s]
+0.0.Bm: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[10.80 s].
+0.0.B: Morphing to AB
+0.0.B: Trace Attempt 117	[10.03 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[10.62 s].
+0.0.N: Morphing to Hts
+0.0.N: Trace Attempt 239	[10.54 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt  1	[0.04 s]
+0.0.AB: Trace Attempt  2	[0.04 s]
+0.0.AB: Trace Attempt  3	[0.04 s]
+0.0.AB: Trace Attempt  4	[0.04 s]
+0.0.AB: Trace Attempt  5	[0.04 s]
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.AB: Trace Attempt 120	[1.99 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[2.00 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.06 s]
+0.0.AB: Trace Attempt  3	[0.06 s]
+0.0.AB: Trace Attempt  4	[0.06 s]
+0.0.AB: Trace Attempt  5	[0.06 s]
+0.0.AB: Trace Attempt  1	[0.18 s]
+0.0.AB: Trace Attempt  2	[0.18 s]
+0.0.AB: Trace Attempt  3	[0.18 s]
+0.0.AB: Trace Attempt  4	[0.18 s]
+0.0.AB: Trace Attempt  5	[0.18 s]
+0.0.Hts: Trace Attempt 1213	[2.09 s]
+0.0.Hts: Per property time limit expired (1.99 s) [2.21 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[2.21 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.47 s]
+0.0.Hts: Trace Attempt  2	[0.47 s]
+0.0.Hts: Trace Attempt  3	[0.47 s]
+0.0.Hts: Trace Attempt  4	[0.47 s]
+0.0.Hts: Trace Attempt  5	[0.47 s]
+0.0.Bm: Trace Attempt 126	[4.07 s]
+0.0.AB: Trace Attempt 117	[1.99 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[2.00 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.06 s]
+0.0.AB: Trace Attempt  3	[0.06 s]
+0.0.AB: Trace Attempt  4	[0.06 s]
+0.0.AB: Trace Attempt  5	[0.06 s]
+0.0.AB: Trace Attempt  1	[0.19 s]
+0.0.AB: Trace Attempt  2	[0.19 s]
+0.0.AB: Trace Attempt  3	[0.19 s]
+0.0.AB: Trace Attempt  4	[0.19 s]
+0.0.AB: Trace Attempt  5	[0.19 s]
+0.0.Hts: Trace Attempt 1213	[2.54 s]
+0.0.Hts: Per property time limit expired (2.00 s) [2.56 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[2.56 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.54 s]
+0.0.Hts: Trace Attempt  2	[0.54 s]
+0.0.Hts: Trace Attempt  3	[0.54 s]
+0.0.Hts: Trace Attempt  4	[0.54 s]
+0.0.Hts: Trace Attempt  5	[0.54 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.56 s].
+0.0.Hts: Morphing to AM
+0.0.Hts: Trace Attempt 87	[0.56 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[1.34 s].
+0.0.AB: Morphing to K
+0.0.AB: Trace Attempt 97	[1.33 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.05 s]
+0.0.AM: Trace Attempt  2	[0.06 s]
+0.0.AM: Trace Attempt  3	[0.06 s]
+0.0.K: Trace Attempt 432	[0.18 s]
+0.0.AM: Trace Attempt  1	[0.18 s]
+0.0.AM: Trace Attempt  2	[0.18 s]
+0.0.AM: Trace Attempt  3	[0.18 s]
+0.0.AM: Trace Attempt  4	[0.19 s]
+0.0.Bm: Trace Attempt 158	[8.28 s]
+0.0.AM: Trace Attempt 105	[3.94 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.01 s]
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[4.01 s].
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.K: Per property time limit expired (3.99 s) [4.08 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[4.08 s].
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.07 s]
+0.0.AM: Trace Attempt  2	[0.08 s]
+0.0.AM: Trace Attempt  3	[0.08 s]
+0.0.AM: Trace Attempt  1	[0.25 s]
+0.0.AM: Trace Attempt  2	[0.25 s]
+0.0.AM: Trace Attempt  3	[0.25 s]
+0.0.K: Trace Attempt  1	[0.23 s]
+0.0.K: Trace Attempt  2	[0.23 s]
+0.0.K: Trace Attempt  3	[0.23 s]
+0.0.K: Trace Attempt  4	[0.23 s]
+0.0.K: Trace Attempt  5	[0.23 s]
+0.0.Bm: Trace Attempt 166	[13.00 s]
+0.0.AM: Trace Attempt 196	[3.99 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.01 s]
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[4.01 s].
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[3.94 s].
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.07 s]
+0.0.AM: Trace Attempt  2	[0.07 s]
+0.0.AM: Trace Attempt  3	[0.07 s]
+0.0.AM: Trace Attempt  1	[0.21 s]
+0.0.AM: Trace Attempt  2	[0.21 s]
+0.0.AM: Trace Attempt  3	[0.22 s]
+0.0.K: Trace Attempt  1	[0.21 s]
+0.0.K: Trace Attempt  2	[0.21 s]
+0.0.K: Trace Attempt  3	[0.21 s]
+0.0.K: Trace Attempt  4	[0.22 s]
+0.0.K: Trace Attempt  5	[0.22 s]
+0.0.Bm: Trace Attempt 176	[17.14 s]
+0.0.AM: Trace Attempt 215	[4.23 s]
+0.0.K: Trace Attempt 85	[4.37 s]
+0.0.Bm: Trace Attempt 186	[21.81 s]
+0.0.AM: Trace Attempt 277	[8.43 s]
+0.0.K: Trace Attempt 94	[8.54 s]
+0.0.Bm: Trace Attempt 189	[25.87 s]
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[12.27 s].
+0.0.AM: Morphing to AB
+0.0.AM: Trace Attempt 151	[12.27 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[12.28 s].
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.K: Morphing to AD
+0.0.K: Trace Attempt 107	[12.08 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AD: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AD: Trace Attempt  1	[0.03 s]
+0.0.AD: Trace Attempt  2	[0.03 s]
+0.0.AD: Trace Attempt  3	[0.03 s]
+0.0.AD: Trace Attempt  4	[0.03 s]
+0.0.AD: Trace Attempt  5	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.05 s]
+0.0.AB: Trace Attempt  2	[0.05 s]
+0.0.AB: Trace Attempt  3	[0.05 s]
+0.0.AB: Trace Attempt  4	[0.05 s]
+0.0.AB: Trace Attempt  5	[0.05 s]
+0.0.AD: Trace Attempt  1	[0.10 s]
+0.0.AD: Trace Attempt  2	[0.10 s]
+0.0.AD: Trace Attempt  3	[0.10 s]
+0.0.AD: Trace Attempt  4	[0.10 s]
+0.0.AB: Trace Attempt  1	[0.18 s]
+0.0.AB: Trace Attempt  2	[0.18 s]
+0.0.AB: Trace Attempt  3	[0.18 s]
+0.0.AB: Trace Attempt  4	[0.18 s]
+0.0.AB: Trace Attempt  5	[0.18 s]
+0.0.AD: Trace Attempt  1	[0.77 s]
+0.0.AD: Trace Attempt  2	[0.77 s]
+0.0.AD: Trace Attempt  3	[0.77 s]
+0.0.AD: Trace Attempt  4	[0.77 s]
+0.0.Bm: Trace Attempt 193	[30.09 s]
+0.0.AB: Trace Attempt 153	[4.38 s]
+0.0.Bm: Trace Attempt 197	[34.31 s]
+0.0.AB: Trace Attempt 184	[8.46 s]
+0.0.Bm: Trace Attempt 207	[38.59 s]
+0.0.AB: Trace Attempt 216	[12.56 s]
+0.0.Bm: Trace Attempt 215	[42.59 s]
+0.0.AD: Trace Attempt 70	[16.18 s]
+0.0.AB: Trace Attempt 244	[16.67 s]
+0.0.Bm: Trace Attempt 223	[46.81 s]
+0.0.AB: Trace Attempt 268	[20.84 s]
+0.0.Bm: Trace Attempt 230	[51.28 s]
+0.0.AB: Trace Attempt 296	[24.99 s]
+0.0.Bm: Trace Attempt 236	[55.67 s]
+0.0.AB: Trace Attempt 318	[29.29 s]
+0.0.AD: Per property time limit expired (31.99 s) [32.00 s]
+0.0.AD: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[32.00 s].
+0.0.AD: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[32.02 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.02 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.06 s]
+0.0.AB: Trace Attempt  3	[0.06 s]
+0.0.AB: Trace Attempt  4	[0.06 s]
+0.0.AB: Trace Attempt  5	[0.06 s]
+0.0.AD: Trace Attempt  1	[0.13 s]
+0.0.AD: Trace Attempt  2	[0.13 s]
+0.0.AD: Trace Attempt  3	[0.13 s]
+0.0.AD: Trace Attempt  4	[0.13 s]
+0.0.AD: Trace Attempt  5	[0.14 s]
+0.0.AB: Trace Attempt  1	[0.19 s]
+0.0.AB: Trace Attempt  2	[0.19 s]
+0.0.AB: Trace Attempt  3	[0.19 s]
+0.0.AB: Trace Attempt  4	[0.19 s]
+0.0.AB: Trace Attempt  5	[0.19 s]
+0.0.AD: Trace Attempt  1	[2.08 s]
+0.0.AD: Trace Attempt  2	[2.09 s]
+0.0.AD: Trace Attempt  3	[2.09 s]
+0.0.AD: Trace Attempt  4	[2.09 s]
+0.0.AD: Trace Attempt  5	[2.09 s]
+0.0.Bm: Trace Attempt 241	[61.00 s]
+0.0.AB: Trace Attempt 149	[4.29 s]
+0.0.AD: Trace Attempt 43	[6.54 s]
+0.0.Bm: Trace Attempt 244	[65.38 s]
+0.0.AB: Trace Attempt 204	[8.37 s]
+0.0.Bm: Trace Attempt 248	[70.29 s]
+0.0.AB: Trace Attempt 262	[12.53 s]
+0.0.Bm: Trace Attempt 253	[74.33 s]
+0.0.AB: Trace Attempt 298	[16.73 s]
+0.0.Bm: Trace Attempt 263	[78.48 s]
+0.0.AB: Trace Attempt 306	[21.21 s]
+0.0.Bm: Trace Attempt 272	[82.76 s]
+0.0.AB: Trace Attempt 315	[25.38 s]
+0.0.Bm: Trace Attempt 281	[87.09 s]
+0.0.AB: Trace Attempt 329	[29.46 s]
+0.0.AD: Per property time limit expired (32.00 s) [32.00 s]
+0.0.AD: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[32.00 s].
+0.0.AD: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[31.98 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.02 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AD: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AD: Trace Attempt  4	[0.03 s]
+0.0.AD: Trace Attempt  5	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.07 s]
+0.0.AB: Trace Attempt  3	[0.07 s]
+0.0.AB: Trace Attempt  4	[0.07 s]
+0.0.AB: Trace Attempt  5	[0.07 s]
+0.0.AD: Trace Attempt  1	[0.14 s]
+0.0.AD: Trace Attempt  2	[0.14 s]
+0.0.AD: Trace Attempt  3	[0.14 s]
+0.0.AD: Trace Attempt  4	[0.14 s]
+0.0.AD: Trace Attempt  5	[0.15 s]
+0.0.AB: Trace Attempt  1	[0.21 s]
+0.0.AB: Trace Attempt  2	[0.21 s]
+0.0.AB: Trace Attempt  3	[0.21 s]
+0.0.AB: Trace Attempt  4	[0.21 s]
+0.0.AB: Trace Attempt  5	[0.21 s]
+0.0.Bm: Trace Attempt 290	[91.57 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[2.04 s].
+0.0.AB: Morphing to Tri
+0.0.AB: Trace Attempt 110	[2.01 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AD: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[2.04 s].
+0.0.AD: Morphing to K
+0.0.AD: Trace Attempt 15	[2.03 s]
+0.0.AD: All properties determined. [0.00 s]
+0.0.AD: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tri: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt 432	[0.19 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.28" ---- Launching abstraction thread ----
+0.0.Tri:    0.31" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.56 s]
+0.0.Tri: Trace Attempt  3	[0.57 s]
+0.0.Tri: Trace Attempt  4	[0.57 s]
+0.0.Tri: Trace Attempt  5	[0.57 s]
+0.0.Tri:    1.15" Simplification phase 1 complete
+0.0.Tri:    2.57" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 298	[95.96 s]
+0.0.Tri:    4.23" Simplification phase 3 complete
+   4.23" ---- Completed simplification thread ----
+   4.23" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    4.46" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 305	[100.20 s]
+0.0.Tri: Trace Attempt 203	[8.96 s]
+0.0.Bm: Trace Attempt 311	[104.74 s]
+0.0.Tri: Trace Attempt 9095	[13.37 s]
+0.0.Bm: Trace Attempt 316	[109.18 s]
+0.0.Bm: Trace Attempt 321	[113.20 s]
+0.0.Bm: Trace Attempt 326	[117.42 s]
+0.0.Bm: Trace Attempt 330	[121.53 s]
+0.0.Bm: Trace Attempt 335	[125.84 s]
+0.0.Bm: Trace Attempt 340	[130.69 s]
+0.0.Bm: Trace Attempt 345	[135.54 s]
+0.0.Bm: Trace Attempt 350	[140.04 s]
+0.0.Bm: Trace Attempt 354	[144.36 s]
+0.0.Bm: Trace Attempt 359	[148.89 s]
+0.0.Bm: Trace Attempt 364	[153.81 s]
+0.0.K: Per property time limit expired (64.00 s) [64.11 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[64.12 s].
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tri: Trace Attempt 12287	[14.14 s]
+0.0.Tri: Per property time limit expired (64.00 s) [64.19 s]
+0.0.Tri: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[64.19 s].
+0.0.Tri: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   64.01" ---- Launching main thread ----
+0.0.K: Trace Attempt  1	[0.24 s]
+0.0.K: Trace Attempt  2	[0.24 s]
+0.0.K: Trace Attempt  3	[0.24 s]
+0.0.K: Trace Attempt  4	[0.24 s]
+0.0.K: Trace Attempt  5	[0.24 s]
+0.0.Tri:   64.17" ---- Launching abstraction thread ----
+0.0.Tri:   64.20" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.26 s]
+0.0.Tri: Trace Attempt  3	[0.26 s]
+0.0.Tri: Trace Attempt  4	[0.26 s]
+0.0.Tri: Trace Attempt  5	[0.26 s]
+0.0.Tri:   65.03" Simplification phase 1 complete
+0.0.Tri:   65.13" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 368	[158.18 s]
+0.0.Tri:   67.13" Simplification phase 3 complete
+  67.13" ---- Completed simplification thread ----
+  67.13" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   67.31" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 76	[4.43 s]
+0.0.K: Trace Attempt 86	[4.72 s]
+0.0.Bm: Trace Attempt 373	[162.76 s]
+0.0.K: Trace Attempt 96	[8.79 s]
+0.0.Tri: Trace Attempt 1023	[8.72 s]
+0.0.Bm: Trace Attempt 377	[166.99 s]
+0.0.K: Trace Attempt 110	[13.12 s]
+0.0.Tri: Trace Attempt 2891	[14.37 s]
+0.0.Bm: Trace Attempt 381	[171.75 s]
+0.0.K: Trace Attempt 120	[17.16 s]
+0.0.Tri: Trace Attempt 4215	[18.77 s]
+0.0.Bm: Trace Attempt 384	[175.78 s]
+0.0.K: Trace Attempt 128	[21.74 s]
+0.0.Tri: Trace Attempt 4468	[23.14 s]
+0.0.Bm: Trace Attempt 388	[180.71 s]
+0.0.K: Trace Attempt 133	[26.22 s]
+0.0.Tri: Trace Attempt 5645	[27.36 s]
+0.0.Bm: Trace Attempt 392	[185.62 s]
+0.0.K: Trace Attempt 139	[30.68 s]
+0.0.Bm: Trace Attempt 396	[189.81 s]
+0.0.K: Trace Attempt 144	[34.81 s]
+0.0.Tri: Trace Attempt 6533	[35.29 s]
+0.0.Bm: Trace Attempt 400	[194.47 s]
+0.0.K: Trace Attempt 151	[39.14 s]
+0.0.Tri: Trace Attempt 8281	[39.75 s]
+0.0.Bm: Trace Attempt 403	[198.51 s]
+0.0.K: Trace Attempt 158	[43.72 s]
+0.0.Tri: Trace Attempt 9604	[44.13 s]
+0.0.Bm: Trace Attempt 407	[203.73 s]
+0.0.K: Trace Attempt 166	[47.95 s]
+0.0.Tri: Trace Attempt 9622	[50.01 s]
+0.0.K: Trace Attempt 178	[52.05 s]
+0.0.Bm: Trace Attempt 411	[209.12 s]
+0.0.Tri: Trace Attempt 10866	[54.17 s]
+0.0.K: Trace Attempt 186	[56.26 s]
+0.0.Bm: Trace Attempt 414	[213.23 s]
+0.0.Tri: Trace Attempt 12321	[58.59 s]
+0.0.K: Trace Attempt 192	[60.50 s]
+0.0.Bm: Trace Attempt 417	[217.32 s]
+0.0.K: Trace Attempt 196	[63.65 s]
+0.0.K: Per property time limit expired (64.00 s) [64.01 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[64.01 s].
+0.0.K: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.K: Trace Attempt 28	[0.01 s]
+0.0.Tri: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[63.92 s].
+0.0.Tri: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:  127.93" ---- Launching main thread ----
+0.0.Tri:  128.06" ---- Launching abstraction thread ----
+0.0.Tri:  128.08" ---- Launching multi-phase simplification thread ----
+0.0.K: Trace Attempt  1	[0.21 s]
+0.0.K: Trace Attempt  2	[0.21 s]
+0.0.K: Trace Attempt  3	[0.21 s]
+0.0.K: Trace Attempt  4	[0.21 s]
+0.0.K: Trace Attempt  5	[0.21 s]
+0.0.Tri:  128.90" Simplification phase 1 complete
+0.0.Tri:  129.02" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 421	[222.31 s]
+0.0.Tri:  130.87" Simplification phase 3 complete
+ 130.87" ---- Completed simplification thread ----
+0.0.Tri:  130.87" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:  131.05" ---- Restarting abstraction thread on simplified netlist ----
+0.0.K: Trace Attempt 85	[4.35 s]
+0.0.K: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[4.98 s].
+0.0.K: Morphing to Tricustom6
+0.0.K: Trace Attempt 86	[4.98 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.Tri: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[4.93 s].
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Morphing to Ncustom5
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Ncustom5: Trace Attempt  1	[0.00 s]
+0.0.Ncustom5: Trace Attempt  2	[0.00 s]
+0.0.Ncustom5: Trace Attempt  3	[0.00 s]
+0.0.Ncustom5: Trace Attempt  4	[0.00 s]
+0.0.Ncustom5: Trace Attempt  5	[0.01 s]
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Ncustom5: Trace Attempt  1	[0.14 s]
+0.0.Ncustom5: Trace Attempt  2	[0.14 s]
+0.0.Ncustom5: Trace Attempt  3	[0.15 s]
+0.0.Tricustom6:    0.16" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.19" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 424	[226.52 s]
+0.0.Ncustom5: Trace Attempt 135	[4.17 s]
+0.0.Tricustom6: Trace Attempt 92	[5.41 s]
+0.0.Tricustom6:    5.74" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 428	[231.51 s]
+0.0.Ncustom5: Trace Attempt 191	[8.30 s]
+0.0.Tricustom6:    9.52" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 431	[235.54 s]
+0.0.Tricustom6: Trace Attempt 136	[9.88 s]
+0.0.Ncustom5: Trace Attempt 223	[12.47 s]
+0.0.Bm: Trace Attempt 434	[240.05 s]
+0.0.Tricustom6: Trace Attempt 712	[14.53 s]
+0.0.Tricustom6:   16.13" Simplification phase 3 complete
+  16.13" ---- Completed simplification thread ----
+0.0.Tricustom6:   16.13" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   16.29" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ncustom5: Trace Attempt 255	[16.54 s]
+0.0.Bm: Trace Attempt 437	[244.39 s]
+0.0.Ncustom5: Trace Attempt 290	[20.71 s]
+0.0.Bm: Trace Attempt 441	[249.71 s]
+0.0.Ncustom5: Trace Attempt 311	[25.31 s]
+0.0.Bm: Trace Attempt 444	[254.01 s]
+0.0.Ncustom5: Trace Attempt 353	[29.57 s]
+0.0.Bm: Trace Attempt 447	[258.72 s]
+0.0.Ncustom5: Trace Attempt 376	[34.12 s]
+0.0.Tricustom6: Trace Attempt 1076	[34.54 s]
+0.0.Bm: Trace Attempt 450	[263.06 s]
+0.0.Ncustom5: Trace Attempt 386	[38.78 s]
+0.0.Tricustom6: Trace Attempt 1680	[42.24 s]
+0.0.Ncustom5: Trace Attempt 398	[43.06 s]
+0.0.Bm: Trace Attempt 453	[269.00 s]
+0.0.Tricustom6: Trace Attempt 2660	[46.40 s]
+0.0.Ncustom5: Trace Attempt 409	[47.62 s]
+0.0.Bm: Trace Attempt 456	[273.71 s]
+0.0.Ncustom5: Trace Attempt 426	[52.00 s]
+0.0.Bm: Trace Attempt 459	[277.84 s]
+0.0.Ncustom5: Trace Attempt 481	[56.08 s]
+0.0.Tricustom6: Trace Attempt 3784	[56.64 s]
+0.0.Bm: Trace Attempt 462	[282.52 s]
+0.0.Ncustom5: Trace Attempt 542	[60.20 s]
+0.0.Tricustom6: Trace Attempt 4728	[60.89 s]
+0.0.Bm: Trace Attempt 465	[287.29 s]
+0.0.Ncustom5: Trace Attempt 574	[64.48 s]
+0.0.Tricustom6: Trace Attempt 6052	[65.17 s]
+0.0.Bm: Trace Attempt 469	[292.67 s]
+0.0.Ncustom5: Trace Attempt 594	[69.71 s]
+0.0.Bm: Trace Attempt 472	[297.37 s]
+0.0.Ncustom5: Trace Attempt 606	[73.88 s]
+0.0.Bm: Trace Attempt 475	[301.57 s]
+0.0.Tricustom6: Trace Attempt 6572	[76.87 s]
+0.0.Ncustom5: Trace Attempt 623	[78.62 s]
+0.0.Bm: Trace Attempt 478	[306.60 s]
+0.0.Tricustom6: Trace Attempt 7300	[81.36 s]
+0.0.Ncustom5: Trace Attempt 641	[83.34 s]
+0.0.Bm: Trace Attempt 481	[311.38 s]
+0.0.Tricustom6: Trace Attempt 8244	[85.79 s]
+0.0.Ncustom5: Trace Attempt 663	[87.82 s]
+0.0.Tricustom6: Trace Attempt 9068	[90.31 s]
+0.0.Bm: Trace Attempt 484	[316.05 s]
+0.0.Ncustom5: Trace Attempt 679	[92.37 s]
+0.0.Tricustom6: Trace Attempt 10068	[94.90 s]
+0.0.Bm: Trace Attempt 487	[321.64 s]
+0.0.Ncustom5: Trace Attempt 697	[96.40 s]
+0.0.Tricustom6: Trace Attempt 10768	[99.58 s]
+0.0.Bm: Trace Attempt 489	[325.75 s]
+0.0.Ncustom5: Trace Attempt 716	[100.54 s]
+0.0.Tricustom6: Trace Attempt 14800	[104.15 s]
+0.0.Bm: Trace Attempt 491	[330.18 s]
+0.0.Ncustom5: Trace Attempt 745	[104.67 s]
+0.0.Ncustom5: Trace Attempt 768	[108.98 s]
+0.0.Bm: Trace Attempt 494	[335.25 s]
+0.0.Tricustom6: Trace Attempt 17060	[114.26 s]
+0.0.Bm: Trace Attempt 497	[340.33 s]
+0.0.Tricustom6: Trace Attempt 19872	[118.83 s]
+0.0.Bm: Trace Attempt 500	[345.30 s]
+0.0.Tricustom6: Trace Attempt 23140	[123.42 s]
+0.0.Bm: Trace Attempt 503	[350.96 s]
+0.0.Tricustom6: Trace Attempt 26524	[127.01 s]
+0.0.Tricustom6: Per property time limit expired (127.99 s) [128.02 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[128.02 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  128.04" ---- Launching main thread ----
+0.0.Ncustom5: Per property time limit expired (127.98 s) [128.24 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[128.24 s].
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tricustom6:  128.22" ---- Launching abstraction thread ----
+0.0.Tricustom6:  128.25" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 505	[355.34 s]
+0.0.Tricustom6: Trace Attempt 116	[4.45 s]
+0.0.Tricustom6:  132.87" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 508	[360.47 s]
+0.0.Tricustom6:  135.64" Simplification phase 2 complete
+0.0.Tricustom6: Trace Attempt 148	[8.68 s]
+0.0.Bm: Trace Attempt 511	[365.47 s]
+0.0.Tricustom6: Trace Attempt 168	[13.73 s]
+0.0.Tricustom6:  142.77" Simplification phase 3 complete
+ 142.77" ---- Completed simplification thread ----
+ 142.77" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  142.93" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 514	[370.49 s]
+0.0.Bm: Trace Attempt 517	[376.13 s]
+0.0.Bm: Trace Attempt 519	[380.26 s]
+0.0.Tricustom6: Trace Attempt 172	[29.94 s]
+0.0.Bm: Trace Attempt 521	[384.57 s]
+0.0.Bm: Trace Attempt 523	[389.19 s]
+0.0.Tricustom6: Trace Attempt 256	[35.47 s]
+0.0.Tricustom6: Trace Attempt 316	[39.48 s]
+0.0.Bm: Trace Attempt 525	[393.65 s]
+0.0.Bm: Trace Attempt 528	[399.25 s]
+0.0.Bm: Trace Attempt 531	[404.64 s]
+0.0.Tricustom6: Trace Attempt 12728	[56.28 s]
+0.0.Bm: Trace Attempt 534	[410.26 s]
+0.0.Tricustom6: Trace Attempt 38240	[60.28 s]
+0.0.Bm: Trace Attempt 537	[416.08 s]
+0.0.Tricustom6: Trace Attempt 62464	[64.28 s]
+0.0.Bm: Trace Attempt 540	[421.75 s]
+0.0.Tricustom6: Trace Attempt 87180	[68.28 s]
+0.0.Bm: Trace Attempt 542	[425.89 s]
+0.0.Tricustom6: Trace Attempt 109504	[72.28 s]
+0.0.Bm: Trace Attempt 544	[430.33 s]
+0.0.Tricustom6: Trace Attempt 117040	[80.60 s]
+0.0.Bm: Trace Attempt 547	[436.75 s]
+0.0.Tricustom6: Trace Attempt 148088	[84.60 s]
+0.0.Tricustom6: Trace Attempt 181448	[88.60 s]
+0.0.Bm: Trace Attempt 549	[442.52 s]
+0.0.Tricustom6: Trace Attempt 209504	[92.79 s]
+0.0.Bm: Trace Attempt 551	[446.71 s]
+0.0.Tricustom6: Trace Attempt 233492	[96.79 s]
+0.0.Bm: Trace Attempt 553	[450.78 s]
+0.0.Bm: Trace Attempt 555	[455.24 s]
+0.0.Bm: Trace Attempt 557	[460.02 s]
+0.0.Bm: Trace Attempt 559	[465.97 s]
+0.0.Bm: Trace Attempt 562	[471.39 s]
+0.0.Bm: Trace Attempt 565	[477.43 s]
+0.0.Tricustom6: Trace Attempt 257148	[100.61 s]
+0.0.Tricustom6: Per property time limit expired (128.00 s) [128.15 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[128.15 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  256.17" ---- Launching main thread ----
+0.0.Ncustom5: Trace Attempt 432	[0.20 s]
+0.0.Ncustom5: Per property time limit expired (128.00 s) [128.15 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[128.15 s].
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Ncustom5: Trace Attempt  1	[0.00 s]
+0.0.Ncustom5: Trace Attempt  2	[0.00 s]
+0.0.Ncustom5: Trace Attempt  3	[0.00 s]
+0.0.Ncustom5: Trace Attempt  4	[0.00 s]
+0.0.Ncustom5: Trace Attempt  5	[0.00 s]
+0.0.Tricustom6:  256.38" ---- Launching abstraction thread ----
+0.0.Tricustom6:  256.41" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 567	[482.15 s]
+0.0.Ncustom5: Trace Attempt  1	[0.20 s]
+0.0.Ncustom5: Trace Attempt  2	[0.20 s]
+0.0.Ncustom5: Trace Attempt  3	[0.20 s]
+0.0.Ncustom5: Trace Attempt 121	[4.29 s]
+0.0.Tricustom6:  261.52" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 570	[488.24 s]
+0.0.Ncustom5: Trace Attempt 170	[8.54 s]
+0.0.Tricustom6:  265.54" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 572	[492.34 s]
+0.0.Ncustom5: Trace Attempt 205	[12.89 s]
+0.0.Tricustom6:  272.44" Simplification phase 3 complete
+ 272.44" ---- Completed simplification thread ----
+ 272.44" ---- Restarting main thread on simplified netlist ----
+0.0.Bm: Trace Attempt 574	[498.24 s]
+0.0.Tricustom6:  272.63" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ncustom5: Trace Attempt 253	[17.00 s]
+0.0.Bm: Trace Attempt 576	[503.05 s]
+0.0.Ncustom5: Trace Attempt 280	[21.30 s]
+0.0.Ncustom5: Trace Attempt 301	[25.49 s]
+0.0.Bm: Trace Attempt 578	[507.71 s]
+0.0.Ncustom5: Trace Attempt 336	[29.60 s]
+0.0.Bm: Trace Attempt 580	[512.71 s]
+0.0.Ncustom5: Trace Attempt 377	[33.84 s]
+0.0.Bm: Trace Attempt 582	[517.79 s]
+0.0.Ncustom5: Trace Attempt 402	[38.08 s]
+0.0.Ncustom5: Trace Attempt 416	[42.10 s]
+0.0.Bm: Trace Attempt 585	[524.39 s]
+0.0.Ncustom5: Trace Attempt 445	[46.32 s]
+0.0.Bm: Trace Attempt 586	[531.14 s]
+0.0.Ncustom5: Trace Attempt 514	[50.32 s]
+0.0.Bm: Trace Attempt 588	[536.77 s]
+0.0.Ncustom5: Trace Attempt 536	[54.80 s]
+0.0.Ncustom5: Trace Attempt 556	[59.05 s]
+0.0.Bm: Trace Attempt 590	[541.55 s]
+0.0.Ncustom5: Trace Attempt 624	[63.21 s]
+0.0.Bm: Trace Attempt 592	[545.89 s]
+0.0.Ncustom5: Trace Attempt 658	[67.59 s]
+0.0.Bm: Trace Attempt 594	[550.02 s]
+0.0.Bm: Trace Attempt 596	[554.27 s]
+0.0.Ncustom5: Trace Attempt 677	[72.30 s]
+0.0.Bm: Trace Attempt 598	[558.50 s]
+0.0.Ncustom5: Trace Attempt 690	[76.65 s]
+0.0.Ncustom5: Trace Attempt 706	[80.66 s]
+0.0.Bm: Trace Attempt 600	[563.15 s]
+0.0.Ncustom5: Trace Attempt 719	[85.71 s]
+0.0.Bm: Trace Attempt 602	[567.84 s]
+0.0.Ncustom5: Trace Attempt 732	[90.42 s]
+0.0.Bm: Trace Attempt 604	[573.14 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[94.49 s].
+0.0.Tricustom6: Morphing to D
+0.0.Tricustom6: All properties determined. [0.00 s]
+0.0.Tricustom6: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.02 s]
+0.0.D: Trace Attempt  2	[0.02 s]
+0.0.D: Trace Attempt  3	[0.03 s]
+0.0.D: Trace Attempt  4	[0.04 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[94.52 s].
+0.0.Ncustom5: Morphing to Hts
+0.0.Ncustom5: Trace Attempt 739	[93.83 s]
+0.0.Ncustom5: All properties determined. [0.00 s]
+0.0.Ncustom5: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Bm: Trace Attempt 606	[577.82 s]
+0.0.Hts: Trace Attempt 6581	[4.00 s]
+0.0.Bm: Trace Attempt 608	[582.45 s]
+0.0.D: Trace Attempt 52	[7.31 s]
+0.0.Hts: Trace Attempt 13108	[8.00 s]
+0.0.Bm: Trace Attempt 610	[586.86 s]
+0.0.Hts: Trace Attempt 18799	[12.00 s]
+0.0.Bm: Trace Attempt 612	[591.98 s]
+0.0.Hts: Trace Attempt 26962	[16.00 s]
+0.0.D: Per property time limit expired (19.99 s) [20.00 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[20.00 s].
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.01 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.D: Trace Attempt  5	[0.02 s]
+0.0.Hts: Trace Attempt 30770	[19.02 s]
+0.0.Hts: Per property time limit expired (19.83 s) [20.06 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[20.06 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.18 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.41 s].
+0.0.D: Morphing to Ncustom1
+0.0.D: Trace Attempt 19	[0.25 s]
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 432	[0.19 s]
+0.0.Bm: Trace Attempt 614	[598.18 s]
+0.0.Hts: Trace Attempt 6734	[4.00 s]
+0.0.Bm: Trace Attempt 616	[602.67 s]
+0.0.Hts: Trace Attempt 13602	[8.00 s]
+0.0.Bm: Trace Attempt 618	[607.33 s]
+0.0.Hts: Trace Attempt 19602	[12.05 s]
+0.0.Bm: Trace Attempt 620	[612.35 s]
+0.0.Hts: Trace Attempt 27612	[16.05 s]
+0.0.Hts: Trace Attempt 31344	[20.05 s]
+0.0.Bm: Trace Attempt 622	[618.10 s]
+0.0.Hts: Trace Attempt 38757	[24.05 s]
+0.0.Bm: Trace Attempt 624	[624.66 s]
+0.0.Hts: Trace Attempt 45776	[28.05 s]
+0.0.Hts: Trace Attempt 54363	[32.05 s]
+0.0.Bm: Trace Attempt 626	[629.75 s]
+0.0.Hts: Trace Attempt 61458	[37.92 s]
+0.0.Bm: Trace Attempt 628	[635.69 s]
+0.0.Hts: Trace Attempt 65265	[41.92 s]
+0.0.Bm: Trace Attempt 630	[640.18 s]
+0.0.Hts: Trace Attempt 72234	[45.92 s]
+0.0.Bm: Trace Attempt 632	[645.15 s]
+0.0.Hts: Trace Attempt 78401	[49.95 s]
+0.0.Bm: Trace Attempt 634	[650.43 s]
+0.0.Hts: Trace Attempt 84938	[53.95 s]
+0.0.Hts: Trace Attempt 93164	[57.95 s]
+0.0.Bm: Trace Attempt 636	[655.31 s]
+0.0.Hts: Trace Attempt 101674	[61.95 s]
+0.0.Bm: Trace Attempt 638	[660.60 s]
+0.0.Hts: Trace Attempt 106124	[64.00 s]
+0.0.Hts: Per property time limit expired (64.00 s) [64.00 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[64.00 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.04 s]
+0.0.Hts: Trace Attempt  2	[0.04 s]
+0.0.Hts: Trace Attempt  3	[0.04 s]
+0.0.Hts: Trace Attempt  4	[0.04 s]
+0.0.Hts: Trace Attempt  5	[0.04 s]
+0.0.Ncustom1: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[64.14 s].
+0.0.Ncustom1: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Ncustom1: Trace Attempt  1	[0.39 s]
+0.0.Ncustom1: Trace Attempt  2	[0.39 s]
+0.0.Ncustom1: Trace Attempt  3	[0.39 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[1.00 s].
+0.0.Hts: Morphing to B
+0.0.Hts: Trace Attempt 1800	[1.00 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.Ncustom1: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.86 s].
+0.0.Ncustom1: Morphing to AM
+0.0.Ncustom1: Trace Attempt 79	[0.84 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.07 s]
+0.0.AM: Trace Attempt  2	[0.07 s]
+0.0.AM: Trace Attempt  3	[0.07 s]
+0.0.AM: Trace Attempt  1	[0.25 s]
+0.0.AM: Trace Attempt  2	[0.25 s]
+0.0.AM: Trace Attempt  3	[0.25 s]
+0.0.B: Trace Attempt 108	[4.15 s]
+0.0.AM: Trace Attempt 182	[4.26 s]
+0.0.Bm: Trace Attempt 640	[667.37 s]
+0.0.AM: Trace Attempt 28	[8.32 s]
+0.0.B: Trace Attempt 116	[8.92 s]
+0.0.Bm: Trace Attempt 642	[672.46 s]
+0.0.AM: Trace Attempt 163	[12.36 s]
+0.0.B: Trace Attempt 118	[13.03 s]
+0.0.AM: Trace Attempt 205	[16.53 s]
+0.0.Bm: Trace Attempt 644	[679.56 s]
+0.0.B: Trace Attempt 121	[18.53 s]
+0.0.AM: Trace Attempt 246	[21.05 s]
+0.0.B: Trace Attempt 123	[24.07 s]
+0.0.Bm: Trace Attempt 646	[685.99 s]
+0.0.AM: Trace Attempt 273	[25.13 s]
+0.0.B: Trace Attempt 171	[28.09 s]
+0.0.AM: Trace Attempt 281	[29.48 s]
+0.0.Bm: Trace Attempt 648	[691.32 s]
+0.0.B: Trace Attempt 217	[32.19 s]
+0.0.AM: Trace Attempt 287	[33.62 s]
+0.0.Bm: Trace Attempt 650	[697.01 s]
+0.0.B: Trace Attempt 242	[36.20 s]
+0.0.AM: Trace Attempt 293	[37.66 s]
+0.0.Bm: Trace Attempt 652	[701.85 s]
+0.0.B: Trace Attempt 262	[40.24 s]
+0.0.AM: Trace Attempt 301	[42.05 s]
+0.0.B: Trace Attempt 282	[44.39 s]
+0.0.Bm: Trace Attempt 654	[707.56 s]
+0.0.AM: Trace Attempt 308	[46.41 s]
+0.0.B: Trace Attempt 302	[48.40 s]
+0.0.Bm: Trace Attempt 656	[712.95 s]
+0.0.AM: Trace Attempt 321	[51.43 s]
+0.0.B: Trace Attempt 315	[52.43 s]
+0.0.Bm: Trace Attempt 658	[717.66 s]
+0.0.AM: Trace Attempt 328	[56.33 s]
+0.0.B: Trace Attempt 330	[56.63 s]
+0.0.Bm: Trace Attempt 660	[722.14 s]
+0.0.AM: Trace Attempt  1	[60.62 s]
+0.0.AM: Trace Attempt  2	[60.63 s]
+0.0.AM: Trace Attempt  3	[60.63 s]
+0.0.B: Trace Attempt 340	[60.74 s]
+0.0.B: Trace Attempt 353	[64.79 s]
+0.0.AM: Trace Attempt 92	[64.88 s]
+0.0.Bm: Trace Attempt 662	[727.18 s]
+0.0.B: Trace Attempt 366	[68.99 s]
+0.0.AM: Trace Attempt 131	[69.09 s]
+0.0.Bm: Trace Attempt 664	[731.98 s]
+0.0.B: Trace Attempt 382	[73.41 s]
+0.0.AM: Trace Attempt 171	[73.58 s]
+0.0.Bm: Trace Attempt 666	[738.33 s]
+0.0.B: Trace Attempt 396	[77.63 s]
+0.0.AM: Trace Attempt 185	[77.83 s]
+0.0.B: Trace Attempt 406	[81.67 s]
+0.0.Bm: Trace Attempt 668	[743.46 s]
+0.0.AM: Trace Attempt 199	[81.93 s]
+0.0.B: Trace Attempt 416	[85.96 s]
+0.0.AM: Trace Attempt 219	[86.06 s]
+0.0.Bm: Trace Attempt 670	[748.06 s]
+0.0.B: Trace Attempt 428	[90.06 s]
+0.0.AM: Trace Attempt 242	[90.19 s]
+0.0.Bm: Trace Attempt 672	[752.95 s]
+0.0.B: Trace Attempt 441	[94.09 s]
+0.0.AM: Trace Attempt 270	[94.32 s]
+0.0.Bm: Trace Attempt 674	[758.49 s]
+0.0.B: Trace Attempt 451	[98.19 s]
+0.0.AM: Trace Attempt 283	[98.37 s]
+0.0.Bm: Trace Attempt 676	[763.99 s]
+0.0.B: Trace Attempt 461	[102.35 s]
+0.0.AM: Trace Attempt 303	[102.71 s]
+0.0.Bm: Trace Attempt 677	[768.12 s]
+0.0.B: Trace Attempt 472	[106.93 s]
+0.0.AM: Trace Attempt 345	[107.12 s]
+0.0.AM: Trace Attempt 377	[111.30 s]
+0.0.Bm: Trace Attempt 679	[773.21 s]
+0.0.B: Trace Attempt 482	[111.57 s]
+0.0.Bm: Trace Attempt 681	[777.54 s]
+0.0.B: Trace Attempt 492	[115.84 s]
+0.0.AM: Trace Attempt 422	[115.99 s]
+0.0.AM: Trace Attempt 445	[120.09 s]
+0.0.Bm: Trace Attempt 683	[782.34 s]
+0.0.B: Trace Attempt 502	[120.68 s]
+0.0.AM: Trace Attempt 467	[124.25 s]
+0.0.B: Trace Attempt 513	[125.26 s]
+0.0.Bm: Trace Attempt 685	[787.94 s]
+0.0.B: Trace Attempt 517	[127.56 s]
+0.0.B: Per property time limit expired (128.00 s) [128.09 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[128.09 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt 477	[127.94 s]
+0.0.AM: Per property time limit expired (128.00 s) [128.12 s]
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[128.12 s].
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  4	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.05 s]
+0.0.AM: Trace Attempt  2	[0.05 s]
+0.0.AM: Trace Attempt  3	[0.05 s]
+0.0.AM: Trace Attempt  1	[0.18 s]
+0.0.AM: Trace Attempt  2	[0.18 s]
+0.0.AM: Trace Attempt  3	[0.18 s]
+0.0.B: Trace Attempt 217	[4.07 s]
+0.0.AM: Trace Attempt 101	[4.26 s]
+0.0.Bm: Trace Attempt 687	[794.75 s]
+0.0.AM: Trace Attempt 138	[8.33 s]
+0.0.Bm: Trace Attempt 689	[799.19 s]
+0.0.B: Trace Attempt 249	[9.79 s]
+0.0.AM: Trace Attempt 158	[12.41 s]
+0.0.B: Trace Attempt 274	[13.84 s]
+0.0.Bm: Trace Attempt 691	[803.81 s]
+0.0.AM: Trace Attempt 178	[16.63 s]
+0.0.B: Trace Attempt 302	[17.92 s]
+0.0.Bm: Trace Attempt 693	[809.45 s]
+0.0.AM: Trace Attempt 193	[20.82 s]
+0.0.B: Trace Attempt 323	[22.09 s]
+0.0.Bm: Trace Attempt 695	[814.49 s]
+0.0.AM: Trace Attempt 223	[24.86 s]
+0.0.B: Trace Attempt 348	[26.35 s]
+0.0.AM: Trace Attempt 246	[28.98 s]
+0.0.Bm: Trace Attempt 697	[819.10 s]
+0.0.B: Trace Attempt 365	[30.48 s]
+0.0.AM: Trace Attempt 261	[33.11 s]
+0.0.Bm: Trace Attempt 699	[824.04 s]
+0.0.B: Trace Attempt 381	[34.65 s]
+0.0.AM: Trace Attempt 274	[37.39 s]
+0.0.B: Trace Attempt 396	[38.96 s]
+0.0.Ht: Trace Attempt 1214	[1073.90 s]
+0.0.AM: Trace Attempt 291	[41.44 s]
+0.0.Bm: Trace Attempt 701	[831.53 s]
+0.0.B: Trace Attempt 410	[43.33 s]
+0.0.AM: Trace Attempt 337	[45.73 s]
+0.0.Bm: Trace Attempt 702	[836.47 s]
+0.0.B: Trace Attempt 423	[47.78 s]
+0.0.AM: Trace Attempt 363	[50.05 s]
+0.0.B: Trace Attempt 436	[51.96 s]
+0.0.AM: Trace Attempt 379	[54.38 s]
+0.0.B: Trace Attempt 450	[56.22 s]
+0.0.AM: Trace Attempt 393	[58.48 s]
+0.0.Bm: Trace Attempt 703	[848.61 s]
+0.0.B: Trace Attempt 459	[60.28 s]
+0.0.AM: Trace Attempt 407	[62.86 s]
+0.0.B: Trace Attempt 467	[64.74 s]
+0.0.AM: Trace Attempt 438	[66.89 s]
+0.0.AM: Trace Attempt 484	[71.19 s]
+0.0.B: Trace Attempt 472	[71.71 s]
+0.0.Bm: Trace Attempt 704	[863.42 s]
+0.0.AM: Trace Attempt 508	[75.34 s]
+0.0.B: Trace Attempt 481	[75.94 s]
+0.0.Bm: Trace Attempt 705	[867.50 s]
+0.0.AM: Trace Attempt 525	[79.67 s]
+0.0.B: Trace Attempt 487	[80.00 s]
+0.0.AM: Trace Attempt 538	[83.74 s]
+0.0.B: Trace Attempt 493	[84.23 s]
+0.0.Bm: Trace Attempt 707	[874.29 s]
+0.0.AM: Trace Attempt 550	[87.96 s]
+0.0.B: Trace Attempt 503	[88.71 s]
+0.0.Bm: Trace Attempt 709	[880.23 s]
+0.0.AM: Trace Attempt 561	[91.97 s]
+0.0.B: Trace Attempt 510	[92.87 s]
+0.0.AM: Trace Attempt 573	[96.61 s]
+0.0.B: Trace Attempt 517	[97.21 s]
+0.0.AM: Trace Attempt 591	[100.63 s]
+0.0.Bm: Trace Attempt 711	[890.73 s]
+0.0.B: Trace Attempt 526	[101.56 s]
+0.0.Bm: Trace Attempt 712	[895.58 s]
+0.0.B: Trace Attempt 533	[106.38 s]
+0.0.B: Trace Attempt 540	[110.61 s]
+0.0.Bm: Trace Attempt 714	[901.45 s]
+0.0.AM: Trace Attempt 602	[112.16 s]
+0.0.B: Trace Attempt 549	[114.87 s]
+0.0.AM: Trace Attempt 789	[116.20 s]
+0.0.Bm: Trace Attempt 716	[907.51 s]
+0.0.B: Trace Attempt 554	[119.38 s]
+0.0.AM: Trace Attempt 851	[120.22 s]
+0.0.B: Trace Attempt 560	[123.95 s]
+0.0.AM: Trace Attempt 871	[124.31 s]
+0.0.Bm: Trace Attempt 718	[914.68 s]
+0.0.B: Trace Attempt 565	[127.75 s]
+0.0.B: Per property time limit expired (128.00 s) [128.09 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[128.09 s].
+0.0.B: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt 893	[127.93 s]
+0.0.AM: Per property time limit expired (128.00 s) [128.19 s]
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[128.19 s].
+0.0.AM: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.08 s]
+0.0.AM: Trace Attempt  2	[0.08 s]
+0.0.AM: Trace Attempt  3	[0.09 s]
+0.0.AM: Trace Attempt  1	[0.23 s]
+0.0.AM: Trace Attempt  2	[0.23 s]
+0.0.AM: Trace Attempt  3	[0.23 s]
+0.0.Bm: Trace Attempt 719	[919.81 s]
+0.0.B: Trace Attempt 110	[4.37 s]
+0.0.AM: Trace Attempt 179	[4.30 s]
+0.0.B: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[5.65 s].
+0.0.B: Morphing to Ncustom5
+0.0.B: Trace Attempt 112	[5.13 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AM: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[5.52 s].
+0.0.AM: Morphing to Tricustom6
+0.0.AM: Trace Attempt 252	[5.49 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Ncustom5: Trace Attempt 432	[0.18 s]
+0.0.Tricustom6:    0.19" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.25" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 721	[925.75 s]
+0.0.Tricustom6: Trace Attempt 104	[4.26 s]
+0.0.Tricustom6:    4.59" Simplification phase 1 complete
+0.0.Tricustom6:    8.53" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 723	[932.70 s]
+0.0.Tricustom6: Trace Attempt 140	[9.00 s]
+0.0.Ht: Trace Attempt 1215	[1179.61 s]
+0.0.Tricustom6: Trace Attempt 164	[13.95 s]
+0.0.Bm: Trace Attempt 725	[938.83 s]
+0.0.Tricustom6:   16.13" Simplification phase 3 complete
+  16.13" ---- Completed simplification thread ----
+  16.13" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   16.31" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tricustom6: Trace Attempt 168	[21.63 s]
+0.0.Bm: Trace Attempt 727	[945.99 s]
+0.0.Tricustom6: Trace Attempt 172	[30.21 s]
+0.0.Bm: Trace Attempt 729	[954.47 s]
+0.0.Tricustom6: Trace Attempt 240	[34.84 s]
+0.0.Bm: Trace Attempt 731	[961.33 s]
+0.0.Tricustom6: Trace Attempt 296	[39.51 s]
+0.0.Ht: Trace Attempt 1216	[1208.43 s]
+0.0.Tricustom6: Trace Attempt 336	[43.60 s]
+0.0.Bm: Trace Attempt 733	[967.57 s]
+0.0.Ht: Trace Attempt 1217	[1213.99 s]
+0.0.Bm: Trace Attempt 735	[973.01 s]
+0.0.Ht: Trace Attempt 1229	[1219.67 s]
+0.0.Bm: Trace Attempt 737	[979.63 s]
+0.0.Ht: Trace Attempt 1239	[1225.43 s]
+0.0.Tricustom6: Trace Attempt 12728	[60.66 s]
+0.0.Bm: Trace Attempt 739	[987.08 s]
+0.0.Ht: Trace Attempt 1255	[1230.30 s]
+0.0.Tricustom6: Trace Attempt 54460	[65.37 s]
+0.0.Ht: Trace Attempt 1265	[1234.38 s]
+0.0.Tricustom6: Trace Attempt 101508	[70.27 s]
+0.0.Bm: Trace Attempt 740	[994.56 s]
+0.0.Ht: Trace Attempt 1270	[1238.60 s]
+0.0.Ht: Trace Attempt 1279	[1242.62 s]
+0.0.Bm: Trace Attempt 741	[1001.70 s]
+0.0.Tricustom6: Trace Attempt 117040	[78.70 s]
+0.0.Ht: Trace Attempt 1284	[1246.68 s]
+0.0.Tricustom6: Trace Attempt 151788	[83.13 s]
+0.0.Ht: Trace Attempt 1289	[1250.99 s]
+0.0.Bm: Trace Attempt 742	[1009.36 s]
+0.0.Tricustom6: Trace Attempt 219784	[87.47 s]
+0.0.Bm: Trace Attempt 743	[1014.39 s]
+0.0.Bm: Trace Attempt 745	[1019.75 s]
+0.0.Ht: Trace Attempt 1295	[1267.02 s]
+0.0.Bm: Trace Attempt 747	[1026.15 s]
+0.0.Ht: Trace Attempt 1300	[1271.36 s]
+0.0.Ht: Trace Attempt 1320	[1277.85 s]
+0.0.Bm: Trace Attempt 749	[1035.33 s]
+0.0.Ht: Trace Attempt 1328	[1281.96 s]
+0.0.Bm: Trace Attempt 750	[1039.38 s]
+0.0.Ht: Trace Attempt 1341	[1286.58 s]
+0.0.Tricustom6: Trace Attempt 257152	[119.85 s]
+0.0.Bm: Trace Attempt 752	[1046.29 s]
+0.0.Tricustom6: Trace Attempt 289152	[123.86 s]
+0.0.Ht: Trace Attempt 1349	[1291.33 s]
+0.0.Tricustom6: Trace Attempt 319060	[128.43 s]
+0.0.Bm: Trace Attempt 754	[1053.13 s]
+0.0.Ht: Trace Attempt 1357	[1296.84 s]
+0.0.Tricustom6: Trace Attempt 351956	[132.43 s]
+0.0.Ht: Trace Attempt 1361	[1301.35 s]
+0.0.Bm: Trace Attempt 756	[1060.34 s]
+0.0.Tricustom6: Trace Attempt 378624	[136.65 s]
+0.0.Ht: Trace Attempt 1368	[1305.41 s]
+0.0.Tricustom6: Trace Attempt 406348	[140.68 s]
+0.0.Ht: Trace Attempt 1381	[1309.43 s]
+0.0.Bm: Trace Attempt 758	[1067.54 s]
+0.0.Ht: Trace Attempt 1396	[1314.32 s]
+0.0.Bm: Trace Attempt 760	[1075.33 s]
+0.0.Bm: Trace Attempt 762	[1081.23 s]
+0.0.Bm: Trace Attempt 763	[1085.81 s]
+0.0.Bm: Trace Attempt 764	[1089.92 s]
+0.0.Bm: Trace Attempt 765	[1094.80 s]
+0.0.Ht: Trace Attempt 1403	[1339.03 s]
+0.0.Ht: Trace Attempt 1416	[1343.32 s]
+0.0.Bm: Trace Attempt 767	[1103.08 s]
+0.0.Ht: Trace Attempt 1427	[1348.10 s]
+0.0.Bm: Trace Attempt 769	[1108.31 s]
+0.0.Ht: Trace Attempt 1441	[1352.50 s]
+0.0.Ht: Trace Attempt 1453	[1356.52 s]
+0.0.Bm: Trace Attempt 771	[1114.31 s]
+0.0.Tricustom6: Trace Attempt 414616	[191.37 s]
+0.0.Ht: Trace Attempt 1462	[1361.29 s]
+0.0.Tricustom6: Trace Attempt 446660	[195.37 s]
+0.0.Bm: Trace Attempt 773	[1122.17 s]
+0.0.Tricustom6: Trace Attempt 473668	[199.37 s]
+0.0.Tricustom6: Trace Attempt 499612	[203.37 s]
+0.0.Bm: Trace Attempt 774	[1127.17 s]
+0.0.Ht: Trace Attempt 1466	[1372.39 s]
+0.0.Tricustom6: Trace Attempt 538072	[208.09 s]
+0.0.Bm: Trace Attempt 776	[1134.86 s]
+0.0.Tricustom6: Trace Attempt 562496	[212.19 s]
+0.0.Tricustom6: Trace Attempt 609084	[217.06 s]
+0.0.Bm: Trace Attempt 778	[1142.07 s]
+0.0.Ncustom5: Trace Attempt 433	[222.61 s]
+0.0.Bm: Trace Attempt 779	[1146.57 s]
+0.0.Ht: Trace Attempt 1472	[1390.25 s]
+0.0.Ncustom5: Trace Attempt  1	[223.82 s]
+0.0.Ncustom5: Trace Attempt  2	[223.82 s]
+0.0.Ncustom5: Trace Attempt  3	[223.82 s]
+0.0.Ncustom5: Trace Attempt  4	[223.82 s]
+0.0.Ncustom5: Trace Attempt 205	[227.83 s]
+0.0.Bm: Trace Attempt 780	[1151.45 s]
+0.0.Ncustom5: Trace Attempt 225	[233.54 s]
+0.0.Ht: Trace Attempt 1480	[1400.41 s]
+0.0.Ht: Trace Attempt 1482	[1405.82 s]
+0.0.Ht: Trace Attempt 1490	[1409.97 s]
+0.0.Ncustom5: Trace Attempt 391	[245.27 s]
+0.0.Ht: Trace Attempt 1494	[1414.07 s]
+0.0.Bm: Trace Attempt 781	[1172.73 s]
+0.0.Ht: Trace Attempt 1501	[1418.32 s]
+0.0.Ht: Trace Attempt 1508	[1422.65 s]
+0.0.Ncustom5: Trace Attempt 514	[247.81 s]
+0.0.Ncustom5: Per property time limit expired (255.99 s) [256.07 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[256.08 s].
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[255.96 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Ncustom5: Trace Attempt  1	[0.01 s]
+0.0.Ncustom5: Trace Attempt  2	[0.01 s]
+0.0.Ncustom5: Trace Attempt  3	[0.01 s]
+0.0.Ncustom5: Trace Attempt  4	[0.01 s]
+0.0.Ncustom5: Trace Attempt  5	[0.01 s]
+0.0.Tricustom6:  255.99" ---- Launching main thread ----
+0.0.Ncustom5: Trace Attempt  1	[0.19 s]
+0.0.Ncustom5: Trace Attempt  2	[0.19 s]
+0.0.Ncustom5: Trace Attempt  3	[0.19 s]
+0.0.Tricustom6:  256.21" ---- Launching abstraction thread ----
+0.0.Tricustom6:  256.24" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 782	[1182.23 s]
+0.0.Ncustom5: Trace Attempt 89	[4.33 s]
+0.0.Tricustom6:  261.16" Simplification phase 1 complete
+0.0.Tricustom6: Trace Attempt 96	[5.40 s]
+0.0.Ht: Trace Attempt 1515	[1428.34 s]
+0.0.Ncustom5: Trace Attempt 134	[8.48 s]
+0.0.Bm: Trace Attempt 783	[1188.65 s]
+0.0.Tricustom6:  265.36" Simplification phase 2 complete
+0.0.Ht: Trace Attempt 1525	[1432.63 s]
+0.0.Tricustom6: Trace Attempt 140	[9.75 s]
+0.0.Ncustom5: Trace Attempt 158	[12.60 s]
+0.0.Ht: Trace Attempt 1535	[1437.01 s]
+0.0.Tricustom6: Trace Attempt 892	[14.38 s]
+0.0.Tricustom6:  271.88" Simplification phase 3 complete
+ 271.88" ---- Completed simplification thread ----
+ 271.88" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  272.01" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 785	[1196.50 s]
+0.0.Ncustom5: Trace Attempt 183	[16.85 s]
+0.0.Ht: Trace Attempt 1545	[1441.86 s]
+0.0.Bm: Trace Attempt 786	[1200.77 s]
+0.0.Ncustom5: Trace Attempt 223	[21.19 s]
+0.0.Ncustom5: Trace Attempt 251	[25.25 s]
+0.0.Ncustom5: Trace Attempt 275	[29.45 s]
+0.0.Bm: Trace Attempt 788	[1210.44 s]
+0.0.Ncustom5: Trace Attempt 295	[33.57 s]
+0.0.Ht: Trace Attempt 1552	[1457.97 s]
+0.0.Tricustom6: Trace Attempt 1360	[36.11 s]
+0.0.Bm: Trace Attempt 790	[1216.64 s]
+0.0.Ncustom5: Trace Attempt 314	[38.12 s]
+0.0.Ncustom5: Trace Attempt 330	[42.27 s]
+0.0.Tricustom6: Trace Attempt 1680	[42.49 s]
+0.0.Ht: Trace Attempt 1564	[1466.10 s]
+0.0.Bm: Trace Attempt 792	[1223.80 s]
+0.0.Ncustom5: Trace Attempt 354	[46.64 s]
+0.0.Tricustom6: Trace Attempt 2732	[46.74 s]
+0.0.Ht: Trace Attempt 1575	[1470.45 s]
+0.0.Bm: Trace Attempt 793	[1229.56 s]
+0.0.Ncustom5: Trace Attempt 372	[51.20 s]
+0.0.Tricustom6: Trace Attempt 3476	[51.22 s]
+0.0.Ht: Trace Attempt 1588	[1474.50 s]
+0.0.Ncustom5: Trace Attempt 385	[55.20 s]
+0.0.Ht: Trace Attempt 1602	[1478.79 s]
+0.0.Bm: Trace Attempt 794	[1235.83 s]
+0.0.Tricustom6: Trace Attempt 3784	[58.38 s]
+0.0.Ncustom5: Trace Attempt 395	[59.32 s]
+0.0.Ht: Trace Attempt 1610	[1483.91 s]
+0.0.Tricustom6: Trace Attempt 4916	[62.63 s]
+0.0.Ncustom5: Trace Attempt 412	[63.47 s]
+0.0.Bm: Trace Attempt 795	[1244.34 s]
+0.0.Ht: Trace Attempt 1616	[1488.18 s]
+0.0.Tricustom6: Trace Attempt 6320	[66.92 s]
+0.0.Ncustom5: Trace Attempt 464	[67.58 s]
+0.0.Bm: Trace Attempt 797	[1249.73 s]
+0.0.Ht: Trace Attempt 1620	[1493.69 s]
+0.0.Ncustom5: Trace Attempt 510	[72.16 s]
+0.0.Bm: Trace Attempt 798	[1254.07 s]
+0.0.Ht: Trace Attempt 1631	[1498.43 s]
+0.0.Ncustom5: Trace Attempt 524	[76.19 s]
+0.0.Tricustom6: Trace Attempt 6572	[77.36 s]
+0.0.Bm: Trace Attempt 799	[1258.16 s]
+0.0.Ht: Trace Attempt 1640	[1502.76 s]
+0.0.Ncustom5: Trace Attempt 535	[80.97 s]
+0.0.Tricustom6: Trace Attempt 7296	[81.93 s]
+0.0.Ht: Trace Attempt 1648	[1506.88 s]
+0.0.Ncustom5: Trace Attempt 549	[85.91 s]
+0.0.Tricustom6: Trace Attempt 8212	[86.40 s]
+0.0.Bm: Trace Attempt 801	[1266.92 s]
+0.0.Ht: Trace Attempt 1655	[1511.48 s]
+0.0.Ncustom5: Trace Attempt 560	[90.31 s]
+0.0.Tricustom6: Trace Attempt 9140	[90.92 s]
+0.0.Bm: Trace Attempt 802	[1272.69 s]
+0.0.Ht: Trace Attempt 1657	[1516.54 s]
+0.0.Ncustom5: Trace Attempt 572	[94.53 s]
+0.0.Tricustom6: Trace Attempt 10220	[95.50 s]
+0.0.Ht: Trace Attempt 1668	[1520.74 s]
+0.0.Ncustom5: Trace Attempt 586	[98.92 s]
+0.0.Tricustom6: Trace Attempt 10532	[100.20 s]
+0.0.Bm: Trace Attempt 803	[1281.78 s]
+0.0.Ncustom5: Trace Attempt 639	[103.03 s]
+0.0.Tricustom6: Trace Attempt 15412	[104.77 s]
+0.0.Ncustom5: Trace Attempt 697	[107.09 s]
+0.0.Bm: Trace Attempt 804	[1289.08 s]
+0.0.Ncustom5: Trace Attempt 736	[111.23 s]
+0.0.Ht: Trace Attempt 1669	[1535.64 s]
+0.0.Tricustom6: Trace Attempt 17060	[113.80 s]
+0.0.Ncustom5: Trace Attempt 765	[116.21 s]
+0.0.Tricustom6: Trace Attempt 21096	[118.37 s]
+0.0.Ht: Trace Attempt 1670	[1541.29 s]
+0.0.Ncustom5: Trace Attempt 777	[120.61 s]
+0.0.Bm: Trace Attempt 805	[1301.67 s]
+0.0.Tricustom6: Trace Attempt 26676	[123.01 s]
+0.0.Ht: Trace Attempt 1676	[1548.23 s]
+0.0.Ncustom5: Trace Attempt 787	[125.35 s]
+0.0.Ht: Trace Attempt 1689	[1552.71 s]
+0.0.Ncustom5: Trace Attempt 801	[129.91 s]
+0.0.Bm: Trace Attempt 807	[1312.48 s]
+0.0.Ht: Trace Attempt 1694	[1556.93 s]
+0.0.Tricustom6: Trace Attempt 26956	[134.14 s]
+0.0.Ncustom5: Trace Attempt 815	[134.34 s]
+0.0.Ht: Trace Attempt 1698	[1560.95 s]
+0.0.Ncustom5: Trace Attempt 839	[138.48 s]
+0.0.Tricustom6: Trace Attempt 30708	[138.58 s]
+0.0.Bm: Trace Attempt 809	[1320.48 s]
+0.0.Tricustom6: Trace Attempt 33720	[143.09 s]
+0.0.Ht: Trace Attempt 1705	[1566.59 s]
+0.0.Tricustom6: Trace Attempt 37248	[147.72 s]
+0.0.Ht: Trace Attempt 1716	[1571.24 s]
+0.0.Bm: Trace Attempt 811	[1328.48 s]
+0.0.Bm: Trace Attempt 813	[1335.26 s]
+0.0.Bm: Trace Attempt 815	[1345.15 s]
+0.0.Ncustom5: Trace Attempt 862	[165.49 s]
+0.0.Ncustom5: Trace Attempt 998	[169.65 s]
+0.0.Bm: Trace Attempt 816	[1349.98 s]
+0.0.Tricustom6: Trace Attempt 39408	[171.06 s]
+0.0.Ncustom5: Trace Attempt 1058	[173.67 s]
+0.0.Tricustom6: Trace Attempt 42668	[175.59 s]
+0.0.Bm: Trace Attempt 818	[1356.66 s]
+0.0.Ncustom5: Trace Attempt 1085	[177.99 s]
+0.0.Tricustom6: Trace Attempt 45744	[180.12 s]
+0.0.Ht: Trace Attempt 1721	[1603.22 s]
+0.0.Ncustom5: Trace Attempt 1107	[182.37 s]
+0.0.Bm: Trace Attempt 819	[1362.50 s]
+0.0.Ht: Trace Attempt 1724	[1607.59 s]
+0.0.Tricustom6: Trace Attempt 48792	[184.69 s]
+0.0.Ncustom5: Trace Attempt 1135	[186.60 s]
+0.0.Bm: Trace Attempt 820	[1367.29 s]
+0.0.Tricustom6: Trace Attempt 51440	[189.25 s]
+0.0.Ht: Trace Attempt 1730	[1612.46 s]
+0.0.Ncustom5: Trace Attempt 1155	[190.73 s]
+0.0.Ncustom5: Trace Attempt 1169	[194.74 s]
+0.0.Bm: Trace Attempt 822	[1375.25 s]
+0.0.Ht: Trace Attempt 1733	[1619.79 s]
+0.0.Ncustom5: Trace Attempt 1185	[199.60 s]
+0.0.Ht: Trace Attempt 1734	[1624.22 s]
+0.0.Bm: Trace Attempt 824	[1381.71 s]
+0.0.Ncustom5: Trace Attempt 1215	[203.95 s]
+0.0.Ncustom5: Trace Attempt 1240	[208.20 s]
+0.0.Bm: Trace Attempt 826	[1389.20 s]
+0.0.Ncustom5: Trace Attempt 1267	[212.36 s]
+0.0.Ht: Trace Attempt 1735	[1636.73 s]
+0.0.Ncustom5: Trace Attempt 1292	[216.40 s]
+0.0.Bm: Trace Attempt 828	[1397.48 s]
+0.0.Ht: Trace Attempt 1742	[1640.86 s]
+0.0.Tricustom6: Trace Attempt 54844	[220.44 s]
+0.0.Ncustom5: Trace Attempt 1345	[220.57 s]
+0.0.Ncustom5: Trace Attempt 1368	[224.65 s]
+0.0.Bm: Trace Attempt 830	[1404.61 s]
+0.0.Tricustom6: Trace Attempt 57480	[224.96 s]
+0.0.Ht: Trace Attempt 1744	[1647.98 s]
+0.0.Ncustom5: Trace Attempt 1419	[228.69 s]
+0.0.Ht: Trace Attempt 1752	[1652.28 s]
+0.0.Tricustom6: Trace Attempt 60592	[229.49 s]
+0.0.Bm: Trace Attempt 831	[1410.13 s]
+0.0.Ncustom5: Trace Attempt 1447	[233.15 s]
+0.0.Ht: Trace Attempt 1755	[1656.28 s]
+0.0.Tricustom6: Trace Attempt 64120	[233.93 s]
+0.0.Ncustom5: Trace Attempt 1471	[237.47 s]
+0.0.Tricustom6: Trace Attempt 67212	[238.47 s]
+0.0.Ncustom5: Trace Attempt 1483	[241.78 s]
+0.0.Tricustom6: Trace Attempt 70292	[243.15 s]
+0.0.Bm: Trace Attempt 833	[1426.08 s]
+0.0.Ncustom5: Trace Attempt 1501	[246.45 s]
+0.0.Tricustom6: Trace Attempt 73520	[247.61 s]
+0.0.Ncustom5: Trace Attempt 1513	[251.27 s]
+0.0.Tricustom6: Trace Attempt 76708	[252.29 s]
+0.0.Bm: Trace Attempt 834	[1433.78 s]
+0.0.Ncustom5: Trace Attempt 1525	[255.38 s]
+0.0.Ht: Trace Attempt 1757	[1679.02 s]
+0.0.Tricustom6: Trace Attempt 77900	[253.38 s]
+0.0.Tricustom6: Per property time limit expired (256.00 s) [256.19 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[256.20 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:  512.19" ---- Launching main thread ----
+0.0.Tricustom6:  512.37" ---- Launching abstraction thread ----
+0.0.Tricustom6:  512.40" ---- Launching multi-phase simplification thread ----
+0.0.Ncustom5: Per property time limit expired (256.00 s) [256.48 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[256.48 s].
+0.0.Ncustom5: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Ncustom5: Trace Attempt  1	[0.00 s]
+0.0.Ncustom5: Trace Attempt  2	[0.00 s]
+0.0.Ncustom5: Trace Attempt  3	[0.00 s]
+0.0.Ncustom5: Trace Attempt  4	[0.00 s]
+0.0.Ncustom5: Trace Attempt  5	[0.00 s]
+0.0.Ncustom5: Trace Attempt  1	[0.19 s]
+0.0.Ncustom5: Trace Attempt  2	[0.19 s]
+0.0.Ncustom5: Trace Attempt  3	[0.19 s]
+0.0.Ncustom5: Trace Attempt 112	[4.20 s]
+0.0.Tricustom6:  517.15" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 835	[1440.91 s]
+0.0.Ht: Trace Attempt 1760	[1684.49 s]
+0.0.Ncustom5: Trace Attempt 161	[8.66 s]
+0.0.Tricustom6:  522.22" Simplification phase 2 complete
+0.0.Ht: Trace Attempt 1765	[1689.36 s]
+0.0.Ncustom5: Trace Attempt 185	[12.74 s]
+0.0.Ht: Trace Attempt 1777	[1693.52 s]
+0.0.Tricustom6:  528.41" Simplification phase 3 complete
+ 528.41" ---- Completed simplification thread ----
+ 528.41" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:  528.59" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 837	[1452.79 s]
+0.0.Ncustom5: Trace Attempt 236	[16.87 s]
+0.0.Ht: Trace Attempt 1785	[1698.26 s]
+0.0.Bm: Trace Attempt 838	[1456.82 s]
+0.0.Ncustom5: Trace Attempt 262	[21.06 s]
+0.0.Ht: Trace Attempt 1786	[1702.96 s]
+0.0.Ncustom5: Trace Attempt 282	[25.10 s]
+0.0.Bm: Trace Attempt 840	[1463.44 s]
+0.0.Ncustom5: Trace Attempt 313	[29.14 s]
+0.0.Bm: Trace Attempt 842	[1468.88 s]
+0.0.Ncustom5: Trace Attempt 333	[33.30 s]
+0.0.Ht: Trace Attempt 1787	[1712.90 s]
+0.0.Ncustom5: Trace Attempt 355	[37.61 s]
+0.0.Ht: Trace Attempt 1801	[1717.70 s]
+0.0.Bm: Trace Attempt 844	[1474.62 s]
+0.0.Ncustom5: Trace Attempt 388	[41.86 s]
+0.0.Ht: Trace Attempt 1810	[1721.82 s]
+0.0.Ncustom5: Trace Attempt 441	[46.13 s]
+0.0.Ht: Trace Attempt 1821	[1725.90 s]
+0.0.Bm: Trace Attempt 846	[1483.04 s]
+0.0.Ncustom5: Trace Attempt 497	[50.17 s]
+0.0.Ht: Trace Attempt 1830	[1729.95 s]
+0.0.Bm: Trace Attempt 848	[1490.44 s]
+0.0.Ncustom5: Trace Attempt 528	[55.01 s]
+0.0.Ht: Trace Attempt 1835	[1737.12 s]
+0.0.Ncustom5: Trace Attempt 545	[59.10 s]
+0.0.Ht: Trace Attempt 1848	[1741.29 s]
+0.0.Bm: Trace Attempt 849	[1499.15 s]
+0.0.Ncustom5: Trace Attempt 573	[63.25 s]
+0.0.Ncustom5: Trace Attempt 590	[67.60 s]
+0.0.Ncustom5: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[68.41 s].
+0.0.Ncustom5: Morphing to Hts
+0.0.Ncustom5: Trace Attempt 592	[67.86 s]
+0.0.Ncustom5: All properties determined. [0.00 s]
+0.0.Ncustom5: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[68.71 s].
+0.0.Tricustom6: Morphing to AMcustom2
+0.0.Tricustom6: All properties determined. [0.00 s]
+0.0.Tricustom6: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AMcustom2: Trace Attempt  4	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.AMcustom2: Trace Attempt  1	[0.02 s]
+0.0.AMcustom2: Trace Attempt  2	[0.02 s]
+0.0.AMcustom2: Trace Attempt  3	[0.03 s]
+0.0.AMcustom2: Trace Attempt  1	[0.08 s]
+0.0.AMcustom2: Trace Attempt  2	[0.08 s]
+0.0.AMcustom2: Trace Attempt  3	[0.08 s]
+0.0.AMcustom2: Trace Attempt  1	[0.23 s]
+0.0.AMcustom2: Trace Attempt  2	[0.23 s]
+0.0.AMcustom2: Trace Attempt  3	[0.23 s]
+0.0.Bm: Trace Attempt 850	[1505.98 s]
+0.0.Hts: Trace Attempt 7032	[4.00 s]
+0.0.AMcustom2: Trace Attempt 183	[4.34 s]
+0.0.Ht: Trace Attempt 1854	[1753.82 s]
+0.0.Bm: Trace Attempt 851	[1511.35 s]
+0.0.Hts: Trace Attempt 14357	[8.00 s]
+0.0.AMcustom2: Trace Attempt 132	[8.41 s]
+0.0.Hts: Trace Attempt 20390	[12.00 s]
+0.0.AMcustom2: Trace Attempt 196	[12.46 s]
+0.0.Bm: Trace Attempt 852	[1520.58 s]
+0.0.Hts: Trace Attempt 28002	[16.00 s]
+0.0.AMcustom2: Trace Attempt 241	[17.24 s]
+0.0.Hts: Trace Attempt 31575	[20.00 s]
+0.0.Hts: Per property time limit expired (20.00 s) [20.00 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[20.00 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AMcustom2: Trace Attempt 257	[19.87 s]
+0.0.AMcustom2: Per property time limit expired (19.93 s) [19.93 s]
+0.0.AMcustom2: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[19.94 s].
+0.0.AMcustom2: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.AMcustom2: Trace Attempt  1	[0.02 s]
+0.0.AMcustom2: Trace Attempt  2	[0.02 s]
+0.0.AMcustom2: Trace Attempt  3	[0.02 s]
+0.0.AMcustom2: Trace Attempt  1	[0.07 s]
+0.0.AMcustom2: Trace Attempt  2	[0.07 s]
+0.0.AMcustom2: Trace Attempt  3	[0.07 s]
+0.0.AMcustom2: Trace Attempt  1	[0.22 s]
+0.0.AMcustom2: Trace Attempt  2	[0.22 s]
+0.0.AMcustom2: Trace Attempt  3	[0.22 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.29 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AMcustom2: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.29 s].
+0.0.AMcustom2: Morphing to M
+0.0.AMcustom2: Trace Attempt 17	[0.28 s]
+0.0.AMcustom2: All properties determined. [0.00 s]
+0.0.AMcustom2: Exited with Success (@ 0.00 s)
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.M: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 854	[1527.97 s]
+0.0.Hts: Trace Attempt 6486	[4.00 s]
+0.0.M: Trace Attempt 67	[4.34 s]
+0.0.Ht: Trace Attempt 1858	[1775.86 s]
+0.0.Hts: Trace Attempt 12917	[8.00 s]
+0.0.M: Trace Attempt 97	[8.74 s]
+0.0.Bm: Trace Attempt 855	[1535.73 s]
+0.0.Hts: Trace Attempt 19067	[12.01 s]
+0.0.Ht: Trace Attempt 1864	[1780.26 s]
+0.0.M: Trace Attempt 122	[13.01 s]
+0.0.Bm: Trace Attempt 856	[1540.39 s]
+0.0.Hts: Trace Attempt 26606	[16.01 s]
+0.0.Ht: Trace Attempt 1869	[1784.84 s]
+0.0.M: Trace Attempt 140	[17.13 s]
+0.0.Hts: Trace Attempt 30360	[20.01 s]
+0.0.M: Trace Attempt 155	[21.43 s]
+0.0.Ht: Trace Attempt 1879	[1790.30 s]
+0.0.Hts: Trace Attempt 38132	[24.24 s]
+0.0.Bm: Trace Attempt 858	[1549.72 s]
+0.0.M: Trace Attempt 168	[25.49 s]
+0.0.Ht: Trace Attempt 1885	[1794.75 s]
+0.0.Hts: Trace Attempt 44506	[28.24 s]
+0.0.M: Trace Attempt 184	[29.55 s]
+0.0.Ht: Trace Attempt 1898	[1799.00 s]
+0.0.Hts: Trace Attempt 52742	[32.24 s]
+0.0.M: Trace Attempt 208	[36.23 s]
+0.0.Hts: Trace Attempt 58257	[36.99 s]
+0.0.Ht: Trace Attempt 1901	[1808.12 s]
+0.0.M: Trace Attempt 322	[40.29 s]
+0.0.Hts: Trace Attempt 62793	[40.99 s]
+0.0.Ht: Trace Attempt 1910	[1812.23 s]
+0.0.M: Trace Attempt 350	[44.67 s]
+0.0.Hts: Trace Attempt 71693	[44.99 s]
+0.0.Hts: Trace Attempt 76299	[49.20 s]
+0.0.M: Trace Attempt 372	[49.48 s]
+0.0.Ht: Trace Attempt 1917	[1817.57 s]
+0.0.Bm: Trace Attempt 859	[1575.16 s]
+0.0.M: Trace Attempt 412	[53.66 s]
+0.0.M: Trace Attempt 430	[57.75 s]
+0.0.Bm: Trace Attempt 860	[1585.31 s]
+0.0.M: Trace Attempt 457	[62.30 s]
+0.0.M: Trace Attempt 463	[63.89 s]
+0.0.M: Per property time limit expired (64.00 s) [64.08 s]
+0.0.M: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[64.08 s].
+0.0.M: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 861	[1590.20 s]
+0.0.Ht: Trace Attempt 1919	[1834.09 s]
+0.0.M: Trace Attempt 70	[4.09 s]
+0.0.Bm: Trace Attempt 863	[1596.67 s]
+0.0.M: Trace Attempt 97	[8.52 s]
+0.0.M: Trace Attempt 120	[12.59 s]
+0.0.M: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[16.85 s].
+0.0.M: Morphing to D
+0.0.M: Trace Attempt 136	[16.32 s]
+0.0.M: All properties determined. [0.00 s]
+0.0.M: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.D: Trace Attempt 19	[0.01 s]
+0.0.Bm: Trace Attempt 864	[1606.30 s]
+0.0.Ht: Trace Attempt 1924	[1853.78 s]
+0.0.Ht: Trace Attempt 1931	[1857.95 s]
+0.0.Bm: Trace Attempt 866	[1615.08 s]
+0.0.Ht: Trace Attempt 1941	[1862.10 s]
+0.0.Bm: Trace Attempt 867	[1620.21 s]
+0.0.Ht: Trace Attempt 1948	[1866.34 s]
+0.0.Bm: Trace Attempt 869	[1626.97 s]
+0.0.Ht: Trace Attempt 1958	[1870.56 s]
+0.0.Bm: Trace Attempt 870	[1631.01 s]
+0.0.Ht: Trace Attempt 1964	[1875.06 s]
+0.0.Bm: Trace Attempt 871	[1636.21 s]
+0.0.Ht: Trace Attempt 1970	[1881.18 s]
+0.0.Bm: Trace Attempt 872	[1641.47 s]
+0.0.Ht: Trace Attempt 1978	[1885.39 s]
+0.0.Ht: Trace Attempt 1985	[1890.50 s]
+0.0.Bm: Trace Attempt 874	[1647.96 s]
+0.0.Ht: Trace Attempt 1995	[1894.53 s]
+0.0.Ht: Trace Attempt 2004	[1898.83 s]
+0.0.Bm: Trace Attempt 876	[1655.65 s]
+0.0.Ht: Trace Attempt 2014	[1902.89 s]
+0.0.Bm: Trace Attempt 877	[1667.31 s]
+0.0.Bm: Trace Attempt 878	[1672.48 s]
+0.0.D: Trace Attempt 89	[69.18 s]
+0.0.Ht: Trace Attempt 2024	[1918.38 s]
+0.0.Bm: Trace Attempt 879	[1678.53 s]
+0.0.Ht: Trace Attempt 2031	[1922.77 s]
+0.0.Bm: Trace Attempt 881	[1685.60 s]
+0.0.Hts: Trace Attempt 77897	[165.59 s]
+0.0.Hts: Per property time limit expired (64.00 s) [168.60 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[168.60 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Bm: Trace Attempt 883	[1697.18 s]
+0.0.Ht: Trace Attempt 2035	[1948.31 s]
+0.0.Bm: Trace Attempt 884	[1708.33 s]
+0.0.Ht: Trace Attempt 2040	[1952.54 s]
+0.0.Bm: Trace Attempt 885	[1714.28 s]
+0.0.Ht: Trace Attempt 2046	[1958.63 s]
+0.0.Ht: Trace Attempt 2050	[1963.31 s]
+0.0.Bm: Trace Attempt 887	[1726.00 s]
+0.0.Ht: Trace Attempt 2056	[1974.97 s]
+0.0.D: Per property time limit expired (127.97 s) [128.04 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[128.04 s].
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[41.27 s]
+0.0.Hts: Trace Attempt  2	[41.27 s]
+0.0.Hts: Trace Attempt  3	[41.27 s]
+0.0.Hts: Trace Attempt  4	[41.27 s]
+0.0.Hts: Trace Attempt  5	[41.27 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[41.41 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[1.07 s].
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Bm: Trace Attempt 888	[1736.92 s]
+0.0.Ht: Trace Attempt 2063	[1981.22 s]
+0.0.Hts: Trace Attempt 6831	[4.00 s]
+0.0.Ht: Trace Attempt 2071	[1985.31 s]
+0.0.Hts: Trace Attempt 12481	[8.00 s]
+0.0.Bm: Trace Attempt 890	[1745.81 s]
+0.0.Hts: Trace Attempt 16763	[12.00 s]
+0.0.Ht: Trace Attempt 2075	[1990.52 s]
+0.0.Hts: Trace Attempt 21262	[16.00 s]
+0.0.Hts: Trace Attempt 26633	[20.00 s]
+0.0.Hts: Trace Attempt 30730	[24.66 s]
+0.0.Bm: Trace Attempt 891	[1760.03 s]
+0.0.Ht: Trace Attempt 2083	[2005.41 s]
+0.0.Hts: Trace Attempt 34141	[28.89 s]
+0.0.Bm: Trace Attempt 893	[1766.89 s]
+0.0.Hts: Trace Attempt 39239	[33.25 s]
+0.0.Ht: Trace Attempt 2086	[2013.93 s]
+0.0.Hts: Trace Attempt 44942	[37.25 s]
+0.0.Bm: Trace Attempt 894	[1772.88 s]
+0.0.Hts: Trace Attempt 50047	[41.25 s]
+0.0.Bm: Trace Attempt 895	[1778.97 s]
+0.0.Hts: Trace Attempt 54951	[45.25 s]
+0.0.Hts: Trace Attempt 59768	[49.25 s]
+0.0.Bm: Trace Attempt 896	[1785.16 s]
+0.0.Hts: Trace Attempt 61458	[54.63 s]
+0.0.Ht: Trace Attempt 2088	[2033.02 s]
+0.0.Bm: Trace Attempt 897	[1790.83 s]
+0.0.Hts: Trace Attempt 62423	[58.63 s]
+0.0.Bm: Trace Attempt 898	[1794.84 s]
+0.0.Hts: Trace Attempt 67894	[62.63 s]
+0.0.Hts: Trace Attempt 71631	[66.63 s]
+0.0.Hts: Trace Attempt 76595	[70.63 s]
+0.0.Bm: Trace Attempt 900	[1806.86 s]
+0.0.Ht: Trace Attempt 2097	[2051.62 s]
+0.0.Hts: Trace Attempt 78438	[74.89 s]
+0.0.Ht: Trace Attempt 2106	[2055.68 s]
+0.0.Hts: Trace Attempt 83531	[78.89 s]
+0.0.Ht: Trace Attempt 2110	[2060.12 s]
+0.0.Hts: Trace Attempt 88640	[82.89 s]
+0.0.Bm: Trace Attempt 901	[1818.35 s]
+0.0.Hts: Trace Attempt 93963	[86.89 s]
+0.0.Ht: Trace Attempt 2116	[2068.38 s]
+0.0.Hts: Trace Attempt 98762	[90.89 s]
+0.0.Bm: Trace Attempt 902	[1826.62 s]
+0.0.Hts: Trace Attempt 103524	[94.89 s]
+0.0.Bm: Trace Attempt 903	[1830.78 s]
+0.0.Ht: Trace Attempt 2117	[2076.70 s]
+0.0.Hts: Trace Attempt 108144	[98.89 s]
+0.0.Bm: Trace Attempt 904	[1837.69 s]
+0.0.Hts: Trace Attempt 112674	[102.89 s]
+0.0.Hts: Trace Attempt 117372	[106.89 s]
+0.0.Ht: Trace Attempt 2120	[2086.41 s]
+0.0.Hts: Trace Attempt 122281	[110.89 s]
+0.0.Hts: Trace Attempt 122913	[118.43 s]
+0.0.Bm: Trace Attempt 905	[1853.59 s]
+0.0.Ht: Trace Attempt 2121	[2098.54 s]
+0.0.Bm: Trace Attempt 906	[1859.27 s]
+0.0.Hts: Trace Attempt 122953	[125.79 s]
+0.0.Ht: Trace Attempt 2124	[2104.85 s]
+0.0.Bm: Trace Attempt 907	[1863.51 s]
+0.0.Hts: Trace Attempt 128163	[129.79 s]
+0.0.Ht: Trace Attempt 2129	[2111.68 s]
+0.0.Hts: Trace Attempt 133450	[133.79 s]
+0.0.Bm: Trace Attempt 908	[1869.62 s]
+0.0.Ht: Trace Attempt 2135	[2115.82 s]
+0.0.Hts: Trace Attempt 136441	[138.81 s]
+0.0.Hts: Trace Attempt 141935	[142.81 s]
+0.0.D: Trace Attempt 104	[144.67 s]
+0.0.Hts: Trace Attempt 147090	[146.81 s]
+0.0.Bm: Trace Attempt 910	[1883.46 s]
+0.0.Hts: Trace Attempt 152152	[150.81 s]
+0.0.Ht: Trace Attempt 2136	[2133.13 s]
+0.0.Bm: Trace Attempt 912	[1890.37 s]
+0.0.Hts: Trace Attempt 156799	[158.22 s]
+0.0.Ht: Trace Attempt 2138	[2139.77 s]
+0.0.Hts: Trace Attempt 159362	[162.22 s]
+0.0.Bm: Trace Attempt 914	[1898.93 s]
+0.0.Hts: Trace Attempt 164946	[166.22 s]
+0.0.Ht: Trace Attempt 2145	[2145.39 s]
+0.0.Bm: Trace Attempt 915	[1902.96 s]
+0.0.Hts: Trace Attempt 170188	[170.22 s]
+0.0.Ht: Trace Attempt 2147	[2150.46 s]
+0.0.Hts: Trace Attempt 175158	[174.22 s]
+0.0.Bm: Trace Attempt 917	[1910.55 s]
+0.0.Hts: Trace Attempt 180090	[178.22 s]
+0.0.Bm: Trace Attempt 918	[1914.63 s]
+0.0.Hts: Trace Attempt 184982	[182.22 s]
+0.0.Hts: Trace Attempt 190207	[186.22 s]
+0.0.Bm: Trace Attempt 920	[1921.62 s]
+0.0.Hts: Trace Attempt 195592	[190.22 s]
+0.0.Hts: Trace Attempt 200785	[194.22 s]
+0.0.Bm: Trace Attempt 922	[1929.52 s]
+0.0.Hts: Trace Attempt 205613	[198.22 s]
+0.0.Hts: Trace Attempt 210414	[202.22 s]
+0.0.Bm: Trace Attempt 924	[1938.59 s]
+0.0.Hts: Trace Attempt 215240	[206.22 s]
+0.0.Bm: Trace Attempt 925	[1943.57 s]
+0.0.Hts: Trace Attempt 220027	[210.22 s]
+0.0.Hts: Trace Attempt 224998	[214.22 s]
+0.0.Bm: Trace Attempt 926	[1950.55 s]
+0.0.Hts: Trace Attempt 230200	[218.22 s]
+0.0.Bm: Trace Attempt 928	[1956.35 s]
+0.0.Hts: Trace Attempt 235241	[222.22 s]
+0.0.Hts: Trace Attempt 239840	[226.22 s]
+0.0.Bm: Trace Attempt 929	[1961.11 s]
+0.0.Hts: Trace Attempt 244380	[230.22 s]
+0.0.Bm: Trace Attempt 930	[1969.77 s]
+0.0.Bm: Trace Attempt 931	[1974.85 s]
+0.0.Bm: Trace Attempt 932	[1980.40 s]
+0.0.Hts: Trace Attempt 245823	[245.88 s]
+0.0.Bm: Trace Attempt 934	[1989.68 s]
+0.0.D: Per property time limit expired (256.00 s) [256.02 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[256.02 s].
+0.0.D: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt 245862	[245.91 s]
+0.0.Hts: Per property time limit expired (256.00 s) [259.19 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[259.19 s].
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.30 s].
+0.0.Hts: Morphing to AB
+0.0.Hts: Trace Attempt 86	[0.30 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.D: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[3.45 s].
+0.0.D: Morphing to Tricustom6
+0.0.D: Trace Attempt 89	[0.04 s]
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Tricustom6: Starting clock optimization
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Trace Attempt  1	[0.04 s]
+0.0.AB: Trace Attempt  2	[0.04 s]
+0.0.AB: Trace Attempt  3	[0.04 s]
+0.0.AB: Trace Attempt  4	[0.04 s]
+0.0.AB: Trace Attempt  5	[0.04 s]
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.17 s]
+0.0.AB: Trace Attempt  2	[0.17 s]
+0.0.AB: Trace Attempt  3	[0.17 s]
+0.0.AB: Trace Attempt  4	[0.17 s]
+0.0.AB: Trace Attempt  5	[0.17 s]
+0.0.Tricustom6:    0.17" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.19" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 936	[1997.83 s]
+0.0.AB: Trace Attempt 153	[4.33 s]
+0.0.Tricustom6: Trace Attempt 112	[4.54 s]
+0.0.Tricustom6:    4.73" Simplification phase 1 complete
+0.0.Tricustom6:    7.62" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 937	[2002.26 s]
+0.0.AB: Trace Attempt 180	[8.36 s]
+0.0.Tricustom6: Trace Attempt 140	[8.79 s]
+0.0.AB: Trace Attempt 211	[12.44 s]
+0.0.Tricustom6:   13.90" Simplification phase 3 complete
+  13.90" ---- Completed simplification thread ----
+  13.90" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   14.07" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 939	[2010.23 s]
+0.0.AB: Trace Attempt 242	[16.67 s]
+0.0.Ht: Trace Attempt 2153	[2255.32 s]
+0.0.Tricustom6: Trace Attempt 164	[19.51 s]
+0.0.AB: Trace Attempt 265	[20.72 s]
+0.0.Ht: Trace Attempt 2161	[2260.22 s]
+0.0.AB: Trace Attempt 295	[24.75 s]
+0.0.Ht: Trace Attempt 2183	[2264.82 s]
+0.0.Tricustom6: Trace Attempt 172	[28.51 s]
+0.0.AB: Trace Attempt 315	[28.75 s]
+0.0.AB: Trace Attempt 331	[32.79 s]
+0.0.Tricustom6: Trace Attempt 244	[32.98 s]
+0.0.Ht: Trace Attempt 2186	[2272.07 s]
+0.0.Bm: Trace Attempt 940	[2031.30 s]
+0.0.Tricustom6: Trace Attempt 296	[37.56 s]
+0.0.AB: Trace Attempt 334	[38.50 s]
+0.0.Ht: Trace Attempt 2197	[2276.45 s]
+0.0.Tricustom6: Trace Attempt 336	[41.77 s]
+0.0.Bm: Trace Attempt 942	[2038.23 s]
+0.0.AB: Trace Attempt 369	[44.62 s]
+0.0.AB: Trace Attempt 466	[48.72 s]
+0.0.Bm: Trace Attempt 944	[2045.06 s]
+0.0.Ht: Trace Attempt 2204	[2290.21 s]
+0.0.AB: Trace Attempt 528	[52.94 s]
+0.0.Tricustom6: Trace Attempt 12728	[56.80 s]
+0.0.AB: Trace Attempt 577	[56.97 s]
+0.0.Bm: Trace Attempt 946	[2051.49 s]
+0.0.Ht: Trace Attempt 2239	[2295.59 s]
+0.0.AB: Trace Attempt 594	[61.15 s]
+0.0.Tricustom6: Trace Attempt 52192	[61.44 s]
+0.0.Ht: Trace Attempt 2244	[2299.90 s]
+0.0.AB: Trace Attempt 619	[65.38 s]
+0.0.Bm: Trace Attempt 948	[2059.87 s]
+0.0.Tricustom6: Trace Attempt 104484	[65.44 s]
+0.0.Ht: Trace Attempt 2248	[2304.29 s]
+0.0.AB: Trace Attempt 646	[69.38 s]
+0.0.Bm: Trace Attempt 950	[2066.58 s]
+0.0.Tricustom6: Trace Attempt 117040	[72.52 s]
+0.0.AB: Trace Attempt 678	[73.41 s]
+0.0.Bm: Trace Attempt 951	[2071.21 s]
+0.0.Tricustom6: Trace Attempt 169436	[77.30 s]
+0.0.AB: Trace Attempt 688	[77.89 s]
+0.0.Tricustom6: Trace Attempt 226564	[81.30 s]
+0.0.AB: Trace Attempt 692	[81.94 s]
+0.0.Bm: Trace Attempt 952	[2076.38 s]
+0.0.AB: Trace Attempt 706	[86.02 s]
+0.0.Bm: Trace Attempt 953	[2080.47 s]
+0.0.Bm: Trace Attempt 954	[2084.92 s]
+0.0.AB: Trace Attempt 712	[90.82 s]
+0.0.Ht: Trace Attempt 2251	[2328.55 s]
+0.0.AB: Trace Attempt 719	[95.87 s]
+0.0.Bm: Trace Attempt 955	[2090.76 s]
+0.0.AB: Trace Attempt 731	[100.00 s]
+0.0.Bm: Trace Attempt 956	[2095.02 s]
+0.0.Ht: Trace Attempt 2262	[2341.06 s]
+0.0.AB: Trace Attempt 743	[104.40 s]
+0.0.Ht: Trace Attempt 2264	[2345.46 s]
+0.0.AB: Trace Attempt 751	[108.44 s]
+0.0.Bm: Trace Attempt 958	[2104.18 s]
+0.0.Ht: Trace Attempt 2290	[2349.47 s]
+0.0.AB: Trace Attempt 761	[112.88 s]
+0.0.Tricustom6: Trace Attempt 257152	[113.46 s]
+0.0.Bm: Trace Attempt 959	[2108.31 s]
+0.0.Ht: Trace Attempt 2301	[2353.48 s]
+0.0.AB: Trace Attempt 772	[117.20 s]
+0.0.Tricustom6: Trace Attempt 292988	[117.98 s]
+0.0.Bm: Trace Attempt 961	[2115.29 s]
+0.0.AB: Trace Attempt 778	[121.64 s]
+0.0.Tricustom6: Trace Attempt 338204	[122.84 s]
+0.0.Bm: Trace Attempt 962	[2119.31 s]
+0.0.AB: Trace Attempt 789	[125.81 s]
+0.0.Tricustom6: Trace Attempt 393860	[126.84 s]
+0.0.AB: Trace Attempt 801	[131.07 s]
+0.0.Bm: Trace Attempt 964	[2127.40 s]
+0.0.Ht: Trace Attempt 2308	[2371.93 s]
+0.0.AB: Trace Attempt 809	[135.41 s]
+0.0.Bm: Trace Attempt 965	[2132.17 s]
+0.0.AB: Trace Attempt 817	[139.44 s]
+0.0.AB: Trace Attempt 825	[144.07 s]
+0.0.Bm: Trace Attempt 967	[2138.88 s]
+0.0.AB: Trace Attempt 827	[148.20 s]
+0.0.Ht: Trace Attempt 2309	[2388.81 s]
+0.0.Bm: Trace Attempt 969	[2146.38 s]
+0.0.AB: Trace Attempt 841	[152.54 s]
+0.0.Ht: Trace Attempt 2315	[2393.03 s]
+0.0.AB: Trace Attempt 861	[157.42 s]
+0.0.Bm: Trace Attempt 971	[2152.93 s]
+0.0.Ht: Trace Attempt 2322	[2397.27 s]
+0.0.AB: Trace Attempt 877	[161.72 s]
+0.0.Ht: Trace Attempt 2325	[2402.33 s]
+0.0.Bm: Trace Attempt 972	[2159.13 s]
+0.0.AB: Trace Attempt 883	[168.10 s]
+0.0.Ht: Trace Attempt 2331	[2406.42 s]
+0.0.Bm: Trace Attempt 973	[2166.84 s]
+0.0.AB: Trace Attempt 889	[172.53 s]
+0.0.AB: Trace Attempt 914	[176.58 s]
+0.0.Bm: Trace Attempt 974	[2171.40 s]
+0.0.Tricustom6: Trace Attempt 414616	[178.40 s]
+0.0.AB: Trace Attempt 920	[180.90 s]
+0.0.Tricustom6: Trace Attempt 471460	[182.40 s]
+0.0.Bm: Trace Attempt 976	[2178.33 s]
+0.0.AB: Trace Attempt 924	[185.50 s]
+0.0.Tricustom6: Trace Attempt 501716	[186.63 s]
+0.0.Ht: Trace Attempt 2334	[2428.28 s]
+0.0.Tricustom6: Trace Attempt 549288	[190.63 s]
+0.0.Bm: Trace Attempt 978	[2185.55 s]
+0.0.Ht: Trace Attempt 2343	[2433.19 s]
+0.0.AB: Trace Attempt 930	[195.60 s]
+0.0.Tricustom6: Trace Attempt 590496	[195.58 s]
+0.0.Bm: Trace Attempt 979	[2190.18 s]
+0.0.Ht: Trace Attempt 2351	[2437.22 s]
+0.0.AB: Trace Attempt 936	[200.01 s]
+0.0.Bm: Trace Attempt 980	[2196.21 s]
+0.0.Ht: Trace Attempt 2357	[2441.61 s]
+0.0.AB: Trace Attempt 950	[204.22 s]
+0.0.AB: Trace Attempt 958	[208.58 s]
+0.0.Bm: Trace Attempt 982	[2203.38 s]
+0.0.Ht: Trace Attempt 2362	[2446.61 s]
+0.0.AB: Trace Attempt 967	[213.03 s]
+0.0.Ht: Trace Attempt 2374	[2452.01 s]
+0.0.Bm: Trace Attempt 983	[2209.30 s]
+0.0.AB: Trace Attempt 973	[217.37 s]
+0.0.Bm: Trace Attempt 984	[2213.82 s]
+0.0.Ht: Trace Attempt 2383	[2457.16 s]
+0.0.Ht: Trace Attempt 2386	[2462.36 s]
+0.0.Bm: Trace Attempt 986	[2220.86 s]
+0.0.AB: Trace Attempt 974	[227.81 s]
+0.0.Ht: Trace Attempt 2392	[2466.53 s]
+0.0.AB: Trace Attempt 976	[232.01 s]
+0.0.Ht: Trace Attempt 2399	[2470.93 s]
+0.0.Bm: Trace Attempt 988	[2229.25 s]
+0.0.AB: Trace Attempt 995	[236.63 s]
+0.0.AB: Trace Attempt 1009	[240.81 s]
+0.0.AB: Trace Attempt 1017	[244.93 s]
+0.0.Bm: Trace Attempt 990	[2239.45 s]
+0.0.Ht: Trace Attempt 2400	[2485.04 s]
+0.0.Bm: Trace Attempt 991	[2244.04 s]
+0.0.AB: Trace Attempt 1018	[251.27 s]
+0.0.Bm: Trace Attempt 992	[2248.86 s]
+0.0.Ht: Trace Attempt 2406	[2493.67 s]
+0.0.AB: Trace Attempt 1020	[256.27 s]
+0.0.Bm: Trace Attempt 993	[2254.02 s]
+0.0.Ht: Trace Attempt 2408	[2498.01 s]
+0.0.AB: Trace Attempt 1022	[260.65 s]
+0.0.Bm: Trace Attempt 994	[2258.82 s]
+0.0.Ht: Trace Attempt 2412	[2502.09 s]
+0.0.AB: Trace Attempt 1030	[265.15 s]
+0.0.Bm: Trace Attempt 996	[2265.53 s]
+0.0.AB: Trace Attempt 1040	[271.74 s]
+0.0.Ht: Trace Attempt 2420	[2510.04 s]
+0.0.Bm: Trace Attempt 997	[2270.06 s]
+0.0.Ht: Trace Attempt 2431	[2514.34 s]
+0.0.AB: Trace Attempt 1041	[277.37 s]
+0.0.Bm: Trace Attempt 998	[2274.45 s]
+0.0.Ht: Trace Attempt 2445	[2519.72 s]
+0.0.AB: Trace Attempt 1044	[282.94 s]
+0.0.Tricustom6: Trace Attempt 627680	[283.56 s]
+0.0.Bm: Trace Attempt 999	[2278.91 s]
+0.0.AB: Trace Attempt 1047	[287.03 s]
+0.0.Tricustom6: Trace Attempt 650708	[288.26 s]
+0.0.AB: Trace Attempt 1048	[291.69 s]
+0.0.Bm: Trace Attempt 1001	[2287.40 s]
+0.0.Tricustom6: Trace Attempt 680696	[293.26 s]
+0.0.AB: Trace Attempt 1059	[295.84 s]
+0.0.Bm: Trace Attempt 1002	[2291.85 s]
+0.0.Tricustom6: Trace Attempt 717768	[297.80 s]
+0.0.Tricustom6: Trace Attempt 756624	[301.80 s]
+0.0.Bm: Trace Attempt 1003	[2296.47 s]
+0.0.Bm: Trace Attempt 1004	[2300.76 s]
+0.0.Ht: Trace Attempt 2446	[2544.01 s]
+0.0.Tricustom6: Trace Attempt 792532	[306.64 s]
+0.0.Ht: Trace Attempt 2454	[2548.24 s]
+0.0.Bm: Trace Attempt 1005	[2305.34 s]
+0.0.AB: Trace Attempt 1061	[310.98 s]
+0.0.Tricustom6: Trace Attempt 827896	[311.52 s]
+0.0.Ht: Trace Attempt 2458	[2552.47 s]
+0.0.Bm: Trace Attempt 1006	[2309.54 s]
+0.0.Tricustom6: Trace Attempt 860128	[315.52 s]
+0.0.AB: Trace Attempt 1062	[316.32 s]
+0.0.Tricustom6: Trace Attempt 888744	[319.63 s]
+0.0.Ht: Trace Attempt 2462	[2557.84 s]
+0.0.AB: Trace Attempt 1083	[320.34 s]
+0.0.Bm: Trace Attempt 1007	[2318.56 s]
+0.0.AB: Trace Attempt 1108	[324.34 s]
+0.0.Ht: Trace Attempt 2465	[2562.66 s]
+0.0.Ht: Trace Attempt 2470	[2566.66 s]
+0.0.Bm: Trace Attempt 1009	[2325.72 s]
+0.0.Ht: Trace Attempt 2474	[2571.36 s]
+0.0.Ht: Trace Attempt 2482	[2575.41 s]
+0.0.Bm: Trace Attempt 1011	[2333.54 s]
+0.0.Ht: Trace Attempt 2486	[2580.38 s]
+0.0.Bm: Trace Attempt 1012	[2338.05 s]
+0.0.Ht: Trace Attempt 2489	[2584.41 s]
+0.0.Ht: Trace Attempt 2491	[2589.73 s]
+0.0.Bm: Trace Attempt 1014	[2346.89 s]
+0.0.Bm: Trace Attempt 1015	[2351.74 s]
+0.0.Bm: Trace Attempt 1016	[2355.86 s]
+0.0.AB: Trace Attempt 1111	[362.00 s]
+0.0.Ht: Trace Attempt 2496	[2603.66 s]
+0.0.Ht: Trace Attempt 2498	[2608.12 s]
+0.0.Ht: Trace Attempt 2503	[2612.43 s]
+0.0.AB: Trace Attempt 1112	[379.76 s]
+0.0.Ht: Trace Attempt 2510	[2619.01 s]
+0.0.Ht: Trace Attempt 2512	[2624.36 s]
+0.0.AB: Trace Attempt 1113	[388.49 s]
+0.0.Ht: Trace Attempt 2517	[2629.01 s]
+0.0.Bm: Trace Attempt 1018	[2389.31 s]
+0.0.Bm: Trace Attempt 1019	[2395.84 s]
+0.0.Bm: Trace Attempt 1020	[2400.03 s]
+0.0.AB: Trace Attempt 1114	[407.62 s]
+0.0.Bm: Trace Attempt 1021	[2404.13 s]
+0.0.AB: Trace Attempt 1115	[415.13 s]
+0.0.Bm: Trace Attempt 1022	[2409.72 s]
+0.0.Ht: Trace Attempt 2518	[2654.17 s]
+0.0.Bm: Trace Attempt 1023	[2413.75 s]
+0.0.Ht: Trace Attempt 2522	[2660.81 s]
+0.0.Bm: Trace Attempt 1025	[2421.17 s]
+0.0.Bm: Trace Attempt 1026	[2425.37 s]
+0.0.AB: Trace Attempt 1116	[433.79 s]
+0.0.Bm: Trace Attempt 1028	[2431.92 s]
+0.0.AB: Trace Attempt 1117	[442.00 s]
+0.0.Ht: Trace Attempt 2526	[2679.81 s]
+0.0.Bm: Trace Attempt 1030	[2438.55 s]
+0.0.Ht: Trace Attempt 2539	[2683.83 s]
+0.0.Bm: Trace Attempt 1031	[2442.85 s]
+0.0.AB: Trace Attempt 1122	[449.23 s]
+0.0.Ht: Trace Attempt 2545	[2689.03 s]
+0.0.Bm: Trace Attempt 1032	[2446.85 s]
+0.0.AB: Trace Attempt 1123	[458.05 s]
+0.0.Bm: Trace Attempt 1034	[2454.00 s]
+0.0.AB: Trace Attempt 1129	[462.70 s]
+0.0.Bm: Trace Attempt 1035	[2459.34 s]
+0.0.AB: Trace Attempt 1134	[466.93 s]
+0.0.Ht: Trace Attempt 2554	[2706.02 s]
+0.0.AB: Trace Attempt 1143	[470.96 s]
+0.0.Bm: Trace Attempt 1037	[2466.42 s]
+0.0.Ht: Trace Attempt 2559	[2710.26 s]
+0.0.AB: Trace Attempt 1148	[476.27 s]
+0.0.Ht: Trace Attempt 2564	[2714.97 s]
+0.0.Bm: Trace Attempt 1039	[2473.78 s]
+0.0.Ht: Trace Attempt 2573	[2719.77 s]
+0.0.Tricustom6: Trace Attempt 912740	[486.60 s]
+0.0.Bm: Trace Attempt 1041	[2481.59 s]
+0.0.Ht: Trace Attempt 2579	[2724.98 s]
+0.0.Tricustom6: Trace Attempt 941172	[490.60 s]
+0.0.Bm: Trace Attempt 1043	[2488.58 s]
+0.0.Tricustom6: Trace Attempt 965448	[495.29 s]
+0.0.AB: Trace Attempt 1153	[496.32 s]
+0.0.Ht: Trace Attempt 2580	[2734.28 s]
+0.0.Tricustom6: Trace Attempt 994024	[499.29 s]
+0.0.Bm: Trace Attempt 1045	[2495.53 s]
+0.0.AB: Trace Attempt 1154	[502.57 s]
+0.0.Tricustom6: Trace Attempt 1022632	[503.29 s]
+0.0.Tricustom6: Trace Attempt 1059924	[507.29 s]
+0.0.Bm: Trace Attempt 1047	[2502.78 s]
+0.0.Tricustom6: Trace Attempt 1089000	[511.29 s]
+0.0.Tricustom6: Trace Attempt 1097588	[511.98 s]
+0.0.Tricustom6: Per property time limit expired (511.98 s) [511.99 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[511.99 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.AB: Per property time limit expired (512.00 s) [512.09 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[512.09 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.07 s]
+0.0.AB: Trace Attempt  3	[0.07 s]
+0.0.AB: Trace Attempt  4	[0.07 s]
+0.0.AB: Trace Attempt  5	[0.07 s]
+0.0.Tricustom6:  512.09" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.24 s]
+0.0.AB: Trace Attempt  2	[0.24 s]
+0.0.AB: Trace Attempt  3	[0.24 s]
+0.0.AB: Trace Attempt  4	[0.24 s]
+0.0.AB: Trace Attempt  5	[0.25 s]
+0.0.Tricustom6:  512.29" ---- Launching abstraction thread ----
+0.0.Tricustom6:  512.31" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 1048	[2507.21 s]
+0.0.AB: Trace Attempt 147	[4.26 s]
+0.0.Tricustom6:  516.85" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 1050	[2514.11 s]
+0.0.AB: Trace Attempt 199	[8.33 s]
+0.0.Ht: Trace Attempt 2601	[2758.19 s]
+0.0.Tricustom6:  521.73" Simplification phase 2 complete
+0.0.AB: Trace Attempt 255	[12.33 s]
+0.0.Ht: Trace Attempt 2608	[2763.77 s]
+0.0.Bm: Trace Attempt 1052	[2521.31 s]
+0.0.Tricustom6:  528.14" Simplification phase 3 complete
+ 528.14" ---- Completed simplification thread ----
+ 528.14" ---- Restarting main thread on simplified netlist ----
+0.0.AB: Trace Attempt 292	[16.34 s]
+0.0.Tricustom6:  528.37" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 2614	[2768.81 s]
+0.0.AB: Trace Attempt 305	[20.43 s]
+0.0.Bm: Trace Attempt 1054	[2527.38 s]
+0.0.Ht: Trace Attempt 2622	[2773.18 s]
+0.0.AB: Trace Attempt 314	[24.66 s]
+0.0.Bm: Trace Attempt 1056	[2534.07 s]
+0.0.Ht: Trace Attempt 2636	[2777.36 s]
+0.0.AB: Trace Attempt 328	[28.82 s]
+0.0.Ht: Trace Attempt 2641	[2782.55 s]
+0.0.AB: Trace Attempt 150	[33.38 s]
+0.0.Bm: Trace Attempt 1058	[2542.09 s]
+0.0.Ht: Trace Attempt 2647	[2786.77 s]
+0.0.AB: Trace Attempt 200	[37.38 s]
+0.0.Ht: Trace Attempt 2653	[2791.14 s]
+0.0.AB: Trace Attempt 241	[41.69 s]
+0.0.Bm: Trace Attempt 1060	[2549.88 s]
+0.0.AB: Trace Attempt 268	[45.76 s]
+0.0.Ht: Trace Attempt 2658	[2796.08 s]
+0.0.Bm: Trace Attempt 1061	[2554.09 s]
+0.0.AB: Trace Attempt 280	[50.22 s]
+0.0.Bm: Trace Attempt 1063	[2560.81 s]
+0.0.AB: Trace Attempt 287	[54.63 s]
+0.0.AB: Trace Attempt 296	[58.79 s]
+0.0.Bm: Trace Attempt 1065	[2566.97 s]
+0.0.AB: Trace Attempt 302	[63.39 s]
+0.0.AB: Trace Attempt 310	[67.47 s]
+0.0.Bm: Trace Attempt 1067	[2574.57 s]
+0.0.AB: Trace Attempt 321	[72.87 s]
+0.0.Bm: Trace Attempt 1069	[2581.64 s]
+0.0.AB: Trace Attempt 326	[77.03 s]
+0.0.AB: Trace Attempt  1	[82.52 s]
+0.0.AB: Trace Attempt  2	[82.52 s]
+0.0.AB: Trace Attempt  3	[82.52 s]
+0.0.AB: Trace Attempt  4	[82.52 s]
+0.0.AB: Trace Attempt  5	[82.52 s]
+0.0.Bm: Trace Attempt 1071	[2589.24 s]
+0.0.AB: Trace Attempt 141	[86.56 s]
+0.0.Bm: Trace Attempt 1072	[2593.33 s]
+0.0.AB: Trace Attempt 170	[90.61 s]
+0.0.Bm: Trace Attempt 1073	[2598.25 s]
+0.0.AB: Trace Attempt 194	[94.64 s]
+0.0.Bm: Trace Attempt 1075	[2604.54 s]
+0.0.AB: Trace Attempt 214	[98.95 s]
+0.0.Ht: Trace Attempt 2661	[2849.83 s]
+0.0.AB: Trace Attempt 247	[103.06 s]
+0.0.Bm: Trace Attempt 1077	[2611.20 s]
+0.0.AB: Trace Attempt 264	[107.14 s]
+0.0.AB: Trace Attempt 284	[111.28 s]
+0.0.Bm: Trace Attempt 1079	[2618.39 s]
+0.0.AB: Trace Attempt 298	[115.57 s]
+0.0.Bm: Trace Attempt 1081	[2625.35 s]
+0.0.AB: Trace Attempt 305	[119.72 s]
+0.0.Ht: Trace Attempt 2664	[2872.59 s]
+0.0.AB: Trace Attempt 322	[123.89 s]
+0.0.Bm: Trace Attempt 1083	[2632.65 s]
+0.0.AB: Trace Attempt 336	[128.28 s]
+0.0.Ht: Trace Attempt 2668	[2878.20 s]
+0.0.AB: Trace Attempt 356	[132.46 s]
+0.0.Bm: Trace Attempt 1085	[2639.61 s]
+0.0.Ht: Trace Attempt 2671	[2885.45 s]
+0.0.AB: Trace Attempt 368	[136.81 s]
+0.0.Ht: Trace Attempt 2675	[2889.61 s]
+0.0.Bm: Trace Attempt 1087	[2646.68 s]
+0.0.AB: Trace Attempt 381	[140.82 s]
+0.0.Ht: Trace Attempt 2680	[2894.12 s]
+0.0.AB: Trace Attempt 396	[144.87 s]
+0.0.Bm: Trace Attempt 1089	[2654.34 s]
+0.0.AB: Trace Attempt 409	[149.01 s]
+0.0.Ht: Trace Attempt 2684	[2900.55 s]
+0.0.AB: Trace Attempt 420	[153.16 s]
+0.0.Ht: Trace Attempt 2695	[2905.04 s]
+0.0.Bm: Trace Attempt 1091	[2661.83 s]
+0.0.AB: Trace Attempt 432	[157.96 s]
+0.0.Ht: Trace Attempt 2697	[2909.05 s]
+0.0.AB: Trace Attempt 440	[162.11 s]
+0.0.Bm: Trace Attempt 1093	[2669.24 s]
+0.0.AB: Trace Attempt 448	[166.37 s]
+0.0.Bm: Trace Attempt 1095	[2676.69 s]
+0.0.AB: Trace Attempt 455	[176.26 s]
+0.0.Bm: Trace Attempt 1097	[2683.71 s]
+0.0.AB: Trace Attempt 462	[180.38 s]
+0.0.Bm: Trace Attempt 1099	[2690.48 s]
+0.0.AB: Trace Attempt 469	[185.80 s]
+0.0.AB: Trace Attempt 479	[190.16 s]
+0.0.Bm: Trace Attempt 1101	[2698.17 s]
+0.0.Ht: Trace Attempt 2700	[2942.69 s]
+0.0.AB: Trace Attempt 489	[194.44 s]
+0.0.AB: Trace Attempt 500	[198.51 s]
+0.0.Bm: Trace Attempt 1103	[2706.38 s]
+0.0.AB: Trace Attempt 512	[202.85 s]
+0.0.AB: Trace Attempt 520	[206.86 s]
+0.0.Bm: Trace Attempt 1105	[2714.07 s]
+0.0.AB: Trace Attempt 527	[211.71 s]
+0.0.Bm: Trace Attempt 1107	[2721.68 s]
+0.0.AB: Trace Attempt 533	[216.20 s]
+0.0.AB: Trace Attempt 544	[220.55 s]
+0.0.Bm: Trace Attempt 1109	[2730.28 s]
+0.0.AB: Trace Attempt 553	[224.62 s]
+0.0.Ht: Trace Attempt 2701	[2978.46 s]
+0.0.AB: Trace Attempt 559	[229.31 s]
+0.0.Bm: Trace Attempt 1110	[2736.01 s]
+0.0.AB: Trace Attempt 561	[233.31 s]
+0.0.Bm: Trace Attempt 1111	[2740.06 s]
+0.0.Ht: Trace Attempt 2703	[2986.76 s]
+0.0.AB: Trace Attempt 565	[237.75 s]
+0.0.Bm: Trace Attempt 1113	[2748.02 s]
+0.0.AB: Trace Attempt 570	[242.16 s]
+0.0.Ht: Trace Attempt 2709	[2993.37 s]
+0.0.AB: Trace Attempt 576	[247.38 s]
+0.0.Bm: Trace Attempt 1115	[2755.44 s]
+0.0.Bm: Trace Attempt 1117	[2762.86 s]
+0.0.Bm: Trace Attempt 1119	[2770.71 s]
+0.0.Bm: Trace Attempt 1120	[2775.79 s]
+0.0.AB: Trace Attempt 577	[270.11 s]
+0.0.Bm: Trace Attempt 1121	[2780.66 s]
+0.0.AB: Trace Attempt 578	[276.31 s]
+0.0.Bm: Trace Attempt 1122	[2784.81 s]
+0.0.Bm: Trace Attempt 1123	[2789.43 s]
+0.0.Bm: Trace Attempt 1124	[2793.63 s]
+0.0.AB: Trace Attempt 579	[287.92 s]
+0.0.AB: Trace Attempt 589	[292.24 s]
+0.0.Bm: Trace Attempt 1126	[2801.69 s]
+0.0.AB: Trace Attempt 596	[296.44 s]
+0.0.Bm: Trace Attempt 1127	[2806.39 s]
+0.0.AB: Trace Attempt 609	[300.99 s]
+0.0.Bm: Trace Attempt 1128	[2811.11 s]
+0.0.AB: Trace Attempt 616	[305.29 s]
+0.0.Bm: Trace Attempt 1129	[2815.88 s]
+0.0.AB: Trace Attempt 621	[311.32 s]
+0.0.Bm: Trace Attempt 1130	[2820.95 s]
+0.0.AB: Trace Attempt 626	[316.76 s]
+0.0.Bm: Trace Attempt 1131	[2825.84 s]
+0.0.AB: Trace Attempt 634	[321.00 s]
+0.0.Bm: Trace Attempt 1132	[2830.35 s]
+0.0.AB: Trace Attempt 641	[325.22 s]
+0.0.Bm: Trace Attempt 1133	[2835.88 s]
+0.0.AB: Trace Attempt 648	[332.13 s]
+0.0.Bm: Trace Attempt 1134	[2840.49 s]
+0.0.Bm: Trace Attempt 1135	[2844.73 s]
+0.0.Ht: Trace Attempt 2716	[3093.77 s]
+0.0.Bm: Trace Attempt 1137	[2852.08 s]
+0.0.Bm: Trace Attempt 1138	[2856.20 s]
+0.0.Bm: Trace Attempt 1139	[2861.37 s]
+0.0.Bm: Trace Attempt 1140	[2866.55 s]
+0.0.AB: Trace Attempt 649	[363.65 s]
+0.0.Bm: Trace Attempt 1141	[2872.22 s]
+0.0.Bm: Trace Attempt 1142	[2878.91 s]
+0.0.Bm: Trace Attempt 1143	[2883.06 s]
+0.0.Bm: Trace Attempt 1144	[2889.10 s]
+0.0.AB: Trace Attempt 650	[386.76 s]
+0.0.Bm: Trace Attempt 1146	[2896.96 s]
+0.0.Bm: Trace Attempt 1148	[2905.25 s]
+0.0.AB: Trace Attempt 651	[399.74 s]
+0.0.Bm: Trace Attempt 1149	[2909.61 s]
+0.0.AB: Trace Attempt 656	[403.85 s]
+0.0.Bm: Trace Attempt 1150	[2914.16 s]
+0.0.AB: Trace Attempt 660	[408.07 s]
+0.0.AB: Trace Attempt 663	[412.94 s]
+0.0.Ht: Trace Attempt 2722	[3167.09 s]
+0.0.AB: Trace Attempt 664	[420.55 s]
+0.0.Ht: Trace Attempt 2728	[3171.97 s]
+0.0.AB: Trace Attempt 671	[425.15 s]
+0.0.Ht: Trace Attempt 2733	[3176.88 s]
+0.0.Bm: Trace Attempt 1151	[2935.42 s]
+0.0.AB: Trace Attempt 675	[429.46 s]
+0.0.Ht: Trace Attempt 2735	[3181.55 s]
+0.0.AB: Trace Attempt 681	[434.22 s]
+0.0.AB: Trace Attempt 683	[438.62 s]
+0.0.Ht: Trace Attempt 2740	[3190.28 s]
+0.0.Bm: Trace Attempt 1152	[2949.53 s]
+0.0.AB: Trace Attempt 689	[443.31 s]
+0.0.Bm: Trace Attempt 1153	[2955.66 s]
+0.0.Bm: Trace Attempt 1154	[2961.48 s]
+0.0.Ht: Trace Attempt 2742	[3208.07 s]
+0.0.Bm: Trace Attempt 1155	[2965.85 s]
+0.0.AB: Trace Attempt 690	[460.47 s]
+0.0.Bm: Trace Attempt 1156	[2970.25 s]
+0.0.AB: Trace Attempt 691	[467.77 s]
+0.0.Bm: Trace Attempt 1157	[2975.11 s]
+0.0.Ht: Trace Attempt 2743	[3220.31 s]
+0.0.AB: Trace Attempt 699	[473.10 s]
+0.0.Bm: Trace Attempt 1158	[2979.61 s]
+0.0.Ht: Trace Attempt 2765	[3224.61 s]
+0.0.AB: Trace Attempt 709	[477.42 s]
+0.0.Bm: Trace Attempt 1159	[2984.30 s]
+0.0.AB: Trace Attempt 717	[481.52 s]
+0.0.Bm: Trace Attempt 1160	[2990.66 s]
+0.0.Bm: Trace Attempt 1161	[2995.30 s]
+0.0.AB: Trace Attempt 721	[489.01 s]
+0.0.Bm: Trace Attempt 1162	[2999.70 s]
+0.0.AB: Trace Attempt 722	[493.38 s]
+0.0.AB: Trace Attempt 725	[497.59 s]
+0.0.Bm: Trace Attempt 1163	[3004.97 s]
+0.0.AB: Trace Attempt 728	[502.39 s]
+0.0.Bm: Trace Attempt 1164	[3010.76 s]
+0.0.Ht: Trace Attempt 2766	[3256.70 s]
+0.0.AB: Trace Attempt 732	[507.64 s]
+0.0.Bm: Trace Attempt 1165	[3016.05 s]
+0.0.Ht: Trace Attempt 2773	[3261.70 s]
+0.0.AB: Trace Attempt 735	[509.99 s]
+0.0.AB: Per property time limit expired (512.00 s) [512.05 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[512.05 s].
+0.0.AB: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Tricustom6: Trace Attempt 1098088	[0.04 s]
+0.0.Tricustom6: Per property time limit expired (512.00 s) [512.09 s]
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[512.09 s].
+0.0.Tricustom6: Starting proof for property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.06 s]
+0.0.AB: Trace Attempt  3	[0.06 s]
+0.0.AB: Trace Attempt  4	[0.06 s]
+0.0.AB: Trace Attempt  5	[0.06 s]
+0.0.Tricustom6: 1024.10" ---- Launching main thread ----
+0.0.AB: Trace Attempt  1	[0.19 s]
+0.0.AB: Trace Attempt  2	[0.19 s]
+0.0.AB: Trace Attempt  3	[0.19 s]
+0.0.AB: Trace Attempt  4	[0.19 s]
+0.0.AB: Trace Attempt  5	[0.19 s]
+0.0.Tricustom6: 1024.25" ---- Launching abstraction thread ----
+0.0.Tricustom6: 1024.27" ---- Launching multi-phase simplification thread ----
+0.0.Bm: Trace Attempt 1166	[3021.76 s]
+0.0.AB: Trace Attempt 155	[4.20 s]
+0.0.AB: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[4.37 s].
+0.0.AB: Morphing to N
+0.0.AB: Trace Attempt 157	[4.36 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Tricustom6: Stopped processing property "ir_rcv.auto_sva_inst.check_release_clears_code_ack"	[4.42 s].
+0.0.Tricustom6: Morphing to Hts
+0.0.Tricustom6: All properties determined. [0.00 s]
+0.0.Tricustom6: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 432	[0.99 s]
+0.0.Ht: Trace Attempt 2779	[3269.69 s]
+0.0.Hts: Trace Attempt 6580	[4.00 s]
+0.0.Bm: Trace Attempt 1167	[3029.68 s]
+0.0.Hts: Trace Attempt 12929	[8.00 s]
+0.0.Ht: Trace Attempt 2784	[3276.17 s]
+0.0.Bm: Trace Attempt 1168	[3034.40 s]
+0.0.Hts: Trace Attempt 18235	[12.00 s]
+0.0.Ht: Trace Attempt 2786	[3281.14 s]
+0.0.Hts: Trace Attempt 25607	[16.00 s]
+0.0.Bm: Trace Attempt 1169	[3040.11 s]
+0.0.Hts: Trace Attempt 30771	[20.88 s]
+0.0.Ht: Trace Attempt 2787	[3287.61 s]
+0.0.Bm: Trace Attempt 1170	[3044.41 s]
+0.0.Hts: Trace Attempt 38156	[24.88 s]
+0.0.Ht: Trace Attempt 2794	[3291.73 s]
+0.0.Bm: Trace Attempt 1171	[3048.91 s]
+0.0.Hts: Trace Attempt 44712	[28.88 s]
+0.0.Ht: Trace Attempt 2795	[3296.07 s]
+0.0.Bm: Trace Attempt 1172	[3053.96 s]
+0.0.Hts: Trace Attempt 53455	[32.88 s]
+0.0.Bm: Trace Attempt 1173	[3058.57 s]
+0.0.Hts: Trace Attempt 61458	[38.52 s]
+0.0.Bm: Trace Attempt 1174	[3063.64 s]
+0.0.Ht: Trace Attempt 2796	[3307.55 s]
+0.0.Hts: Trace Attempt 66148	[42.52 s]
+0.0.Bm: Trace Attempt 1175	[3067.95 s]
+0.0.Hts: Trace Attempt 73485	[46.52 s]
+0.0.Hts: Trace Attempt 78438	[50.78 s]
+0.0.Bm: Trace Attempt 1176	[3074.96 s]
+0.0.Hts: Trace Attempt 87095	[54.78 s]
+0.0.Ht: Trace Attempt 2798	[3323.68 s]
+0.0.Bm: Trace Attempt 1177	[3081.07 s]
+0.0.Hts: Trace Attempt 95520	[58.78 s]
+0.0.Hts: Trace Attempt 103736	[62.78 s]
+0.0.Bm: Trace Attempt 1178	[3086.26 s]
+0.0.Hts: Trace Attempt 111824	[66.78 s]
+0.0.Bm: Trace Attempt 1179	[3090.54 s]
+0.0.Ht: Trace Attempt 2802	[3335.36 s]
+0.0.Hts: Trace Attempt 119868	[70.78 s]
+0.0.Bm: Trace Attempt 1180	[3094.87 s]
+0.0.Ht: Trace Attempt 2806	[3340.22 s]
+0.0.Hts: Trace Attempt 122913	[76.74 s]
+0.0.Bm: Trace Attempt 1181	[3100.28 s]
+0.0.Ht: Trace Attempt 2810	[3345.98 s]
+0.0.Hts: Trace Attempt 122953	[80.86 s]
+0.0.Bm: Trace Attempt 1182	[3104.53 s]
+0.0.Hts: Trace Attempt 132022	[84.86 s]
+0.0.Bm: Trace Attempt 1183	[3109.02 s]
+0.0.Ht: Trace Attempt 2812	[3352.41 s]
+0.0.Hts: Trace Attempt 136525	[88.86 s]
+0.0.Ht: Trace Attempt 2823	[3357.13 s]
+0.0.Hts: Trace Attempt 145731	[92.86 s]
+0.0.Bm: Trace Attempt 1184	[3116.49 s]
+0.0.Ht: Trace Attempt 2828	[3362.47 s]
+0.0.Hts: Trace Attempt 154642	[96.86 s]
+0.0.Bm: Trace Attempt 1185	[3121.81 s]
+0.0.Hts: Trace Attempt 156836	[102.05 s]
+0.0.Bm: Trace Attempt 1186	[3127.65 s]
+0.0.Hts: Trace Attempt 165281	[106.05 s]
+0.0.Bm: Trace Attempt 1187	[3132.34 s]
+0.0.Hts: Trace Attempt 173598	[110.05 s]
+0.0.Bm: Trace Attempt 1188	[3136.51 s]
+0.0.Hts: Trace Attempt 181848	[114.05 s]
+0.0.Hts: Trace Attempt 189971	[118.05 s]
+0.0.Bm: Trace Attempt 1189	[3141.41 s]
+0.0.Hts: Trace Attempt 198284	[122.05 s]
+0.0.Bm: Trace Attempt 1190	[3146.13 s]
+0.0.Ht: Trace Attempt 2830	[3391.13 s]
+0.0.Hts: Trace Attempt 206815	[126.05 s]
+0.0.Bm: Trace Attempt 1191	[3150.90 s]
+0.0.Hts: Trace Attempt 215482	[130.05 s]
+0.0.Bm: Trace Attempt 1192	[3156.18 s]
+0.0.Hts: Trace Attempt 223821	[134.05 s]
+0.0.Hts: Trace Attempt 231581	[138.05 s]
+0.0.Bm: Trace Attempt 1193	[3162.03 s]
+0.0.Hts: Trace Attempt 239256	[142.05 s]
+0.0.Bm: Trace Attempt 1194	[3167.80 s]
+0.0.Ht: Trace Attempt 2837	[3413.92 s]
+0.0.Bm: Trace Attempt 1195	[3173.28 s]
+0.0.Hts: Trace Attempt 245823	[154.49 s]
+0.0.Hts: Trace Attempt 245863	[163.82 s]
+0.0.Bm: Trace Attempt 1196	[3187.66 s]
+0.0.Hts: Trace Attempt 254832	[167.82 s]
+0.0.Ht: Trace Attempt 2838	[3434.32 s]
+0.0.Hts: Trace Attempt 263947	[171.82 s]
+0.0.Bm: Trace Attempt 1197	[3195.73 s]
+0.0.Hts: Trace Attempt 272237	[175.82 s]
+0.0.Ht: Trace Attempt 2840	[3442.72 s]
+0.0.Hts: Trace Attempt 272841	[180.63 s]
+0.0.Ht: Trace Attempt 2841	[3447.84 s]
+0.0.Hts: Trace Attempt 281069	[184.63 s]
+0.0.Hts: Trace Attempt 289225	[188.63 s]
+0.0.Hts: Trace Attempt 297377	[192.63 s]
+0.0.Hts: Trace Attempt 305572	[196.63 s]
+0.0.Bm: Trace Attempt 1198	[3224.24 s]
+0.0.Ht: Trace Attempt 2843	[3470.72 s]
+0.0.Hts: Trace Attempt 313595	[204.63 s]
+0.0.Hts: Trace Attempt 319463	[208.63 s]
+0.0.Ht: Trace Attempt 2844	[3477.23 s]
+0.0.Hts: Trace Attempt 325233	[212.63 s]
+0.0.Ht: Trace Attempt 2851	[3481.34 s]
+0.0.N: Trace Attempt 433	[215.81 s]
+0.0.Hts: Trace Attempt 330927	[216.63 s]
+0.0.N: Trace Attempt  1	[217.14 s]
+0.0.N: Trace Attempt  2	[217.14 s]
+0.0.N: Trace Attempt  3	[217.14 s]
+0.0.N: Trace Attempt  4	[217.14 s]
+0.0.Bm: Trace Attempt 1199	[3242.15 s]
+0.0.Ht: Trace Attempt 2854	[3485.56 s]
+0.0.Hts: Trace Attempt 336413	[220.63 s]
+0.0.N: Trace Attempt 199	[221.15 s]
+0.0.Hts: Trace Attempt 341913	[224.63 s]
+0.0.Ht: Trace Attempt 2858	[3492.26 s]
+0.0.Hts: Trace Attempt 347789	[228.63 s]
+0.0.N: Trace Attempt 210	[228.79 s]
+0.0.Bm: Trace Attempt 1200	[3252.80 s]
+0.0.Ht: Trace Attempt 2863	[3496.78 s]
+0.0.Hts: Trace Attempt 353608	[232.63 s]
+0.0.Ht: Trace Attempt 2866	[3502.71 s]
+0.0.Hts: Trace Attempt 359452	[236.63 s]
+0.0.Bm: Trace Attempt 1201	[3260.23 s]
+0.0.Hts: Trace Attempt 365223	[240.63 s]
+0.0.Bm: Trace Attempt 1202	[3266.17 s]
+0.0.N: Trace Attempt 439	[244.63 s]
+0.0.Hts: Trace Attempt 370513	[244.63 s]
+0.0.Bm: Trace Attempt 1203	[3270.41 s]
+0.0.Hts: Trace Attempt 375624	[248.63 s]
+0.0.Bm: Trace Attempt 1204	[3274.95 s]
+0.0.Hts: Trace Attempt 380738	[252.63 s]
+0.0.Ht: Trace Attempt 2867	[3521.20 s]
+0.0.Hts: Trace Attempt 385829	[256.63 s]
+0.0.Bm: Trace Attempt 1205	[3279.89 s]
+0.0.Hts: Trace Attempt 390956	[260.63 s]
+0.0.N: Trace Attempt 639	[261.23 s]
+0.0.Bm: Trace Attempt 1206	[3284.44 s]
+0.0.N: Trace Attempt 809	[266.27 s]
+0.0.Bm: Trace Attempt 1207	[3290.03 s]
+0.0.N: Trace Attempt 1001	[270.31 s]
+0.0.Ht: Trace Attempt 2873	[3536.51 s]
+0.0.Bm: Trace Attempt 1208	[3295.67 s]
+0.0.Ht: Trace Attempt 2879	[3540.76 s]
+0.0.Bm: Trace Attempt 1209	[3299.72 s]
+0.0.Ht: Trace Attempt 2885	[3545.36 s]
+0.0.N: Trace Attempt 1050	[280.88 s]
+0.0.Bm: Trace Attempt 1210	[3304.29 s]
+0.0.Ht: Trace Attempt 2888	[3549.80 s]
+0.0.Bm: Trace Attempt 1211	[3309.48 s]
+0.0.Hts: Trace Attempt 395425	[288.74 s]
+0.0.N: Trace Attempt 1199	[290.43 s]
+0.0.Ht: Trace Attempt 2893	[3556.61 s]
+0.0.Bm: Trace Attempt 1212	[3314.28 s]
+0.0.Ht: Trace Attempt 2897	[3560.77 s]
+0.0.Bm: Trace Attempt 1213	[3327.26 s]
+0.0.Bm: Trace Attempt 1214	[3332.09 s]
+0.0.Ht: Trace Attempt 2900	[3576.48 s]
+0.0.Hts: Trace Attempt 395444	[312.32 s]
+0.0.Bm: Trace Attempt 1215	[3336.72 s]
+0.0.Ht: Trace Attempt 2902	[3581.12 s]
+0.0.N: Trace Attempt 1318	[315.38 s]
+0.0.Hts: Trace Attempt 400354	[316.32 s]
+0.0.Bm: Trace Attempt 1216	[3341.24 s]
+0.0.N: Trace Attempt 1504	[319.39 s]
+0.0.Ht: Trace Attempt 2904	[3586.05 s]
+0.0.Hts: Trace Attempt 405252	[320.32 s]
+0.0.Bm: Trace Attempt 1217	[3345.58 s]
+0.0.Hts: Trace Attempt 410142	[324.32 s]
+0.0.Hts: Trace Attempt 414573	[328.32 s]
+0.0.Bm: Trace Attempt 1218	[3351.56 s]
+0.0.N: Trace Attempt 1531	[330.46 s]
+0.0.Hts: Trace Attempt 418963	[332.32 s]
+INFO (IPF144): 0: Initiating shutdown of proof [3600.00 s]
+0.0.Hts: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[333.72 s].
+0.0.Hts: Trace Attempt 420493	[333.72 s]
+0.0.Hts: Time limit expired (3600.00 s) [333.72 s]
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Time limit expired (3600.00 s) [3599.94 s]
+0.0.Ht: Exited with Success (@ 3600.24 s)
+0.0.N: Stopped processing property "ir_rcv.auto_sva_inst.check_code_updates_on_ack"	[334.07 s].
+0.0.N: Trace Attempt 1626	[333.34 s]
+0.0.N: Time limit expired (3600.00 s) [334.07 s]
+0.0.Bm: Time limit expired (3600.00 s) [3357.05 s]
+0.0.N: Exited with Success (@ 3600.33 s)
+0.0.Hts: Exited with Success (@ 3600.66 s)
+0: ProofGrid usable level: 1
+0.0.Bm: Exited with Success (@ 3600.66 s)
+0: ProofGrid usable level: 0
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 100.00 %)
+--------------------------------------------------------------
+     engines started                               :    17
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.05     3599.83        0.00      100.00 %
+     Ht        0.06     3599.94        0.00      100.00 %
+     Bm        0.05     3598.08        0.00      100.00 %
+    Hts        0.10     3599.43        0.00      100.00 %
+    all        0.07     3599.32        0.00      100.00 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27    14397.29        0.00
+
+    Data read    : 53.10 MiB
+    Data written : 10.35 MiB
+
+0: All pending notifications were processed.
+----------------------------------------
+| INFO (ICD005): 0: The proof thread was terminated because of a time_limit expiration.
+|     The current limit is 3600 seconds.
+|     Modify it with the "-time_limit" switch or "set_prove_time_limit" command.
+----------------------------------------
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 43
+                 assertions                   : 22
+                  - proven                    : 1 (4.54545%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 19 (86.3636%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 2 (9.09091%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 21
+                  - unreachable               : 1 (4.7619%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 19 (90.4762%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 1 (4.7619%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Collect CEX details ----
+[<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/cex_details.txt
+[<embedded>] % set cex_props {}
+[<embedded>] % catch { set cex_props [get_property_list -include {status cex}] }
+0
+[<embedded>] % set ar_cex_props {}
+[<embedded>] % catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_cex [open $CEX_TXT "w"]
+file43
+[<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
+[<embedded>] % puts $fp_cex ""
+[<embedded>] % 
+[<embedded>] % foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+[<embedded>] % foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+[<embedded>] % close $fp_cex
+[<embedded>] % 
+[<embedded>] % set n_cex    [llength $cex_props]
+19
+[<embedded>] % set n_ar_cex [llength $ar_cex_props]
+0
+[<embedded>] % puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+INFO: CEX properties: 19 cex, 0 ar_cex
+[<embedded>] % puts "INFO: Wrote $CEX_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/cex_details.txt
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "CEX_COUNT=$n_cex"
+[<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02214/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 48.851 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

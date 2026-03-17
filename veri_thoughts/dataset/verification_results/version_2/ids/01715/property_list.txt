@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+d_ff.auto_sva_inst.check_q_follows_d_next
+d_ff.auto_sva_inst.check_qn_follows_notd_next
+d_ff.auto_sva_inst.check_outputs_complement_next
+d_ff.auto_sva_inst.check_outputs_mutex_next
+d_ff.auto_sva_inst.check_d_rise_sets_q_next
+d_ff.auto_sva_inst.check_d_fall_clears_q_next
+d_ff.auto_sva_inst.check_d1_drives_qn0_next
+d_ff.auto_sva_inst.check_d0_drives_qn1_next
+
+COVER PROPERTIES:
+d_ff.auto_sva_inst.check_q_follows_d_next:precondition1
+d_ff.auto_sva_inst.check_qn_follows_notd_next:precondition1
+d_ff.auto_sva_inst.check_outputs_complement_next:precondition1
+d_ff.auto_sva_inst.check_outputs_mutex_next:precondition1
+d_ff.auto_sva_inst.check_d_rise_sets_q_next:precondition1
+d_ff.auto_sva_inst.check_d_fall_clears_q_next:precondition1
+d_ff.auto_sva_inst.check_d1_drives_qn0_next:precondition1
+d_ff.auto_sva_inst.check_d0_drives_qn1_next:precondition1

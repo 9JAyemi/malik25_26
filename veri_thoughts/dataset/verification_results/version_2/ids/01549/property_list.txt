@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_and_overflow_exact
+adder.auto_sva_inst.check_overflow_implies_sum_lt_a
+adder.auto_sva_inst.check_overflow_implies_sum_lt_b
+adder.auto_sva_inst.check_no_overflow_ge_a
+adder.auto_sva_inst.check_no_overflow_ge_b
+adder.auto_sva_inst.check_add_zero_b
+adder.auto_sva_inst.check_add_zero_a
+adder.auto_sva_inst.check_ff_plus_one
+adder.auto_sva_inst.check_ff_operand_a
+adder.auto_sva_inst.check_ff_operand_b
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_overflow_implies_sum_lt_a:precondition1
+adder.auto_sva_inst.check_overflow_implies_sum_lt_b:precondition1
+adder.auto_sva_inst.check_no_overflow_ge_a:precondition1
+adder.auto_sva_inst.check_no_overflow_ge_b:precondition1
+adder.auto_sva_inst.check_add_zero_b:precondition1
+adder.auto_sva_inst.check_add_zero_a:precondition1
+adder.auto_sva_inst.check_ff_plus_one:precondition1
+adder.auto_sva_inst.check_ff_operand_a:precondition1
+adder.auto_sva_inst.check_ff_operand_b:precondition1

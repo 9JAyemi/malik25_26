@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+dffr.auto_sva_inst.check_so_mirrors_q
+dffr.auto_sva_inst.check_scan_loads_si
+dffr.auto_sva_inst.check_sync_reset_loads_zero
+dffr.auto_sva_inst.check_functional_loads_din
+dffr.auto_sva_inst.check_so_follows_si_in_scan
+dffr.auto_sva_inst.check_so_zero_after_reset_cycle
+dffr.auto_sva_inst.check_hold_when_din_equals_q
+dffr.auto_sva_inst.check_hold_in_scan_when_si_equals_q
+
+COVER PROPERTIES:
+dffr.auto_sva_inst.check_scan_loads_si:precondition1
+dffr.auto_sva_inst.check_sync_reset_loads_zero:precondition1
+dffr.auto_sva_inst.check_functional_loads_din:precondition1
+dffr.auto_sva_inst.check_so_follows_si_in_scan:precondition1
+dffr.auto_sva_inst.check_so_zero_after_reset_cycle:precondition1
+dffr.auto_sva_inst.check_hold_when_din_equals_q:precondition1
+dffr.auto_sva_inst.check_hold_in_scan_when_si_equals_q:precondition1

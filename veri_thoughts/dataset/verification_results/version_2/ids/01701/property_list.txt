@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+dff.auto_sva_inst.reset_forces_zero_next
+dff.auto_sva_inst.capture_input_next
+dff.auto_sva_inst.capture_on_reset_release
+dff.auto_sva_inst.prev_reset_implies_zero_now
+dff.auto_sva_inst.reset_stability
+
+COVER PROPERTIES:
+dff.auto_sva_inst.reset_forces_zero_next:precondition1
+dff.auto_sva_inst.capture_input_next:precondition1
+dff.auto_sva_inst.capture_on_reset_release:precondition1
+dff.auto_sva_inst.prev_reset_implies_zero_now:precondition1
+dff.auto_sva_inst.reset_stability:precondition1

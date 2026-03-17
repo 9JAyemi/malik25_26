@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+GrayCodeConverter.auto_sva_inst.check_gray_out_def
+GrayCodeConverter.auto_sva_inst.check_bin_out_def
+GrayCodeConverter.auto_sva_inst.check_gray_msb
+GrayCodeConverter.auto_sva_inst.check_bin_msb
+GrayCodeConverter.auto_sva_inst.gen_gray_bits[0].check_gray_bit
+GrayCodeConverter.auto_sva_inst.gen_gray_bits[1].check_gray_bit
+GrayCodeConverter.auto_sva_inst.gen_gray_bits[2].check_gray_bit
+GrayCodeConverter.auto_sva_inst.gen_bin_bits[0].check_bin_bit
+GrayCodeConverter.auto_sva_inst.gen_bin_bits[1].check_bin_bit
+GrayCodeConverter.auto_sva_inst.gen_bin_bits[2].check_bin_bit
+GrayCodeConverter.auto_sva_inst.check_zero_bin_to_zero_gray
+GrayCodeConverter.auto_sva_inst.check_zero_gray_to_zero_bin
+GrayCodeConverter.auto_sva_inst.check_gray_xor_bin_is_shift
+GrayCodeConverter.auto_sva_inst.check_bin_xor_gray_is_shift
+
+COVER PROPERTIES:
+GrayCodeConverter.auto_sva_inst.check_zero_bin_to_zero_gray:precondition1
+GrayCodeConverter.auto_sva_inst.check_zero_gray_to_zero_bin:precondition1

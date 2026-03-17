@@ -1,0 +1,30 @@
+ASSERT PROPERTIES:
+counter.counter_sva_i.ap_rst_clears
+counter.counter_sva_i.ap_rst_holds_zero
+counter.counter_sva_i.ap_pipe_cr2
+counter.counter_sva_i.ap_pipe_count
+counter.counter_sva_i.ap_pipe_count_2cyc
+counter.counter_sva_i.ap_cr1_inc
+counter.counter_sva_i.ap_cr1_dec
+counter.counter_sva_i.ap_cr1_hold
+counter.counter_sva_i.ap_cnt_inc_2cyc
+counter.counter_sva_i.ap_cnt_dec_2cyc
+counter.counter_sva_i.ap_cnt_hold_2cyc
+counter.counter_sva_i.ap_no_x
+
+COVER PROPERTIES:
+counter.counter_sva_i.ap_rst_clears:precondition1
+counter.counter_sva_i.ap_rst_holds_zero:precondition1
+counter.counter_sva_i.ap_pipe_count_2cyc:precondition1
+counter.counter_sva_i.ap_cr1_inc:precondition1
+counter.counter_sva_i.ap_cr1_dec:precondition1
+counter.counter_sva_i.ap_cr1_hold:precondition1
+counter.counter_sva_i.ap_cnt_inc_2cyc:precondition1
+counter.counter_sva_i.ap_cnt_dec_2cyc:precondition1
+counter.counter_sva_i.ap_cnt_hold_2cyc:precondition1
+counter.counter_sva_i.cv_reset_release
+counter.counter_sva_i.cv_inc_seen
+counter.counter_sva_i.cv_dec_seen
+counter.counter_sva_i.cv_hold_seen
+counter.counter_sva_i.cv_wrap_up
+counter.counter_sva_i.cv_wrap_down

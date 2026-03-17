@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_functional_mapping
+comparator.auto_sva_inst.check_outputs_onehot
+comparator.auto_sva_inst.check_outputs_not_all_zero
+comparator.auto_sva_inst.check_eq_when_equal
+comparator.auto_sva_inst.check_gt_when_greater
+comparator.auto_sva_inst.check_lt_when_less
+comparator.auto_sva_inst.check_eq_implies_equal
+comparator.auto_sva_inst.check_gt_implies_greater
+comparator.auto_sva_inst.check_lt_implies_less
+comparator.auto_sva_inst.check_mutex_pairs
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.check_eq_when_equal:precondition1
+comparator.auto_sva_inst.check_gt_when_greater:precondition1
+comparator.auto_sva_inst.check_lt_when_less:precondition1
+comparator.auto_sva_inst.check_eq_implies_equal:precondition1
+comparator.auto_sva_inst.check_gt_implies_greater:precondition1
+comparator.auto_sva_inst.check_lt_implies_less:precondition1

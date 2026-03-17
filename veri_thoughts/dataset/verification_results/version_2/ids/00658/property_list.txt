@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+PADIN.auto_sva_inst.check_q_updates_from_prev_d
+PADIN.auto_sva_inst.check_q_stable_when_prev_d_stable
+PADIN.auto_sva_inst.check_q_change_matches_prev_d_change
+PADIN.auto_sva_inst.check_q_differs_from_d_when_d_toggled
+PADIN.auto_sva_inst.check_q_equals_d_when_d_stable
+PADIN.auto_sva_inst.check_next_cycle_q_matches_current_d
+
+COVER PROPERTIES:
+PADIN.auto_sva_inst.check_q_stable_when_prev_d_stable:precondition1
+PADIN.auto_sva_inst.check_q_differs_from_d_when_d_toggled:precondition1
+PADIN.auto_sva_inst.check_q_equals_d_when_d_stable:precondition1

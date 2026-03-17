@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_9bit
+adder.auto_sva_inst.check_lower_byte
+adder.auto_sva_inst.check_carry_wrap
+adder.auto_sva_inst.check_ge_a
+adder.auto_sva_inst.check_ge_b
+adder.auto_sva_inst.check_identity_b_zero
+adder.auto_sva_inst.check_identity_a_zero
+adder.auto_sva_inst.check_lsb_xor
+adder.auto_sva_inst.check_bit1_sum
+adder.auto_sva_inst.check_sum_range
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_identity_b_zero:precondition1
+adder.auto_sva_inst.check_identity_a_zero:precondition1

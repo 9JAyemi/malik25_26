@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_out_hi_zero, assert, property, h00, check_out_lo_eq_in, pe_map_b0, pe_map_b1, pe_map_b2, pe_map_b3, pe_map_b4, pe_map_b5, pe_map_b6, pe_map_b7, pe_default_zero, inside, select_when_pos_nonzero, deselect_when_pos_zero, mux_select_one, past, mux_select_zero, out_zero_for_upper_onehots, out_eq_in_otherwise
+bind top_module top_module_sva auto_sva_inst (
+    .clk(clk),
+    .in(in),
+    .out(out),
+    .pos(pos),
+    .out_hi(out_hi),
+    .out_lo(out_lo),
+    .select(select),
+    .posedge(posedge),
+    .b00000001(b00000001),
+    .b000(b000),
+    .b00000010(b00000010),
+    .b001(b001),
+    .b00000100(b00000100),
+    .b010(b010),
+    .b00001000(b00001000),
+    .b011(b011),
+    .b00010000(b00010000),
+    .b100(b100),
+    .b00100000(b00100000),
+    .b101(b101),
+    .b01000000(b01000000),
+    .b110(b110),
+    .b10000000(b10000000),
+    .b111(b111),
+    .b1(b1),
+    .b0(b0)
+);

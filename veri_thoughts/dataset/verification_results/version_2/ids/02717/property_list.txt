@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+mux_4to1.auto_sva_inst.check_truth_table_on_sel0
+mux_4to1.auto_sva_inst.check_truth_table_on_sel1
+mux_4to1.auto_sva_inst.check_sel00_data0_drives_out
+mux_4to1.auto_sva_inst.check_sel01_data3_drives_out
+mux_4to1.auto_sva_inst.check_default_zero_on_sel1_rise
+mux_4to1.auto_sva_inst.check_no_out_rise_when_sel1_high
+
+COVER PROPERTIES:
+mux_4to1.auto_sva_inst.check_sel00_data0_drives_out:precondition1
+mux_4to1.auto_sva_inst.check_sel01_data3_drives_out:precondition1

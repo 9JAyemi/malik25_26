@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+memory.u_memory_sva.a_cen_pol
+memory.u_memory_sva.a_we_pol
+memory.u_memory_sva.a_addr_map
+memory.u_memory_sva.a_read_map
+memory.u_memory_sva.a_clk_const
+memory.u_memory_sva.a_write_updates_data
+memory.u_memory_sva.a_no_write_stable
+memory.u_memory_sva.a_change_implies_write
+memory.u_memory_sva.a_read_after_write
+
+COVER PROPERTIES:
+memory.u_memory_sva.a_write_updates_data:precondition1
+memory.u_memory_sva.a_no_write_stable:precondition1
+memory.u_memory_sva.a_change_implies_write:precondition1
+memory.u_memory_sva.a_read_after_write:precondition1
+memory.u_memory_sva.c_one_write
+memory.u_memory_sva.c_back_to_back
+memory.u_memory_sva.c_long_idle

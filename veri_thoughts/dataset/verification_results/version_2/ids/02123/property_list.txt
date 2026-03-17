@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+cpu_mem.auto_sva_inst.reset_clears_regs
+cpu_mem.auto_sva_inst.hold_regs_on_stall
+cpu_mem.auto_sva_inst.capture_p_c_rfw
+cpu_mem.auto_sva_inst.capture_p_c_wbsource
+cpu_mem.auto_sva_inst.capture_p_alu_r
+cpu_mem.auto_sva_inst.capture_p_rf_waddr
+cpu_mem.auto_sva_inst.capture_p_jalra
+cpu_mem.auto_sva_inst.capture_p_dout
+cpu_mem.auto_sva_inst.comb_dmem_addr_passthrough
+cpu_mem.auto_sva_inst.comb_dmem_drw_passthrough
+cpu_mem.auto_sva_inst.comb_dmem_data_forward_mux
+
+COVER PROPERTIES:
+cpu_mem.auto_sva_inst.reset_clears_regs:precondition1
+cpu_mem.auto_sva_inst.hold_regs_on_stall:precondition1
+cpu_mem.auto_sva_inst.capture_p_c_rfw:precondition1
+cpu_mem.auto_sva_inst.capture_p_c_wbsource:precondition1
+cpu_mem.auto_sva_inst.capture_p_alu_r:precondition1
+cpu_mem.auto_sva_inst.capture_p_rf_waddr:precondition1
+cpu_mem.auto_sva_inst.capture_p_jalra:precondition1
+cpu_mem.auto_sva_inst.capture_p_dout:precondition1

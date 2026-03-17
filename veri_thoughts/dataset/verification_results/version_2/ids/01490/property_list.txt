@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.reset_clears_op_next
+comparator.auto_sva_inst.reset_overrides_ce
+comparator.auto_sva_inst.update_on_ce
+comparator.auto_sva_inst.update_one_on_eq
+comparator.auto_sva_inst.update_zero_on_neq
+comparator.auto_sva_inst.hold_when_ce_low
+comparator.auto_sva_inst.op_rise_implies_prev_ce_eq
+comparator.auto_sva_inst.op_fall_implies_prev_ce_neq_or_reset
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.reset_clears_op_next:precondition1
+comparator.auto_sva_inst.reset_overrides_ce:precondition1
+comparator.auto_sva_inst.update_on_ce:precondition1
+comparator.auto_sva_inst.update_one_on_eq:precondition1
+comparator.auto_sva_inst.update_zero_on_neq:precondition1
+comparator.auto_sva_inst.hold_when_ce_low:precondition1
+comparator.auto_sva_inst.op_rise_implies_prev_ce_eq:precondition1
+comparator.auto_sva_inst.op_fall_implies_prev_ce_neq_or_reset:precondition1

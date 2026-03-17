@@ -1,0 +1,24 @@
+ASSERT PROPERTIES:
+mux.auto_sva_inst.check_mux_function
+mux.auto_sva_inst.check_C0_path
+mux.auto_sva_inst.check_C1_path
+mux.auto_sva_inst.check_invert0_behavior
+mux.auto_sva_inst.check_invert1_behavior
+mux.auto_sva_inst.check_stable_when_inputs_stable
+mux.auto_sva_inst.check_out_toggles_on_invert_change
+mux.auto_sva_inst.check_A_influence_when_C0
+mux.auto_sva_inst.check_B_influence_when_C1
+mux.auto_sva_inst.check_A_no_influence_when_C1
+mux.auto_sva_inst.check_B_no_influence_when_C0
+
+COVER PROPERTIES:
+mux.auto_sva_inst.check_C0_path:precondition1
+mux.auto_sva_inst.check_C1_path:precondition1
+mux.auto_sva_inst.check_invert0_behavior:precondition1
+mux.auto_sva_inst.check_invert1_behavior:precondition1
+mux.auto_sva_inst.check_stable_when_inputs_stable:precondition1
+mux.auto_sva_inst.check_out_toggles_on_invert_change:precondition1
+mux.auto_sva_inst.check_A_influence_when_C0:precondition1
+mux.auto_sva_inst.check_B_influence_when_C1:precondition1
+mux.auto_sva_inst.check_A_no_influence_when_C1:precondition1
+mux.auto_sva_inst.check_B_no_influence_when_C0:precondition1

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+and_module.auto_sva_inst.check_out_equals_and
+and_module.auto_sva_inst.check_any_input_low_forces_out_low
+and_module.auto_sva_inst.check_out_change_requires_input_change
+and_module.auto_sva_inst.check_out_rise_cause
+and_module.auto_sva_inst.check_out_fall_cause
+
+COVER PROPERTIES:
+and_module.auto_sva_inst.check_any_input_low_forces_out_low:precondition1
+and_module.auto_sva_inst.check_out_change_requires_input_change:precondition1
+and_module.auto_sva_inst.check_out_rise_cause:precondition1
+and_module.auto_sva_inst.check_out_fall_cause:precondition1

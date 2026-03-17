@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+mux_2_to_1.auto_sva_inst.check_select_0_routes_A
+mux_2_to_1.auto_sva_inst.check_select_1_routes_B
+mux_2_to_1.auto_sva_inst.check_equal_inputs_forward
+mux_2_to_1.auto_sva_inst.check_consistency_S1
+mux_2_to_1.auto_sva_inst.check_consistency_S0
+mux_2_to_1.auto_sva_inst.check_inverse_on_A
+mux_2_to_1.auto_sva_inst.check_inverse_on_B
+
+COVER PROPERTIES:
+mux_2_to_1.auto_sva_inst.check_select_0_routes_A:precondition1
+mux_2_to_1.auto_sva_inst.check_select_1_routes_B:precondition1
+mux_2_to_1.auto_sva_inst.check_equal_inputs_forward:precondition1
+mux_2_to_1.auto_sva_inst.check_consistency_S1:precondition1
+mux_2_to_1.auto_sva_inst.check_consistency_S0:precondition1
+mux_2_to_1.auto_sva_inst.check_inverse_on_A:precondition1
+mux_2_to_1.auto_sva_inst.check_inverse_on_B:precondition1

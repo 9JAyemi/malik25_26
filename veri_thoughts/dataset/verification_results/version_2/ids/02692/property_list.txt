@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+my_and3.auto_sva_inst.check_eq_on_posedge_A
+my_and3.auto_sva_inst.check_eq_on_negedge_A
+my_and3.auto_sva_inst.check_eq_on_posedge_B
+my_and3.auto_sva_inst.check_eq_on_negedge_B
+my_and3.auto_sva_inst.check_eq_on_posedge_C
+my_and3.auto_sva_inst.check_eq_on_negedge_C
+my_and3.auto_sva_inst.check_eq_on_posedge_VPWR
+my_and3.auto_sva_inst.check_eq_on_negedge_VPWR
+my_and3.auto_sva_inst.check_eq_on_posedge_VGND
+my_and3.auto_sva_inst.check_eq_on_negedge_VGND
+my_and3.auto_sva_inst.x_rise_requires_vgnd0
+my_and3.auto_sva_inst.x_rise_requires_and_match_vpwr
+my_and3.auto_sva_inst.x_when_vpwr1_vgnd0
+my_and3.auto_sva_inst.x_when_vpwr0_vgnd0
+my_and3.auto_sva_inst.vgnd_nonzero_forces_x0
+
+COVER PROPERTIES:
+my_and3.auto_sva_inst.x_when_vpwr1_vgnd0:precondition1
+my_and3.auto_sva_inst.x_when_vpwr0_vgnd0:precondition1
+my_and3.auto_sva_inst.vgnd_nonzero_forces_x0:precondition1

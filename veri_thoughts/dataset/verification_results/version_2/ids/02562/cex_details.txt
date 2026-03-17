@@ -1,0 +1,12 @@
+# Counter-example details for DESIGN_ID=02562
+# Format: property_name | cex_type | cex_length
+
+<embedded>::slower.auto_sva_inst.en_high_on_slowclk_stable | cex | 
+<embedded>::slower.auto_sva_inst.en_low_on_slowclk_change | cex | 
+<embedded>::slower.auto_sva_inst.en_high_implies_slowclk_stable | cex | 
+<embedded>::slower.auto_sva_inst.en_low_implies_slowclk_changed | cex | 
+<embedded>::slower.auto_sva_inst.en_recovers_high_after_change_and_stable | cex | 
+<embedded>::slower.auto_sva_inst.release_en_out_when_slowclk_zero | cex | 
+<embedded>::slower.auto_sva_inst.release_en_out_when_slowclk_one | cex | 
+<embedded>::slower.auto_sva_inst.en_out_fall_only_on_slowclk_change | cex | 
+<embedded>::slower.auto_sva_inst.en_out_rise_requires_prev_change_and_now_stable | cex | 

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+dffc_64.u_dffc_64_sva.a_reset_known
+dffc_64.u_dffc_64_sva.a_q_known
+dffc_64.u_dffc_64_sva.a_rst_clears_q
+dffc_64.u_dffc_64_sva.a_rst_hold_zero
+dffc_64.u_dffc_64_sva.a_q_tracks_d
+dffc_64.u_dffc_64_sva.a_no_mid_glitch
+
+COVER PROPERTIES:
+dffc_64.u_dffc_64_sva.a_rst_clears_q:precondition1
+dffc_64.u_dffc_64_sva.a_rst_hold_zero:precondition1
+dffc_64.u_dffc_64_sva.a_q_tracks_d:precondition1
+dffc_64.u_dffc_64_sva.c_seen_reset
+dffc_64.u_dffc_64_sva.c_reset_deassert
+dffc_64.u_dffc_64_sva.c_data_capture
+dffc_64.u_dffc_64_sva.c_hold_zero_multi

@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+calculator.auto_sva_inst.check_reset_clears_out
+calculator.auto_sva_inst.check_add_output
+calculator.auto_sva_inst.check_sub_output
+calculator.auto_sva_inst.check_mul_output
+calculator.auto_sva_inst.check_div_output_when_B_nonzero
+calculator.auto_sva_inst.check_default_zero
+calculator.auto_sva_inst.check_stable_when_inputs_stable
+
+COVER PROPERTIES:
+calculator.auto_sva_inst.check_reset_clears_out:precondition1
+calculator.auto_sva_inst.check_add_output:precondition1
+calculator.auto_sva_inst.check_sub_output:precondition1
+calculator.auto_sva_inst.check_mul_output:precondition1
+calculator.auto_sva_inst.check_div_output_when_B_nonzero:precondition1
+calculator.auto_sva_inst.check_default_zero:precondition1
+calculator.auto_sva_inst.check_stable_when_inputs_stable:precondition1

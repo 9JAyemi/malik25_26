@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+write_back.auto_sva_inst.check_a_data_mux
+write_back.auto_sva_inst.check_a_data_when_sel1
+write_back.auto_sva_inst.check_a_data_when_sel0
+write_back.auto_sva_inst.check_b_data_passthrough
+write_back.auto_sva_inst.check_a_wr_en_passthrough
+write_back.auto_sva_inst.check_b_wr_en_passthrough
+write_back.auto_sva_inst.check_a_addr_passthrough
+write_back.auto_sva_inst.check_b_addr_passthrough
+
+COVER PROPERTIES:
+write_back.auto_sva_inst.check_a_data_when_sel1:precondition1
+write_back.auto_sva_inst.check_a_data_when_sel0:precondition1

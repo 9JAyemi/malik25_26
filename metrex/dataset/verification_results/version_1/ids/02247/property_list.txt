@@ -1,0 +1,31 @@
+ASSERT PROPERTIES:
+receiver.sync1.u_sync_sva.ap_sync_rst_clears
+receiver.sync1.u_sync_sva.ap_two_cycle_latency
+receiver.u_receiver_sva.ap_rst_clears
+receiver.u_receiver_sva.ap_ack_on_stb
+receiver.u_receiver_sva.ap_valid_after_ack
+receiver.u_receiver_sva.ap_valid_implies_ack
+receiver.u_receiver_sva.ap_ack_rise_requires_stb
+receiver.u_receiver_sva.ap_valid_rise_req_ack
+receiver.u_receiver_sva.ap_ack_sticky
+receiver.u_receiver_sva.ap_valid_sticky
+receiver.u_receiver_sva.ap_data_capture
+receiver.u_receiver_sva.ap_data_change_only_on_stb
+
+COVER PROPERTIES:
+receiver.sync1.u_sync_sva.ap_sync_rst_clears:precondition1
+receiver.sync1.u_sync_sva.ap_two_cycle_latency:precondition1
+receiver.sync1.u_sync_sva.cp_sync_transfer
+receiver.u_receiver_sva.ap_rst_clears:precondition1
+receiver.u_receiver_sva.ap_ack_on_stb:precondition1
+receiver.u_receiver_sva.ap_valid_after_ack:precondition1
+receiver.u_receiver_sva.ap_valid_implies_ack:precondition1
+receiver.u_receiver_sva.ap_ack_rise_requires_stb:precondition1
+receiver.u_receiver_sva.ap_valid_rise_req_ack:precondition1
+receiver.u_receiver_sva.ap_ack_sticky:precondition1
+receiver.u_receiver_sva.ap_valid_sticky:precondition1
+receiver.u_receiver_sva.ap_data_capture:precondition1
+receiver.u_receiver_sva.ap_data_change_only_on_stb:precondition1
+receiver.u_receiver_sva.cp_basic_handshake
+receiver.u_receiver_sva.cp_two_strobes
+receiver.u_receiver_sva.cp_strobe_after_ack

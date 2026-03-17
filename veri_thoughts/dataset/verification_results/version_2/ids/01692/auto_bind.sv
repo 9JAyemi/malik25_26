@@ -1,0 +1,33 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_execute_matches_ready, assert, property, disable, iff, check_post_reset_init, fell, h00, d0, check_init_to_waitstop, check_waitstop_hold_when_rx0, check_waitstop_to_waitstart, check_waitstart_hold_when_rx1, check_waitstart_to_waitbegin, check_waitbegin_counter_inc_on_trx, past, d1, check_waitbegin_counter_hold_without_trx, check_waitbegin_to_readbyte_counter_reset, check_readbyte_to_analyze_on_bit8, check_readbyte_shift_into_op, check_readbyte_shift_into_data, check_analyze_resets_counters_next, check_analyze_ready_on_bytecount5, check_analyze_ready_on_op7_zero, check_analyze_to_waitstop, b1, check_ready_holds_outputs, stable, check_ready_stay_until_cnt10, check_ready_to_init_on_cnt10, check_ready_counter_increments, check_execute_min_width, rose, check_execute_max_width, check_execute_fall_to_init, check_outputs_cleared_after_execute_fall, check_waitstop_outputs_stable, check_waitstart_outputs_stable, check_waitbegin_outputs_stable
+bind receiver receiver_sva auto_sva_inst (
+    .clock(clock),
+    .trxClock(trxClock),
+    .reset(reset),
+    .rx(rx),
+    .op(op),
+    .data(data),
+    .execute(execute),
+    .state(state),
+    .counter(counter),
+    .bitcount(bitcount),
+    .bytecount(bytecount),
+    .INIT(INIT),
+    .h0(h0),
+    .WAITSTOP(WAITSTOP),
+    .h1(h1),
+    .WAITSTART(WAITSTART),
+    .h2(h2),
+    .WAITBEGIN(WAITBEGIN),
+    .h3(h3),
+    .READBYTE(READBYTE),
+    .h4(h4),
+    .ANALYZE(ANALYZE),
+    .h5(h5),
+    .READY(READY),
+    .h6(h6),
+    .posedge(posedge),
+    .b0(b0),
+    .h8(h8),
+    .d10(d10)
+);

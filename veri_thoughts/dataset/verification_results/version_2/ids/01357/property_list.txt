@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_clears_count
+counter.auto_sva_inst.inc_on_enable
+counter.auto_sva_inst.hold_when_disabled
+counter.auto_sva_inst.change_requires_enable
+counter.auto_sva_inst.wrap_on_max
+counter.auto_sva_inst.two_cycle_inc_streak
+counter.auto_sva_inst.two_cycle_hold_streak
+counter.auto_sva_inst.reset_dominates_enable
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_clears_count:precondition1
+counter.auto_sva_inst.inc_on_enable:precondition1
+counter.auto_sva_inst.hold_when_disabled:precondition1
+counter.auto_sva_inst.change_requires_enable:precondition1
+counter.auto_sva_inst.wrap_on_max:precondition1
+counter.auto_sva_inst.two_cycle_inc_streak:precondition1
+counter.auto_sva_inst.two_cycle_hold_streak:precondition1
+counter.auto_sva_inst.reset_dominates_enable:precondition1

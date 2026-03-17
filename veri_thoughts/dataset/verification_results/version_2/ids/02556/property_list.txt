@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+Adder.auto_sva_inst.check_q_zero_when_rst_high
+Adder.auto_sva_inst.check_q_equals_sum_when_not_reset
+Adder.auto_sva_inst.check_reset_rise_forces_zero
+Adder.auto_sva_inst.check_reset_fall_loads_sum
+Adder.auto_sva_inst.check_hold_zero_during_reset
+Adder.auto_sva_inst.check_q_stable_when_inputs_stable
+
+COVER PROPERTIES:
+Adder.auto_sva_inst.check_q_zero_when_rst_high:precondition1
+Adder.auto_sva_inst.check_reset_rise_forces_zero:precondition1
+Adder.auto_sva_inst.check_reset_fall_loads_sum:precondition1
+Adder.auto_sva_inst.check_hold_zero_during_reset:precondition1
+Adder.auto_sva_inst.check_q_stable_when_inputs_stable:precondition1

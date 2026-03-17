@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+adder_4bit.auto_sva_inst.check_saturating_function
+adder_4bit.auto_sva_inst.check_saturates_on_overflow
+adder_4bit.auto_sva_inst.check_passthrough_without_overflow
+adder_4bit.auto_sva_inst.check_output_range
+
+COVER PROPERTIES:
+adder_4bit.auto_sva_inst.check_saturates_on_overflow:precondition1
+adder_4bit.auto_sva_inst.check_passthrough_without_overflow:precondition1

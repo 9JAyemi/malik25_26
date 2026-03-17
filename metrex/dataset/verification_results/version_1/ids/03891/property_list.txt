@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+binary_counter.sva_i.ap_async_reset_now
+binary_counter.sva_i.ap_in_reset_zero
+binary_counter.sva_i.ap_hold_when_disabled
+binary_counter.sva_i.ap_load_when_enabled
+binary_counter.sva_i.ap_increment
+binary_counter.sva_i.ap_load_gated_by_enable
+binary_counter.sva_i.ap_count_known
+
+COVER PROPERTIES:
+binary_counter.sva_i.ap_in_reset_zero:precondition1
+binary_counter.sva_i.ap_hold_when_disabled:precondition1
+binary_counter.sva_i.ap_load_when_enabled:precondition1
+binary_counter.sva_i.ap_increment:precondition1
+binary_counter.sva_i.ap_load_gated_by_enable:precondition1
+binary_counter.sva_i.cp_reset
+binary_counter.sva_i.cp_hold
+binary_counter.sva_i.cp_load
+binary_counter.sva_i.cp_inc
+binary_counter.sva_i.cp_wrap
+binary_counter.sva_i.cp_load_gated

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_update_rule
+counter.auto_sva_inst.check_zero_only_after_max
+counter.auto_sva_inst.check_prev_is_curr_minus1_when_nonzero
+counter.auto_sva_inst.check_never_stable
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_update_rule:precondition1
+counter.auto_sva_inst.check_zero_only_after_max:precondition1
+counter.auto_sva_inst.check_prev_is_curr_minus1_when_nonzero:precondition1
+counter.auto_sva_inst.check_never_stable:precondition1

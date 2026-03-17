@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.reset_drives_Y_low
+and_gate.auto_sva_inst.y_equals_past_and
+and_gate.auto_sva_inst.y1_when_prev_inputs_11
+and_gate.auto_sva_inst.y0_when_prev_A0
+and_gate.auto_sva_inst.y0_when_prev_B0
+and_gate.auto_sva_inst.y_rise_implies_prev_and1
+and_gate.auto_sva_inst.y_fall_implies_prev_and0
+and_gate.auto_sva_inst.y_stable_when_inputs_stable
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.reset_drives_Y_low:precondition1
+and_gate.auto_sva_inst.y_equals_past_and:precondition1
+and_gate.auto_sva_inst.y1_when_prev_inputs_11:precondition1
+and_gate.auto_sva_inst.y0_when_prev_A0:precondition1
+and_gate.auto_sva_inst.y0_when_prev_B0:precondition1
+and_gate.auto_sva_inst.y_rise_implies_prev_and1:precondition1
+and_gate.auto_sva_inst.y_fall_implies_prev_and0:precondition1
+and_gate.auto_sva_inst.y_stable_when_inputs_stable:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+DFF_AR.auto_sva_inst.reset_level_forces_values
+DFF_AR.auto_sva_inst.reset_fall_forces_values
+DFF_AR.auto_sva_inst.reset_rise_holds_reset_values_before_capture
+DFF_AR.auto_sva_inst.complement_invariant
+DFF_AR.auto_sva_inst.never_both_high
+DFF_AR.auto_sva_inst.never_both_low
+DFF_AR.auto_sva_inst.q_rise_implies_qn_fall
+DFF_AR.auto_sva_inst.q_fall_implies_qn_rise
+
+COVER PROPERTIES:
+DFF_AR.auto_sva_inst.reset_level_forces_values:precondition1
+DFF_AR.auto_sva_inst.reset_fall_forces_values:precondition1
+DFF_AR.auto_sva_inst.reset_rise_holds_reset_values_before_capture:precondition1
+DFF_AR.auto_sva_inst.q_rise_implies_qn_fall:precondition1
+DFF_AR.auto_sva_inst.q_fall_implies_qn_rise:precondition1

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+twos_complement.auto_sva_inst.check_twos_complement_mapping
+twos_complement.auto_sva_inst.check_involution
+twos_complement.auto_sva_inst.check_zero_in_to_zero_out
+twos_complement.auto_sva_inst.check_zero_out_implies_zero_in
+twos_complement.auto_sva_inst.check_neg8_fixed_point
+twos_complement.auto_sva_inst.check_sum_zero_mod16
+
+COVER PROPERTIES:
+twos_complement.auto_sva_inst.check_zero_in_to_zero_out:precondition1
+twos_complement.auto_sva_inst.check_zero_out_implies_zero_in:precondition1
+twos_complement.auto_sva_inst.check_neg8_fixed_point:precondition1

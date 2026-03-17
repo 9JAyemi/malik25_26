@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_next_value_function
+counter.auto_sva_inst.check_wrap_when_max
+counter.auto_sva_inst.check_increment_when_not_max
+counter.auto_sva_inst.check_no_stutter
+counter.auto_sva_inst.check_zero_only_from_wrap
+counter.auto_sva_inst.check_lsb_toggle
+counter.auto_sva_inst.check_bit1_toggle_on_carry
+counter.auto_sva_inst.check_bit2_toggle_on_carry
+counter.auto_sva_inst.check_bit3_toggle_on_carry
+counter.auto_sva_inst.check_no_zero_without_wrap
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_wrap_when_max:precondition1
+counter.auto_sva_inst.check_increment_when_not_max:precondition1
+counter.auto_sva_inst.check_zero_only_from_wrap:precondition1
+counter.auto_sva_inst.check_no_zero_without_wrap:precondition1

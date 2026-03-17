@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+addsub.auto_sva_inst.check_add_result
+addsub.auto_sva_inst.check_sub_result
+addsub.auto_sva_inst.check_stable_when_inputs_unchanged
+addsub.auto_sva_inst.check_b_zero_returns_a
+addsub.auto_sva_inst.check_add_a_zero_returns_b
+addsub.auto_sva_inst.check_sub_self_zero
+addsub.auto_sva_inst.check_add_wrap_ff_plus_1
+addsub.auto_sva_inst.check_sub_wrap_0_minus_1
+addsub.auto_sva_inst.check_add_zero_zero
+addsub.auto_sva_inst.check_sub_zero_zero
+
+COVER PROPERTIES:
+addsub.auto_sva_inst.check_add_result:precondition1
+addsub.auto_sva_inst.check_sub_result:precondition1
+addsub.auto_sva_inst.check_stable_when_inputs_unchanged:precondition1
+addsub.auto_sva_inst.check_b_zero_returns_a:precondition1
+addsub.auto_sva_inst.check_add_a_zero_returns_b:precondition1
+addsub.auto_sva_inst.check_sub_self_zero:precondition1
+addsub.auto_sva_inst.check_add_wrap_ff_plus_1:precondition1
+addsub.auto_sva_inst.check_sub_wrap_0_minus_1:precondition1
+addsub.auto_sva_inst.check_add_zero_zero:precondition1
+addsub.auto_sva_inst.check_sub_zero_zero:precondition1

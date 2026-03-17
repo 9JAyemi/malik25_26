@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+add_4bit.auto_sva_inst.check_sum_correct
+add_4bit.auto_sva_inst.check_bit0_xor
+add_4bit.auto_sva_inst.check_bit1_sum
+add_4bit.auto_sva_inst.check_bit2_sum
+add_4bit.auto_sva_inst.check_bit3_sum
+add_4bit.auto_sva_inst.check_carry_out
+add_4bit.auto_sva_inst.check_zero_identity_A
+add_4bit.auto_sva_inst.check_zero_identity_B
+add_4bit.auto_sva_inst.check_carry_out_threshold
+add_4bit.auto_sva_inst.check_output_range
+add_4bit.auto_sva_inst.check_stable_when_inputs_stable
+
+COVER PROPERTIES:
+add_4bit.auto_sva_inst.check_zero_identity_A:precondition1
+add_4bit.auto_sva_inst.check_zero_identity_B:precondition1
+add_4bit.auto_sva_inst.check_stable_when_inputs_stable:precondition1

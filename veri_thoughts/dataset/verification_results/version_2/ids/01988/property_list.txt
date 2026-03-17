@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+signed_mag_comp.auto_sva_inst.eq_reflects_signed_equality
+signed_mag_comp.auto_sva_inst.gt_reflects_signed_gt
+signed_mag_comp.auto_sva_inst.check_outputs_mutex
+signed_mag_comp.auto_sva_inst.less_case_outputs_zero_zero
+signed_mag_comp.auto_sva_inst.zero_zero_implies_less
+signed_mag_comp.auto_sva_inst.neq_implies_eq_zero
+
+COVER PROPERTIES:
+signed_mag_comp.auto_sva_inst.less_case_outputs_zero_zero:precondition1
+signed_mag_comp.auto_sva_inst.zero_zero_implies_less:precondition1
+signed_mag_comp.auto_sva_inst.neq_implies_eq_zero:precondition1

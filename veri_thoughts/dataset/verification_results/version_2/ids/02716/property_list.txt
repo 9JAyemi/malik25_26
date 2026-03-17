@@ -1,0 +1,26 @@
+ASSERT PROPERTIES:
+mux2to1.auto_sva_inst.check_mux_function
+mux2to1.auto_sva_inst.check_sel00_maps_in0
+mux2to1.auto_sva_inst.check_sel01_maps_in1
+mux2to1.auto_sva_inst.check_sel10_maps_in2
+mux2to1.auto_sva_inst.check_sel11_maps_in3
+mux2to1.auto_sva_inst.check_group_select_low
+mux2to1.auto_sva_inst.check_group_select_high
+mux2to1.auto_sva_inst.check_memoryless
+mux2to1.auto_sva_inst.check_isolation_sel00
+mux2to1.auto_sva_inst.check_isolation_sel01
+mux2to1.auto_sva_inst.check_isolation_sel10
+mux2to1.auto_sva_inst.check_isolation_sel11
+
+COVER PROPERTIES:
+mux2to1.auto_sva_inst.check_sel00_maps_in0:precondition1
+mux2to1.auto_sva_inst.check_sel01_maps_in1:precondition1
+mux2to1.auto_sva_inst.check_sel10_maps_in2:precondition1
+mux2to1.auto_sva_inst.check_sel11_maps_in3:precondition1
+mux2to1.auto_sva_inst.check_group_select_low:precondition1
+mux2to1.auto_sva_inst.check_group_select_high:precondition1
+mux2to1.auto_sva_inst.check_memoryless:precondition1
+mux2to1.auto_sva_inst.check_isolation_sel00:precondition1
+mux2to1.auto_sva_inst.check_isolation_sel01:precondition1
+mux2to1.auto_sva_inst.check_isolation_sel10:precondition1
+mux2to1.auto_sva_inst.check_isolation_sel11:precondition1

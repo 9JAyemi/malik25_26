@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+d_ff.auto_sva_inst.reset_drive_zero_after_rise
+d_ff.auto_sva_inst.reset_hold_zero_when_held
+d_ff.auto_sva_inst.reset_deassert_zero_this_cycle
+d_ff.auto_sva_inst.capture_q_equals_prev_d
+d_ff.auto_sva_inst.q_changes_follow_prev_d_change
+d_ff.auto_sva_inst.q_stable_when_prev_d_stable
+
+COVER PROPERTIES:
+d_ff.auto_sva_inst.reset_drive_zero_after_rise:precondition1
+d_ff.auto_sva_inst.reset_hold_zero_when_held:precondition1
+d_ff.auto_sva_inst.reset_deassert_zero_this_cycle:precondition1
+d_ff.auto_sva_inst.capture_q_equals_prev_d:precondition1
+d_ff.auto_sva_inst.q_changes_follow_prev_d_change:precondition1
+d_ff.auto_sva_inst.q_stable_when_prev_d_stable:precondition1

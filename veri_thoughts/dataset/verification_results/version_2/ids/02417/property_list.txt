@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+nor_gate.auto_sva_inst.check_func_equiv
+nor_gate.auto_sva_inst.check_a0_implies_out1
+nor_gate.auto_sva_inst.check_b1_implies_out1
+nor_gate.auto_sva_inst.check_a1b0_implies_out0
+nor_gate.auto_sva_inst.check_a1b1_implies_out1
+nor_gate.auto_sva_inst.check_a0b0_implies_out1
+nor_gate.auto_sva_inst.check_a0b1_implies_out1
+nor_gate.auto_sva_inst.check_out0_only_when_a1b0
+
+COVER PROPERTIES:
+nor_gate.auto_sva_inst.check_a0_implies_out1:precondition1
+nor_gate.auto_sva_inst.check_b1_implies_out1:precondition1
+nor_gate.auto_sva_inst.check_a1b0_implies_out0:precondition1
+nor_gate.auto_sva_inst.check_a1b1_implies_out1:precondition1
+nor_gate.auto_sva_inst.check_a0b0_implies_out1:precondition1
+nor_gate.auto_sva_inst.check_a0b1_implies_out1:precondition1
+nor_gate.auto_sva_inst.check_out0_only_when_a1b0:precondition1

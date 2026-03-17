@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+register.auto_sva_inst.check_reset_clears
+register.auto_sva_inst.check_xclear_clears
+register.auto_sva_inst.check_clear_overrides_load
+register.auto_sva_inst.check_load_captures_xin
+register.auto_sva_inst.check_hold_when_idle
+register.auto_sva_inst.check_no_spurious_change
+register.auto_sva_inst.check_two_consecutive_loads_latest_wins
+
+COVER PROPERTIES:
+register.auto_sva_inst.check_reset_clears:precondition1
+register.auto_sva_inst.check_xclear_clears:precondition1
+register.auto_sva_inst.check_clear_overrides_load:precondition1
+register.auto_sva_inst.check_load_captures_xin:precondition1
+register.auto_sva_inst.check_hold_when_idle:precondition1
+register.auto_sva_inst.check_no_spurious_change:precondition1
+register.auto_sva_inst.check_two_consecutive_loads_latest_wins:precondition1

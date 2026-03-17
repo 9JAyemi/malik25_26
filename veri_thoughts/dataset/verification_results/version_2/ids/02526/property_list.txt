@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_is_parity
+full_adder.auto_sva_inst.check_cout_function
+full_adder.auto_sva_inst.check_cout_is_majority
+full_adder.auto_sva_inst.check_cin0_sum
+full_adder.auto_sva_inst.check_cin0_cout
+full_adder.auto_sva_inst.check_cin1_sum
+full_adder.auto_sva_inst.check_cin1_cout
+full_adder.auto_sva_inst.check_equal_inputs_sum
+full_adder.auto_sva_inst.check_equal_inputs_cout
+full_adder.auto_sva_inst.check_xor_inputs_behavior
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_cin0_sum:precondition1
+full_adder.auto_sva_inst.check_cin0_cout:precondition1
+full_adder.auto_sva_inst.check_cin1_sum:precondition1
+full_adder.auto_sva_inst.check_cin1_cout:precondition1
+full_adder.auto_sva_inst.check_equal_inputs_sum:precondition1
+full_adder.auto_sva_inst.check_equal_inputs_cout:precondition1
+full_adder.auto_sva_inst.check_xor_inputs_behavior:precondition1

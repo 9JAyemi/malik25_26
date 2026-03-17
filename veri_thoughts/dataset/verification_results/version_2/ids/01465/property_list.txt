@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_out0_eq_in0
+top_module.auto_sva_inst.check_out1_eq_in1_xor_in0
+top_module.auto_sva_inst.check_out2_eq_in2_xor_in1_xor_in0
+top_module.auto_sva_inst.check_out3_eq_in3_xor_in2_xor_in1_xor_in0
+top_module.auto_sva_inst.check_msb_passthrough
+top_module.auto_sva_inst.check_mid_passthrough
+top_module.auto_sva_inst.check_lsb_passthrough
+top_module.auto_sva_inst.check_out1_rel_out0
+top_module.auto_sva_inst.check_out2_rel_out1
+top_module.auto_sva_inst.check_out3_rel_out2
+top_module.auto_sva_inst.check_stability_when_inputs_stable
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_stability_when_inputs_stable:precondition1

@@ -1,0 +1,27 @@
+ASSERT PROPERTIES:
+kb_code.kb_code_sva_i.a_state_known
+kb_code.kb_code_sva_i.a_tick_known
+kb_code.kb_code_sva_i.a_state_legal
+kb_code.kb_code_sva_i.a_reset_state
+kb_code.kb_code_sva_i.a_wait_to_get
+kb_code.kb_code_sva_i.a_wait_hold
+kb_code.kb_code_sva_i.a_no_tick_in_wait
+kb_code.kb_code_sva_i.a_no_get_wo_brk
+kb_code.kb_code_sva_i.a_get_hold_no_sd
+kb_code.kb_code_sva_i.a_get_fire_sd
+kb_code.kb_code_sva_i.a_tick_when
+kb_code.kb_code_sva_i.a_tick_pulse1
+
+COVER PROPERTIES:
+kb_code.kb_code_sva_i.a_reset_state:precondition1
+kb_code.kb_code_sva_i.a_wait_to_get:precondition1
+kb_code.kb_code_sva_i.a_wait_hold:precondition1
+kb_code.kb_code_sva_i.a_no_tick_in_wait:precondition1
+kb_code.kb_code_sva_i.a_no_get_wo_brk:precondition1
+kb_code.kb_code_sva_i.a_get_hold_no_sd:precondition1
+kb_code.kb_code_sva_i.a_get_fire_sd:precondition1
+kb_code.kb_code_sva_i.a_tick_when:precondition1
+kb_code.kb_code_sva_i.a_tick_pulse1:precondition1
+kb_code.kb_code_sva_i.c_brk_then_tick
+kb_code.kb_code_sva_i.c_ignore_non_brk
+kb_code.kb_code_sva_i.c_two_seq

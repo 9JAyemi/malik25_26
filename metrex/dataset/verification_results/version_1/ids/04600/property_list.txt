@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+up_down_counter.sva_i.a_ld_known
+up_down_counter.sva_i.a_ud_known_when_count
+up_down_counter.sva_i.a_d_known_when_load
+up_down_counter.sva_i.a_load
+up_down_counter.sva_i.a_count_down
+up_down_counter.sva_i.a_count_up
+up_down_counter.sva_i.a_q_known
+
+COVER PROPERTIES:
+up_down_counter.sva_i.a_ud_known_when_count:precondition1
+up_down_counter.sva_i.a_d_known_when_load:precondition1
+up_down_counter.sva_i.a_load:precondition1
+up_down_counter.sva_i.a_count_down:precondition1
+up_down_counter.sva_i.a_count_up:precondition1
+up_down_counter.sva_i.a_q_known:precondition1
+up_down_counter.sva_i.c_load
+up_down_counter.sva_i.c_count_up
+up_down_counter.sva_i.c_count_down
+up_down_counter.sva_i.c_up_wrap
+up_down_counter.sva_i.c_down_wrap
+up_down_counter.sva_i.c_dir_switch
+up_down_counter.sva_i.c_load_then_cnt

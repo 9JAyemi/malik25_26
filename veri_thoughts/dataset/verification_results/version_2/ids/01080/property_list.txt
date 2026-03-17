@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+multiplier.auto_sva_inst.check_zero_while_reset_held
+multiplier.auto_sva_inst.check_reset_assert_drives_zero_next
+multiplier.auto_sva_inst.check_zero_on_reset_release_edge
+multiplier.auto_sva_inst.check_zero_stable_while_reset
+
+COVER PROPERTIES:
+multiplier.auto_sva_inst.check_zero_while_reset_held:precondition1
+multiplier.auto_sva_inst.check_reset_assert_drives_zero_next:precondition1
+multiplier.auto_sva_inst.check_zero_on_reset_release_edge:precondition1
+multiplier.auto_sva_inst.check_zero_stable_while_reset:precondition1

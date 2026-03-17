@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_sum_add
+top_module.auto_sva_inst.check_sum_sub
+top_module.auto_sva_inst.check_sum_sub_equal_zero
+top_module.auto_sva_inst.check_compare_onehot
+top_module.auto_sva_inst.check_equal_when_AeqB
+top_module.auto_sva_inst.check_AeqB_when_equal
+top_module.auto_sva_inst.check_gt_when_AgtB
+top_module.auto_sva_inst.check_AgtB_when_gt
+top_module.auto_sva_inst.check_lt_when_AltB
+top_module.auto_sva_inst.check_AltB_when_lt
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_sum_add:precondition1
+top_module.auto_sva_inst.check_sum_sub:precondition1
+top_module.auto_sva_inst.check_sum_sub_equal_zero:precondition1
+top_module.auto_sva_inst.check_equal_when_AeqB:precondition1
+top_module.auto_sva_inst.check_AeqB_when_equal:precondition1
+top_module.auto_sva_inst.check_gt_when_AgtB:precondition1
+top_module.auto_sva_inst.check_AgtB_when_gt:precondition1
+top_module.auto_sva_inst.check_lt_when_AltB:precondition1
+top_module.auto_sva_inst.check_AltB_when_lt:precondition1

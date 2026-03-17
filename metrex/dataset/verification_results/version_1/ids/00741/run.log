@@ -1,0 +1,1751 @@
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/metrex/dataset/version_1/verification_results/00741/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+00741
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./00741/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./00741/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = game_graph
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% set OUT_DIR [file join "verification_results" $DESIGN_ID]
+verification_results/00741
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+verification_results/00741/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+verification_results/00741/summary.txt
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 00741
+% puts "  TOP       : $TOP"
+  TOP       : game_graph
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 1
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : verification_results/00741
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./00741/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./00741/sva.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './00741/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './00741/sva.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='game_graph'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "game_graph".
+[INFO (HIER-8002)] ./00741/module.v(200): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./00741/sva.sv(5): compiling module 'game_graph_sva'
+[WARN (VERI-1209)] ./00741/sva.sv(43): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/sva.sv(45): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/sva.sv(48): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/sva.sv(50): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/sva.sv(53): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/sva.sv(55): expression size 32 truncated to fit in target size 10
+[INFO (VERI-1018)] ./00741/module.v(1): compiling module 'game_graph'
+[WARN (VERI-1209)] ./00741/module.v(86): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(95): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(96): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(98): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(108): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(109): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(111): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(113): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(133): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(137): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(141): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(146): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(151): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(152): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(162): expression size 32 truncated to fit in target size 10
+[WARN (VERI-1209)] ./00741/module.v(165): expression size 32 truncated to fit in target size 10
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+reset
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: Using reset signal: reset
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "reset".
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 36 asserts, 38 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 74 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 4 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned values for 80 of 80 design flops, 0 of 0 design latches, 156 of 366 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_1" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_25" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_26" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_27" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_28" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_29" was proven in 0.00 s.
+0: Found proofs for 6 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0.001s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.N: Proof Simplification Iteration 4	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "game_graph.SVA_I._assert_31" was proven in 0.00 s.
+0.0.PRE: Proof Simplification completed in 0.01 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 67
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 97877@della-h14n2(local) jg_97563_della-h14n2_1
+0.0.N: Proofgrid shell started at 97876@della-h14n2(local) jg_97563_della-h14n2_1
+0.0.Hp: OS RSS memory limit : 17179869184 / 17179869184
+0.0.N: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_2"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 2097152 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 2097152 was found for the property "game_graph.SVA_I._assert_2" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_15" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_17" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_22" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_30" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_32" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_33" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_34" was proven in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_35" was proven in 0.01 s.
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_36" was proven in 0.01 s.
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_2:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_3:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_4:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_5:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_19:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_21:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_36:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_49" was covered in 1 cycles in 0.02 s.
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_6:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_7:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "game_graph.SVA_I._assert_8" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_8:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "game_graph.SVA_I._assert_9" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_9:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_13:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_14:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_30:precondition1" was covered in 1 cycles in 0.03 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_31:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_44" was covered in 1 cycles in 0.03 s.
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: Trace Attempt  6	[0.01 s]
+0.0.N: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.N: The property "game_graph.SVA_I._assert_2" was proven in 0.03 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_2"	[0.03 s].
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_32:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_45" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_33:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_46" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_34:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_47" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._assert_35:precondition1" was covered in 1 cycles in 0.04 s.
+INFO (IPF047): 0.0.Hp: The cover property "game_graph.SVA_I._cover_48" was covered in 1 cycles in 0.04 s.
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_3"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 8388608 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 8388608 was found for the property "game_graph.SVA_I._assert_3" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Hp: Trace Attempt  2	[0.05 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: Trace Attempt  6	[0.01 s]
+0.0.N: A proof was found: No trace exists. [0.02 s]
+INFO (IPF057): 0.0.N: The property "game_graph.SVA_I._assert_3" was proven in 0.01 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_3"	[0.01 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_4"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.Ht: Proofgrid shell started at 97890@della-h14n2(local) jg_97563_della-h14n2_1
+0.0.Ht: OS RSS memory limit : 17179869184 / 17179869184
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Trace Attempt  5	[0.03 s]
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 3 cycles was found for the property "game_graph.SVA_I._assert_21" in 0.01 s.
+INFO (IPF047): 0.0.Ht: The cover property "game_graph.SVA_I._cover_42" was covered in 3 cycles in 0.01 s.
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.Ht: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Ht: The cover property "game_graph.SVA_I._cover_40" was covered in 3 cycles in 0.01 s.
+0.0.N: Trace Attempt  8	[0.04 s]
+0.0.N: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.N: The property "game_graph.SVA_I._assert_4" was proven in 0.04 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_4"	[0.04 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_5"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.01 s]
+0.0.Ht: A trace with 5 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Ht: The cover property "game_graph.SVA_I._cover_41" was covered in 5 cycles in 0.03 s.
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.B: Proofgrid shell started at 97891@della-h14n2(local) jg_97563_della-h14n2_1
+0.0.B: OS RSS memory limit : 17179869184 / 17179869184
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_5"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  4	[0.03 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.03 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.N: The property "game_graph.SVA_I._assert_5" was proven in 0.04 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_5"	[0.04 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_6"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_5"	[0.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_6"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  5	[0.05 s]
+0.0.N: Validation of fixpoint was successful. Time = 0.00
+0.0.N: Trace Attempt  7	[0.05 s]
+0.0.N: A proof was found: No trace exists. [0.06 s]
+INFO (IPF057): 0.0.N: The property "game_graph.SVA_I._assert_6" was proven in 0.06 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_6"	[0.06 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_7"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_6"	[0.06 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_7"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.59 s]
+0.0.N: Trace Attempt  2	[0.59 s]
+0.0.N: Trace Attempt  3	[0.60 s]
+0.0.N: Trace Attempt  4	[0.63 s]
+0.0.Hp: Lemmas used(5): ?6
+0: ProofGrid usable level: 22
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_7" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_10" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_11" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_12" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_14" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_16" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_18" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_19" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_20" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_23" was proven in 0.96 s.
+0.0.Hp: A proof was found: No trace exists. [0.96 s]
+INFO (IPF057): 0.0.Hp: The property "game_graph.SVA_I._assert_24" was proven in 0.96 s.
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_7"	[0.77 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_7"	[0.77 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.05 s]
+0.0.N: Trace Attempt  4	[0.06 s]
+0.0.N: Trace Attempt  5	[0.07 s]
+0: ProofGrid usable level: 11
+0.0.B: Trace Attempt 30	[0.95 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_13"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_15:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 56	[0.86 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_13"	[1.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_15:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  5	[0.02 s]
+0.0.N: Trace Attempt 96	[0.94 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_15:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_16:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 109	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_15:precondition1"	[1.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_16:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.84 s]
+0.0.N: Trace Attempt  2	[0.84 s]
+0.0.N: Trace Attempt  3	[0.84 s]
+0.0.N: Trace Attempt  5	[0.84 s]
+0.0.N: Trace Attempt 53	[0.96 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_16:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_16:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0.0.Ht: Trace Attempt 56	[4.16 s]
+0.0.N: Trace Attempt 60	[0.92 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[1.01 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[1.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.32 s]
+0.0.N: Trace Attempt  2	[0.32 s]
+0.0.N: Trace Attempt  3	[0.32 s]
+0.0.N: Trace Attempt  4	[0.33 s]
+0.0.N: Trace Attempt  5	[0.33 s]
+0.0.N: Trace Attempt 42	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_20:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "game_graph.SVA_I._assert_20:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_20:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.N: Trace Attempt  5	[0.03 s]
+0.0.N: Trace Attempt 107	[0.95 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_20:precondition1"	[1.00 s].
+0.0.B: Trace Attempt 84	[0.96 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_20:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.15 s]
+0.0.N: Trace Attempt  2	[0.15 s]
+0.0.N: Trace Attempt  3	[0.16 s]
+0.0.N: Trace Attempt  4	[0.16 s]
+0.0.B: Trace Attempt 60	[0.94 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt 61	[1.00 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[1.01 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  4	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0.0.B: Trace Attempt 54	[0.98 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_37"	[1.00 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt 63	[0.85 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_37"	[1.01 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.18 s]
+0.0.N: Trace Attempt  2	[0.18 s]
+0.0.N: Trace Attempt  3	[0.19 s]
+0.0.N: Trace Attempt  4	[0.19 s]
+0.0.N: Trace Attempt  5	[0.20 s]
+0.0.B: Trace Attempt 61	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_38"	[1.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_39"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt 45	[0.91 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_38"	[1.01 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_39"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  5	[0.02 s]
+0.0.Ht: Trace Attempt 65	[10.73 s]
+0.0.N: Trace Attempt 96	[0.96 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_39"	[1.00 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_43"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "game_graph.SVA_I._cover_43" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt 109	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_39"	[1.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_43"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.B: Trace Attempt 85	[0.97 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_43"	[1.00 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt 115	[0.97 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_43"	[1.00 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.05 s]
+0.0.N: Trace Attempt  2	[0.05 s]
+0.0.N: Trace Attempt  3	[0.05 s]
+0.0.N: Trace Attempt  4	[0.06 s]
+0.0.N: Trace Attempt  5	[0.07 s]
+0.0.Ht: Trace Attempt 85	[15.52 s]
+0.0.B: Trace Attempt 52	[4.11 s]
+0.0.N: Trace Attempt 94	[4.12 s]
+0.0.Ht: Trace Attempt 106	[19.52 s]
+0.0.B: Trace Attempt 77	[8.17 s]
+0.0.N: Trace Attempt 161	[8.53 s]
+0.0.B: Trace Attempt 87	[9.93 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_13"	[10.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_15:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt 172	[9.80 s]
+0.0.N: Per property time limit expired (10.00 s) [10.03 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_13"	[10.03 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_15:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 12	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 110	[24.06 s]
+0.0.B: Trace Attempt 179	[4.01 s]
+0.0.N: Trace Attempt 162	[4.13 s]
+0.0.Ht: Trace Attempt 128	[28.12 s]
+0.0.B: Trace Attempt 214	[8.08 s]
+0.0.B: Trace Attempt 217	[8.72 s]
+0.0.B: A trace with 217 cycles was found. [9.64 s]
+INFO (IPF047): 0.0.B: The cover property "game_graph.SVA_I._assert_15:precondition1" was covered in 217 cycles in 9.65 s.
+INFO (IPF047): 0.0.B: The cover property "game_graph.SVA_I._assert_16:precondition1" was covered in 217 cycles in 9.65 s by the incidental trace "game_graph.SVA_I._assert_15:precondition1".
+INFO (IPF047): 0.0.B: The cover property "game_graph.SVA_I._cover_39" was covered in 217 cycles in 9.65 s by the incidental trace "game_graph.SVA_I._assert_15:precondition1".
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_15:precondition1"	[9.65 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_15:precondition1"	[9.63 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0: ProofGrid usable level: 8
+0.0.Ht: Trace Attempt 138	[33.96 s]
+0.0.B: Trace Attempt 78	[4.05 s]
+0.0.N: Trace Attempt 107	[4.22 s]
+0.0.Ht: Trace Attempt 142	[38.48 s]
+0.0.B: Trace Attempt 108	[8.07 s]
+0.0.N: Trace Attempt 150	[8.62 s]
+0.0.B: Trace Attempt 118	[9.83 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[10.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[10.04 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.09 s]
+0.0.N: Trace Attempt  2	[0.09 s]
+0.0.N: Trace Attempt  3	[0.09 s]
+0.0.N: Trace Attempt  4	[0.10 s]
+0.0.N: Trace Attempt  5	[0.10 s]
+0.0.Ht: Trace Attempt 158	[42.72 s]
+0.0.B: Trace Attempt 93	[4.02 s]
+0.0.N: Trace Attempt 125	[4.14 s]
+0.0.B: Trace Attempt 122	[8.11 s]
+0.0.N: Trace Attempt 170	[9.65 s]
+0.0.N: Trace Attempt 177	[9.99 s]
+0.0.N: Per property time limit expired (10.00 s) [10.06 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[10.06 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_20:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  4	[0.02 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[10.74 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_20:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 134	[4.09 s]
+0.0.Ht: Trace Attempt 159	[59.69 s]
+0.0.B: Trace Attempt 174	[8.12 s]
+0.0.N: Trace Attempt 192	[1.58 s]
+0.0.N: Per property time limit expired (10.00 s) [10.02 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_20:precondition1"	[10.02 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 15	[0.00 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_20:precondition1"	[9.38 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.18 s]
+0.0.N: Trace Attempt  2	[0.18 s]
+0.0.N: Trace Attempt  3	[0.19 s]
+0.0.N: Trace Attempt  4	[0.19 s]
+0.0.N: Trace Attempt  5	[0.19 s]
+0.0.B: Trace Attempt 86	[4.02 s]
+0.0.N: Trace Attempt 148	[4.27 s]
+0.0.Ht: Trace Attempt 160	[66.12 s]
+0.0.B: Trace Attempt 109	[8.02 s]
+0.0.Ht: Trace Attempt 180	[70.97 s]
+0.0.B: Trace Attempt 118	[9.85 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[10.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt 228	[7.55 s]
+0.0.N: Per property time limit expired (10.00 s) [10.05 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[10.05 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0.0.B: Trace Attempt 78	[4.03 s]
+0.0.N: Trace Attempt 174	[4.08 s]
+0.0.Ht: Trace Attempt 183	[75.87 s]
+0.0.B: Trace Attempt 108	[8.06 s]
+0.0.N: Trace Attempt 248	[8.13 s]
+0.0.Ht: Trace Attempt 193	[80.97 s]
+0.0.B: Trace Attempt 118	[9.82 s]
+0.0.B: Per property time limit expired (10.00 s) [10.02 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_37"	[10.02 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_37"	[10.02 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.17 s]
+0.0.N: Trace Attempt  2	[0.17 s]
+0.0.N: Trace Attempt  3	[0.17 s]
+0.0.N: Trace Attempt  4	[0.17 s]
+0.0.N: Trace Attempt  5	[0.17 s]
+0.0.Ht: Trace Attempt 197	[85.30 s]
+0.0.B: Trace Attempt 87	[4.13 s]
+0.0.N: Trace Attempt 109	[4.76 s]
+0.0.Ht: Trace Attempt 209	[89.32 s]
+0.0.B: Trace Attempt 111	[8.34 s]
+0.0.N: Trace Attempt 191	[8.78 s]
+0.0.B: Trace Attempt 119	[9.97 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_38"	[10.01 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._cover_43"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_38"	[10.04 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._cover_43"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.06 s]
+0.0.N: Trace Attempt  2	[0.06 s]
+0.0.N: Trace Attempt  3	[0.06 s]
+0.0.N: Trace Attempt  4	[0.06 s]
+0.0.B: Trace Attempt 126	[4.51 s]
+0.0.Ht: Trace Attempt 216	[98.10 s]
+0.0.B: Trace Attempt 174	[8.55 s]
+0.0.B: Trace Attempt 194	[9.97 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._cover_43"	[10.01 s].
+0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._cover_43"	[10.01 s].
+0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_13"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.09 s]
+0.0.N: Trace Attempt  2	[0.09 s]
+0.0.N: Trace Attempt  3	[0.10 s]
+0.0.N: Trace Attempt  4	[0.10 s]
+0.0.N: Trace Attempt  5	[0.12 s]
+0.0.Ht: Trace Attempt 219	[100.31 s]
+0.0.Ht: A trace with 219 cycles was found. [102.03 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 219 cycles was found for the property "game_graph.SVA_I._assert_13" in 102.03 s.
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_13"	[0.26 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_13"	[0.21 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.05 s]
+0.0.Ht: Trace Attempt 220	[102.27 s]
+0: ProofGrid usable level: 7
+0.0.B: Trace Attempt 78	[4.07 s]
+0.0.N: Trace Attempt 163	[4.12 s]
+0.0.Ht: Trace Attempt 229	[108.61 s]
+0.0.B: Trace Attempt 108	[8.14 s]
+0.0.Ht: Trace Attempt 237	[111.76 s]
+0.0.Ht: A trace with 237 cycles was found. [112.94 s]
+INFO (IPF047): 0.0.Ht: The cover property "game_graph.SVA_I._assert_20:precondition1" was covered in 237 cycles in 112.94 s.
+0.0.Ht: Trace Attempt 238	[113.20 s]
+0: ProofGrid usable level: 6
+0.0.Ht: Trace Attempt 239	[113.30 s]
+0.0.Ht: A trace with 239 cycles was found. [113.84 s]
+INFO (IPF047): 0.0.Ht: The cover property "game_graph.SVA_I._cover_43" was covered in 239 cycles in 113.84 s.
+0.0.Ht: Trace Attempt 240	[113.84 s]
+0.0.B: Trace Attempt 129	[12.24 s]
+0: ProofGrid usable level: 5
+0.0.Ht: Trace Attempt 258	[120.47 s]
+0.0.B: Trace Attempt 147	[21.21 s]
+0.0.Ht: Trace Attempt 270	[124.66 s]
+0.0.B: Trace Attempt 149	[25.96 s]
+0.0.Ht: Trace Attempt 277	[128.72 s]
+0.0.Ht: Trace Attempt 284	[135.07 s]
+0.0.Ht: Trace Attempt 292	[139.16 s]
+0.0.B: Trace Attempt 168	[37.24 s]
+0.0.B: Trace Attempt 169	[41.54 s]
+0.0.Ht: Trace Attempt 298	[144.09 s]
+0.0.B: Trace Attempt 171	[45.92 s]
+0.0.Ht: Trace Attempt 301	[148.34 s]
+0.0.Ht: Trace Attempt 303	[153.98 s]
+0.0.B: Trace Attempt 186	[53.41 s]
+0.0.Ht: Trace Attempt 307	[158.05 s]
+0.0.Ht: Trace Attempt 310	[162.99 s]
+0.0.Ht: Trace Attempt 314	[167.93 s]
+0.0.B: Trace Attempt 187	[69.87 s]
+0.0.Ht: Trace Attempt 315	[172.94 s]
+0.0.Ht: Trace Attempt 318	[177.37 s]
+0.0.B: Trace Attempt 188	[76.83 s]
+0.0.Ht: Trace Attempt 320	[182.66 s]
+0.0.B: Trace Attempt 190	[83.37 s]
+0.0.Ht: Trace Attempt 323	[187.57 s]
+0.0.B: Trace Attempt 192	[87.88 s]
+0.0.Ht: Trace Attempt 324	[191.92 s]
+0.0.B: Trace Attempt 204	[92.32 s]
+0.0.Ht: Trace Attempt 327	[196.95 s]
+0.0.B: Per property time limit expired (100.00 s) [100.05 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[100.05 s].
+0.0.B: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt 248	[7.53 s]
+0.0.N: Per property time limit expired (100.00 s) [100.09 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[100.09 s].
+0.0.N: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 11	[0.00 s]
+0.0.Ht: Trace Attempt 329	[202.28 s]
+0.0.N: Trace Attempt  1	[0.35 s]
+0.0.N: Trace Attempt  2	[0.35 s]
+0.0.N: Trace Attempt  3	[0.35 s]
+0.0.N: Trace Attempt  4	[0.36 s]
+0.0.N: Trace Attempt  5	[0.36 s]
+0.0.B: Trace Attempt 94	[4.12 s]
+0.0.N: Trace Attempt 92	[4.36 s]
+0.0.Ht: Trace Attempt 331	[206.57 s]
+0.0.B: Trace Attempt 123	[8.33 s]
+0.0.N: Trace Attempt 195	[11.05 s]
+0.0.Ht: Trace Attempt 333	[213.65 s]
+0.0.B: Trace Attempt 131	[12.51 s]
+0.0.Ht: Trace Attempt 335	[218.89 s]
+0.0.B: Trace Attempt 144	[16.87 s]
+0.0.B: Trace Attempt 158	[20.96 s]
+0.0.N: Trace Attempt 348	[23.68 s]
+0.0.Ht: Trace Attempt 337	[226.97 s]
+0.0.B: Trace Attempt 164	[25.68 s]
+0.0.Ht: Trace Attempt 339	[230.99 s]
+0.0.Ht: Trace Attempt 341	[235.22 s]
+0.0.B: Trace Attempt 167	[33.64 s]
+0.0.N: Trace Attempt 449	[38.91 s]
+0.0.B: Trace Attempt 169	[39.18 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.01 s]
+0.0.Bm: Trace Attempt  2	[0.01 s]
+0.0.Bm: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt  4	[0.01 s]
+0.0.Bm: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[41.10 s].
+0.0.B: Morphing to K
+0.0.B: Trace Attempt 173	[40.84 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.K: Trace Attempt 259	[0.03 s]
+0.0.N: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[41.20 s].
+0.0.N: Morphing to Hts
+0.0.N: Trace Attempt 468	[41.05 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 343	[243.71 s]
+0.0.K: Per property time limit expired (2.00 s) [2.02 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._cover_37"	[2.02 s].
+0.0.K: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.K: Trace Attempt  1	[0.07 s]
+0.0.K: Trace Attempt  2	[0.07 s]
+0.0.K: Trace Attempt  3	[0.07 s]
+0.0.K: Trace Attempt  4	[0.07 s]
+0.0.K: Trace Attempt  5	[0.07 s]
+0.0.Bm: Trace Attempt 77	[4.05 s]
+0.0.Hts: Trace Attempt 342	[0.17 s]
+0.0.Hts: Per property time limit expired (1.86 s) [2.69 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._cover_37"	[2.69 s].
+0.0.Hts: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.K: Trace Attempt 71	[2.00 s]
+0.0.K: Per property time limit expired (2.00 s) [2.00 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[2.01 s].
+0.0.K: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 11	[0.00 s]
+0.0.K: Trace Attempt  1	[0.03 s]
+0.0.K: Trace Attempt  2	[0.03 s]
+0.0.K: Trace Attempt  3	[0.03 s]
+0.0.K: Trace Attempt  4	[0.03 s]
+0.0.K: Trace Attempt  5	[0.03 s]
+0.0.Hts: Trace Attempt 344	[0.18 s]
+0.0.Hts: Per property time limit expired (2.00 s) [2.63 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[2.63 s].
+0.0.Hts: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[0.03 s].
+0.0.Hts: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[1.46 s].
+0.0.K: Morphing to AB
+0.0.K: Trace Attempt 68	[1.43 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.AB: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.05 s]
+0.0.AB: Trace Attempt  2	[0.05 s]
+0.0.AB: Trace Attempt  3	[0.05 s]
+0.0.AB: Trace Attempt  4	[0.05 s]
+0.0.AB: Trace Attempt  5	[0.05 s]
+0.0.Ht: Trace Attempt 345	[248.91 s]
+0.0.Bm: Trace Attempt 87	[8.46 s]
+0.0.AB: Trace Attempt 62	[3.87 s]
+0.0.AB: Per property time limit expired (4.00 s) [4.00 s]
+0.0.AB: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[4.00 s].
+0.0.AB: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Hts: Trace Attempt 468	[0.23 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.35 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[4.35 s].
+0.0.Hts: Starting proof for property "game_graph.SVA_I._cover_37"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.05 s]
+0.0.Hts: Trace Attempt  2	[0.05 s]
+0.0.Hts: Trace Attempt  3	[0.05 s]
+0.0.Hts: Trace Attempt  4	[0.05 s]
+0.0.Hts: Trace Attempt  5	[0.05 s]
+0.0.Ht: Trace Attempt 348	[253.89 s]
+0.0.Bm: Trace Attempt 127	[12.49 s]
+0.0.AB: Trace Attempt 57	[3.97 s]
+0.0.AB: Per property time limit expired (4.00 s) [4.00 s]
+0.0.AB: Stopped processing property "game_graph.SVA_I._cover_37"	[4.00 s].
+0.0.AB: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.04 s]
+0.0.AB: Trace Attempt  2	[0.04 s]
+0.0.AB: Trace Attempt  3	[0.04 s]
+0.0.AB: Trace Attempt  4	[0.04 s]
+0.0.AB: Trace Attempt  5	[0.05 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._cover_37"	[3.91 s].
+0.0.Hts: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.04 s]
+0.0.Hts: Trace Attempt  2	[0.04 s]
+0.0.Hts: Trace Attempt  3	[0.04 s]
+0.0.Hts: Trace Attempt  4	[0.04 s]
+0.0.Hts: Trace Attempt  5	[0.04 s]
+0.0.Hts: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[0.05 s].
+0.0.Hts: Morphing to AM
+0.0.Hts: Trace Attempt 95	[0.05 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[0.31 s].
+0.0.AB: Morphing to K
+0.0.AB: Trace Attempt 21	[0.24 s]
+0.0.AB: All properties determined. [0.00 s]
+0.0.AB: Exited with Success (@ 0.00 s)
+0.0.AM: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.K: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  4	[0.03 s]
+0.0.AM: Trace Attempt  5	[0.03 s]
+0.0.K: Trace Attempt 248	[0.03 s]
+0.0.Bm: Trace Attempt 146	[17.22 s]
+0.0.Ht: Trace Attempt 351	[260.19 s]
+0.0.AM: Trace Attempt 113	[4.13 s]
+0.0.Bm: Trace Attempt 158	[21.56 s]
+0.0.K: Per property time limit expired (8.00 s) [8.02 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[8.02 s].
+0.0.K: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.AM: Trace Attempt 216	[7.99 s]
+0.0.AM: Per property time limit expired (8.00 s) [8.04 s]
+0.0.AM: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[8.04 s].
+0.0.AM: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  4	[0.02 s]
+0.0.K: Trace Attempt  1	[0.07 s]
+0.0.K: Trace Attempt  2	[0.07 s]
+0.0.K: Trace Attempt  3	[0.07 s]
+0.0.K: Trace Attempt  4	[0.07 s]
+0.0.K: Trace Attempt  5	[0.07 s]
+0.0.Ht: Trace Attempt 354	[266.12 s]
+0.0.Bm: Trace Attempt 172	[25.75 s]
+0.0.AM: Trace Attempt 134	[4.09 s]
+0.0.K: Trace Attempt 87	[4.28 s]
+0.0.Ht: Trace Attempt 355	[272.93 s]
+0.0.K: Trace Attempt 110	[7.95 s]
+0.0.K: Per property time limit expired (8.00 s) [8.00 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._cover_38"	[8.00 s].
+0.0.K: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.K: Trace Attempt 11	[0.00 s]
+0.0.AM: Stopped processing property "game_graph.SVA_I._cover_38"	[8.02 s].
+0.0.AM: Starting proof for property "game_graph.SVA_I._assert_18:precondition1"	[0.00 s].
+0.0.K: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.K: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.K: Trace Attempt  4	[0.03 s]
+0.0.K: Trace Attempt  5	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.03 s]
+0.0.K: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[3.58 s].
+0.0.K: Morphing to I
+0.0.K: Trace Attempt 100	[3.54 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  6	[0.00 s]
+0.0.AM: Stopped processing property "game_graph.SVA_I._assert_18:precondition1"	[3.57 s].
+0.0.AM: Morphing to Tri
+0.0.AM: Trace Attempt 136	[3.54 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Trace Attempt  1	[0.07 s]
+0.0.I: Trace Attempt  2	[0.07 s]
+0.0.I: Trace Attempt  3	[0.07 s]
+0.0.Tri: Starting proof for property "game_graph.SVA_I._assert_17:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.I: Trace Attempt  4	[0.07 s]
+0.0.I: Trace Attempt  5	[0.07 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.22" ---- Launching abstraction thread ----
+0.0.Tri:    0.26" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.36 s]
+0.0.Tri: Trace Attempt  3	[0.36 s]
+0.0.Tri: Trace Attempt  4	[0.36 s]
+0.0.Tri: Trace Attempt  5	[0.36 s]
+0.0.Tri:    1.06" Simplification phase 1 complete
+0.0.Tri:    1.14" Simplification phase 2 complete
+0.0.Tri:    1.27" Simplification phase 3 complete
+   1.27" ---- Completed simplification thread ----
+   1.27" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    1.50" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 357	[278.59 s]
+0.0.Bm: Trace Attempt 179	[38.05 s]
+0.0.Tri: Trace Attempt 591	[3.59 s]
+0.0.Tri: A trace with 591 cycles was found. [4.32 s]
+INFO (IPF047): 0.0.Tri: The cover property "game_graph.SVA_I._assert_17:precondition1" was covered in 591 cycles in 4.36 s.
+INFO (IPF047): 0.0.Tri: The cover property "game_graph.SVA_I._assert_18:precondition1" was covered in 591 cycles in 4.36 s by the incidental trace "game_graph.SVA_I._assert_17:precondition1".
+INFO (IPF047): 0.0.Tri: The cover property "game_graph.SVA_I._cover_37" was covered in 591 cycles in 4.36 s by the incidental trace "game_graph.SVA_I._assert_17:precondition1".
+0.0.I: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[4.43 s].
+0.0.I: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.Tri: Stopped processing property "game_graph.SVA_I._assert_17:precondition1"	[4.36 s].
+0.0.Tri: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    4.33" ---- Launching main thread ----
+0.0.I: Trace Attempt  1	[0.04 s]
+0.0.I: Trace Attempt  2	[0.04 s]
+0.0.I: Trace Attempt  3	[0.04 s]
+0.0.I: Trace Attempt  4	[0.04 s]
+0.0.Tri:    4.55" ---- Launching abstraction thread ----
+0.0.Tri:    4.58" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.32 s]
+0.0.Tri: Trace Attempt  3	[0.32 s]
+0.0.Tri: Trace Attempt  4	[0.32 s]
+0.0.Tri: Trace Attempt  5	[0.32 s]
+0: ProofGrid usable level: 2
+0.0.Tri:    5.40" Simplification phase 1 complete
+0.0.Tri:    5.51" Simplification phase 2 complete
+0.0.Ht: Trace Attempt 359	[283.43 s]
+0.0.Tri: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[2.59 s].
+0.0.Tri: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    6.91" ---- Launching main thread ----
+0.0.I: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[2.61 s].
+0.0.I: Morphing to D
+0.0.I: Trace Attempt 31	[1.68 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "game_graph.SVA_I._cover_38"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.D: Trace Attempt  5	[0.01 s]
+0.0.Tri:    7.13" ---- Launching abstraction thread ----
+0.0.Tri:    7.17" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.33 s]
+0.0.Tri: Trace Attempt  3	[0.33 s]
+0.0.Tri: Trace Attempt  4	[0.33 s]
+0.0.Tri: Trace Attempt  5	[0.33 s]
+0.0.Bm: Trace Attempt 181	[42.62 s]
+0.0.Tri:    7.99" Simplification phase 1 complete
+0.0.Tri:    8.12" Simplification phase 2 complete
+0.0.Tri:    8.99" Simplification phase 3 complete
+   8.99" ---- Completed simplification thread ----
+   8.99" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    9.21" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 362	[288.45 s]
+0.0.Tri: Trace Attempt 339	[4.98 s]
+0.0.D: Trace Attempt 29	[1.93 s]
+0.0.D: Per property time limit expired (4.97 s) [4.97 s]
+0.0.D: Stopped processing property "game_graph.SVA_I._cover_38"	[4.97 s].
+0.0.D: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.Tri: Trace Attempt 397	[5.00 s]
+0.0.Tri: Per property time limit expired (5.00 s) [5.00 s]
+0.0.Tri: Stopped processing property "game_graph.SVA_I._cover_38"	[5.00 s].
+0.0.Tri: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   11.91" ---- Launching main thread ----
+0.0.D: Trace Attempt  5	[0.01 s]
+0.0.Tri:   12.13" ---- Launching abstraction thread ----
+0.0.Tri:   12.17" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   12.97" Simplification phase 1 complete
+0.0.Tri:   13.07" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 211	[48.35 s]
+0.0.Tri:   13.71" Simplification phase 3 complete
+  13.71" ---- Completed simplification thread ----
+  13.71" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   13.94" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 339	[4.50 s]
+0.0.D: Trace Attempt 29	[1.91 s]
+0.0.D: Per property time limit expired (5.00 s) [5.07 s]
+0.0.D: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[5.07 s].
+0.0.D: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.D: Trace Attempt 29	[0.00 s]
+0.0.Tri: Trace Attempt 584	[4.57 s]
+0.0.Tri: Per property time limit expired (5.00 s) [5.18 s]
+0.0.Tri: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[5.18 s].
+0.0.Tri: Starting proof for property "game_graph.SVA_I._assert_22:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   17.09" ---- Launching main thread ----
+0.0.Tri:   17.32" ---- Launching abstraction thread ----
+0.0.Tri:   17.36" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   18.16" Simplification phase 1 complete
+0.0.Tri:   18.23" Simplification phase 2 complete
+0.0.Tri:   18.35" Simplification phase 3 complete
+  18.35" ---- Completed simplification thread ----
+  18.35" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   18.58" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 212	[55.17 s]
+0.0.Tri: Requesting engine job to stop
+0.0.D: Requesting engine job to stop
+0.0.Ht: Requesting engine job to terminate
+0.0.Bm: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [298.91 s]
+0.0.Tri: Trace Attempt 631	[3.88 s]
+0.0.Tri: A trace with 631 cycles was found. [4.99 s]
+INFO (IPF047): 0.0.Tri: The cover property "game_graph.SVA_I._assert_22:precondition1" was covered in 631 cycles in 5.02 s.
+INFO (IPF047): 0.0.Tri: The cover property "game_graph.SVA_I._cover_38" was covered in 631 cycles in 5.02 s by the incidental trace "game_graph.SVA_I._assert_22:precondition1".
+0: ProofGrid usable level: 0
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Trace Attempt 397	[291.30 s]
+0.0.Ht: All properties determined. [298.82 s]
+0.0.D: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[5.14 s].
+0.0.D: All properties determined. [5.14 s]
+0.0.Tri: Stopped processing property "game_graph.SVA_I._assert_22:precondition1"	[5.02 s].
+0.0.Ht: Exited with Success (@ 298.92 s)
+0.0.D: Exited with Success (@ 298.92 s)
+0.0.Tri: All properties determined. [5.03 s]
+0.0.Bm: All properties determined. [56.88 s]
+0.0.Tri: Exited with Success (@ 298.94 s)
+0.0.Bm: Exited with Success (@ 298.94 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.97 %)
+--------------------------------------------------------------
+     engines started                               :    12
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Ht        0.08      298.82        0.00       99.97 %
+     Bm        0.07      297.79        0.00       99.98 %
+    Tri        0.07      298.73        0.00       99.97 %
+      D        0.12      298.73        0.00       99.96 %
+    all        0.09      298.52        0.00       99.97 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.35     1194.08        0.00
+
+    Data read    : 1.98 MiB
+    Data written : 124.69 kiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 74
+                 assertions                   : 36
+                  - proven                    : 32 (88.8889%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 4 (11.1111%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 38
+                  - unreachable               : 0 (0%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 38 (100%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote verification_results/00741/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote verification_results/00741/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 1.514 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

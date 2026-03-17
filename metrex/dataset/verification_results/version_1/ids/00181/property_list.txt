@@ -1,0 +1,28 @@
+ASSERT PROPERTIES:
+top_module.sva_top.ap_no_x_q
+top_module.sva_top.ap_no_x_enc_o
+top_module.sva_top.ap_enc_correct
+top_module.sva_top.ap_cnt_reset
+top_module.sva_top.ap_cnt_rst_over_load
+top_module.sva_top.ap_cnt_load
+top_module.sva_top.ap_cnt_inc
+top_module.sva_top.ap_cnt_dec
+top_module.sva_top.ap_cnt_stable_between_clks
+
+COVER PROPERTIES:
+top_module.sva_top.ap_cnt_reset:precondition1
+top_module.sva_top.ap_cnt_rst_over_load:precondition1
+top_module.sva_top.ap_cnt_load:precondition1
+top_module.sva_top.ap_cnt_inc:precondition1
+top_module.sva_top.ap_cnt_dec:precondition1
+top_module.sva_top.cp_reset
+top_module.sva_top.cp_load
+top_module.sva_top.cp_inc
+top_module.sva_top.cp_dec
+top_module.sva_top.cp_wrap_inc
+top_module.sva_top.cp_wrap_dec
+top_module.sva_top.cp_enc_01
+top_module.sva_top.cp_enc_10
+top_module.sva_top.cp_enc_11
+top_module.sva_top.cp_enc_00_zero
+top_module.sva_top.cp_enc_00_illegal

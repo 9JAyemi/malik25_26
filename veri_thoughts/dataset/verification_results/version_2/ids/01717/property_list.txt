@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+mux2.auto_sva_inst.check_mux_function
+mux2.auto_sva_inst.check_select0_path
+mux2.auto_sva_inst.check_select1_path
+mux2.auto_sva_inst.check_stability_selected_s0
+mux2.auto_sva_inst.check_stability_selected_s1
+mux2.auto_sva_inst.check_unselected_a1_no_effect_s0
+mux2.auto_sva_inst.check_unselected_a0_no_effect_s1
+mux2.auto_sva_inst.check_x_change_cause_s0
+mux2.auto_sva_inst.check_x_change_cause_s1
+mux2.auto_sva_inst.check_equal_inputs_dominance
+
+COVER PROPERTIES:
+mux2.auto_sva_inst.check_select0_path:precondition1
+mux2.auto_sva_inst.check_select1_path:precondition1
+mux2.auto_sva_inst.check_stability_selected_s0:precondition1
+mux2.auto_sva_inst.check_stability_selected_s1:precondition1
+mux2.auto_sva_inst.check_unselected_a1_no_effect_s0:precondition1
+mux2.auto_sva_inst.check_unselected_a0_no_effect_s1:precondition1
+mux2.auto_sva_inst.check_x_change_cause_s0:precondition1
+mux2.auto_sva_inst.check_x_change_cause_s1:precondition1
+mux2.auto_sva_inst.check_equal_inputs_dominance:precondition1

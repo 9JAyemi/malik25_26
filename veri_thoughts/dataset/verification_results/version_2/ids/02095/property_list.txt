@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_clears_count_next
+counter.auto_sva_inst.wrap_to_zero_on_max
+counter.auto_sva_inst.increment_when_not_max
+counter.auto_sva_inst.deterministic_update
+counter.auto_sva_inst.zero_implies_prev_eq_max_or_overflow
+counter.auto_sva_inst.no_zero_without_eq_or_overflow
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_clears_count_next:precondition1
+counter.auto_sva_inst.wrap_to_zero_on_max:precondition1
+counter.auto_sva_inst.increment_when_not_max:precondition1
+counter.auto_sva_inst.deterministic_update:precondition1
+counter.auto_sva_inst.zero_implies_prev_eq_max_or_overflow:precondition1
+counter.auto_sva_inst.no_zero_without_eq_or_overflow:precondition1

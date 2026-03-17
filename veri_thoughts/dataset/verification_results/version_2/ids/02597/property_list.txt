@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_out_is_nor_ab
+and_gate.auto_sva_inst.check_out_high_only_when_both_low
+and_gate.auto_sva_inst.check_any_input_high_forces_out_low
+and_gate.auto_sva_inst.check_both_low_implies_out_high
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_out_high_only_when_both_low:precondition1
+and_gate.auto_sva_inst.check_any_input_high_forces_out_low:precondition1
+and_gate.auto_sva_inst.check_both_low_implies_out_high:precondition1

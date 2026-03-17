@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+xor_gate_lut.auto_sva_inst.check_out_eq_xor
+xor_gate_lut.auto_sva_inst.check_case_00
+xor_gate_lut.auto_sva_inst.check_case_01
+xor_gate_lut.auto_sva_inst.check_case_10
+xor_gate_lut.auto_sva_inst.check_case_11
+xor_gate_lut.auto_sva_inst.check_b0_passthrough
+xor_gate_lut.auto_sva_inst.check_b1_invert
+xor_gate_lut.auto_sva_inst.check_a0_passthrough
+xor_gate_lut.auto_sva_inst.check_a1_invert
+xor_gate_lut.auto_sva_inst.check_stability
+xor_gate_lut.auto_sva_inst.check_change_parity
+
+COVER PROPERTIES:
+xor_gate_lut.auto_sva_inst.check_case_00:precondition1
+xor_gate_lut.auto_sva_inst.check_case_01:precondition1
+xor_gate_lut.auto_sva_inst.check_case_10:precondition1
+xor_gate_lut.auto_sva_inst.check_case_11:precondition1
+xor_gate_lut.auto_sva_inst.check_b0_passthrough:precondition1
+xor_gate_lut.auto_sva_inst.check_b1_invert:precondition1
+xor_gate_lut.auto_sva_inst.check_a0_passthrough:precondition1
+xor_gate_lut.auto_sva_inst.check_a1_invert:precondition1
+xor_gate_lut.auto_sva_inst.check_stability:precondition1

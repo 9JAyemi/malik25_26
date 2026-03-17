@@ -1,0 +1,26 @@
+ASSERT PROPERTIES:
+mux.auto_sva_inst.check_functional_equiv
+mux.auto_sva_inst.check_sel_C0
+mux.auto_sva_inst.check_sel_C1_inv0
+mux.auto_sva_inst.check_sel_C1_inv1
+mux.auto_sva_inst.check_C1_xor
+mux.auto_sva_inst.check_rose_C
+mux.auto_sva_inst.check_fell_C
+mux.auto_sva_inst.check_rose_invert_C1
+mux.auto_sva_inst.check_fell_invert_C1
+mux.auto_sva_inst.check_B_change_C1
+mux.auto_sva_inst.check_A_change_C0
+mux.auto_sva_inst.check_stable_inputs_imply_stable_out
+
+COVER PROPERTIES:
+mux.auto_sva_inst.check_sel_C0:precondition1
+mux.auto_sva_inst.check_sel_C1_inv0:precondition1
+mux.auto_sva_inst.check_sel_C1_inv1:precondition1
+mux.auto_sva_inst.check_C1_xor:precondition1
+mux.auto_sva_inst.check_rose_C:precondition1
+mux.auto_sva_inst.check_fell_C:precondition1
+mux.auto_sva_inst.check_rose_invert_C1:precondition1
+mux.auto_sva_inst.check_fell_invert_C1:precondition1
+mux.auto_sva_inst.check_B_change_C1:precondition1
+mux.auto_sva_inst.check_A_change_C0:precondition1
+mux.auto_sva_inst.check_stable_inputs_imply_stable_out:precondition1

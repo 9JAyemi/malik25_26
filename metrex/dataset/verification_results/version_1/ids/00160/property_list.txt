@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+memory.memory_sva_i.a_no_x_we
+memory.memory_sva_i.a_no_x_on_write
+memory.memory_sva_i.a_no_x_on_read
+memory.memory_sva_i.a_addr_in_range
+memory.memory_sva_i.a_read_data
+memory.memory_sva_i.a_dout_stable_wr
+memory.memory_sva_i.a_wr_rd_b2b
+memory.memory_sva_i.a_two_wr_last_wins
+
+COVER PROPERTIES:
+memory.memory_sva_i.a_no_x_on_write:precondition1
+memory.memory_sva_i.a_no_x_on_read:precondition1
+memory.memory_sva_i.a_read_data:precondition1
+memory.memory_sva_i.a_dout_stable_wr:precondition1
+memory.memory_sva_i.a_wr_rd_b2b:precondition1
+memory.memory_sva_i.a_two_wr_last_wins:precondition1
+memory.memory_sva_i.c_write
+memory.memory_sva_i.c_read
+memory.memory_sva_i.c_wr_rd_b2b
+memory.memory_sva_i.c_two_wr_last_wins
+memory.memory_sva_i.c_low_addr_path
+memory.memory_sva_i.c_high_addr_path
+memory.memory_sva_i.c_back_to_back_reads
+memory.memory_sva_i.c_back_to_back_writes

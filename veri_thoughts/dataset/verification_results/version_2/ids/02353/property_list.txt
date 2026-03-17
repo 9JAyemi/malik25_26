@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_y_sum_of_products
+xor_gate.auto_sva_inst.check_y_xor_equiv
+xor_gate.auto_sva_inst.check_y_low_when_inputs_equal
+xor_gate.auto_sva_inst.check_y_high_when_inputs_differ
+xor_gate.auto_sva_inst.check_one_hot_inputs_when_y_high
+xor_gate.auto_sva_inst.check_inputs_equal_when_y_low
+xor_gate.auto_sva_inst.check_tt_00
+xor_gate.auto_sva_inst.check_tt_01
+xor_gate.auto_sva_inst.check_tt_10
+xor_gate.auto_sva_inst.check_tt_11
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_y_low_when_inputs_equal:precondition1
+xor_gate.auto_sva_inst.check_y_high_when_inputs_differ:precondition1
+xor_gate.auto_sva_inst.check_one_hot_inputs_when_y_high:precondition1
+xor_gate.auto_sva_inst.check_inputs_equal_when_y_low:precondition1
+xor_gate.auto_sva_inst.check_tt_00:precondition1
+xor_gate.auto_sva_inst.check_tt_01:precondition1
+xor_gate.auto_sva_inst.check_tt_10:precondition1
+xor_gate.auto_sva_inst.check_tt_11:precondition1

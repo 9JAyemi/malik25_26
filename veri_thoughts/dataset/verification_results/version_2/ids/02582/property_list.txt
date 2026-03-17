@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_eq_definition
+comparator.auto_sva_inst.check_gt_definition
+comparator.auto_sva_inst.check_lt_definition
+comparator.auto_sva_inst.check_ne_definition
+comparator.auto_sva_inst.check_egtlt_onehot
+comparator.auto_sva_inst.check_ne_complement_eq
+comparator.auto_sva_inst.check_ne_eq_gt_or_lt
+comparator.auto_sva_inst.check_gt_excludes_lt
+comparator.auto_sva_inst.check_lt_excludes_gt
+comparator.auto_sva_inst.check_eq_excludes_gt_lt
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.check_gt_excludes_lt:precondition1
+comparator.auto_sva_inst.check_lt_excludes_gt:precondition1
+comparator.auto_sva_inst.check_eq_excludes_gt_lt:precondition1

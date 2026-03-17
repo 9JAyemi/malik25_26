@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+binary_op.auto_sva_inst.check_b_function
+binary_op.auto_sva_inst.check_shift_path_value
+binary_op.auto_sva_inst.check_shift_path_upper_zero
+binary_op.auto_sva_inst.check_shift_path_lower_move
+binary_op.auto_sva_inst.check_inc_path_value
+binary_op.auto_sva_inst.check_inc_wrap_at_max
+
+COVER PROPERTIES:
+binary_op.auto_sva_inst.check_shift_path_value:precondition1
+binary_op.auto_sva_inst.check_shift_path_upper_zero:precondition1
+binary_op.auto_sva_inst.check_shift_path_lower_move:precondition1
+binary_op.auto_sva_inst.check_inc_path_value:precondition1
+binary_op.auto_sva_inst.check_inc_wrap_at_max:precondition1

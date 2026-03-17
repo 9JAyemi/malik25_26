@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+shift_reg.u_shift_reg_sva.ap_async_reset
+shift_reg.u_shift_reg_sva.ap_reset_holds
+shift_reg.u_shift_reg_sva.ap_no_x_ctrl
+shift_reg.u_shift_reg_sva.ap_no_x_io
+shift_reg.u_shift_reg_sva.ap_load_cap
+shift_reg.u_shift_reg_sva.ap_rotate
+shift_reg.u_shift_reg_sva.ap_period4
+
+COVER PROPERTIES:
+shift_reg.u_shift_reg_sva.ap_reset_holds:precondition1
+shift_reg.u_shift_reg_sva.ap_no_x_io:precondition1
+shift_reg.u_shift_reg_sva.ap_load_cap:precondition1
+shift_reg.u_shift_reg_sva.ap_rotate:precondition1
+shift_reg.u_shift_reg_sva.ap_period4:precondition1
+shift_reg.u_shift_reg_sva.cp_async_reset
+shift_reg.u_shift_reg_sva.cp_load
+shift_reg.u_shift_reg_sva.cp_rotate4
+shift_reg.u_shift_reg_sva.cp_load_then_rot

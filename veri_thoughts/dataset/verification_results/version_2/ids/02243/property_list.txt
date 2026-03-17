@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+IF.auto_sva_inst.reset_drives_zero
+IF.auto_sva_inst.hold_when_no_write
+IF.auto_sva_inst.flush_clears_lower31
+IF.auto_sva_inst.branch_updates_to_ConBA
+IF.auto_sva_inst.pcs01_inc4
+IF.auto_sva_inst.pcs2_jump_address
+IF.auto_sva_inst.pcs2_lsb_zero
+IF.auto_sva_inst.pcs3_load_from_DataBusA
+IF.auto_sva_inst.pcs4_const_8000_0004
+IF.auto_sva_inst.pcs5_const_8000_0008
+IF.auto_sva_inst.default_const_8000_0008
+
+COVER PROPERTIES:
+IF.auto_sva_inst.reset_drives_zero:precondition1
+IF.auto_sva_inst.hold_when_no_write:precondition1
+IF.auto_sva_inst.flush_clears_lower31:precondition1
+IF.auto_sva_inst.branch_updates_to_ConBA:precondition1
+IF.auto_sva_inst.pcs01_inc4:precondition1
+IF.auto_sva_inst.pcs2_jump_address:precondition1
+IF.auto_sva_inst.pcs2_lsb_zero:precondition1
+IF.auto_sva_inst.pcs3_load_from_DataBusA:precondition1
+IF.auto_sva_inst.pcs4_const_8000_0004:precondition1
+IF.auto_sva_inst.pcs5_const_8000_0008:precondition1
+IF.auto_sva_inst.default_const_8000_0008:precondition1

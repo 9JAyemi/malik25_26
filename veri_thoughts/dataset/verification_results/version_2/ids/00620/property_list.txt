@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+bitwise_and.auto_sva_inst.check_and_vector
+bitwise_and.auto_sva_inst.check_and_bit0
+bitwise_and.auto_sva_inst.check_and_bit1
+bitwise_and.auto_sva_inst.check_y0_only_when_both_high
+bitwise_and.auto_sva_inst.check_y1_only_when_both_high
+bitwise_and.auto_sva_inst.check_both_high_implies_y0
+bitwise_and.auto_sva_inst.check_both_high_implies_y1
+
+COVER PROPERTIES:
+bitwise_and.auto_sva_inst.check_y0_only_when_both_high:precondition1
+bitwise_and.auto_sva_inst.check_y1_only_when_both_high:precondition1
+bitwise_and.auto_sva_inst.check_both_high_implies_y0:precondition1
+bitwise_and.auto_sva_inst.check_both_high_implies_y1:precondition1

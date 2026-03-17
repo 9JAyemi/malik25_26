@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+AND4D2.auto_sva_inst.check_z_equals_and4
+AND4D2.auto_sva_inst.check_all_high_implies_z_high
+AND4D2.auto_sva_inst.check_any_low_implies_z_low
+AND4D2.auto_sva_inst.check_z_rise_requires_all_high
+AND4D2.auto_sva_inst.check_z_fall_requires_any_low
+AND4D2.auto_sva_inst.check_stability_when_inputs_stable
+
+COVER PROPERTIES:
+AND4D2.auto_sva_inst.check_all_high_implies_z_high:precondition1
+AND4D2.auto_sva_inst.check_any_low_implies_z_low:precondition1
+AND4D2.auto_sva_inst.check_z_rise_requires_all_high:precondition1
+AND4D2.auto_sva_inst.check_z_fall_requires_any_low:precondition1
+AND4D2.auto_sva_inst.check_stability_when_inputs_stable:precondition1

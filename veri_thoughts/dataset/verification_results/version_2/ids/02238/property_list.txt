@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux4to1.auto_sva_inst.check_mux_functional
+mux4to1.auto_sva_inst.check_sel00_out_eq_in0
+mux4to1.auto_sva_inst.check_sel01_out_eq_in1
+mux4to1.auto_sva_inst.check_sel10_out_eq_in2
+mux4to1.auto_sva_inst.check_sel11_out_eq_in3
+mux4to1.auto_sva_inst.check_out_stable_when_inputs_stable
+
+COVER PROPERTIES:
+mux4to1.auto_sva_inst.check_sel00_out_eq_in0:precondition1
+mux4to1.auto_sva_inst.check_sel01_out_eq_in1:precondition1
+mux4to1.auto_sva_inst.check_sel10_out_eq_in2:precondition1
+mux4to1.auto_sva_inst.check_sel11_out_eq_in3:precondition1
+mux4to1.auto_sva_inst.check_out_stable_when_inputs_stable:precondition1

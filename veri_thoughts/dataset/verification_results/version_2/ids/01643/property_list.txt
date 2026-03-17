@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_mux_function
+mux_2to1.auto_sva_inst.check_select_zero_path
+mux_2to1.auto_sva_inst.check_select_one_path
+mux_2to1.auto_sva_inst.check_stable_when_inputs_stable
+mux_2to1.auto_sva_inst.check_follow_A_when_S0
+mux_2to1.auto_sva_inst.check_follow_B_when_S1
+mux_2to1.auto_sva_inst.check_ignore_B_when_S0
+mux_2to1.auto_sva_inst.check_ignore_A_when_S1
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_select_zero_path:precondition1
+mux_2to1.auto_sva_inst.check_select_one_path:precondition1
+mux_2to1.auto_sva_inst.check_stable_when_inputs_stable:precondition1
+mux_2to1.auto_sva_inst.check_follow_A_when_S0:precondition1
+mux_2to1.auto_sva_inst.check_follow_B_when_S1:precondition1
+mux_2to1.auto_sva_inst.check_ignore_B_when_S0:precondition1
+mux_2to1.auto_sva_inst.check_ignore_A_when_S1:precondition1

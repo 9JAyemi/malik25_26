@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+four_bit_adder.auto_sva_inst.check_sum_is_add
+four_bit_adder.auto_sva_inst.check_carry_out_zero
+four_bit_adder.auto_sva_inst.check_concatenated_result
+four_bit_adder.auto_sva_inst.check_sum_bit0_xor
+four_bit_adder.auto_sva_inst.check_sum_bit1_full_adder
+four_bit_adder.auto_sva_inst.check_outputs_stable_if_inputs_stable
+
+COVER PROPERTIES:
+four_bit_adder.auto_sva_inst.check_outputs_stable_if_inputs_stable:precondition1

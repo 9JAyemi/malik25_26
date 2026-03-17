@@ -1,0 +1,2130 @@
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Auto-bind helpers ----
+% 
+% proc sva_files_have_bind {sva_files} {
+  # Return 1 if any SVA file already contains a bind statement.
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    if {[regexp -nocase {(?m)^\s*bind\s+} $txt]} { return 1 }
+  }
+  return 0
+}
+% 
+% proc extract_module_ports {mod_name files} {
+  # Extract port names for a given module from a list of files.
+  # Returns a list of port names (order preserved, keywords stripped).
+  set keywords {input output inout wire reg logic signed unsigned integer
+                parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${mod_name}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        if {[lsearch -exact $names $t] < 0} { lappend names $t }
+      }
+      return $names
+    }
+  }
+  return {}
+}
+% 
+% proc generate_auto_bind {top dut_files sva_files out_dir} {
+  # If SVA files lack a bind statement, generate one.
+  # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
+  if {[sva_files_have_bind $sva_files]} {
+    puts "INFO: SVA files already contain a bind statement"
+    return ""
+  }
+
+  # Find the SVA module name (first module in SVA files that is NOT the DUT)
+  set sva_mod ""
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set matches [regexp -all -inline -nocase {(?m)^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt]
+    foreach {_ mname} $matches {
+      if {$mname ne $top} {
+        set sva_mod $mname
+        break
+      }
+    }
+    if {$sva_mod ne ""} { break }
+  }
+
+  if {$sva_mod eq ""} {
+    puts "WARN: Could not find SVA module name for auto-bind"
+    return ""
+  }
+
+  # Get port lists
+  set dut_ports [extract_module_ports $top $dut_files]
+  set sva_ports [extract_module_ports $sva_mod $sva_files]
+
+  if {[llength $sva_ports] == 0} {
+    puts "WARN: SVA module $sva_mod has no ports; cannot auto-bind"
+    return ""
+  }
+
+  # Build port connections: for each SVA port, connect to DUT port if name
+  # matches (case-insensitive), otherwise leave unconnected.
+  set dut_lower_map [dict create]
+  foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+
+  set connections {}
+  set unconnected {}
+  foreach sp $sva_ports {
+    set sp_lower [string tolower $sp]
+    if {[dict exists $dut_lower_map $sp_lower]} {
+      set dp [dict get $dut_lower_map $sp_lower]
+      lappend connections "    .${sp}(${dp})"
+    } else {
+      lappend unconnected $sp
+    }
+  }
+
+  if {[llength $connections] == 0} {
+    puts "WARN: No matching ports between DUT ($top) and SVA ($sva_mod); cannot auto-bind"
+    return ""
+  }
+
+  # Write the bind file
+  set bind_path [file join $out_dir "auto_bind.sv"]
+  set conn_str [join $connections ",\n"]
+  set fp [open $bind_path "w"]
+  puts $fp "// Auto-generated bind (no bind found in SVA files)"
+  if {[llength $unconnected] > 0} {
+    puts $fp "// NOTE: Unconnected SVA ports (not in DUT): [join $unconnected {, }]"
+  }
+  puts $fp "bind $top $sva_mod auto_sva_inst ("
+  puts $fp $conn_str
+  puts $fp ");"
+  close $fp
+
+  puts "INFO: Auto-generated bind: $bind_path"
+  puts "  DUT=$top  SVA=$sva_mod"
+  puts "  Connected ports: [llength $connections]"
+  if {[llength $unconnected] > 0} {
+    puts "  Unconnected SVA ports: [join $unconnected {, }]"
+  }
+  return $bind_path
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+02363
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./02363/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./02363/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = PCIeGen2x8If128_gtp_cpllpd_ovrd
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
+% if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
+  set OUT_DIR $::env(JG_OUT_DIR)
+} else {
+  set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
+}
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/summary.txt
+% 
+% # ---- Auto-bind detection ----
+% set AUTO_BIND 0
+0
+% set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
+INFO: Auto-generated bind: /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/auto_bind.sv
+  DUT=PCIeGen2x8If128_gtp_cpllpd_ovrd  SVA=PCIeGen2x8If128_gtp_cpllpd_ovrd_sva
+  Connected ports: 3
+  Unconnected SVA ports: cpllpd_zero_after_96, assert, property, posedge, b1, b0, cpllreset_zero_after_128, cpllpd_zero_hold_64_post96, cpllreset_zero_hold_64_post128, cpllpd_ones_run_capped_96, cpllreset_ones_run_capped_128, both_zero_after_128, cpllpd_known_after_96, isunknown, cpllreset_known_after_128, both_zero_hold_64_post128
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/auto_bind.sv
+% if {$BIND_FILE ne ""} {
+  set AUTO_BIND 1
+  lappend SVA_FILES $BIND_FILE
+}
+./02363/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/auto_bind.sv
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 02363
+% puts "  TOP       : $TOP"
+  TOP       : PCIeGen2x8If128_gtp_cpllpd_ovrd
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  AUTO_BIND : $AUTO_BIND"
+  AUTO_BIND : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 2
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./02363/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./02363/sva.sv /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/auto_bind.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './02363/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './02363/sva.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/auto_bind.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='PCIeGen2x8If128_gtp_cpllpd_ovrd'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "PCIeGen2x8If128_gtp_cpllpd_ovrd".
+[INFO (HIER-8002)] ./02363/module.v(16): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./02363/sva.sv(1): compiling module 'PCIeGen2x8If128_gtp_cpllpd_ovrd_sva'
+[WARN (VERI-1796)] ./02363/sva.sv(43): system function call isunknown with non-constant argument is not synthesizable
+[WARN (VERI-1796)] ./02363/sva.sv(48): system function call isunknown with non-constant argument is not synthesizable
+[INFO (VERI-1018)] ./02363/module.v(2): compiling module 'PCIeGen2x8If128_gtp_cpllpd_ovrd'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: No reset signal found; using reset -none
+INFO (IPM031): Clearing proof results of all properties.
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 10 asserts, 2 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
+[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 12 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 3 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned values for 0 of 224 design flops, 0 of 0 design latches, 1359 of 1359 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_known_after_96" was proven in 0.00 s.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_known_after_128" was proven in 0.00 s.
+0: Found proofs for 2 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0.02s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.N: Proof Simplification Iteration 2	[0.00 s]
+0.0.N: Proof Simplification Iteration 3	[0.00 s]
+0.0.N: Proof Simplification Iteration 4	[0.01 s]
+0.0.N: Proof Simplification Iteration 5	[0.01 s]
+0.0.N: Proof Simplification Iteration 6	[0.01 s]
+0.0.N: Proof Simplification Iteration 7	[0.01 s]
+0.0.N: Proof Simplification Iteration 8	[0.01 s]
+0.0.N: Proof Simplification Iteration 9	[0.01 s]
+0.0.N: Proof Simplification Iteration 10	[0.01 s]
+0.0.N: Proof Simplification Iteration 11	[0.01 s]
+0.0.N: Proof Simplification Iteration 12	[0.02 s]
+0.0.N: Proof Simplification Iteration 13	[0.02 s]
+0.0.N: Proof Simplification Iteration 14	[0.02 s]
+0.0.N: Proof Simplification Iteration 15	[0.02 s]
+0.0.N: Proof Simplification Iteration 16	[0.02 s]
+0.0.N: Proof Simplification Iteration 17	[0.02 s]
+0.0.N: Proof Simplification Iteration 18	[0.03 s]
+0.0.N: Proof Simplification Iteration 19	[0.03 s]
+0.0.N: Proof Simplification Iteration 20	[0.03 s]
+0.0.N: Proof Simplification Iteration 21	[0.03 s]
+0.0.N: Proof Simplification Iteration 22	[0.03 s]
+0.0.N: Proof Simplification Iteration 23	[0.03 s]
+0.0.N: Proof Simplification Iteration 24	[0.03 s]
+0.0.N: Proof Simplification Iteration 25	[0.04 s]
+0.0.N: Proof Simplification Iteration 26	[0.04 s]
+0.0.N: Proof Simplification Iteration 27	[0.04 s]
+0.0.N: Proof Simplification Iteration 28	[0.04 s]
+0.0.N: Proof Simplification Iteration 29	[0.04 s]
+0.0.N: Proof Simplification Iteration 30	[0.04 s]
+0.0.N: Proof Simplification Iteration 31	[0.04 s]
+0.0.N: Proof Simplification Iteration 32	[0.04 s]
+0.0.N: Proof Simplification Iteration 33	[0.05 s]
+0.0.N: Proof Simplification Iteration 34	[0.05 s]
+0.0.N: Proof Simplification Iteration 35	[0.05 s]
+0.0.N: Proof Simplification Iteration 36	[0.05 s]
+0.0.N: Proof Simplification Iteration 37	[0.05 s]
+0.0.N: Proof Simplification Iteration 38	[0.05 s]
+0.0.N: Proof Simplification Iteration 39	[0.06 s]
+0.0.N: Proof Simplification Iteration 40	[0.06 s]
+0.0.N: Proof Simplification Iteration 41	[0.06 s]
+0.0.N: Proof Simplification Iteration 42	[0.06 s]
+0.0.N: Proof Simplification Iteration 43	[0.06 s]
+0.0.N: Proof Simplification Iteration 44	[0.06 s]
+0.0.N: Proof Simplification Iteration 45	[0.06 s]
+0.0.N: Proof Simplification Iteration 46	[0.06 s]
+0.0.N: Proof Simplification Iteration 47	[0.07 s]
+0.0.N: Proof Simplification Iteration 48	[0.07 s]
+0.0.N: Proof Simplification Iteration 49	[0.07 s]
+0.0.N: Proof Simplification Iteration 50	[0.07 s]
+0.0.N: Proof Simplification Iteration 51	[0.07 s]
+0.0.N: Proof Simplification Iteration 52	[0.07 s]
+0.0.N: Proof Simplification Iteration 53	[0.07 s]
+0.0.N: Proof Simplification Iteration 54	[0.07 s]
+0.0.N: Proof Simplification Iteration 55	[0.08 s]
+0.0.N: Proof Simplification Iteration 56	[0.08 s]
+0.0.N: Proof Simplification Iteration 57	[0.08 s]
+0.0.N: Proof Simplification Iteration 58	[0.08 s]
+0.0.N: Proof Simplification Iteration 59	[0.08 s]
+0.0.N: Proof Simplification Iteration 60	[0.08 s]
+0.0.N: Proof Simplification Iteration 61	[0.08 s]
+0.0.N: Proof Simplification Iteration 62	[0.09 s]
+0.0.N: Proof Simplification Iteration 63	[0.09 s]
+0.0.N: Proof Simplification Iteration 64	[0.09 s]
+0.0.N: Proof Simplification Iteration 65	[0.09 s]
+0.0.N: Proof Simplification Iteration 66	[0.09 s]
+0.0.N: Proof Simplification Iteration 67	[0.09 s]
+0.0.N: Proof Simplification Iteration 68	[0.09 s]
+0.0.N: Proof Simplification Iteration 69	[0.09 s]
+0.0.N: Proof Simplification Iteration 70	[0.10 s]
+0.0.N: Proof Simplification Iteration 71	[0.10 s]
+0.0.N: Proof Simplification Iteration 72	[0.10 s]
+0.0.N: Proof Simplification Iteration 73	[0.10 s]
+0.0.N: Proof Simplification Iteration 74	[0.10 s]
+0.0.N: Proof Simplification Iteration 75	[0.10 s]
+0.0.N: Proof Simplification Iteration 76	[0.10 s]
+0.0.N: Proof Simplification Iteration 77	[0.10 s]
+0.0.N: Proof Simplification Iteration 78	[0.11 s]
+0.0.N: Proof Simplification Iteration 79	[0.11 s]
+0.0.N: Proof Simplification Iteration 80	[0.11 s]
+0.0.N: Proof Simplification Iteration 81	[0.11 s]
+0.0.N: Proof Simplification Iteration 82	[0.11 s]
+0.0.N: Proof Simplification Iteration 83	[0.11 s]
+0.0.N: Proof Simplification Iteration 84	[0.11 s]
+0.0.N: Proof Simplification Iteration 85	[0.11 s]
+0.0.N: Proof Simplification Iteration 86	[0.12 s]
+0.0.N: Proof Simplification Iteration 87	[0.12 s]
+0.0.N: Proof Simplification Iteration 88	[0.12 s]
+0.0.N: Proof Simplification Iteration 89	[0.12 s]
+0.0.N: Proof Simplification Iteration 90	[0.12 s]
+0.0.N: Proof Simplification Iteration 91	[0.12 s]
+0.0.N: Proof Simplification Iteration 92	[0.12 s]
+0.0.N: Proof Simplification Iteration 93	[0.12 s]
+0.0.N: Proof Simplification Iteration 94	[0.12 s]
+0.0.N: Proof Simplification Iteration 95	[0.13 s]
+0.0.N: Proof Simplification Iteration 96	[0.13 s]
+0.0.N: Proof Simplification Iteration 97	[0.13 s]
+0.0.N: Proof Simplification Iteration 98	[0.13 s]
+0.0.N: Proof Simplification Iteration 99	[0.13 s]
+0.0.N: Proof Simplification Iteration 100	[0.13 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: Proof Simplification completed in 0.14 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 10
+0: ProofGrid is starting event handling
+0.0.N: Proofgrid shell started at 1627673@della-r3c3n2(local) jg_1627534_della-r3c3n2_1
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Proofgrid shell started at 1627674@della-r3c3n2(local) jg_1627534_della-r3c3n2_1
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.02 s]
+0.0.Hp: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.03 s]
+0.0.Ht: Proofgrid shell started at 1627687@della-r3c3n2(local) jg_1627534_della-r3c3n2_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.01 s]
+0.0.Ht: Trace Attempt  2	[0.01 s]
+0.0.Ht: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt  4	[0.01 s]
+0.0.B: Proofgrid shell started at 1627688@della-r3c3n2(local) jg_1627534_della-r3c3n2_1
+0.0.Ht: Trace Attempt  5	[0.01 s]
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt 60	[0.97 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 197	[0.81 s]
+0.0.B: Per property time limit expired (0.92 s) [0.93 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.93 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 60	[0.96 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.01 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 32	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[1.00 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 191	[3.43 s]
+0.0.Ht: A trace with 191 cycles was found. [3.46 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 191 cycles was found for the property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_ones_run_capped_96" in 3.49 s.
+0.0.Ht: A trace with 191 cycles was found. [3.50 s]
+INFO (IPF047): 0.0.Ht: The cover property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_ones_run_capped_96:precondition1" was covered in 191 cycles in 3.51 s.
+0.0.Ht: Trace Attempt 192	[3.53 s]
+0: ProofGrid usable level: 8
+0.0.N: Trace Attempt 25	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[1.00 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 55	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[1.00 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 55	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128:precondition1"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128:precondition1"	[1.01 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 56	[0.94 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.00 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 198	[7.84 s]
+0.0.N: Trace Attempt 30	[0.94 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[1.00 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.N: Trace Attempt 60	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[1.01 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 201	[11.98 s]
+0.0.B: Trace Attempt 205	[4.04 s]
+0.0.N: Trace Attempt 98	[4.07 s]
+0.0.N: Trace Attempt 114	[8.14 s]
+0.0.B: Trace Attempt 210	[8.84 s]
+0.0.Ht: Trace Attempt 204	[17.20 s]
+0.0.N: Trace Attempt  1	[9.84 s]
+0.0.N: Trace Attempt  2	[9.84 s]
+0.0.N: Trace Attempt  3	[9.84 s]
+0.0.N: Trace Attempt 119	[9.86 s]
+0.0.N: Per property time limit expired (10.00 s) [10.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[10.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[9.99 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt 60	[0.01 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 206	[21.46 s]
+0.0.N: Trace Attempt 99	[4.21 s]
+0.0.B: Trace Attempt 266	[4.28 s]
+0.0.Ht: Trace Attempt 209	[25.78 s]
+0.0.N: Trace Attempt 117	[8.58 s]
+0.0.B: Trace Attempt 269	[8.67 s]
+0.0.N: Trace Attempt  1	[9.46 s]
+0.0.N: Trace Attempt  2	[9.46 s]
+0.0.N: Trace Attempt  3	[9.47 s]
+0.0.N: Trace Attempt 119	[9.49 s]
+0.0.N: Per property time limit expired (10.00 s) [10.01 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[10.01 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.N: Trace Attempt 28	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[10.03 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 211	[30.98 s]
+0.0.N: Trace Attempt 47	[4.53 s]
+0.0.B: Trace Attempt 206	[4.72 s]
+0.0.Ht: Trace Attempt 213	[35.79 s]
+0.0.B: Trace Attempt 213	[8.77 s]
+0.0.N: Trace Attempt 55	[9.37 s]
+0.0.N: Trace Attempt 57	[9.61 s]
+0.0.N: Per property time limit expired (10.00 s) [10.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[10.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.N: Trace Attempt 24	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[9.99 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 216	[41.93 s]
+0.0.B: Trace Attempt 266	[4.03 s]
+0.0.N: Trace Attempt 45	[4.74 s]
+0.0.N: Trace Attempt  1	[7.83 s]
+0.0.N: Trace Attempt  2	[7.83 s]
+0.0.N: Trace Attempt  3	[7.83 s]
+0.0.N: Trace Attempt  4	[7.83 s]
+0.0.B: Trace Attempt 269	[8.07 s]
+0.0.Ht: Trace Attempt 219	[46.72 s]
+0.0.N: Trace Attempt 53	[9.69 s]
+0.0.N: Per property time limit expired (10.00 s) [10.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[10.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[0.00 s].
+0.0.N: Trace Attempt 54	[0.01 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[9.99 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 255	[1.79 s]
+0.0.B: A trace with 255 cycles was found. [1.83 s]
+INFO (IPF055): 0.0.B: A counterexample (cex) with 255 cycles was found for the property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128" in 1.84 s.
+INFO (IPF047): 0.0.B: The cover property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128:precondition1" was covered in 255 cycles in 1.84 s by the incidental trace "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128".
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[1.85 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_ones_run_capped_128"	[1.87 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0: ProofGrid usable level: 6
+0.0.Ht: Trace Attempt 221	[52.14 s]
+0.0.B: Trace Attempt 262	[4.03 s]
+0.0.N: Trace Attempt 94	[4.02 s]
+0.0.N: Trace Attempt 111	[8.23 s]
+0.0.Ht: Trace Attempt 223	[58.14 s]
+0.0.B: Trace Attempt 264	[7.88 s]
+0.0.B: Per property time limit expired (10.00 s) [10.02 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[10.01 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[10.01 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 225	[63.05 s]
+0.0.B: Trace Attempt 263	[5.58 s]
+0.0.N: Trace Attempt  1	[9.38 s]
+0.0.N: Trace Attempt  2	[9.38 s]
+0.0.N: Trace Attempt  3	[9.38 s]
+0.0.Ht: Trace Attempt 227	[69.56 s]
+0.0.N: Trace Attempt 63	[9.90 s]
+0.0.N: Per property time limit expired (10.00 s) [10.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[10.00 s].
+0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.N: Trace Attempt 119	[0.01 s]
+0.0.B: Trace Attempt 264	[7.83 s]
+0.0.B: Per property time limit expired (10.00 s) [10.02 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[10.02 s].
+0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[1.32 s]
+0.0.N: Trace Attempt  2	[1.32 s]
+0.0.N: Trace Attempt  3	[1.32 s]
+0.0.N: Trace Attempt  1	[2.14 s]
+0.0.N: Trace Attempt  2	[2.14 s]
+0.0.N: Trace Attempt  3	[2.14 s]
+0.0.N: Trace Attempt  1	[3.68 s]
+0.0.N: Trace Attempt  2	[3.68 s]
+0.0.N: Trace Attempt  3	[3.68 s]
+0.0.B: Trace Attempt 205	[4.15 s]
+0.0.Ht: Trace Attempt 229	[74.27 s]
+0.0.N: Trace Attempt  1	[4.57 s]
+0.0.N: Trace Attempt  2	[4.57 s]
+0.0.N: Trace Attempt  3	[4.57 s]
+0.0.N: Trace Attempt  1	[5.22 s]
+0.0.N: Trace Attempt  2	[5.22 s]
+0.0.N: Trace Attempt  3	[5.22 s]
+0.0.N: Trace Attempt  1	[5.99 s]
+0.0.N: Trace Attempt  2	[5.99 s]
+0.0.N: Trace Attempt  3	[5.99 s]
+0.0.N: Trace Attempt  1	[6.91 s]
+0.0.N: Trace Attempt  2	[6.91 s]
+0.0.N: Trace Attempt  3	[6.91 s]
+0.0.N: Trace Attempt  1	[7.90 s]
+0.0.N: Trace Attempt  2	[7.90 s]
+0.0.N: Trace Attempt  3	[7.90 s]
+0.0.N: Trace Attempt  1	[8.79 s]
+0.0.N: Trace Attempt  2	[8.79 s]
+0.0.N: Trace Attempt  3	[8.79 s]
+0.0.B: Trace Attempt 210	[8.99 s]
+0.0.Ht: Trace Attempt 231	[79.39 s]
+0.0.N: Trace Attempt  1	[9.70 s]
+0.0.N: Trace Attempt  2	[9.70 s]
+0.0.N: Trace Attempt  3	[9.70 s]
+0.0.N: Trace Attempt  1	[10.49 s]
+0.0.N: Trace Attempt  2	[10.49 s]
+0.0.N: Trace Attempt  3	[10.49 s]
+0.0.N: Trace Attempt  1	[11.36 s]
+0.0.N: Trace Attempt  2	[11.36 s]
+0.0.N: Trace Attempt  3	[11.36 s]
+0.0.N: Trace Attempt  1	[12.46 s]
+0.0.N: Trace Attempt  2	[12.46 s]
+0.0.N: Trace Attempt  3	[12.46 s]
+0.0.N: Trace Attempt  1	[13.42 s]
+0.0.N: Trace Attempt  2	[13.42 s]
+0.0.N: Trace Attempt  3	[13.42 s]
+0.0.B: Trace Attempt 213	[13.71 s]
+0.0.N: Trace Attempt  1	[14.25 s]
+0.0.N: Trace Attempt  2	[14.25 s]
+0.0.N: Trace Attempt  3	[14.25 s]
+0.0.N: Trace Attempt  1	[15.36 s]
+0.0.N: Trace Attempt  2	[15.36 s]
+0.0.N: Trace Attempt  3	[15.36 s]
+0.0.Ht: Trace Attempt 233	[85.82 s]
+0.0.N: Trace Attempt  1	[16.63 s]
+0.0.N: Trace Attempt  2	[16.63 s]
+0.0.N: Trace Attempt  3	[16.63 s]
+0.0.N: Trace Attempt  1	[17.70 s]
+0.0.N: Trace Attempt  2	[17.70 s]
+0.0.N: Trace Attempt  3	[17.70 s]
+0.0.B: Trace Attempt 218	[17.75 s]
+0.0.N: Trace Attempt  1	[18.58 s]
+0.0.N: Trace Attempt  2	[18.58 s]
+0.0.N: Trace Attempt  3	[18.58 s]
+0.0.N: Trace Attempt  1	[19.66 s]
+0.0.N: Trace Attempt  2	[19.66 s]
+0.0.N: Trace Attempt  3	[19.66 s]
+0.0.N: Trace Attempt  1	[20.52 s]
+0.0.N: Trace Attempt  2	[20.52 s]
+0.0.N: Trace Attempt  3	[20.52 s]
+0.0.Ht: Trace Attempt 235	[91.26 s]
+0.0.N: Trace Attempt  1	[21.61 s]
+0.0.N: Trace Attempt  2	[21.61 s]
+0.0.N: Trace Attempt  3	[21.61 s]
+0.0.N: Trace Attempt  1	[22.77 s]
+0.0.N: Trace Attempt  2	[22.77 s]
+0.0.N: Trace Attempt  3	[22.77 s]
+0.0.B: Trace Attempt 221	[23.04 s]
+0.0.N: Trace Attempt  1	[24.08 s]
+0.0.N: Trace Attempt  2	[24.08 s]
+0.0.N: Trace Attempt  3	[24.08 s]
+0.0.N: Trace Attempt  1	[25.05 s]
+0.0.N: Trace Attempt  2	[25.05 s]
+0.0.N: Trace Attempt  3	[25.05 s]
+0.0.N: Trace Attempt  1	[25.93 s]
+0.0.N: Trace Attempt  2	[25.93 s]
+0.0.N: Trace Attempt  3	[25.93 s]
+0.0.Ht: Trace Attempt 237	[95.80 s]
+0.0.N: Trace Attempt  1	[27.28 s]
+0.0.N: Trace Attempt  2	[27.28 s]
+0.0.N: Trace Attempt  3	[27.28 s]
+0.0.N: Trace Attempt  1	[28.27 s]
+0.0.N: Trace Attempt  2	[28.27 s]
+0.0.N: Trace Attempt  3	[28.27 s]
+0.0.B: Trace Attempt 224	[28.34 s]
+0.0.N: Trace Attempt  1	[29.18 s]
+0.0.N: Trace Attempt  2	[29.18 s]
+0.0.N: Trace Attempt  3	[29.18 s]
+0.0.N: Trace Attempt  1	[30.51 s]
+0.0.N: Trace Attempt  2	[30.51 s]
+0.0.N: Trace Attempt  3	[30.51 s]
+0.0.Ht: Trace Attempt 239	[101.03 s]
+0.0.B: Trace Attempt 233	[32.34 s]
+0.0.N: Trace Attempt  1	[32.36 s]
+0.0.N: Trace Attempt  2	[32.36 s]
+0.0.N: Trace Attempt  3	[32.37 s]
+0.0.N: Trace Attempt  1	[33.27 s]
+0.0.N: Trace Attempt  2	[33.27 s]
+0.0.N: Trace Attempt  3	[33.27 s]
+0.0.N: Trace Attempt  1	[34.82 s]
+0.0.N: Trace Attempt  2	[34.82 s]
+0.0.N: Trace Attempt  3	[34.82 s]
+0.0.N: Trace Attempt  1	[36.23 s]
+0.0.N: Trace Attempt  2	[36.23 s]
+0.0.N: Trace Attempt  3	[36.23 s]
+0.0.B: Trace Attempt 272	[36.37 s]
+0.0.Ht: Trace Attempt 241	[106.56 s]
+0.0.N: Trace Attempt  1	[37.16 s]
+0.0.N: Trace Attempt  2	[37.16 s]
+0.0.N: Trace Attempt  3	[37.16 s]
+0.0.N: Trace Attempt  1	[38.49 s]
+0.0.N: Trace Attempt  2	[38.49 s]
+0.0.N: Trace Attempt  3	[38.49 s]
+0.0.N: Trace Attempt  1	[39.86 s]
+0.0.N: Trace Attempt  2	[39.86 s]
+0.0.N: Trace Attempt  3	[39.86 s]
+0.0.B: Trace Attempt 305	[40.37 s]
+0.0.N: Trace Attempt  1	[41.06 s]
+0.0.N: Trace Attempt  2	[41.06 s]
+0.0.N: Trace Attempt  3	[41.07 s]
+0.0.Ht: Trace Attempt 242	[111.02 s]
+0.0.N: Trace Attempt  1	[42.31 s]
+0.0.N: Trace Attempt  2	[42.31 s]
+0.0.N: Trace Attempt  3	[42.32 s]
+0.0.N: Trace Attempt  1	[43.88 s]
+0.0.N: Trace Attempt  2	[43.88 s]
+0.0.N: Trace Attempt  3	[43.88 s]
+0.0.B: Trace Attempt 355	[44.39 s]
+0.0.N: Trace Attempt  1	[45.24 s]
+0.0.N: Trace Attempt  2	[45.24 s]
+0.0.N: Trace Attempt  3	[45.24 s]
+0.0.Ht: Trace Attempt 244	[116.31 s]
+0.0.N: Trace Attempt  1	[47.02 s]
+0.0.N: Trace Attempt  2	[47.02 s]
+0.0.N: Trace Attempt  3	[47.02 s]
+0.0.B: Trace Attempt 404	[48.54 s]
+0.0.N: Trace Attempt  1	[49.21 s]
+0.0.N: Trace Attempt  2	[49.21 s]
+0.0.N: Trace Attempt  3	[49.21 s]
+0.0.N: Trace Attempt  1	[51.03 s]
+0.0.N: Trace Attempt  2	[51.03 s]
+0.0.N: Trace Attempt  3	[51.03 s]
+0.0.N: Trace Attempt  1	[52.39 s]
+0.0.N: Trace Attempt  2	[52.39 s]
+0.0.N: Trace Attempt  3	[52.39 s]
+0.0.B: Trace Attempt 451	[52.90 s]
+0.0.Ht: Trace Attempt 246	[123.00 s]
+0.0.N: Trace Attempt  1	[54.13 s]
+0.0.N: Trace Attempt  2	[54.13 s]
+0.0.N: Trace Attempt  3	[54.13 s]
+0.0.N: Trace Attempt  1	[55.54 s]
+0.0.N: Trace Attempt  2	[55.55 s]
+0.0.N: Trace Attempt  3	[55.55 s]
+0.0.B: Trace Attempt 493	[57.09 s]
+0.0.N: Trace Attempt  1	[57.14 s]
+0.0.N: Trace Attempt  2	[57.14 s]
+0.0.N: Trace Attempt  3	[57.14 s]
+0.0.N: Trace Attempt  1	[58.74 s]
+0.0.N: Trace Attempt  2	[58.74 s]
+0.0.N: Trace Attempt  3	[58.74 s]
+0.0.Ht: Trace Attempt 248	[128.61 s]
+0.0.N: Trace Attempt  1	[60.21 s]
+0.0.N: Trace Attempt  2	[60.21 s]
+0.0.N: Trace Attempt  3	[60.21 s]
+0.0.B: Trace Attempt 517	[61.11 s]
+0.0.N: Trace Attempt  1	[61.80 s]
+0.0.N: Trace Attempt  2	[61.80 s]
+0.0.N: Trace Attempt  3	[61.80 s]
+0.0.N: Trace Attempt  1	[63.26 s]
+0.0.N: Trace Attempt  2	[63.26 s]
+0.0.N: Trace Attempt  3	[63.26 s]
+0.0.Ht: Trace Attempt 250	[133.17 s]
+0.0.N: Trace Attempt  1	[65.12 s]
+0.0.N: Trace Attempt  2	[65.12 s]
+0.0.N: Trace Attempt  3	[65.12 s]
+0.0.B: Trace Attempt 532	[65.16 s]
+0.0.N: Trace Attempt  1	[66.87 s]
+0.0.N: Trace Attempt  2	[66.87 s]
+0.0.N: Trace Attempt  3	[66.87 s]
+0.0.N: Trace Attempt  1	[68.54 s]
+0.0.N: Trace Attempt  2	[68.54 s]
+0.0.N: Trace Attempt  3	[68.54 s]
+0.0.Ht: Trace Attempt 252	[138.88 s]
+0.0.B: Trace Attempt 570	[69.30 s]
+0.0.N: Trace Attempt  1	[70.16 s]
+0.0.N: Trace Attempt  2	[70.16 s]
+0.0.N: Trace Attempt  3	[70.16 s]
+0.0.N: Trace Attempt  1	[71.62 s]
+0.0.N: Trace Attempt  2	[71.62 s]
+0.0.N: Trace Attempt  3	[71.62 s]
+0.0.N: Trace Attempt  1	[73.52 s]
+0.0.N: Trace Attempt  2	[73.52 s]
+0.0.N: Trace Attempt  3	[73.52 s]
+0.0.B: Trace Attempt 597	[73.72 s]
+0.0.N: Trace Attempt  1	[75.35 s]
+0.0.N: Trace Attempt  2	[75.35 s]
+0.0.N: Trace Attempt  3	[75.35 s]
+0.0.Ht: Trace Attempt 255	[146.09 s]
+0.0.N: Trace Attempt  1	[77.37 s]
+0.0.N: Trace Attempt  2	[77.37 s]
+0.0.N: Trace Attempt  3	[77.37 s]
+0.0.B: Trace Attempt 613	[77.81 s]
+0.0.N: Trace Attempt  1	[79.43 s]
+0.0.N: Trace Attempt  2	[79.43 s]
+0.0.N: Trace Attempt  3	[79.43 s]
+0.0.N: Trace Attempt  1	[81.16 s]
+0.0.N: Trace Attempt  2	[81.16 s]
+0.0.N: Trace Attempt  3	[81.16 s]
+0.0.B: Trace Attempt 639	[83.14 s]
+0.0.N: Trace Attempt  1	[83.22 s]
+0.0.N: Trace Attempt  2	[83.22 s]
+0.0.N: Trace Attempt  3	[83.22 s]
+0.0.Ht: Trace Attempt 257	[153.20 s]
+0.0.N: Trace Attempt  1	[85.69 s]
+0.0.N: Trace Attempt  2	[85.69 s]
+0.0.N: Trace Attempt  3	[85.69 s]
+0.0.B: Trace Attempt 656	[87.38 s]
+0.0.N: Trace Attempt  1	[87.81 s]
+0.0.N: Trace Attempt  2	[87.81 s]
+0.0.N: Trace Attempt  3	[87.81 s]
+0.0.N: Trace Attempt  1	[89.93 s]
+0.0.N: Trace Attempt  2	[89.93 s]
+0.0.N: Trace Attempt  3	[89.93 s]
+0.0.Ht: Trace Attempt 259	[159.79 s]
+0.0.B: Trace Attempt 672	[91.39 s]
+0.0.N: Trace Attempt  1	[92.24 s]
+0.0.N: Trace Attempt  2	[92.24 s]
+0.0.N: Trace Attempt  3	[92.24 s]
+0.0.N: Trace Attempt  1	[95.25 s]
+0.0.N: Trace Attempt  2	[95.26 s]
+0.0.N: Trace Attempt  3	[95.26 s]
+0.0.B: Trace Attempt 684	[96.32 s]
+0.0.Ht: Trace Attempt 260	[166.63 s]
+0.0.N: Trace Attempt  1	[97.80 s]
+0.0.N: Trace Attempt  2	[97.80 s]
+0.0.N: Trace Attempt  3	[97.80 s]
+0.0.N: Trace Attempt 194	[99.79 s]
+0.0.N: Per property time limit expired (100.00 s) [100.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[100.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.N: Trace Attempt 119	[0.02 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[100.03 s].
+0.0.B: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[2.78 s]
+0.0.N: Trace Attempt  2	[2.79 s]
+0.0.N: Trace Attempt  3	[2.79 s]
+0.0.N: Trace Attempt  1	[3.47 s]
+0.0.N: Trace Attempt  2	[3.47 s]
+0.0.N: Trace Attempt  3	[3.47 s]
+0.0.Ht: Trace Attempt 262	[173.92 s]
+0.0.N: Trace Attempt  1	[4.16 s]
+0.0.N: Trace Attempt  2	[4.16 s]
+0.0.N: Trace Attempt  3	[4.16 s]
+0.0.B: Trace Attempt 266	[4.16 s]
+0.0.N: Trace Attempt  1	[5.03 s]
+0.0.N: Trace Attempt  2	[5.03 s]
+0.0.N: Trace Attempt  3	[5.03 s]
+0.0.N: Trace Attempt  1	[5.67 s]
+0.0.N: Trace Attempt  2	[5.67 s]
+0.0.N: Trace Attempt  3	[5.67 s]
+0.0.N: Trace Attempt  1	[6.39 s]
+0.0.N: Trace Attempt  2	[6.39 s]
+0.0.N: Trace Attempt  3	[6.39 s]
+0.0.N: Trace Attempt  1	[7.08 s]
+0.0.N: Trace Attempt  2	[7.08 s]
+0.0.N: Trace Attempt  3	[7.08 s]
+0.0.N: Trace Attempt  1	[7.73 s]
+0.0.N: Trace Attempt  2	[7.73 s]
+0.0.N: Trace Attempt  3	[7.73 s]
+0.0.N: Trace Attempt  1	[8.40 s]
+0.0.N: Trace Attempt  2	[8.40 s]
+0.0.N: Trace Attempt  3	[8.40 s]
+0.0.N: Trace Attempt  1	[9.29 s]
+0.0.N: Trace Attempt  2	[9.29 s]
+0.0.N: Trace Attempt  3	[9.29 s]
+0.0.B: Trace Attempt 270	[9.84 s]
+0.0.N: Trace Attempt  1	[10.10 s]
+0.0.N: Trace Attempt  2	[10.10 s]
+0.0.N: Trace Attempt  3	[10.10 s]
+0.0.N: Trace Attempt  1	[10.80 s]
+0.0.N: Trace Attempt  2	[10.80 s]
+0.0.N: Trace Attempt  3	[10.80 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.00 s]
+0.0.Bm: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt  4	[0.01 s]
+0.0.Bm: Trace Attempt  5	[0.01 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[11.07 s].
+0.0.N: Morphing to AM
+0.0.N: Trace Attempt 136	[10.83 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AM: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[11.04 s].
+0.0.B: Morphing to Tri
+0.0.B: Trace Attempt 272	[10.95 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.27" ---- Launching abstraction thread ----
+0.0.Tri:    0.29" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.55 s]
+0.0.Tri: Trace Attempt  3	[0.55 s]
+0.0.Tri: Trace Attempt  4	[0.55 s]
+0.0.Tri: Trace Attempt  5	[0.55 s]
+0.0.Ht: Trace Attempt 263	[181.83 s]
+0.0.AM: Trace Attempt 135	[0.83 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
+0.0.AM: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.00 s].
+0.0.AM: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.Tri: Trace Attempt 177	[0.62 s]
+0.0.Tri: Per property time limit expired (0.99 s) [1.02 s]
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.02 s].
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.84" ---- Launching main thread ----
+0.0.Tri:    0.97" ---- Launching abstraction thread ----
+0.0.Tri:    0.99" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.21 s]
+0.0.Tri: Trace Attempt  3	[0.21 s]
+0.0.Tri: Trace Attempt  4	[0.21 s]
+0.0.Tri: Trace Attempt  5	[0.21 s]
+0.0.AM: Trace Attempt 36	[0.97 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
+0.0.AM: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[1.00 s].
+0.0.AM: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.Tri:    1.79" Simplification phase 1 complete
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.96 s].
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    1.86" ---- Launching main thread ----
+0.0.Tri:    1.99" ---- Launching abstraction thread ----
+0.0.Tri:    2.01" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.27 s]
+0.0.Tri: Trace Attempt  3	[0.27 s]
+0.0.Tri: Trace Attempt  4	[0.28 s]
+0.0.Tri: Trace Attempt  5	[0.28 s]
+0.0.Tri:    2.84" Simplification phase 1 complete
+0.0.AM: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.60 s].
+0.0.AM: Morphing to I
+0.0.AM: Trace Attempt 170	[1.34 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.I: Trace Attempt 61	[0.02 s]
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.67 s].
+0.0.Tri: Morphing to AD
+0.0.Tri: Trace Attempt 236	[1.47 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AD: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.Bm: Trace Attempt 202	[4.71 s]
+0.0.I: Trace Attempt  1	[1.03 s]
+0.0.I: Trace Attempt  2	[1.03 s]
+0.0.I: Trace Attempt  3	[1.03 s]
+0.0.I: Trace Attempt  4	[1.04 s]
+0.0.I: Trace Attempt  5	[1.04 s]
+0.0.Ht: Trace Attempt 264	[186.01 s]
+0.0.I: Trace Attempt 24	[1.87 s]
+0.0.I: Per property time limit expired (2.00 s) [2.02 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[2.02 s].
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.I: Trace Attempt 115	[0.03 s]
+0.0.AD: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[2.63 s].
+0.0.AD: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt 119	[1.99 s]
+0.0.I: Per property time limit expired (2.00 s) [2.00 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[2.00 s].
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AD: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.28 s].
+0.0.AD: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.I: Trace Attempt 136	[0.02 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.01 s].
+0.0.I: Morphing to D
+0.0.I: Trace Attempt 137	[0.85 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.AD: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.01 s].
+0.0.AD: Morphing to Ncustom1
+0.0.AD: Trace Attempt 159	[1.00 s]
+0.0.AD: All properties determined. [0.00 s]
+0.0.AD: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.Ncustom1: Trace Attempt 51	[0.01 s]
+0.0.D: Trace Attempt  5	[0.02 s]
+0.0.Bm: Trace Attempt 205	[8.88 s]
+0.0.Ht: Trace Attempt 265	[190.87 s]
+0.0.Ncustom1: Trace Attempt  1	[2.11 s]
+0.0.Ncustom1: Trace Attempt  2	[2.11 s]
+0.0.Ncustom1: Trace Attempt  3	[2.12 s]
+0.0.D: Trace Attempt 29	[3.72 s]
+0.0.D: Per property time limit expired (4.00 s) [4.00 s]
+0.0.D: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[4.00 s].
+0.0.D: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 54	[3.50 s]
+0.0.Ncustom1: Per property time limit expired (4.00 s) [4.00 s]
+0.0.D: Trace Attempt  1	[0.00 s]
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[4.00 s].
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.D: Trace Attempt  2	[0.00 s]
+0.0.D: Trace Attempt  3	[0.00 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.D: Trace Attempt  5	[0.01 s]
+0.0.Ncustom1: Trace Attempt 136	[0.02 s]
+0.0.Bm: Trace Attempt 207	[12.92 s]
+0.0.Ncustom1: Trace Attempt  1	[0.94 s]
+0.0.Ncustom1: Trace Attempt  2	[0.94 s]
+0.0.Ncustom1: Trace Attempt  3	[0.94 s]
+0.0.Ht: Trace Attempt 266	[194.88 s]
+0.0.Ncustom1: Trace Attempt  1	[1.83 s]
+0.0.Ncustom1: Trace Attempt  2	[1.83 s]
+0.0.Ncustom1: Trace Attempt  3	[1.83 s]
+0.0.Ncustom1: Trace Attempt  1	[3.60 s]
+0.0.Ncustom1: Trace Attempt  2	[3.60 s]
+0.0.Ncustom1: Trace Attempt  3	[3.60 s]
+0.0.D: Trace Attempt 60	[3.93 s]
+0.0.D: Per property time limit expired (4.00 s) [4.00 s]
+0.0.D: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[4.00 s].
+0.0.D: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 139	[3.63 s]
+0.0.Ncustom1: Per property time limit expired (4.00 s) [4.01 s]
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[4.01 s].
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.D: Trace Attempt 60	[0.01 s]
+0.0.Ncustom1: Trace Attempt 139	[0.02 s]
+0.0.Bm: Trace Attempt 209	[17.52 s]
+0.0.Ncustom1: Trace Attempt  1	[0.91 s]
+0.0.Ncustom1: Trace Attempt  2	[0.92 s]
+0.0.Ncustom1: Trace Attempt  3	[0.92 s]
+0.0.Ncustom1: Trace Attempt  1	[1.67 s]
+0.0.Ncustom1: Trace Attempt  2	[1.67 s]
+0.0.Ncustom1: Trace Attempt  3	[1.67 s]
+0.0.Ncustom1: Trace Attempt  1	[2.54 s]
+0.0.Ncustom1: Trace Attempt  2	[2.54 s]
+0.0.Ncustom1: Trace Attempt  3	[2.55 s]
+0.0.Ncustom1: Trace Attempt  1	[3.53 s]
+0.0.Ncustom1: Trace Attempt  2	[3.54 s]
+0.0.Ncustom1: Trace Attempt  3	[3.54 s]
+0.0.D: Trace Attempt 73	[4.08 s]
+0.0.Ncustom1: Trace Attempt  1	[4.55 s]
+0.0.Ncustom1: Trace Attempt  2	[4.55 s]
+0.0.Ncustom1: Trace Attempt  3	[4.55 s]
+0.0.Bm: Trace Attempt 211	[21.98 s]
+0.0.Ncustom1: Trace Attempt  1	[5.43 s]
+0.0.Ncustom1: Trace Attempt  2	[5.43 s]
+0.0.Ncustom1: Trace Attempt  3	[5.43 s]
+0.0.Ht: Trace Attempt 267	[203.90 s]
+0.0.Ncustom1: Trace Attempt  1	[6.66 s]
+0.0.Ncustom1: Trace Attempt  2	[6.66 s]
+0.0.Ncustom1: Trace Attempt  3	[6.66 s]
+0.0.Ncustom1: Trace Attempt  1	[7.55 s]
+0.0.Ncustom1: Trace Attempt  2	[7.55 s]
+0.0.Ncustom1: Trace Attempt  3	[7.55 s]
+0.0.D: Trace Attempt 83	[8.26 s]
+0.0.Ncustom1: Trace Attempt  1	[8.41 s]
+0.0.Ncustom1: Trace Attempt  2	[8.41 s]
+0.0.Ncustom1: Trace Attempt  3	[8.42 s]
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[8.42 s].
+0.0.Ncustom1: Morphing to M
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.D: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[8.43 s].
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.D: Morphing to AMcustom2
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.Bm: Trace Attempt 213	[26.71 s]
+0.0.Ht: Trace Attempt 268	[209.12 s]
+0.0.M: Trace Attempt 199	[4.04 s]
+0.0.AMcustom2: Trace Attempt 64	[4.06 s]
+0.0.Bm: Trace Attempt 214	[31.24 s]
+0.0.AMcustom2: Trace Attempt 121	[7.97 s]
+0.0.AMcustom2: Per property time limit expired (7.99 s) [8.00 s]
+0.0.AMcustom2: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[8.00 s].
+0.0.AMcustom2: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0.0.M: Trace Attempt 227	[7.82 s]
+0.0.M: Per property time limit expired (8.00 s) [8.04 s]
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[8.04 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.M: Validation of fixpoint was successful. Time = 0.00
+0.0.M: A proof was found: No trace exists. [0.02 s]
+INFO (IPF057): 0.0.M: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96" was proven in 0.02 s.
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.02 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_after_96"	[0.08 s].
+0.0.AMcustom2: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.00 s]
+0.0.AMcustom2: Trace Attempt  4	[0.00 s]
+0.0.AMcustom2: Trace Attempt  5	[0.00 s]
+0: ProofGrid usable level: 5
+0.0.Ht: Trace Attempt 269	[215.76 s]
+0.0.AMcustom2: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.91 s].
+0.0.AMcustom2: Morphing to N
+0.0.AMcustom2: Trace Attempt 170	[1.22 s]
+0.0.AMcustom2: All properties determined. [0.00 s]
+0.0.AMcustom2: Exited with Success (@ 0.00 s)
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.N: Trace Attempt 54	[0.01 s]
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[1.95 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 217	[35.42 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[1.00 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt 120	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.00 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[1.00 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.M: Validation of fixpoint was successful. Time = 0.00
+0.0.M: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.M: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128" was proven in 0.01 s.
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.01 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_after_128"	[0.02 s].
+0.0.N: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt 54	[0.01 s]
+0: ProofGrid usable level: 4
+0.0.N: Trace Attempt  1	[1.19 s]
+0.0.N: Trace Attempt  2	[1.19 s]
+0.0.N: Trace Attempt  3	[1.19 s]
+0.0.N: Trace Attempt  4	[1.20 s]
+0.0.N: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[2.45 s].
+0.0.N: Morphing to Ncustom1
+0.0.N: Trace Attempt 77	[1.57 s]
+0.0.N: All properties determined. [0.00 s]
+0.0.N: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[2.46 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt 221	[39.75 s]
+0.0.Ncustom1: Trace Attempt  1	[0.92 s]
+0.0.Ncustom1: Trace Attempt  2	[0.92 s]
+0.0.Ncustom1: Trace Attempt  3	[0.92 s]
+0.0.Ncustom1: Trace Attempt  1	[2.05 s]
+0.0.Ncustom1: Trace Attempt  2	[2.05 s]
+0.0.Ncustom1: Trace Attempt  3	[2.05 s]
+0.0.Ht: Trace Attempt 270	[223.57 s]
+0.0.Ncustom1: Trace Attempt  1	[3.73 s]
+0.0.Ncustom1: Trace Attempt  2	[3.73 s]
+0.0.Ncustom1: Trace Attempt  3	[3.73 s]
+0.0.M: Trace Attempt 146	[4.03 s]
+0.0.Bm: Trace Attempt 225	[44.18 s]
+0.0.Ncustom1: Trace Attempt  1	[5.76 s]
+0.0.Ncustom1: Trace Attempt  2	[5.76 s]
+0.0.Ncustom1: Trace Attempt  3	[5.76 s]
+0.0.Ncustom1: Trace Attempt  1	[7.31 s]
+0.0.Ncustom1: Trace Attempt  2	[7.31 s]
+0.0.Ncustom1: Trace Attempt  3	[7.31 s]
+0.0.Ncustom1: Trace Attempt 68	[7.35 s]
+0.0.Ncustom1: Per property time limit expired (7.99 s) [8.00 s]
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[8.00 s].
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 118	[0.03 s]
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[8.02 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.M: Validation of fixpoint was successful. Time = 0.01
+0.0.M: A proof was found: No trace exists. [0.02 s]
+INFO (IPF057): 0.0.M: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128" was proven in 0.02 s.
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.02 s].
+0.0.M: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_after_128"	[0.06 s].
+0.0.Ncustom1: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.M: Trace Attempt  3	[0.01 s]
+0: ProofGrid usable level: 3
+0.0.Bm: Trace Attempt 228	[49.20 s]
+0.0.M: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[3.61 s].
+0.0.M: Morphing to K
+0.0.M: Trace Attempt 153	[3.59 s]
+0.0.M: All properties determined. [0.00 s]
+0.0.M: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.Ncustom1: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[3.61 s].
+0.0.Ncustom1: Morphing to I
+0.0.Ncustom1: Trace Attempt 77	[0.02 s]
+0.0.Ncustom1: All properties determined. [0.00 s]
+0.0.Ncustom1: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.K: Trace Attempt 77	[0.02 s]
+0.0.I: Trace Attempt 55	[0.01 s]
+0.0.I: Trace Attempt  1	[2.09 s]
+0.0.I: Trace Attempt  2	[2.09 s]
+0.0.I: Trace Attempt  3	[2.09 s]
+0.0.I: Trace Attempt  4	[2.09 s]
+0.0.I: Trace Attempt  5	[2.10 s]
+0.0.Bm: Trace Attempt 231	[54.30 s]
+0.0.Ht: Trace Attempt 271	[235.43 s]
+0.0.K: Trace Attempt  1	[3.60 s]
+0.0.K: Trace Attempt  2	[3.60 s]
+0.0.K: Trace Attempt  3	[3.60 s]
+0.0.K: Trace Attempt  4	[3.60 s]
+0.0.K: Trace Attempt  5	[3.60 s]
+0.0.I: Trace Attempt 79	[6.73 s]
+0.0.K: Trace Attempt  1	[7.11 s]
+0.0.K: Trace Attempt  2	[7.11 s]
+0.0.K: Trace Attempt  3	[7.11 s]
+0.0.K: Trace Attempt  4	[7.11 s]
+0.0.K: Trace Attempt  5	[7.11 s]
+0.0.Bm: Trace Attempt 234	[59.13 s]
+0.0.I: Trace Attempt 83	[7.16 s]
+0.0.I: Per property time limit expired (7.97 s) [7.98 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[7.98 s].
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.K: Trace Attempt 90	[7.17 s]
+0.0.K: Per property time limit expired (7.98 s) [8.00 s]
+0.0.K: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[8.00 s].
+0.0.K: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.I: Trace Attempt 53	[0.01 s]
+0.0.K: Trace Attempt 54	[0.01 s]
+0.0.K: Trace Attempt  1	[1.64 s]
+0.0.K: Trace Attempt  2	[1.64 s]
+0.0.K: Trace Attempt  3	[1.64 s]
+0.0.K: Trace Attempt  4	[1.64 s]
+0.0.K: Trace Attempt  5	[1.64 s]
+0.0.K: Trace Attempt  1	[2.14 s]
+0.0.K: Trace Attempt  2	[2.14 s]
+0.0.K: Trace Attempt  3	[2.14 s]
+0.0.K: Trace Attempt  4	[2.14 s]
+0.0.K: Trace Attempt  5	[2.14 s]
+0.0.I: Trace Attempt  1	[3.83 s]
+0.0.I: Trace Attempt  2	[3.83 s]
+0.0.I: Trace Attempt  3	[3.84 s]
+0.0.I: Trace Attempt  4	[3.84 s]
+0.0.I: Trace Attempt  5	[3.85 s]
+0.0.Bm: Trace Attempt 237	[63.33 s]
+0.0.K: Trace Attempt  1	[4.32 s]
+0.0.K: Trace Attempt  2	[4.32 s]
+0.0.K: Trace Attempt  3	[4.32 s]
+0.0.K: Trace Attempt  4	[4.32 s]
+0.0.K: Trace Attempt  5	[4.32 s]
+0.0.K: Trace Attempt  1	[5.82 s]
+0.0.K: Trace Attempt  2	[5.82 s]
+0.0.K: Trace Attempt  3	[5.82 s]
+0.0.K: Trace Attempt  4	[5.82 s]
+0.0.K: Trace Attempt  5	[5.82 s]
+0.0.Ht: Trace Attempt 272	[246.65 s]
+0.0.K: Trace Attempt  1	[7.78 s]
+0.0.K: Trace Attempt  2	[7.78 s]
+0.0.K: Trace Attempt  3	[7.78 s]
+0.0.K: Trace Attempt  4	[7.78 s]
+0.0.K: Trace Attempt  5	[7.78 s]
+0.0.I: Trace Attempt 69	[7.83 s]
+0.0.I: Per property time limit expired (8.00 s) [8.01 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[8.01 s].
+0.0.I: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.K: Trace Attempt 72	[7.83 s]
+0.0.K: Per property time limit expired (8.00 s) [8.01 s]
+0.0.K: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[8.01 s].
+0.0.K: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.I: Trace Attempt 83	[0.02 s]
+0.0.K: Trace Attempt 90	[0.02 s]
+0.0.Bm: Trace Attempt 240	[68.39 s]
+0.0.K: Trace Attempt  1	[2.82 s]
+0.0.K: Trace Attempt  2	[2.82 s]
+0.0.K: Trace Attempt  3	[2.82 s]
+0.0.K: Trace Attempt  4	[2.82 s]
+0.0.K: Trace Attempt  5	[2.82 s]
+0.0.I: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[2.87 s].
+0.0.I: Morphing to Tri
+0.0.I: Trace Attempt 84	[2.83 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.K: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[2.86 s].
+0.0.K: Morphing to Hts
+0.0.K: Trace Attempt 88	[2.86 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.15" ---- Launching abstraction thread ----
+0.0.Tri:    0.18" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.31 s]
+0.0.Tri: Trace Attempt  3	[0.31 s]
+0.0.Tri: Trace Attempt  4	[0.31 s]
+0.0.Tri: Trace Attempt  5	[0.31 s]
+0.0.Tri:    1.01" Simplification phase 1 complete
+0.0.Tri:    1.87" Simplification phase 2 complete
+0.0.Ht: Trace Attempt 273	[253.09 s]
+0.0.Bm: Trace Attempt 242	[72.45 s]
+0.0.Tri:    3.21" Simplification phase 3 complete
+   3.21" ---- Completed simplification thread ----
+   3.21" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    3.42" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 186	[4.61 s]
+0.0.Bm: Trace Attempt 245	[76.94 s]
+0.0.Ht: Trace Attempt 274	[259.09 s]
+0.0.Tri: Trace Attempt 256	[8.82 s]
+0.0.Tri: Trace Attempt 384	[10.04 s]
+0.0.Tri: A proof was found: No trace exists. [10.04 s]
+INFO (IPF057): 0.0.Tri: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128" was proven in 10.04 s.
+0.0.Hts: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[10.06 s].
+0.0.Hts: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.both_zero_hold_64_post128"	[10.24 s].
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   10.20" ---- Launching main thread ----
+0.0.Tri:   10.34" ---- Launching abstraction thread ----
+0: ProofGrid usable level: 2
+0.0.Tri:   10.36" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.22 s]
+0.0.Tri: Trace Attempt  3	[0.23 s]
+0.0.Tri: Trace Attempt  4	[0.23 s]
+0.0.Tri: Trace Attempt  5	[0.23 s]
+0.0.Bm: Trace Attempt 248	[81.11 s]
+0.0.Tri:   11.17" Simplification phase 1 complete
+0.0.Tri:   11.26" Simplification phase 2 complete
+0.0.Tri:   11.84" Simplification phase 3 complete
+  11.84" ---- Completed simplification thread ----
+  11.84" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   11.97" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 320	[4.18 s]
+0.0.Tri: A proof was found: No trace exists. [4.18 s]
+INFO (IPF057): 0.0.Tri: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96" was proven in 4.19 s.
+0.0.Hts: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[4.50 s].
+0.0.Hts: Last scan. Per property time limit: 0s
+0.0.Hts: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllpd_zero_hold_64_post96"	[4.39 s].
+0.0.Tri: Last scan. Per property time limit: 0s
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:   14.58" ---- Launching main thread ----
+0.0.Tri:   14.71" ---- Launching abstraction thread ----
+0.0.Tri:   14.73" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.21 s]
+0.0.Tri: Trace Attempt  3	[0.21 s]
+0.0.Tri: Trace Attempt  4	[0.21 s]
+0.0.Tri: Trace Attempt  5	[0.21 s]
+0: ProofGrid usable level: 1
+0.0.Hts: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.31 s].
+0.0.Hts: Morphing to AM
+0.0.Hts: Trace Attempt 274	[0.16 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AM: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
+0.0.Bm: Trace Attempt 251	[85.38 s]
+0: ProofGrid usable level: 1
+0.0.Tri:   15.54" Simplification phase 1 complete
+0.0.Tri:   15.66" Simplification phase 2 complete
+0.0.Tri:   17.28" Simplification phase 3 complete
+  17.28" ---- Completed simplification thread ----
+0.0.Tri:   17.28" ---- Restarting main thread on simplified netlist ----
+0.0.Ht: Trace Attempt 275	[268.51 s]
+0.0.Tri:   17.45" ---- Restarting abstraction thread on simplified netlist ----
+0.0.AM: Trace Attempt 60	[4.05 s]
+0.0.Bm: Trace Attempt 264	[89.72 s]
+0.0.Tri: Trace Attempt 200	[5.23 s]
+0.0.AM: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[6.46 s].
+0.0.AM: Morphing to AMcustom2
+0.0.AM: Trace Attempt 81	[6.42 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[6.70 s].
+0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  1	[0.00 s]
+0.0.Tri: Morphing to AD
+0.0.Tri: Trace Attempt 283	[6.69 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
+0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AMcustom2: Trace Attempt  2	[0.00 s]
+0.0.AMcustom2: Trace Attempt  3	[0.01 s]
+0.0.AD: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.AMcustom2: Trace Attempt  4	[0.01 s]
+0.0.AMcustom2: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 277	[274.18 s]
+0.0.Bm: Trace Attempt 267	[95.38 s]
+0.0.AD: Trace Attempt 63	[4.04 s]
+0.0.AMcustom2: Trace Attempt 64	[4.05 s]
+0.0.AD: Trace Attempt 116	[8.06 s]
+0.0.AMcustom2: Trace Attempt 120	[8.08 s]
+0.0.Bm: Trace Attempt 269	[100.11 s]
+0.0.AD: Trace Attempt 124	[12.24 s]
+0.0.AMcustom2: Trace Attempt 126	[12.58 s]
+0.0.Ht: Trace Attempt 284	[285.81 s]
+0.0.Bm: Trace Attempt 271	[105.30 s]
+0.0.AD: Trace Attempt 162	[16.34 s]
+0.0.AMcustom2: Trace Attempt 170	[16.59 s]
+0.0.Bm: Trace Attempt 273	[109.49 s]
+0.0.AD: Trace Attempt 202	[20.34 s]
+0.0.Ht: Trace Attempt 285	[294.40 s]
+0.0.Bm: Trace Attempt 276	[114.50 s]
+0.0.AMcustom2: Trace Attempt 204	[25.24 s]
+0.0.AD: Trace Attempt 204	[25.83 s]
+0.0.Ht: Trace Attempt 286	[299.16 s]
+0.0.Bm: Trace Attempt 279	[119.58 s]
+0.0.AMcustom2: Trace Attempt 206	[30.16 s]
+0.0.AD: Trace Attempt 206	[31.18 s]
+0.0.Ht: Trace Attempt 287	[304.63 s]
+0.0.Bm: Trace Attempt 282	[125.07 s]
+0.0.AMcustom2: Trace Attempt 242	[34.27 s]
+0.0.AD: Trace Attempt 239	[35.21 s]
+0.0.AD: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[36.79 s].
+0.0.AD: Morphing to D
+0.0.AD: Trace Attempt 250	[36.76 s]
+0.0.AD: All properties determined. [0.00 s]
+0.0.AD: Exited with Success (@ 0.00 s)
+0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.D: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.Ht: Trace Attempt 288	[309.15 s]
+0.0.Bm: Trace Attempt 284	[129.77 s]
+0.0.Ht: Trace Attempt 289	[315.15 s]
+0.0.AMcustom2: Trace Attempt 258	[43.07 s]
+0.0.Bm: Trace Attempt 287	[135.32 s]
+0.0.AMcustom2: Trace Attempt  1	[46.73 s]
+0.0.AMcustom2: Trace Attempt  2	[46.73 s]
+0.0.AMcustom2: Trace Attempt  3	[46.73 s]
+0.0.Bm: Trace Attempt 289	[140.04 s]
+0.0.D: Trace Attempt 48	[13.59 s]
+0.0.AMcustom2: Trace Attempt 162	[50.75 s]
+0.0.Ht: Trace Attempt 291	[324.37 s]
+0.0.Bm: Trace Attempt 291	[144.33 s]
+0.0.AMcustom2: Trace Attempt 233	[54.78 s]
+0.0.D: Trace Attempt 52	[19.25 s]
+0.0.Ht: Trace Attempt 293	[328.81 s]
+0.0.Bm: Trace Attempt 293	[148.93 s]
+0.0.AMcustom2: Trace Attempt 267	[59.05 s]
+0.0.Ht: Trace Attempt 295	[333.30 s]
+0.0.Bm: Trace Attempt 296	[154.31 s]
+0.0.D: Trace Attempt 58	[26.62 s]
+0.0.AMcustom2: Trace Attempt 285	[63.52 s]
+0.0.Ht: Trace Attempt 297	[339.32 s]
+0.0.Bm: Trace Attempt 298	[158.57 s]
+0.0.AMcustom2: Trace Attempt 299	[67.89 s]
+0.0.Bm: Trace Attempt 300	[164.13 s]
+0.0.AMcustom2: Trace Attempt 311	[72.64 s]
+0.0.Ht: Trace Attempt 298	[345.67 s]
+0.0.D: Trace Attempt 63	[38.12 s]
+0.0.AMcustom2: Trace Attempt 321	[77.21 s]
+0.0.Bm: Trace Attempt 301	[168.80 s]
+0.0.Bm: Trace Attempt 302	[173.13 s]
+0.0.AMcustom2: Trace Attempt 331	[82.16 s]
+0.0.D: Trace Attempt 66	[45.61 s]
+0.0.AMcustom2: Trace Attempt 339	[86.56 s]
+0.0.D: Trace Attempt 68	[52.09 s]
+0.0.Bm: Trace Attempt 304	[180.46 s]
+0.0.AMcustom2: Trace Attempt 347	[91.20 s]
+0.0.D: Trace Attempt 70	[56.33 s]
+0.0.Bm: Trace Attempt 306	[186.39 s]
+0.0.AMcustom2: Trace Attempt 355	[96.08 s]
+0.0.AMcustom2: Trace Attempt 363	[101.20 s]
+0.0.D: Trace Attempt 73	[65.17 s]
+0.0.Bm: Trace Attempt 308	[193.78 s]
+0.0.AMcustom2: Trace Attempt 371	[106.48 s]
+0.0.D: Trace Attempt 74	[69.76 s]
+0.0.Bm: Trace Attempt 310	[200.26 s]
+0.0.AMcustom2: Trace Attempt 377	[110.51 s]
+0.0.Bm: Trace Attempt 312	[204.96 s]
+0.0.D: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[77.53 s].
+0.0.D: Morphing to Tri
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.18" ---- Launching abstraction thread ----
+0.0.Tri:    0.23" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.39 s]
+0.0.Tri: Trace Attempt  3	[0.39 s]
+0.0.Tri: Trace Attempt  4	[0.39 s]
+0.0.Tri: Trace Attempt  5	[0.39 s]
+0.0.Tri:    1.06" Simplification phase 1 complete
+0.0.Tri:    1.17" Simplification phase 2 complete
+0.0.AMcustom2: Validation of fixpoint was successful. Time = 1.70
+0.0.Tri: Requesting engine job to stop
+0.0.AMcustom2: Requesting engine job to stop
+0.0.Ht: Requesting engine job to terminate
+0.0.Bm: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [389.09 s]
+0.0.AMcustom2: Trace Attempt 382	[113.21 s]
+0.0.AMcustom2: A proof was found: No trace exists. [116.67 s]
+INFO (IPF057): 0.0.AMcustom2: The property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128" was proven in 116.66 s.
+0.0.AMcustom2: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[116.67 s].
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Trace Attempt 312	[345.69 s]
+0.0.Ht: All properties determined. [389.02 s]
+0.0.AMcustom2: All properties determined. [116.67 s]
+0.0.Ht: Exited with Success (@ 389.12 s)
+0: ProofGrid usable level: 0
+0.0.Bm: Trace Attempt 313	[207.36 s]
+0.0.Bm: All properties determined. [208.23 s]
+0.0.AMcustom2: Exited with Success (@ 389.14 s)
+0.0.Tri: Stopped processing property "PCIeGen2x8If128_gtp_cpllpd_ovrd.auto_sva_inst.cpllreset_zero_hold_64_post128"	[2.38 s].
+0.0.Bm: Exited with Success (@ 389.18 s)
+0.0.Tri: Trace Attempt 185	[1.78 s]
+0.0.Tri: All properties determined. [2.38 s]
+0.0.Tri: Exited with Success (@ 389.18 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.98 %)
+--------------------------------------------------------------
+     engines started                               :    15
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Ht        0.07      389.02        0.00       99.98 %
+     Bm        0.09      389.06        0.00       99.98 %
+    Tri        0.07      388.89        0.00       99.98 %
+    AMcustom2        0.08      388.79        0.00       99.98 %
+    all        0.08      388.94        0.00       99.98 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.31     1555.75        0.00
+
+    Data read    : 1.91 MiB
+    Data written : 150.77 kiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 12
+                 assertions                   : 10
+                  - proven                    : 8 (80%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 2 (20%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 2
+                  - unreachable               : 0 (0%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 2 (100%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Collect CEX details ----
+[<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/cex_details.txt
+[<embedded>] % set cex_props {}
+[<embedded>] % catch { set cex_props [get_property_list -include {status cex}] }
+0
+[<embedded>] % set ar_cex_props {}
+[<embedded>] % catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_cex [open $CEX_TXT "w"]
+file43
+[<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
+[<embedded>] % puts $fp_cex ""
+[<embedded>] % 
+[<embedded>] % foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+[<embedded>] % foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+[<embedded>] % close $fp_cex
+[<embedded>] % 
+[<embedded>] % set n_cex    [llength $cex_props]
+2
+[<embedded>] % set n_ar_cex [llength $ar_cex_props]
+0
+[<embedded>] % puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+INFO: CEX properties: 2 cex, 0 ar_cex
+[<embedded>] % puts "INFO: Wrote $CEX_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/cex_details.txt
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "CEX_COUNT=$n_cex"
+[<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/02363/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 1.390 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

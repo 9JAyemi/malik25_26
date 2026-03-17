@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+counter_3bit.auto_sva_inst.reset_clears_next
+counter_3bit.auto_sva_inst.reset_holds_zero
+counter_3bit.auto_sva_inst.increment_on_en
+counter_3bit.auto_sva_inst.hold_on_disable
+counter_3bit.auto_sva_inst.change_implies_prev_en
+counter_3bit.auto_sva_inst.wrap_on_max
+counter_3bit.auto_sva_inst.lsb_toggles_on_en
+counter_3bit.auto_sva_inst.bit1_xor_carry_on_en
+counter_3bit.auto_sva_inst.bit2_xor_carry_on_en
+counter_3bit.auto_sva_inst.only_hold_or_inc
+
+COVER PROPERTIES:
+counter_3bit.auto_sva_inst.reset_clears_next:precondition1
+counter_3bit.auto_sva_inst.reset_holds_zero:precondition1
+counter_3bit.auto_sva_inst.increment_on_en:precondition1
+counter_3bit.auto_sva_inst.hold_on_disable:precondition1
+counter_3bit.auto_sva_inst.change_implies_prev_en:precondition1
+counter_3bit.auto_sva_inst.wrap_on_max:precondition1
+counter_3bit.auto_sva_inst.lsb_toggles_on_en:precondition1
+counter_3bit.auto_sva_inst.bit1_xor_carry_on_en:precondition1
+counter_3bit.auto_sva_inst.bit2_xor_carry_on_en:precondition1
+counter_3bit.auto_sva_inst.only_hold_or_inc:precondition1

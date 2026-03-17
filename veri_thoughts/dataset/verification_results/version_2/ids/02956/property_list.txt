@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+decoder.auto_sva_inst.check_decode_function_vector
+decoder.auto_sva_inst.check_disabled_all_zero
+decoder.auto_sva_inst.check_decode_00
+decoder.auto_sva_inst.check_decode_01
+decoder.auto_sva_inst.check_decode_10
+decoder.auto_sva_inst.check_decode_11
+decoder.auto_sva_inst.check_outputs_onehot0
+decoder.auto_sva_inst.check_outputs_or_equals_en
+decoder.auto_sva_inst.check_y0_implies_en_ab00
+decoder.auto_sva_inst.check_y3_implies_en_ab11
+
+COVER PROPERTIES:
+decoder.auto_sva_inst.check_disabled_all_zero:precondition1
+decoder.auto_sva_inst.check_decode_00:precondition1
+decoder.auto_sva_inst.check_decode_01:precondition1
+decoder.auto_sva_inst.check_decode_10:precondition1
+decoder.auto_sva_inst.check_decode_11:precondition1
+decoder.auto_sva_inst.check_y0_implies_en_ab00:precondition1
+decoder.auto_sva_inst.check_y3_implies_en_ab11:precondition1

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+four_bit_register.auto_sva_inst.check_dout_one_cycle_latency
+four_bit_register.auto_sva_inst.check_change_propagation
+four_bit_register.auto_sva_inst.check_stability_propagation
+four_bit_register.auto_sva_inst.gen_bit_latency[0].check_bit_latency
+four_bit_register.auto_sva_inst.gen_bit_latency[1].check_bit_latency
+four_bit_register.auto_sva_inst.gen_bit_latency[2].check_bit_latency
+four_bit_register.auto_sva_inst.gen_bit_latency[3].check_bit_latency
+
+COVER PROPERTIES:
+four_bit_register.auto_sva_inst.check_change_propagation:precondition1
+four_bit_register.auto_sva_inst.check_stability_propagation:precondition1

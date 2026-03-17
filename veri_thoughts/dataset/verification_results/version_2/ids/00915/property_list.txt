@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.bit0_sum_is_xor
+full_adder.auto_sva_inst.bit0_carry1_is_formula
+full_adder.auto_sva_inst.bit1_sum_is_xor
+full_adder.auto_sva_inst.bit1_carry2_is_formula
+full_adder.auto_sva_inst.bit2_sum_is_xor
+full_adder.auto_sva_inst.bit2_carry3_is_formula
+full_adder.auto_sva_inst.bit3_sum_is_xor
+full_adder.auto_sva_inst.final_carry_is_formula
+full_adder.auto_sva_inst.overall_addition_correct
+full_adder.auto_sva_inst.outputs_stable_when_inputs_stable
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.outputs_stable_when_inputs_stable:precondition1

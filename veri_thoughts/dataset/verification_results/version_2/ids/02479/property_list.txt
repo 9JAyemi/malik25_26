@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_forces_zero_at_clk
+counter.auto_sva_inst.reset_hold_zero_stable
+counter.auto_sva_inst.count_increments_by_one
+counter.auto_sva_inst.count_changes_each_cycle
+counter.auto_sva_inst.count_wraps_f_to_0
+counter.auto_sva_inst.first_count_post_reset_is_one
+counter.auto_sva_inst.zero_implies_prev_f
+counter.auto_sva_inst.one_implies_prev_zero_or_reset
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_forces_zero_at_clk:precondition1
+counter.auto_sva_inst.reset_hold_zero_stable:precondition1
+counter.auto_sva_inst.count_wraps_f_to_0:precondition1
+counter.auto_sva_inst.first_count_post_reset_is_one:precondition1
+counter.auto_sva_inst.zero_implies_prev_f:precondition1
+counter.auto_sva_inst.one_implies_prev_zero_or_reset:precondition1

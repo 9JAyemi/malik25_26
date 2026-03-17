@@ -1,0 +1,14 @@
+# Counter-example details for DESIGN_ID=01523
+# Format: property_name | cex_type | cex_length
+
+<embedded>::timer.auto_sva_inst.check_counter_bounded | cex | 
+<embedded>::timer.auto_sva_inst.inc_when_not_at_limit | cex | 
+<embedded>::timer.auto_sva_inst.rty_low_when_not_at_limit | cex | 
+<embedded>::timer.auto_sva_inst.interrupt_unchanged_when_not_at_limit | cex | 
+<embedded>::timer.auto_sva_inst.clear_when_limit_and_bus_read | cex | 
+<embedded>::timer.auto_sva_inst.set_interrupt_when_limit_without_clear | cex | 
+<embedded>::timer.auto_sva_inst.hold_counter_when_limit_without_clear | cex | 
+<embedded>::timer.auto_sva_inst.hold_rty_when_limit_without_clear | cex | 
+<embedded>::timer.auto_sva_inst.rty_rose_only_from_clear | cex | 
+<embedded>::timer.auto_sva_inst.interrupt_rose_only_from_limit_no_clear | cex | 
+<embedded>::timer.auto_sva_inst.rty_is_single_cycle_pulse | cex | 

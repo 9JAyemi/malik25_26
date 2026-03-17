@@ -1,0 +1,29 @@
+ASSERT PROPERTIES:
+oh_par2ser.i_oh_par2ser_sva.a_start_transfer_def
+oh_par2ser.i_oh_par2ser_sva.a_busy_def
+oh_par2ser.i_oh_par2ser_sva.a_access_out_def
+oh_par2ser.i_oh_par2ser_sva.a_wait_out_def
+oh_par2ser.i_oh_par2ser_sva.a_reset_count_zero
+oh_par2ser.i_oh_par2ser_sva.a_count_load
+oh_par2ser.i_oh_par2ser_sva.a_count_dec
+oh_par2ser.i_oh_par2ser_sva.a_count_hold
+oh_par2ser.i_oh_par2ser_sva.a_sr_load
+oh_par2ser.i_oh_par2ser_sva.a_sr_shift_lsb
+oh_par2ser.i_oh_par2ser_sva.a_sr_shift_msb
+oh_par2ser.i_oh_par2ser_sva.a_sr_hold
+oh_par2ser.i_oh_par2ser_sva.a_dout_mux
+
+COVER PROPERTIES:
+oh_par2ser.i_oh_par2ser_sva.a_reset_count_zero:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_count_load:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_count_dec:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_count_hold:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_sr_load:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_sr_shift_lsb:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_sr_shift_msb:precondition1
+oh_par2ser.i_oh_par2ser_sva.a_sr_hold:precondition1
+oh_par2ser.i_oh_par2ser_sva.c_full_xfer_lsb
+oh_par2ser.i_oh_par2ser_sva.c_full_xfer_msb
+oh_par2ser.i_oh_par2ser_sva.c_blocked_then_go
+oh_par2ser.i_oh_par2ser_sva.c_zero_len
+oh_par2ser.i_oh_par2ser_sva.c_start_and_shift

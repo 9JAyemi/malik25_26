@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+mux4to1.auto_sva_inst.check_mux_function
+mux4to1.auto_sva_inst.check_sel00_routes_A
+mux4to1.auto_sva_inst.check_sel01_routes_B
+mux4to1.auto_sva_inst.check_sel10_routes_C
+mux4to1.auto_sva_inst.check_sel11_routes_D
+mux4to1.auto_sva_inst.track_A_when_sel00
+mux4to1.auto_sva_inst.track_B_when_sel01
+mux4to1.auto_sva_inst.track_C_when_sel10
+mux4to1.auto_sva_inst.track_D_when_sel11
+mux4to1.auto_sva_inst.stable_inputs_hold_Y
+
+COVER PROPERTIES:
+mux4to1.auto_sva_inst.check_sel00_routes_A:precondition1
+mux4to1.auto_sva_inst.check_sel01_routes_B:precondition1
+mux4to1.auto_sva_inst.check_sel10_routes_C:precondition1
+mux4to1.auto_sva_inst.check_sel11_routes_D:precondition1
+mux4to1.auto_sva_inst.track_A_when_sel00:precondition1
+mux4to1.auto_sva_inst.track_B_when_sel01:precondition1
+mux4to1.auto_sva_inst.track_C_when_sel10:precondition1
+mux4to1.auto_sva_inst.track_D_when_sel11:precondition1
+mux4to1.auto_sva_inst.stable_inputs_hold_Y:precondition1

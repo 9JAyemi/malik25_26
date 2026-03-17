@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+sync.auto_sva_inst.reset_prev_low_forces_zero_now
+sync.auto_sva_inst.reset_low_forces_zero_next
+sync.auto_sva_inst.reset_release_cycle_zero
+sync.auto_sva_inst.reset_held_low_keeps_zero
+sync.auto_sva_inst.active_out_is_zero_or_prev_in
+sync.auto_sva_inst.capture_after_reset_release
+
+COVER PROPERTIES:
+sync.auto_sva_inst.reset_prev_low_forces_zero_now:precondition1
+sync.auto_sva_inst.reset_low_forces_zero_next:precondition1
+sync.auto_sva_inst.reset_release_cycle_zero:precondition1
+sync.auto_sva_inst.reset_held_low_keeps_zero:precondition1
+sync.auto_sva_inst.active_out_is_zero_or_prev_in:precondition1
+sync.auto_sva_inst.capture_after_reset_release:precondition1

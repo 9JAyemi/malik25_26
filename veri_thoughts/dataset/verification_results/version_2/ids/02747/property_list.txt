@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+decoder.auto_sva_inst.check_decode_map
+decoder.auto_sva_inst.check_default_on_unknown_A
+decoder.auto_sva_inst.check_onehot_zero
+decoder.auto_sva_inst.check_selected_bit_zero
+decoder.auto_sva_inst.check_not_all_ones_when_known
+decoder.auto_sva_inst.check_y_known_when_a_known
+decoder.auto_sva_inst.check_stability_when_a_stable
+decoder.auto_sva_inst.check_masking_behavior
+
+COVER PROPERTIES:
+decoder.auto_sva_inst.check_default_on_unknown_A:precondition1
+decoder.auto_sva_inst.check_stability_when_a_stable:precondition1

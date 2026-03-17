@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+transition_detector.td_sva_i.ap_async_clear
+transition_detector.td_sva_i.ap_out_port
+transition_detector.td_sva_i.ap_no_x
+transition_detector.td_sva_i.ap_in_pipe
+transition_detector.td_sva_i.ap_ff_clears
+transition_detector.td_sva_i.ap_fe_sets
+transition_detector.td_sva_i.ap_default_shift
+transition_detector.td_sva_i.ap_out_domain
+
+COVER PROPERTIES:
+transition_detector.td_sva_i.ap_ff_clears:precondition1
+transition_detector.td_sva_i.ap_fe_sets:precondition1
+transition_detector.td_sva_i.ap_default_shift:precondition1
+transition_detector.td_sva_i.cp_seen_FE
+transition_detector.td_sva_i.cp_seen_FF
+transition_detector.td_sva_i.cp_pulse4

@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_clears_out_next
+counter.auto_sva_inst.reset_prev_cycle_forces_zero_now
+counter.auto_sva_inst.reset_held_keeps_out_zero_now
+counter.auto_sva_inst.out_width_range
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_clears_out_next:precondition1
+counter.auto_sva_inst.reset_prev_cycle_forces_zero_now:precondition1
+counter.auto_sva_inst.reset_held_keeps_out_zero_now:precondition1

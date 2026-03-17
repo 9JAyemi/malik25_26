@@ -1,0 +1,14 @@
+# Counter-example details for DESIGN_ID=02117
+# Format: property_name | cex_type | cex_length
+
+<embedded>::debounce_switch.auto_sva_inst.reset_clears_counter_state | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_RESET_DB[0].reset_clears_debounce_regs | cex | 
+<embedded>::debounce_switch.auto_sva_inst.counter_within_range | cex | 
+<embedded>::debounce_switch.auto_sva_inst.counter_increments_below_RATE | cex | 
+<embedded>::debounce_switch.auto_sva_inst.counter_wraps_at_RATE | cex | 
+<embedded>::debounce_switch.auto_sva_inst.out_mirrors_state | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_DEBOUNCE[0].debounce_shifts_on_sample | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_DEBOUNCE[0].debounce_holds_when_not_sampling | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_DEBOUNCE[0].state_sets_low_when_all_zero | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_DEBOUNCE[0].state_sets_high_when_all_one | cex | 
+<embedded>::debounce_switch.auto_sva_inst.GEN_DEBOUNCE[0].state_holds_when_reg_mixed | cex | 

@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+xor3_1.auto_sva_inst.check_xor_eq_on_A
+xor3_1.auto_sva_inst.check_xor_eq_on_B
+xor3_1.auto_sva_inst.check_xor_eq_on_C
+xor3_1.auto_sva_inst.check_B0_C0_eq_A
+xor3_1.auto_sva_inst.check_B1_C1_eq_A
+xor3_1.auto_sva_inst.check_B1_C0_eq_notA
+xor3_1.auto_sva_inst.check_B0_C1_eq_notA
+xor3_1.auto_sva_inst.check_AeqB_implies_XeqC
+xor3_1.auto_sva_inst.check_BeqC_implies_XeqA
+xor3_1.auto_sva_inst.check_AeqC_implies_XeqB
+
+COVER PROPERTIES:
+xor3_1.auto_sva_inst.check_B0_C0_eq_A:precondition1
+xor3_1.auto_sva_inst.check_B1_C1_eq_A:precondition1
+xor3_1.auto_sva_inst.check_B1_C0_eq_notA:precondition1
+xor3_1.auto_sva_inst.check_B0_C1_eq_notA:precondition1
+xor3_1.auto_sva_inst.check_AeqB_implies_XeqC:precondition1
+xor3_1.auto_sva_inst.check_BeqC_implies_XeqA:precondition1
+xor3_1.auto_sva_inst.check_AeqC_implies_XeqB:precondition1

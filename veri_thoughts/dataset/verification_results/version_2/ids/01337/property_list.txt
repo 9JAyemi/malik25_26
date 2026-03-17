@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_x_equals_or
+and_gate.auto_sva_inst.check_x_zero_when_both_zero
+and_gate.auto_sva_inst.check_x_one_when_a_one
+and_gate.auto_sva_inst.check_x_one_when_b_one
+and_gate.auto_sva_inst.check_inputs_low_when_x_low
+and_gate.auto_sva_inst.check_some_input_high_when_x_high
+and_gate.auto_sva_inst.check_idempotent
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_x_zero_when_both_zero:precondition1
+and_gate.auto_sva_inst.check_x_one_when_a_one:precondition1
+and_gate.auto_sva_inst.check_x_one_when_b_one:precondition1
+and_gate.auto_sva_inst.check_inputs_low_when_x_low:precondition1
+and_gate.auto_sva_inst.check_some_input_high_when_x_high:precondition1
+and_gate.auto_sva_inst.check_idempotent:precondition1

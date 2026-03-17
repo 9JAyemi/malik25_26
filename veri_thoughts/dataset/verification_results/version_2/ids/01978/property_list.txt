@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+bitwise_op.auto_sva_inst.check_and_function
+bitwise_op.auto_sva_inst.check_structural_equivalence
+bitwise_op.auto_sva_inst.check_subset_in1
+bitwise_op.auto_sva_inst.check_subset_in2
+bitwise_op.auto_sva_inst.check_zero_mask_in1
+bitwise_op.auto_sva_inst.check_zero_mask_in2
+bitwise_op.auto_sva_inst.check_allones_mask_in1
+bitwise_op.auto_sva_inst.check_allones_mask_in2
+bitwise_op.auto_sva_inst.check_equal_inputs
+bitwise_op.auto_sva_inst.check_complementary_inputs
+
+COVER PROPERTIES:
+bitwise_op.auto_sva_inst.check_zero_mask_in1:precondition1
+bitwise_op.auto_sva_inst.check_zero_mask_in2:precondition1
+bitwise_op.auto_sva_inst.check_allones_mask_in1:precondition1
+bitwise_op.auto_sva_inst.check_allones_mask_in2:precondition1
+bitwise_op.auto_sva_inst.check_equal_inputs:precondition1
+bitwise_op.auto_sva_inst.check_complementary_inputs:precondition1

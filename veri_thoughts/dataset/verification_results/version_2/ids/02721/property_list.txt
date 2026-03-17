@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+dffre.auto_sva_inst.check_so_equals_q
+dffre.auto_sva_inst.check_scan_loads_si
+dffre.auto_sva_inst.check_reset_clears_q
+dffre.auto_sva_inst.check_en_loads_din
+dffre.auto_sva_inst.check_hold_without_en
+dffre.auto_sva_inst.check_reset_clears_so
+
+COVER PROPERTIES:
+dffre.auto_sva_inst.check_scan_loads_si:precondition1
+dffre.auto_sva_inst.check_reset_clears_q:precondition1
+dffre.auto_sva_inst.check_en_loads_din:precondition1
+dffre.auto_sva_inst.check_hold_without_en:precondition1
+dffre.auto_sva_inst.check_reset_clears_so:precondition1

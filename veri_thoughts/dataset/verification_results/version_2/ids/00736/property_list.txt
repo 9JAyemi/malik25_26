@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+or3.auto_sva_inst.check_or1_function
+or3.auto_sva_inst.check_or2_function
+or3.auto_sva_inst.check_or3_function
+or3.auto_sva_inst.check_output_inversion
+or3.auto_sva_inst.check_or2_equals_or1
+or3.auto_sva_inst.check_or3_equals_or1
+or3.auto_sva_inst.check_output_nor_of_inputs
+or3.auto_sva_inst.check_all_zero_inputs_output_high
+or3.auto_sva_inst.check_any_input_high_output_low
+or3.auto_sva_inst.check_output_high_implies_all_inputs_zero
+
+COVER PROPERTIES:
+or3.auto_sva_inst.check_all_zero_inputs_output_high:precondition1
+or3.auto_sva_inst.check_any_input_high_output_low:precondition1
+or3.auto_sva_inst.check_output_high_implies_all_inputs_zero:precondition1

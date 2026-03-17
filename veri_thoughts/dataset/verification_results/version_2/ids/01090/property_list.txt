@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+conditional_output.auto_sva_inst.check_mux_equation
+conditional_output.auto_sva_inst.check_select_true_path
+conditional_output.auto_sva_inst.check_select_false_path
+conditional_output.auto_sva_inst.check_equal_data_inputs
+
+COVER PROPERTIES:
+conditional_output.auto_sva_inst.check_select_true_path:precondition1
+conditional_output.auto_sva_inst.check_select_false_path:precondition1
+conditional_output.auto_sva_inst.check_equal_data_inputs:precondition1

@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_is_cx_cond_0000, assert, property, posedge, global_clock, check_is_cx_cond_0001, check_is_cx_cond_0010, check_is_cx_cond_default, check_no_cx_cond_0000, check_no_cx_cond_0001, check_no_cx_cond_0010, check_no_cx_cond_0011, check_no_cx_cond_0100, check_no_cx_cond_0101, check_no_cx_cond_0110, check_no_cx_cond_0111, check_no_cx_cond_1000, check_no_cx_cond_1001, check_no_cx_cond_1010, check_no_cx_cond_1011, check_no_cx_cond_1100, check_no_cx_cond_1101, check_no_cx_cond_1110, check_no_cx_cond_1111
+bind jmp_cond jmp_cond_sva auto_sva_inst (
+    .logic_flags(logic_flags),
+    .cond(cond),
+    .is_cx(is_cx),
+    .cx(cx),
+    .jmp(jmp),
+    .of(of),
+    .sf(sf),
+    .zf(zf),
+    .pf(pf),
+    .cf(cf),
+    .cx_zero(cx_zero),
+    .b0000(b0000),
+    .b0001(b0001),
+    .b0010(b0010),
+    .b0011(b0011),
+    .b0100(b0100),
+    .b0101(b0101),
+    .b0110(b0110),
+    .b0111(b0111),
+    .b1000(b1000),
+    .b1001(b1001),
+    .b1010(b1010),
+    .b1011(b1011),
+    .b1100(b1100),
+    .b1101(b1101),
+    .b1110(b1110),
+    .b1111(b1111)
+);

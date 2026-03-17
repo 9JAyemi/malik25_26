@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+shift_and_add_multiplier.sva_i.ap_no_x
+shift_and_add_multiplier.sva_i.ap_rst_clears_next
+shift_and_add_multiplier.sva_i.ap_rst_holds_zero
+shift_and_add_multiplier.sva_i.ap_mul_correct
+shift_and_add_multiplier.sva_i.ap_partial_sum
+
+COVER PROPERTIES:
+shift_and_add_multiplier.sva_i.ap_no_x:precondition1
+shift_and_add_multiplier.sva_i.ap_rst_clears_next:precondition1
+shift_and_add_multiplier.sva_i.ap_rst_holds_zero:precondition1
+shift_and_add_multiplier.sva_i.ap_mul_correct:precondition1
+shift_and_add_multiplier.sva_i.ap_partial_sum:precondition1
+shift_and_add_multiplier.sva_i.cp_reset
+shift_and_add_multiplier.sva_i.cp_zero_in
+shift_and_add_multiplier.sva_i.cp_max_max
+shift_and_add_multiplier.sva_i.gen_cov_bit[0].cp_single_bit
+shift_and_add_multiplier.sva_i.gen_cov_bit[1].cp_single_bit
+shift_and_add_multiplier.sva_i.gen_cov_bit[2].cp_single_bit
+shift_and_add_multiplier.sva_i.gen_cov_bit[3].cp_single_bit

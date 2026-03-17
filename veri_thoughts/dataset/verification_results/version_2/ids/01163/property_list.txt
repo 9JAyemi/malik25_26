@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_reset_clears_y_next
+mux_2to1.auto_sva_inst.check_select_d1_path
+mux_2to1.auto_sva_inst.check_select_d0_path
+mux_2to1.auto_sva_inst.check_y_matches_prev_selection
+mux_2to1.auto_sva_inst.check_equal_inputs_case
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_reset_clears_y_next:precondition1
+mux_2to1.auto_sva_inst.check_select_d1_path:precondition1
+mux_2to1.auto_sva_inst.check_select_d0_path:precondition1
+mux_2to1.auto_sva_inst.check_y_matches_prev_selection:precondition1
+mux_2to1.auto_sva_inst.check_equal_inputs_case:precondition1

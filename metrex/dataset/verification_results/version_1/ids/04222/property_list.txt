@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+fifo_buffer.i_fifo_buffer_sva.a_full_def
+fifo_buffer.i_fifo_buffer_sva.a_as_map
+fifo_buffer.i_fifo_buffer_sva.a_out_map
+fifo_buffer.i_fifo_buffer_sva.a_buf_follows_nb
+fifo_buffer.i_fifo_buffer_sva.a_nextbuf_update_writes
+fifo_buffer.i_fifo_buffer_sva.a_nextbuf_hold_when_full
+fifo_buffer.i_fifo_buffer_sva.a_no_x_outputs
+
+COVER PROPERTIES:
+fifo_buffer.i_fifo_buffer_sva.a_buf_follows_nb:precondition1
+fifo_buffer.i_fifo_buffer_sva.a_nextbuf_update_writes:precondition1
+fifo_buffer.i_fifo_buffer_sva.a_nextbuf_hold_when_full:precondition1
+fifo_buffer.i_fifo_buffer_sva.a_no_x_outputs:precondition1
+fifo_buffer.i_fifo_buffer_sva.c_full_trans
+fifo_buffer.i_fifo_buffer_sva.c_write_update
+fifo_buffer.i_fifo_buffer_sva.c_out_changes
+fifo_buffer.i_fifo_buffer_sva.c_hold_when_full

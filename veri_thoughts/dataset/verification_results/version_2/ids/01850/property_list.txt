@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+counter_4bit.auto_sva_inst.reset_sets_zero
+counter_4bit.auto_sva_inst.reset_overrides_load
+counter_4bit.auto_sva_inst.load_updates_count
+counter_4bit.auto_sva_inst.increment_no_wrap
+counter_4bit.auto_sva_inst.increment_wrap
+counter_4bit.auto_sva_inst.prev_reset_forces_zero
+counter_4bit.auto_sva_inst.increment_changes_value
+
+COVER PROPERTIES:
+counter_4bit.auto_sva_inst.reset_sets_zero:precondition1
+counter_4bit.auto_sva_inst.reset_overrides_load:precondition1
+counter_4bit.auto_sva_inst.load_updates_count:precondition1
+counter_4bit.auto_sva_inst.increment_no_wrap:precondition1
+counter_4bit.auto_sva_inst.increment_wrap:precondition1
+counter_4bit.auto_sva_inst.prev_reset_forces_zero:precondition1
+counter_4bit.auto_sva_inst.increment_changes_value:precondition1

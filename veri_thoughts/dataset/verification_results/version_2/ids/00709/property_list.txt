@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+XOR.auto_sva_inst.check_functional_equation
+XOR.auto_sva_inst.check_xor_equivalence
+XOR.auto_sva_inst.check_known_inputs_imply_known_output
+XOR.auto_sva_inst.check_equal_inputs_zero
+XOR.auto_sva_inst.check_complement_inputs_ones
+XOR.auto_sva_inst.check_identity_A_zero
+XOR.auto_sva_inst.check_identity_B_zero
+XOR.auto_sva_inst.check_invert_when_A_ones
+XOR.auto_sva_inst.check_invert_when_B_ones
+XOR.auto_sva_inst.check_parity_consistency
+
+COVER PROPERTIES:
+XOR.auto_sva_inst.check_equal_inputs_zero:precondition1
+XOR.auto_sva_inst.check_complement_inputs_ones:precondition1
+XOR.auto_sva_inst.check_identity_A_zero:precondition1
+XOR.auto_sva_inst.check_identity_B_zero:precondition1
+XOR.auto_sva_inst.check_invert_when_A_ones:precondition1
+XOR.auto_sva_inst.check_invert_when_B_ones:precondition1

@@ -1,0 +1,25 @@
+# Counter-example details for DESIGN_ID=01819
+# Format: property_name | cex_type | cex_length
+
+<embedded>::data_buffer.auto_sva_inst.por_req_clears_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.por_req_only_falls_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.por_req_rise_only_on_reset | cex | 
+<embedded>::data_buffer.auto_sva_inst.control_tag_set_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.control_tag_clear_on_dequeue_only | cex | 
+<embedded>::data_buffer.auto_sva_inst.control_tag_priority_over_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.control_tag_fall_requires_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.control_tag_stable_when_idle | cex | 
+<embedded>::data_buffer.auto_sva_inst.capture_data_on_valid | cex | 
+<embedded>::data_buffer.auto_sva_inst.valid_sets_on_valid_no_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.valid_cleared_on_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.valid_rise_requires_valid_not_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.valid_fall_requires_dequeue | cex | 
+<embedded>::data_buffer.auto_sva_inst.valid_stable_when_idle | cex | 
+<embedded>::data_buffer.auto_sva_inst.data_ecc_tag_stable_without_valid | cex | 
+<embedded>::data_buffer.auto_sva_inst.dequeue_flag_set_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.dequeue_flag_only_rises_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.dequeue_flag_never_falls_without_reset | cex | 
+<embedded>::data_buffer.auto_sva_inst.error_set_on_input | cex | 
+<embedded>::data_buffer.auto_sva_inst.error_only_rises_on_error | cex | 
+<embedded>::data_buffer.auto_sva_inst.error_never_falls_without_reset | cex | 
+<embedded>::data_buffer.auto_sva_inst.outputs_stable_when_fully_idle | cex | 

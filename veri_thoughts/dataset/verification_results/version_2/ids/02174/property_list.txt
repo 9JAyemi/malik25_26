@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+zet_bitlog.auto_sva_inst.check_o_is_not_x
+zet_bitlog.auto_sva_inst.check_cfo_const_zero
+zet_bitlog.auto_sva_inst.check_ofo_const_zero
+zet_bitlog.auto_sva_inst.check_stable_x_implies_stable_o
+zet_bitlog.auto_sva_inst.check_x_change_implies_o_change
+zet_bitlog.auto_sva_inst.check_zero_x_allones_o
+zet_bitlog.auto_sva_inst.check_allones_x_zero_o
+
+COVER PROPERTIES:
+zet_bitlog.auto_sva_inst.check_stable_x_implies_stable_o:precondition1
+zet_bitlog.auto_sva_inst.check_x_change_implies_o_change:precondition1
+zet_bitlog.auto_sva_inst.check_zero_x_allones_o:precondition1
+zet_bitlog.auto_sva_inst.check_allones_x_zero_o:precondition1

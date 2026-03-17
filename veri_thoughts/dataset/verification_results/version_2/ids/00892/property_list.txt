@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+myDFF.auto_sva_inst.check_sync_reset_drives_q0
+myDFF.auto_sva_inst.check_sync_set_drives_q1
+myDFF.auto_sva_inst.check_data_capture_when_no_ctrl
+myDFF.auto_sva_inst.check_reset_priority_over_set
+myDFF.auto_sva_inst.check_qn_complements_q
+myDFF.auto_sva_inst.check_qn_reflects_d_on_data_capture
+myDFF.auto_sva_inst.check_qn_zero_on_set
+myDFF.auto_sva_inst.check_qn_one_on_reset
+
+COVER PROPERTIES:
+myDFF.auto_sva_inst.check_sync_reset_drives_q0:precondition1
+myDFF.auto_sva_inst.check_sync_set_drives_q1:precondition1
+myDFF.auto_sva_inst.check_data_capture_when_no_ctrl:precondition1
+myDFF.auto_sva_inst.check_reset_priority_over_set:precondition1
+myDFF.auto_sva_inst.check_qn_reflects_d_on_data_capture:precondition1
+myDFF.auto_sva_inst.check_qn_zero_on_set:precondition1
+myDFF.auto_sva_inst.check_qn_one_on_reset:precondition1

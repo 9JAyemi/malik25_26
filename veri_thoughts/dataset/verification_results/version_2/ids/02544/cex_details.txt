@@ -1,0 +1,21 @@
+# Counter-example details for DESIGN_ID=02544
+# Format: property_name | cex_type | cex_length
+
+<embedded>::UART_Rx.auto_sva_inst.reset_seq_clear | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_tRx_is_delayed_Rx | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_tAck_is_delayed_Ack | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_ready_clears_on_tAck | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_ready_holds_without_tAck | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_ready_fall_caused_by_tAck | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_startbit_entry_from_idle_only | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_idle_to_startbit_half_count | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_startbit_abort_on_high_Rx | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_startbit_to_receiving_on_low_Rx | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_receiving_reload_count | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_receiving_shift | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_receiving_done_on_last_bit | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_done_to_idle_on_high_tRx | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_data_latch_in_idle_when_newdata_no_ack | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_ready_rise_latches_data_and_clears_newdata | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_count_decrements_when_nonzero | cex | 
+<embedded>::UART_Rx.auto_sva_inst.check_temp_changes_only_on_sample | cex | 

@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+dpth_addr.auto_sva_inst.reset_regs_zero
+dpth_addr.auto_sva_inst.reset_m_at_zero
+dpth_addr.auto_sva_inst.def_low_sum
+dpth_addr.auto_sva_inst.def_pc_plus_one
+dpth_addr.auto_sva_inst.def_m_at_mux
+dpth_addr.auto_sva_inst.rat_updates_on_ld
+dpth_addr.auto_sva_inst.pc_updates_on_ld
+dpth_addr.auto_sva_inst.rat_holds_when_no_ld
+dpth_addr.auto_sva_inst.pc_holds_when_no_ld
+dpth_addr.auto_sva_inst.m_at_next_is_inc_when_ld_and_pc_sel
+dpth_addr.auto_sva_inst.m_at_next_is_sum_when_ld_and_rat_sel
+
+COVER PROPERTIES:
+dpth_addr.auto_sva_inst.reset_regs_zero:precondition1
+dpth_addr.auto_sva_inst.reset_m_at_zero:precondition1
+dpth_addr.auto_sva_inst.rat_updates_on_ld:precondition1
+dpth_addr.auto_sva_inst.pc_updates_on_ld:precondition1
+dpth_addr.auto_sva_inst.rat_holds_when_no_ld:precondition1
+dpth_addr.auto_sva_inst.pc_holds_when_no_ld:precondition1
+dpth_addr.auto_sva_inst.m_at_next_is_inc_when_ld_and_pc_sel:precondition1
+dpth_addr.auto_sva_inst.m_at_next_is_sum_when_ld_and_rat_sel:precondition1

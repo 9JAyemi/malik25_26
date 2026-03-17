@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+adder32.auto_sva_inst.check_fullsum_matches_addition
+adder32.auto_sva_inst.check_s0_is_xor
+adder32.auto_sva_inst.check_s15_matches_expected
+adder32.auto_sva_inst.check_add_zero_B
+adder32.auto_sva_inst.check_add_zero_A
+adder32.auto_sva_inst.check_add_complement
+adder32.auto_sva_inst.check_add_one_B
+adder32.auto_sva_inst.check_add_one_A
+adder32.auto_sva_inst.check_cout_implies_sum_less_operand
+adder32.auto_sva_inst.check_no_cout_implies_sum_ge_operands
+
+COVER PROPERTIES:
+adder32.auto_sva_inst.check_add_zero_B:precondition1
+adder32.auto_sva_inst.check_add_zero_A:precondition1
+adder32.auto_sva_inst.check_add_complement:precondition1
+adder32.auto_sva_inst.check_add_one_B:precondition1
+adder32.auto_sva_inst.check_add_one_A:precondition1
+adder32.auto_sva_inst.check_cout_implies_sum_less_operand:precondition1
+adder32.auto_sva_inst.check_no_cout_implies_sum_ge_operands:precondition1

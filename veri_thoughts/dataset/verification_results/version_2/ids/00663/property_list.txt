@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+logic_gate.auto_sva_inst.check_y_sop_on_A
+logic_gate.auto_sva_inst.check_y_sop_on_B
+logic_gate.auto_sva_inst.check_y_sop_on_C
+logic_gate.auto_sva_inst.check_y_factored_on_A
+logic_gate.auto_sva_inst.check_and0_definition
+logic_gate.auto_sva_inst.check_not0_definition
+logic_gate.auto_sva_inst.check_not1_definition
+logic_gate.auto_sva_inst.check_and1_definition
+logic_gate.auto_sva_inst.check_or0_definition
+logic_gate.auto_sva_inst.check_buf0_definition
+logic_gate.auto_sva_inst.check_b_zero_forces_y_zero
+logic_gate.auto_sva_inst.check_y_implies_b
+logic_gate.auto_sva_inst.check_b_and_aorc_implies_y
+logic_gate.auto_sva_inst.check_a0_c0_forces_y0
+
+COVER PROPERTIES:
+logic_gate.auto_sva_inst.check_b_zero_forces_y_zero:precondition1
+logic_gate.auto_sva_inst.check_y_implies_b:precondition1
+logic_gate.auto_sva_inst.check_b_and_aorc_implies_y:precondition1
+logic_gate.auto_sva_inst.check_a0_c0_forces_y0:precondition1

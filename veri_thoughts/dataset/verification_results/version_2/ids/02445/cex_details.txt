@@ -1,0 +1,8 @@
+# Counter-example details for DESIGN_ID=02445
+# Format: property_name | cex_type | cex_length
+
+<embedded>::and_gate.auto_sva_inst.check_out_rise_only_if_prev_and_one | cex | 
+<embedded>::and_gate.auto_sva_inst.check_out_fall_only_if_prev_and_zero | cex | 
+<embedded>::and_gate.auto_sva_inst.check_out_change_implies_prev_and_change | cex | 
+<embedded>::and_gate.auto_sva_inst.check_prev_and_change_implies_out_change | cex | 
+<embedded>::and_gate.auto_sva_inst.check_stability_propagation | cex | 

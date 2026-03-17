@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+binary_counter.u_binary_counter_sva.ap_no_x
+binary_counter.u_binary_counter_sva.ap_rst_to_zero
+binary_counter.u_binary_counter_sva.ap_next_state
+
+COVER PROPERTIES:
+binary_counter.u_binary_counter_sva.ap_rst_to_zero:precondition1
+binary_counter.u_binary_counter_sva.ap_next_state:precondition1
+binary_counter.u_binary_counter_sva.cv_reset_seen
+binary_counter.u_binary_counter_sva.cv_wrap
+binary_counter.u_binary_counter_sva.cv_full_cycle

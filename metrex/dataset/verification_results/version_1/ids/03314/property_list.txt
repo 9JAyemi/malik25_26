@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter.counter_sva_i.a_count_known
+counter.counter_sva_i.a_rst_zero
+counter.counter_sva_i.a_next_fn
+
+COVER PROPERTIES:
+counter.counter_sva_i.a_rst_zero:precondition1
+counter.counter_sva_i.c_seen_reset
+counter.counter_sva_i.c_first_increment
+counter.counter_sva_i.c_wrap
+counter.counter_sva_i.c_full_cycle

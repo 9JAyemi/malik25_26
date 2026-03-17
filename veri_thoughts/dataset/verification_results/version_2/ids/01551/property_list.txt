@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+d_ff.auto_sva_inst.check_reset_forces_zero
+d_ff.auto_sva_inst.check_next_state_when_reset_high
+d_ff.auto_sva_inst.check_post_reset_hold_zero_if_disabled
+d_ff.auto_sva_inst.check_post_reset_update_if_enabled
+
+COVER PROPERTIES:
+d_ff.auto_sva_inst.check_reset_forces_zero:precondition1
+d_ff.auto_sva_inst.check_next_state_when_reset_high:precondition1
+d_ff.auto_sva_inst.check_post_reset_hold_zero_if_disabled:precondition1
+d_ff.auto_sva_inst.check_post_reset_update_if_enabled:precondition1

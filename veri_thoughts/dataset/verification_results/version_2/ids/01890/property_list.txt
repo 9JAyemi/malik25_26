@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+xor4.auto_sva_inst.check_ab_xor
+xor4.auto_sva_inst.check_cd_xor
+xor4.auto_sva_inst.check_abcd_xor
+xor4.auto_sva_inst.check_output_assign
+xor4.auto_sva_inst.check_x_equals_xor4
+xor4.auto_sva_inst.check_parity_change_equivalence
+xor4.auto_sva_inst.check_stable_inputs_hold_output
+xor4.auto_sva_inst.check_one_input_toggle_changes_output
+xor4.auto_sva_inst.check_two_input_toggle_keeps_output
+xor4.auto_sva_inst.check_four_input_toggle_keeps_output
+
+COVER PROPERTIES:
+xor4.auto_sva_inst.check_parity_change_equivalence:precondition1
+xor4.auto_sva_inst.check_stable_inputs_hold_output:precondition1
+xor4.auto_sva_inst.check_one_input_toggle_changes_output:precondition1
+xor4.auto_sva_inst.check_two_input_toggle_keeps_output:precondition1
+xor4.auto_sva_inst.check_four_input_toggle_keeps_output:precondition1

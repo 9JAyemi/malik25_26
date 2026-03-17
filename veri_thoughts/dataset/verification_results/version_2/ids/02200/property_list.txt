@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+Control.auto_sva_inst.decode_rtype
+Control.auto_sva_inst.decode_lw
+Control.auto_sva_inst.decode_sw
+Control.auto_sva_inst.decode_beq
+Control.auto_sva_inst.decode_addi
+Control.auto_sva_inst.decode_jump
+Control.auto_sva_inst.decode_default_other
+Control.auto_sva_inst.check_mem_rw_mutex
+Control.auto_sva_inst.check_mem_to_reg_eq_mem_read
+Control.auto_sva_inst.check_alu_op_range
+
+COVER PROPERTIES:
+Control.auto_sva_inst.decode_rtype:precondition1
+Control.auto_sva_inst.decode_lw:precondition1
+Control.auto_sva_inst.decode_sw:precondition1
+Control.auto_sva_inst.decode_beq:precondition1
+Control.auto_sva_inst.decode_addi:precondition1
+Control.auto_sva_inst.decode_jump:precondition1
+Control.auto_sva_inst.decode_default_other:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+mux4to1.auto_sva_inst.check_sel00_out_data0
+mux4to1.auto_sva_inst.check_sel01_out_data1
+mux4to1.auto_sva_inst.check_sel10_out_data2
+mux4to1.auto_sva_inst.check_sel11_out_data3
+mux4to1.auto_sva_inst.check_lower_branch_mux
+mux4to1.auto_sva_inst.check_upper_branch_mux
+mux4to1.auto_sva_inst.check_full_mux_equation
+
+COVER PROPERTIES:
+mux4to1.auto_sva_inst.check_sel00_out_data0:precondition1
+mux4to1.auto_sva_inst.check_sel01_out_data1:precondition1
+mux4to1.auto_sva_inst.check_sel10_out_data2:precondition1
+mux4to1.auto_sva_inst.check_sel11_out_data3:precondition1
+mux4to1.auto_sva_inst.check_lower_branch_mux:precondition1
+mux4to1.auto_sva_inst.check_upper_branch_mux:precondition1

@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+mux.auto_sva_inst.check_mux_equivalence
+mux.auto_sva_inst.check_sel0_path
+mux.auto_sva_inst.check_sel1_path
+mux.auto_sva_inst.check_sel_rise_selects_in1
+mux.auto_sva_inst.check_sel_fall_selects_in0
+mux.auto_sva_inst.check_inputs_equal_forces_out
+mux.auto_sva_inst.check_no_spurious_change
+mux.auto_sva_inst.check_out_change_has_cause
+
+COVER PROPERTIES:
+mux.auto_sva_inst.check_sel0_path:precondition1
+mux.auto_sva_inst.check_sel1_path:precondition1
+mux.auto_sva_inst.check_sel_rise_selects_in1:precondition1
+mux.auto_sva_inst.check_sel_fall_selects_in0:precondition1
+mux.auto_sva_inst.check_inputs_equal_forces_out:precondition1
+mux.auto_sva_inst.check_no_spurious_change:precondition1
+mux.auto_sva_inst.check_out_change_has_cause:precondition1

@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+binary_counter.auto_sva_inst.reset_forces_zero_now
+binary_counter.auto_sva_inst.reset_rise_clears_out
+binary_counter.auto_sva_inst.next_on_load
+binary_counter.auto_sva_inst.next_on_en_no_load
+binary_counter.auto_sva_inst.hold_when_idle
+binary_counter.auto_sva_inst.load_has_priority_over_en
+binary_counter.auto_sva_inst.wrap_from_max
+
+COVER PROPERTIES:
+binary_counter.auto_sva_inst.reset_forces_zero_now:precondition1
+binary_counter.auto_sva_inst.reset_rise_clears_out:precondition1
+binary_counter.auto_sva_inst.next_on_load:precondition1
+binary_counter.auto_sva_inst.next_on_en_no_load:precondition1
+binary_counter.auto_sva_inst.hold_when_idle:precondition1
+binary_counter.auto_sva_inst.load_has_priority_over_en:precondition1
+binary_counter.auto_sva_inst.wrap_from_max:precondition1

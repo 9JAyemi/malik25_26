@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.reset_clears_q
+shift_register.auto_sva_inst.shift_vector_update
+shift_register.auto_sva_inst.shift_bit0_captures_data
+shift_register.auto_sva_inst.shift_bit1_from_q0
+shift_register.auto_sva_inst.shift_bit2_from_q1
+shift_register.auto_sva_inst.first_cycle_after_reset
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.reset_clears_q:precondition1
+shift_register.auto_sva_inst.first_cycle_after_reset:precondition1

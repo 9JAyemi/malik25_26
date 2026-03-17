@@ -1,0 +1,11 @@
+# Counter-example details for DESIGN_ID=01058
+# Format: property_name | cex_type | cex_length
+
+<embedded>::strobe_gen.auto_sva_inst.check_strobe_definition | cex | 
+<embedded>::strobe_gen.auto_sva_inst.strobe_implies_counter_zero | cex | 
+<embedded>::strobe_gen.auto_sva_inst.zero_counter_inputs_high_implies_strobe | cex | 
+<embedded>::strobe_gen.auto_sva_inst.counter_clears_when_disabled | cex | 
+<embedded>::strobe_gen.auto_sva_inst.counter_holds_when_strobe_in_low | cex | 
+<embedded>::strobe_gen.auto_sva_inst.counter_decrements_when_nonzero | cex | 
+<embedded>::strobe_gen.auto_sva_inst.counter_loads_rate_when_zero | cex | 
+<embedded>::strobe_gen.auto_sva_inst.strobe_implies_load_rate_next | cex | 

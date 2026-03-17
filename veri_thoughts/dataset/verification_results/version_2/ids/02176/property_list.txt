@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+simple_logic.auto_sva_inst.check_inversion
+simple_logic.auto_sva_inst.check_stability_propagation
+simple_logic.auto_sva_inst.check_change_dependency
+simple_logic.auto_sva_inst.check_edge_rise
+simple_logic.auto_sva_inst.check_edge_fall
+
+COVER PROPERTIES:
+simple_logic.auto_sva_inst.check_stability_propagation:precondition1
+simple_logic.auto_sva_inst.check_change_dependency:precondition1
+simple_logic.auto_sva_inst.check_edge_rise:precondition1
+simple_logic.auto_sva_inst.check_edge_fall:precondition1

@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_gate1_is_nand
+and_gate.auto_sva_inst.check_gate2_is_nand
+and_gate.auto_sva_inst.check_gate3_is_nand
+and_gate.auto_sva_inst.check_gate4_is_inv
+and_gate.auto_sva_inst.check_function_equivalence
+and_gate.auto_sva_inst.check_d_low_forces_out_low
+and_gate.auto_sva_inst.check_c_low_passes_d
+and_gate.auto_sva_inst.check_ab_high_passes_d
+and_gate.auto_sva_inst.check_c_high_and_ab_low_out_low
+and_gate.auto_sva_inst.check_cd_high_out_equals_ab
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_d_low_forces_out_low:precondition1
+and_gate.auto_sva_inst.check_c_low_passes_d:precondition1
+and_gate.auto_sva_inst.check_ab_high_passes_d:precondition1
+and_gate.auto_sva_inst.check_c_high_and_ab_low_out_low:precondition1
+and_gate.auto_sva_inst.check_cd_high_out_equals_ab:precondition1

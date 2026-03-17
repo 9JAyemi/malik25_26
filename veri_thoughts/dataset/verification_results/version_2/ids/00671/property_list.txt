@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_xor_equation
+xor_gate.auto_sva_inst.check_xor_operator_equiv
+xor_gate.auto_sva_inst.check_tt_00
+xor_gate.auto_sva_inst.check_tt_10
+xor_gate.auto_sva_inst.check_tt_01
+xor_gate.auto_sva_inst.check_tt_11
+xor_gate.auto_sva_inst.check_equal_inputs_zero
+xor_gate.auto_sva_inst.check_diff_inputs_one
+xor_gate.auto_sva_inst.check_commutative_form
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_tt_00:precondition1
+xor_gate.auto_sva_inst.check_tt_10:precondition1
+xor_gate.auto_sva_inst.check_tt_01:precondition1
+xor_gate.auto_sva_inst.check_tt_11:precondition1
+xor_gate.auto_sva_inst.check_equal_inputs_zero:precondition1
+xor_gate.auto_sva_inst.check_diff_inputs_one:precondition1

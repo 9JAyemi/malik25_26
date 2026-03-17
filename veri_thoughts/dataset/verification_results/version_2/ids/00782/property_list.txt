@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_y_equals_and
+and_gate.auto_sva_inst.check_zero_when_a_zero
+and_gate.auto_sva_inst.check_zero_when_b_zero
+and_gate.auto_sva_inst.check_one_when_both_one
+and_gate.auto_sva_inst.check_y_one_implies_inputs_one
+and_gate.auto_sva_inst.check_y_change_requires_input_change
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_zero_when_a_zero:precondition1
+and_gate.auto_sva_inst.check_zero_when_b_zero:precondition1
+and_gate.auto_sva_inst.check_one_when_both_one:precondition1
+and_gate.auto_sva_inst.check_y_one_implies_inputs_one:precondition1
+and_gate.auto_sva_inst.check_y_change_requires_input_change:precondition1

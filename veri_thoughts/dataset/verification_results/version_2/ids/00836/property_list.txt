@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+Cfu.auto_sva_inst.check_rsp_valid_mirror
+Cfu.auto_sva_inst.check_cmd_ready_mirror
+Cfu.auto_sva_inst.mux_select0_routes_in0
+Cfu.auto_sva_inst.mux_select1_routes_in1
+Cfu.auto_sva_inst.mux_function_equivalence
+Cfu.auto_sva_inst.out_stable_when_inputs_stable
+Cfu.auto_sva_inst.upper_id_bits_no_effect
+Cfu.auto_sva_inst.edge_rise_valid_mirror
+Cfu.auto_sva_inst.edge_fall_valid_mirror
+Cfu.auto_sva_inst.edge_rise_ready_mirror
+Cfu.auto_sva_inst.edge_fall_ready_mirror
+
+COVER PROPERTIES:
+Cfu.auto_sva_inst.mux_select0_routes_in0:precondition1
+Cfu.auto_sva_inst.mux_select1_routes_in1:precondition1
+Cfu.auto_sva_inst.out_stable_when_inputs_stable:precondition1
+Cfu.auto_sva_inst.upper_id_bits_no_effect:precondition1
+Cfu.auto_sva_inst.edge_rise_valid_mirror:precondition1
+Cfu.auto_sva_inst.edge_fall_valid_mirror:precondition1
+Cfu.auto_sva_inst.edge_rise_ready_mirror:precondition1
+Cfu.auto_sva_inst.edge_fall_ready_mirror:precondition1

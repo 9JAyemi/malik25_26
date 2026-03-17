@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+PWM.auto_sva_inst.check_pwm_out_mirrors_reg
+PWM.auto_sva_inst.check_pwm_next_reflects_compare
+PWM.auto_sva_inst.check_pwm_high_on_lt
+PWM.auto_sva_inst.check_pwm_low_on_ge
+PWM.auto_sva_inst.check_duty_next_function
+PWM.auto_sva_inst.check_duty_wrap_when_equal
+PWM.auto_sva_inst.check_duty_inc_when_not_equal
+PWM.auto_sva_inst.check_zero_duty_forces_low
+PWM.auto_sva_inst.check_pwm_change_matches_reg
+PWM.auto_sva_inst.check_wrap_coupled_outputs
+
+COVER PROPERTIES:
+PWM.auto_sva_inst.check_pwm_next_reflects_compare:precondition1
+PWM.auto_sva_inst.check_pwm_high_on_lt:precondition1
+PWM.auto_sva_inst.check_pwm_low_on_ge:precondition1
+PWM.auto_sva_inst.check_duty_next_function:precondition1
+PWM.auto_sva_inst.check_duty_wrap_when_equal:precondition1
+PWM.auto_sva_inst.check_duty_inc_when_not_equal:precondition1
+PWM.auto_sva_inst.check_zero_duty_forces_low:precondition1
+PWM.auto_sva_inst.check_pwm_change_matches_reg:precondition1
+PWM.auto_sva_inst.check_wrap_coupled_outputs:precondition1

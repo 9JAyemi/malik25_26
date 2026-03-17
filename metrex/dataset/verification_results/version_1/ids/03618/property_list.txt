@@ -1,0 +1,26 @@
+ASSERT PROPERTIES:
+POR.por_sva_i.ap_param_fit
+POR.por_sva_i.ap_pwr_prev
+POR.por_sva_i.ap_rst_on_pwr_rise
+POR.por_sva_i.ap_hold_min
+POR.por_sva_i.ap_drop_exact
+POR.por_sva_i.ap_stay_low_until_next_rise
+POR.por_sva_i.ap_rst_rise_only_on_pwr_rise
+POR.por_sva_i.ap_cnt_zero_on_start
+POR.por_sva_i.ap_cnt_inc_while_asserting
+POR.por_sva_i.ap_cnt_stable_when_rst0
+POR.por_sva_i.ap_deassert_implies_cnt_reached
+
+COVER PROPERTIES:
+POR.por_sva_i.ap_rst_on_pwr_rise:precondition1
+POR.por_sva_i.ap_hold_min:precondition1
+POR.por_sva_i.ap_drop_exact:precondition1
+POR.por_sva_i.ap_stay_low_until_next_rise:precondition1
+POR.por_sva_i.ap_rst_rise_only_on_pwr_rise:precondition1
+POR.por_sva_i.ap_cnt_zero_on_start:precondition1
+POR.por_sva_i.ap_cnt_inc_while_asserting:precondition1
+POR.por_sva_i.ap_cnt_stable_when_rst0:precondition1
+POR.por_sva_i.ap_deassert_implies_cnt_reached:precondition1
+POR.por_sva_i.cv_pwr_rise
+POR.por_sva_i.cv_spec_duration
+POR.por_sva_i.cv_impl_off_by_one_duration

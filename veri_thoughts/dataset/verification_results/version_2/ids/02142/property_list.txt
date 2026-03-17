@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+bw_clk_cclk_inv_64x.auto_sva_inst.check_inversion_pos
+bw_clk_cclk_inv_64x.auto_sva_inst.check_inversion_neg
+bw_clk_cclk_inv_64x.auto_sva_inst.rise_in_fall_out
+bw_clk_cclk_inv_64x.auto_sva_inst.fall_in_rise_out
+bw_clk_cclk_inv_64x.auto_sva_inst.not_equal_posedge
+bw_clk_cclk_inv_64x.auto_sva_inst.not_equal_negedge
+
+COVER PROPERTIES:
+bw_clk_cclk_inv_64x.auto_sva_inst.rise_in_fall_out:precondition1
+bw_clk_cclk_inv_64x.auto_sva_inst.fall_in_rise_out:precondition1

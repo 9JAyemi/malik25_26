@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+ad_rst.sva_ad_rst.a_known_sync_flops
+ad_rst.sva_ad_rst.a_shift_exact
+ad_rst.sva_ad_rst.a_latency3
+ad_rst.sva_ad_rst.a_rise_delay_exact
+ad_rst.sva_ad_rst.a_fall_delay_exact
+ad_rst.sva_ad_rst.a_rise_no_spurious
+ad_rst.sva_ad_rst.a_fall_no_spurious
+
+COVER PROPERTIES:
+ad_rst.sva_ad_rst.a_rise_delay_exact:precondition1
+ad_rst.sva_ad_rst.a_fall_delay_exact:precondition1
+ad_rst.sva_ad_rst.a_rise_no_spurious:precondition1
+ad_rst.sva_ad_rst.a_fall_no_spurious:precondition1
+ad_rst.sva_ad_rst.c_rise
+ad_rst.sva_ad_rst.c_fall
+ad_rst.sva_ad_rst.c_1clk_pulse
