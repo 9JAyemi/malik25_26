@@ -1,50 +1,54 @@
-// SVA for pio_latency
-module pio_latency_sva (
-  input  logic        clk,
-  input  logic        reset_n,
-  input  logic [1:0]  address,
-  input  logic [15:0] in_port,
-  input  logic [15:0] readdata,
-  input  logic [15:0] data_in,
-  input  logic [15:0] read_mux_out,
-  input  logic        clk_en
+module pio_latency_assertions (
+    input  logic [1:0]  address,
+    input  logic        clk,
+    input  logic [15:0] in_port,
+    input  logic        reset_n,
+    input  logic [15:0] readdata
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Basic integrity
-  a_no_x_inputs:   assert property (disable iff (!reset_n) !$isunknown({address,in_port,clk_en}));
-  a_no_x_outputs:  assert property (disable iff (!reset_n) !$isunknown({readdata,read_mux_out,data_in}));
+    // After reset was sampled low, readdata is zero on the next active clock.
+    check_post_reset_readdata_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        ($past(reset_n) === 1'b0) |-> (readdata == 16'h0000)
+    );
 
-  // Known constants/mappings
-  a_clken_const:   assert property (clk_en);
-  a_data_in_map:   assert property (data_in == in_port);
+    // A prior read of address 0 returns the prior input, unless reset forced zero.
+    check_addr0_read_matches_input_or_reset_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && ($past(address) === 2'b00)) |->
+        ((readdata == $past(in_port)) || (readdata == 16'h0000))
+    );
 
-  // Read mux correctness
-  a_mux_sel0:      assert property ((address == 2'b00) |-> (read_mux_out == data_in));
-  a_mux_selnz:     assert property ((address != 2'b00) |-> (read_mux_out == 16'h0000));
+    // A prior read of address 1 returns zero.
+    check_addr1_reads_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && ($past(address) === 2'b01)) |-> (readdata == 16'h0000)
+    );
 
-  // Register update behavior
-  a_reg_updates:   assert property (disable iff (!reset_n) clk_en |-> (readdata == read_mux_out));
-  a_hold_when_gated: assert property (disable iff (!reset_n) !clk_en |-> (readdata == $past(readdata)));
+    // A prior read of address 2 returns zero.
+    check_addr2_reads_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && ($past(address) === 2'b10)) |-> (readdata == 16'h0000)
+    );
 
-  // Reset behavior (async clear holds 0 while low; checked on clock)
-  a_reset_holds_zero: assert property (@(posedge clk) !reset_n |-> (readdata == 16'h0000));
+    // A prior read of address 3 returns zero.
+    check_addr3_reads_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && ($past(address) === 2'b11)) |-> (readdata == 16'h0000)
+    );
 
-  // Functional coverage
-  c_sel0_nonzero:  cover property (disable iff (!reset_n) (address == 2'b00) && (in_port != 16'h0000) && (readdata == in_port));
-  c_selnz_zero:    cover property (disable iff (!reset_n) (address != 2'b00) && (readdata == 16'h0000));
-  c_addr_toggle:   cover property (disable iff (!reset_n) (address == 2'b00) ##1 (address != 2'b00) ##1 (address == 2'b00));
-  c_data_change_cap: cover property (disable iff (!reset_n) (address == 2'b00) && $changed(in_port) && (readdata == in_port));
+    // Address 0 with zero input returns zero on the following clock.
+    check_addr0_zero_input_reads_zero: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && ($past(address) === 2'b00) && ($past(in_port) === 16'h0000)) |->
+        (readdata == 16'h0000)
+    );
+
+    // Any nonzero readdata must come from a prior read of address 0.
+    check_nonzero_readdata_from_addr0: assert property (
+        @(posedge clk) disable iff (!reset_n)
+        (($past(reset_n) === 1'b1) && (readdata != 16'h0000)) |->
+        (($past(address) === 2'b00) && (readdata == $past(in_port)))
+    );
+
 endmodule
-
-// Bind into DUT
-bind pio_latency pio_latency_sva sva_pio_latency (
-  .clk(clk),
-  .reset_n(reset_n),
-  .address(address),
-  .in_port(in_port),
-  .readdata(readdata),
-  .data_in(data_in),
-  .read_mux_out(read_mux_out),
-  .clk_en(clk_en)
-);

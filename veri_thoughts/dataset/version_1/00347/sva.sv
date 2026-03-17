@@ -1,38 +1,28 @@
-// SVA for binary_adder
 module binary_adder_sva (
-  input logic [7:0] A,
-  input logic [7:0] B,
-  input logic       C,
-  input logic [7:0] S
+    input logic [7:0] A,
+    input logic [7:0] B,
+    input logic       C,
+    input logic [7:0] S
 );
-  logic [8:0] add9, sub9;
-  logic [7:0] expS;
 
-  always_comb begin
-    add9 = {1'b0, A} + {1'b0, B};
-    sub9 = {1'b0, A} - {1'b0, B};
-    expS = C ? sub9[7:0] : add9[7:0];
+    // When C is low, S must be the sum of A and B.
+    check_add_mode: assert property (
+        @($global_clock) !C |-> (S == (A + B))
+    );
 
-    // Functional correctness and X-prop (sample after comb settles)
-    if (!$isunknown({A,B,C})) begin
-      assert #0 (S === expS)
-        else $error("binary_adder mismatch: C=%0b A=%0h B=%0h S=%0h exp=%0h", C,A,B,S,expS);
-      assert #0 (!$isunknown(S))
-        else $error("binary_adder X/Z on S with known inputs: C=%0b A=%0h B=%0h S=%0h", C,A,B,S);
-    end
+    // When C is high, S must be the difference of A and B.
+    check_sub_mode: assert property (
+        @($global_clock) C |-> (S == (A - B))
+    );
 
-    // Concise functional coverage (key modes and corner cases)
-    cover #0 (C==1'b0);                    // add mode hit
-    cover #0 (C==1'b1);                    // sub mode hit
-    cover #0 (C==1'b0 && add9[8]);         // add overflow
-    cover #0 (C==1'b1 && (A < B));         // sub underflow (borrow)
-    cover #0 (A==8'h00 && B==8'h00);       // both zero
-    cover #0 (A==8'hFF && B==8'h00);
-    cover #0 (A==8'h00 && B==8'hFF);
-    cover #0 (A==8'hFF && B==8'hFF);       // max - max / max + max
-    cover #0 (C==1'b0 && S==8'h00);        // zero sum
-    cover #0 (C==1'b1 && S==8'h00);        // zero diff
-  end
+    // S must always match the operation selected by C.
+    check_selected_operation: assert property (
+        @($global_clock) S == (C ? (A - B) : (A + B))
+    );
+
+    // If the inputs stay the same, the output must stay the same.
+    check_stable_inputs_hold_output: assert property (
+        @($global_clock) $stable({A, B, C}) |-> $stable(S)
+    );
+
 endmodule
-
-bind binary_adder binary_adder_sva sva_inst(.A(A), .B(B), .C(C), .S(S));

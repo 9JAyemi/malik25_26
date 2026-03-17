@@ -1,67 +1,28 @@
-// SVA checker for four_to_one_mux
 module four_to_one_mux_sva (
-  input logic        clk,        // sampling clock for temporal checks
-  input logic [3:0]  in,
-  input logic [1:0]  sel,
-  input logic        out
+    input logic clk,
+    input logic [3:0] in,
+    input logic [1:0] sel,
+    input logic out
 );
 
-  // Immediate (clockless) assertions: catch combinational mismatches ASAP
-  always @* begin
-    if (!$isunknown(sel)) begin
-      assert (out === in[sel])
-        else $error("MUX mismatch: sel=%0d out=%b in=%b", sel, out, in);
-    end else begin
-      assert (out === 1'b0)
-        else $error("MUX default mismatch on unknown sel: out=%b", out);
-    end
-  end
+    // sel=00 routes in[0] to out.
+    check_select_00_routes_in0: assert property (
+        @(posedge clk) (sel == 2'b00) |-> (out == in[0])
+    );
 
-  // Concurrent assertions for temporal behavior
-  default clocking cb @(posedge clk); endclocking
+    // sel=01 routes in[1] to out.
+    check_select_01_routes_in1: assert property (
+        @(posedge clk) (sel == 2'b01) |-> (out == in[1])
+    );
 
-  // Functional correctness each cycle
-  property p_func_known;
-    !$isunknown(sel) |-> (out === in[sel]);
-  endproperty
-  assert property (p_func_known);
+    // sel=10 routes in[2] to out.
+    check_select_10_routes_in2: assert property (
+        @(posedge clk) (sel == 2'b10) |-> (out == in[2])
+    );
 
-  // Default behavior on X/Z select
-  property p_func_unknown;
-    $isunknown(sel) |-> (out === 1'b0);
-  endproperty
-  assert property (p_func_unknown);
-
-  // Generate per-select propagation and isolation checks
-  genvar i;
-  for (i = 0; i < 4; i++) begin : gen_mux_checks
-    // When selected input toggles and sel is stable/known, out follows in same cycle
-    property p_follow_sel_i;
-      $stable(sel) && (sel == i[1:0]) && !$isunknown(sel) && $changed(in[i])
-        |-> ##0 (out === in[i]);
-    endproperty
-    assert property (p_follow_sel_i);
-
-    // Changes on non-selected inputs must not affect out (with sel and selected input stable)
-    property p_isolate_others_i;
-      $stable(sel) && (sel == i[1:0]) && !$isunknown(sel) &&
-      $stable(in[i]) && $changed(in) && !$changed(in[i])
-        |-> ##0 $stable(out);
-    endproperty
-    assert property (p_isolate_others_i);
-
-    // Coverage: see each select value
-    cover property (sel == i[1:0]);
-
-    // Coverage: observe propagation on selected input toggle
-    cover property ($stable(sel) && (sel == i[1:0]) && !$isunknown(sel) &&
-                    $changed(in[i]) ##0 (out === in[i]));
-  end
-
-  // Coverage: exercise unknown select case
-  cover property ($isunknown(sel));
+    // sel=11 routes in[3] to out.
+    check_select_11_routes_in3: assert property (
+        @(posedge clk) (sel == 2'b11) |-> (out == in[3])
+    );
 
 endmodule
-
-// Bind into the DUT (adjust instance path or provide clk as appropriate)
-// bind four_to_one_mux four_to_one_mux_sva sva_inst (.*);

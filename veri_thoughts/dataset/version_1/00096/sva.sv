@@ -1,69 +1,86 @@
-// SVA for four_bit_adder and its full_adder sub-block.
-// Uses input-change as the sampling event and ##0 to sample after delta-cycle settle.
-
-module four_bit_adder_sva(
-  input logic [3:0] A, B,
-  input logic       C_in,
-  input logic [3:0] S,
-  input logic       C_out
+module four_bit_adder_sva (
+    input logic       clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic       C_in,
+    input logic [3:0] S,
+    input logic       C_out
 );
-  logic [3:0] P, G;
-  logic c1, c2, c3;
 
-  assign P  = A ^ B;
-  assign G  = A & B;
-  assign c1 = G[0] | (P[0] & C_in);
-  assign c2 = G[1] | (P[1] & c1);
-  assign c3 = G[2] | (P[2] & c2);
-
-  // Well-defined outputs whenever inputs are known
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 !$isunknown({S,C_out}));
-
-  // Top-level arithmetic equivalence
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 {C_out,S} == A + B + C_in);
-
-  // Bit-level checks via propagate/generate chain
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 S[0] == (P[0] ^ C_in));
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 S[1] == (P[1] ^ c1));
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 S[2] == (P[2] ^ c2));
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 S[3] == (P[3] ^ c3));
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 C_out == (G[3] | (P[3] & c3)));
-
-  // Focused functional coverage
-  cover property (@(A or B or C_in) ##0 !$isunknown({A,B,C_in}) && (C_out==0));
-  cover property (@(A or B or C_in) ##0 !$isunknown({A,B,C_in}) && (C_out==1));
-  // Full ripple propagate path exercised (all P=1)
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && (&P) &&  C_in && (C_out==1));
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && (&P) && !C_in && (C_out==0));
-  // Generate at each bit at least once
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && G[0]);
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && G[1]);
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && G[2]);
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && G[3]);
-  // Sum zero with and without overflow
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && (S==4'h0) && (C_out==0));
-  cover property (@(A or B or C_in) ##0 (!$isunknown({A,B,C_in})) && (S==4'h0) && (C_out==1));
-endmodule
-
-
-module full_adder_sva(
-  input logic A, B, C_in,
-  input logic S, C_out
+function automatic logic fa_sum(
+    input logic a,
+    input logic b,
+    input logic cin
 );
-  // Outputs known when inputs known
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 !$isunknown({S,C_out}));
-  // Truth-table equivalence
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 S == (A ^ B ^ C_in));
-  assert property (@(A or B or C_in) !$isunknown({A,B,C_in}) |-> ##0 C_out == ((A & B) | (C_in & (A ^ B))));
+    fa_sum = a ^ b ^ cin;
+endfunction
 
-  // Minimal coverage of propagate/generate/kill and carry out
-  cover property (@(A or B or C_in) ##0 (A ^ B) && !C_in && (C_out==0)); // propagate, no carry
-  cover property (@(A or B or C_in) ##0 (A ^ B) &&  C_in && (C_out==1)); // propagate, carry
-  cover property (@(A or B or C_in) ##0 (A & B) && (C_out==1));          // generate
-  cover property (@(A or B or C_in) ##0 !(A|B) && !C_in && (C_out==0));  // kill
+function automatic logic fa_carry(
+    input logic a,
+    input logic b,
+    input logic cin
+);
+    fa_carry = (a & b) | (cin & (a ^ b));
+endfunction
+
+// The 5-bit output matches A + B + C_in.
+check_total_addition: assert property (
+    @(posedge clk) disable iff (1'b0)
+    {C_out, S} == ({1'b0, A} + {1'b0, B} + {4'b0000, C_in})
+);
+
+// Bit 0 sum matches the least-significant full adder.
+check_sum_bit0: assert property (
+    @(posedge clk) disable iff (1'b0)
+    S[0] == fa_sum(A[0], B[0], C_in)
+);
+
+// Bit 1 sum uses the carry from bit 0.
+check_sum_bit1: assert property (
+    @(posedge clk) disable iff (1'b0)
+    S[1] == fa_sum(A[1], B[1], fa_carry(A[0], B[0], C_in))
+);
+
+// Bit 2 sum uses the ripple carry from bits 0 and 1.
+check_sum_bit2: assert property (
+    @(posedge clk) disable iff (1'b0)
+    S[2] == fa_sum(A[2], B[2], fa_carry(A[1], B[1], fa_carry(A[0], B[0], C_in)))
+);
+
+// Bit 3 sum uses the ripple carry from bits 0 through 2.
+check_sum_bit3: assert property (
+    @(posedge clk) disable iff (1'b0)
+    S[3] == fa_sum(A[3], B[3], fa_carry(A[2], B[2], fa_carry(A[1], B[1], fa_carry(A[0], B[0], C_in))))
+);
+
+// Carry out matches the final full adder carry.
+check_carry_out: assert property (
+    @(posedge clk) disable iff (1'b0)
+    C_out == fa_carry(A[3], B[3], fa_carry(A[2], B[2], fa_carry(A[1], B[1], fa_carry(A[0], B[0], C_in))))
+);
+
+// Adding zero on B with no carry-in preserves A.
+check_zero_b_no_carry: assert property (
+    @(posedge clk) disable iff (1'b0)
+    (B == 4'b0000 && C_in == 1'b0) |-> ({C_out, S} == {1'b0, A})
+);
+
+// Adding zero on A with no carry-in preserves B.
+check_zero_a_no_carry: assert property (
+    @(posedge clk) disable iff (1'b0)
+    (A == 4'b0000 && C_in == 1'b0) |-> ({C_out, S} == {1'b0, B})
+);
+
+// Zero operands pass carry-in only to the least-significant sum bit.
+check_zero_inputs: assert property (
+    @(posedge clk) disable iff (1'b0)
+    (A == 4'b0000 && B == 4'b0000) |-> (S == {3'b000, C_in} && C_out == 1'b0)
+);
+
+// All ones plus carry-in produces the maximum 5-bit result.
+check_max_addition: assert property (
+    @(posedge clk) disable iff (1'b0)
+    (A == 4'hF && B == 4'hF && C_in == 1'b1) |-> (S == 4'hF && C_out == 1'b1)
+);
+
 endmodule
-
-
-// Bind these checkers to the DUTs
-bind four_bit_adder four_bit_adder_sva u_four_bit_adder_sva(.A(A), .B(B), .C_in(C_in), .S(S), .C_out(C_out));
-bind full_adder     full_adder_sva     u_full_adder_sva    (.A(A), .B(B), .C_in(C_in), .S(S), .C_out(C_out));

@@ -1,70 +1,56 @@
-// SVA for mux_2to1
-// Bind these assertions to the DUT.
-module mux_2to1_sva (input logic in0, in1, sel, out);
+module mux_2to1_sva (
+    input logic in0,
+    input logic in1,
+    input logic sel,
+    input logic out
+);
 
-  // Functional equivalence (4-state aware, includes X-propagation semantics of ?:)
-  // Triggers on any relevant change.
-  assert property (@(in0 or in1 or sel or out)
-    out === (sel ? in1 : in0)
-  ) else $error("mux_2to1: Functional mismatch");
+    // No RTL clock or reset; sample the combinational behavior on $global_clock.
 
-  // Deterministic cases
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b0) |-> (out === in0)
-  ) else $error("mux_2to1: sel=0 case failed");
+    // When select is low, out must equal in0.
+    check_sel_low_routes_in0: assert property (
+        @($global_clock) (sel == 1'b0) |-> (out == in0)
+    );
 
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b1) |-> (out === in1)
-  ) else $error("mux_2to1: sel=1 case failed");
+    // When select is high, out must equal in1.
+    check_sel_high_routes_in1: assert property (
+        @($global_clock) (sel == 1'b1) |-> (out == in1)
+    );
 
-  // X-propagation corner cases (when sel is X/Z)
-  assert property (@(in0 or in1 or sel or out)
-    ((sel !== 1'b0) && (sel !== 1'b1) && (in0 === in1)) |-> (out === in0)
-  ) else $error("mux_2to1: sel=X and in0==in1 but out mismatched");
+    // A selected in0 change must be reflected at out.
+    check_in0_change_updates_out_when_sel_low: assert property (
+        @($global_clock)
+        (!$initstate && ($past(sel) == 1'b0) && (sel == 1'b0) && $changed(in0)) |-> $changed(out)
+    );
 
-  assert property (@(in0 or in1 or sel or out)
-    ((sel !== 1'b0) && (sel !== 1'b1) && (in0 !== in1)) |-> $isunknown(out)
-  ) else $error("mux_2to1: sel=X and in0!=in1 but out not X");
+    // A selected in1 change must be reflected at out.
+    check_in1_change_updates_out_when_sel_high: assert property (
+        @($global_clock)
+        (!$initstate && ($past(sel) == 1'b1) && (sel == 1'b1) && $changed(in1)) |-> $changed(out)
+    );
 
-  // Stability: unselected input changes must not affect out
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b0 && $stable(in0) && $stable(sel)) |-> $stable(out)
-  ) else $error("mux_2to1: Out changed with sel=0 and in0 stable");
+    // An in1 change cannot affect out while sel stays low and in0 is stable.
+    check_in1_change_ignored_when_sel_low: assert property (
+        @($global_clock)
+        (!$initstate && ($past(sel) == 1'b0) && (sel == 1'b0) && $stable(in0) && $changed(in1)) |-> $stable(out)
+    );
 
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b1 && $stable(in1) && $stable(sel)) |-> $stable(out)
-  ) else $error("mux_2to1: Out changed with sel=1 and in1 stable");
+    // An in0 change cannot affect out while sel stays high and in1 is stable.
+    check_in0_change_ignored_when_sel_high: assert property (
+        @($global_clock)
+        (!$initstate && ($past(sel) == 1'b1) && (sel == 1'b1) && $stable(in1) && $changed(in0)) |-> $stable(out)
+    );
 
-  // Out should not be X when selected path is known
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b0 && !$isunknown(in0)) |-> !$isunknown(out)
-  ) else $error("mux_2to1: Out X with sel=0 and in0 known");
+    // A select change must toggle out when inputs are different and stable.
+    check_sel_change_toggles_out_when_inputs_differ: assert property (
+        @($global_clock)
+        (!$initstate && $changed(sel) && $stable(in0) && $stable(in1) && (in0 != in1)) |-> $changed(out)
+    );
 
-  assert property (@(in0 or in1 or sel or out)
-    (sel === 1'b1 && !$isunknown(in1)) |-> !$isunknown(out)
-  ) else $error("mux_2to1: Out X with sel=1 and in1 known");
-
-  // Functional coverage (concise, hits key scenarios)
-  cover property (@(in0 or in1 or sel or out) sel === 1'b0 && in0 === 1'b0 && out === 1'b0);
-  cover property (@(in0 or in1 or sel or out) sel === 1'b0 && in0 === 1'b1 && out === 1'b1);
-  cover property (@(in0 or in1 or sel or out) sel === 1'b1 && in1 === 1'b0 && out === 1'b0);
-  cover property (@(in0 or in1 or sel or out) sel === 1'b1 && in1 === 1'b1 && out === 1'b1);
-
-  cover property (@(in0 or in1 or sel or out)
-    (sel !== 1'b0 && sel !== 1'b1) && (in0 === in1) && (out === in0)
-  );
-  cover property (@(in0 or in1 or sel or out)
-    (sel !== 1'b0 && sel !== 1'b1) && (in0 !== in1) && $isunknown(out)
-  );
-
-  // Covers that output responds to selected input toggles
-  cover property (@(in0 or in1 or sel or out)
-    (sel === 1'b0 && $changed(in0) && $changed(out))
-  );
-  cover property (@(in0 or in1 or sel or out)
-    (sel === 1'b1 && $changed(in1) && $changed(out))
-  );
+    // A select change must not change out when inputs match and are stable.
+    check_sel_change_holds_out_when_inputs_match: assert property (
+        @($global_clock)
+        (!$initstate && $changed(sel) && $stable(in0) && $stable(in1) && (in0 == in1)) |-> $stable(out)
+    );
 
 endmodule
-
-bind mux_2to1 mux_2to1_sva sva_mux_2to1 (.*);

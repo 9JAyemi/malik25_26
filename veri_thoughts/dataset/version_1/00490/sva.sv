@@ -1,56 +1,44 @@
-// SVA checker bound into the DUT. Focused, 4‑state accurate, with concise coverage.
-
-module OAI21B2HD4X_sva (
-  input logic AN, BN, C,
-  input logic Z,
-  input logic I0_out, I1_out
+module OAI21B2HD4X_assertions (
+    input logic clk,
+    input logic AN,
+    input logic BN,
+    input logic C,
+    input logic Z
 );
 
-  // Sample on any input edge to catch combinational updates; ##0 to allow delta-recompute.
-  default clocking cb @(
-    posedge AN or negedge AN or
-    posedge BN or negedge BN or
-    posedge C  or negedge C
-  ); endclocking
+    // Z matches the implemented combinational function.
+    check_boolean_function: assert property (
+        @(posedge clk) Z == ((~(AN & BN)) & C)
+    );
 
-  // Golden Boolean equivalence (4‑state)
-  assert property (1 |-> ##0 (Z === ((~(AN & BN)) & C)))
-    else $error("OAI21B2HD4X: Z != (~(AN & BN)) & C");
+    // C low forces Z low.
+    check_c_low_forces_z_low: assert property (
+        @(posedge clk) !C |-> !Z
+    );
 
-  // Gate-level chain consistency (4‑state)
-  assert property (1 |-> ##0 (I0_out === (AN & BN)))
-    else $error("OAI21B2HD4X: I0_out != AN & BN");
-  assert property (1 |-> ##0 (I1_out === ~I0_out))
-    else $error("OAI21B2HD4X: I1_out != ~I0_out");
-  assert property (1 |-> ##0 (Z === (I1_out & C)))
-    else $error("OAI21B2HD4X: Z != I1_out & C");
+    // AN and BN both high block the output when C is high.
+    check_an_bn_high_block_output: assert property (
+        @(posedge clk) (C && AN && BN) |-> !Z
+    );
 
-  // Known-when-inputs-known; and hard gating by C
-  assert property ((!$isunknown({AN,BN,C})) |-> ##0 (!$isunknown(Z)))
-    else $error("OAI21B2HD4X: Z is X/Z while inputs are known");
-  assert property ((C === 1'b0) |-> ##0 (Z === 1'b0))
-    else $error("OAI21B2HD4X: C=0 must force Z=0");
-  assert property ((C===1'b1 && AN===1'b1 && BN===1'b1) |-> ##0 (Z===1'b0))
-    else $error("OAI21B2HD4X: C=1, AN=1, BN=1 must yield Z=0");
-  assert property ((C===1'b1 && (AN===1'b0 || BN===1'b0)) |-> ##0 (Z===1'b1))
-    else $error("OAI21B2HD4X: C=1, any of AN/BN=0 must yield Z=1");
+    // AN low with C high makes Z high.
+    check_an_low_allows_output: assert property (
+        @(posedge clk) (C && !AN) |-> Z
+    );
 
-  // Functional coverage: all input combinations and both Z values
-  cover property (AN==0 && BN==0 && C==0);
-  cover property (AN==0 && BN==0 && C==1);
-  cover property (AN==0 && BN==1 && C==0);
-  cover property (AN==0 && BN==1 && C==1);
-  cover property (AN==1 && BN==0 && C==0);
-  cover property (AN==1 && BN==0 && C==1);
-  cover property (AN==1 && BN==1 && C==0);
-  cover property (AN==1 && BN==1 && C==1);
+    // BN low with C high makes Z high.
+    check_bn_low_allows_output: assert property (
+        @(posedge clk) (C && !BN) |-> Z
+    );
 
-  cover property (Z==0);
-  cover property (Z==1);
+    // A high Z requires C to be high.
+    check_z_high_requires_c_high: assert property (
+        @(posedge clk) Z |-> C
+    );
+
+    // A high Z requires the AN/BN AND term to be false.
+    check_z_high_requires_inverted_and: assert property (
+        @(posedge clk) Z |-> !(AN && BN)
+    );
 
 endmodule
-
-bind OAI21B2HD4X OAI21B2HD4X_sva sva_i (
-  .AN(AN), .BN(BN), .C(C), .Z(Z),
-  .I0_out(I0_out), .I1_out(I1_out)
-);

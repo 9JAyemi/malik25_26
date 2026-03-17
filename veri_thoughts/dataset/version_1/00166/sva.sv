@@ -1,47 +1,49 @@
-// SVA for sky130_fd_sc_hdll__o21ai
-// Bind-only; concise, functionally complete, with X-prop checks and full truth-table coverage.
+module sky130_fd_sc_hdll__o21ai_sva (
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1
+);
 
-module o21ai_sva (input logic Y, A1, A2, B1);
+    // Y must implement the OR-AND-invert function.
+    check_function_equation: assert property (
+        @(posedge clk) Y == ~((A1 | A2) & B1)
+    );
 
-  function automatic bit known (logic v); return !$isunknown(v); endfunction
+    // A low B1 forces the NAND output high.
+    check_b1_low_forces_y_high: assert property (
+        @(posedge clk) (B1 == 1'b0) |-> (Y == 1'b1)
+    );
 
-  // Sample on any input/output transition
-  default clocking cb @(
-      posedge A1 or negedge A1 or
-      posedge A2 or negedge A2 or
-      posedge B1 or negedge B1 or
-      posedge Y  or negedge Y
-  ); endclocking
+    // If both OR inputs are low, Y must be high.
+    check_a_inputs_low_force_y_high: assert property (
+        @(posedge clk) ((A1 == 1'b0) && (A2 == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  // 2-state functional correctness when inputs are known
-  assert property ( (known(A1) && known(A2) && known(B1)) |-> (Y === ~(B1 & (A1 | A2))) )
-    else $error("o21ai func mismatch: Y=%0b A1=%0b A2=%0b B1=%0b", Y,A1,A2,B1);
+    // A1 high with B1 high forces Y low.
+    check_a1_and_b1_force_y_low: assert property (
+        @(posedge clk) ((A1 == 1'b1) && (B1 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // Dominance / simplifications (including X-safe cases)
-  assert property ( B1 === 1'b0 |-> Y === 1'b1 );
-  assert property ( (A1 === 1'b0) && (A2 === 1'b0) |-> Y === 1'b1 );
-  assert property ( (A1 === 1'b1) && known(B1) |-> Y === ~B1 );
-  assert property ( (A2 === 1'b1) && known(B1) |-> Y === ~B1 );
+    // A2 high with B1 high forces Y low.
+    check_a2_and_b1_force_y_low: assert property (
+        @(posedge clk) ((A2 == 1'b1) && (B1 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // Expected X-propagation in ambiguous cases
-  assert property ( (B1 === 1'b1) && (A1 === 1'b0) && $isunknown(A2) |-> $isunknown(Y) );
-  assert property ( (B1 === 1'b1) && (A2 === 1'b0) && $isunknown(A1) |-> $isunknown(Y) );
-  assert property ( $isunknown(B1) && ((A1 === 1'b1) || (A2 === 1'b1)) |-> $isunknown(Y) );
+    // Y can be low only when B1 is high.
+    check_y_low_requires_b1_high: assert property (
+        @(posedge clk) (Y == 1'b0) |-> (B1 == 1'b1)
+    );
 
-  // Functional coverage: all 8 input combinations with correct Y
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==0)&&(A2==0)&&(B1==0) && (Y===1) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==0)&&(A2==0)&&(B1==1) && (Y===1) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==0)&&(A2==1)&&(B1==0) && (Y===1) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==0)&&(A2==1)&&(B1==1) && (Y===0) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==1)&&(A2==0)&&(B1==0) && (Y===1) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==1)&&(A2==0)&&(B1==1) && (Y===0) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==1)&&(A2==1)&&(B1==0) && (Y===1) );
-  cover property ( known(A1)&&known(A2)&&known(B1) && (A1==1)&&(A2==1)&&(B1==1) && (Y===0) );
+    // Y can be low only when at least one OR input is high.
+    check_y_low_requires_or_input_high: assert property (
+        @(posedge clk) (Y == 1'b0) |-> ((A1 == 1'b1) || (A2 == 1'b1))
+    );
 
-  // Output toggle coverage
-  cover property ( $rose(Y) );
-  cover property ( $fell(Y) );
+    // With B1 high, a high Y requires both OR inputs low.
+    check_y_high_with_b1_high_requires_a_inputs_low: assert property (
+        @(posedge clk) ((Y == 1'b1) && (B1 == 1'b1)) |-> ((A1 == 1'b0) && (A2 == 1'b0))
+    );
 
 endmodule
-
-bind sky130_fd_sc_hdll__o21ai o21ai_sva o21ai_sva_i (.*);

@@ -1,38 +1,51 @@
-// SVA for my_module: bindable, clockless, concise, and comprehensive
-
 module my_module_sva (
-  input logic Y,
-  input logic A1, A2, A3,
-  input logic B1, C1
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic B1,
+    input logic C1
 );
-  // Functional reference
-  let a_and  = (A1 & A2 & A3);
-  let y_ref  = ~(B1 | C1 | a_and);
 
-  // Functional equivalence
-  assert property (Y === y_ref);
+    // Y must match the buffered NOR of B1, C1, and A1&A2&A3.
+    check_y_matches_boolean_function: assert property (
+        @($global_clock) Y == ~(B1 | C1 | (A3 & A1 & A2))
+    );
 
-  // Strong consequences of NOR inputs being 1 (robust to X on others)
-  assert property (B1 === 1'b1 |-> Y === 1'b0);
-  assert property (C1 === 1'b1 |-> Y === 1'b0);
+    // B1 high forces the NOR output low.
+    check_b1_high_forces_y_low: assert property (
+        @($global_clock) (B1 == 1'b1) |-> (Y == 1'b0)
+    );
 
-  // When B1 and C1 are 0, Y is the invert of A1&A2&A3
-  assert property ((B1 === 1'b0 && C1 === 1'b0) |-> (Y === ~a_and));
+    // C1 high forces the NOR output low.
+    check_c1_high_forces_y_low: assert property (
+        @($global_clock) (C1 == 1'b1) |-> (Y == 1'b0)
+    );
 
-  // No spurious glitches: if inputs are stable, output is stable
-  assert property ($stable({A1,A2,A3,B1,C1}) |-> $stable(Y));
+    // All three A inputs high force the NOR output low.
+    check_all_a_high_force_y_low: assert property (
+        @($global_clock) ((A1 == 1'b1) && (A2 == 1'b1) && (A3 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // 4-state sanity: known inputs imply known output
-  assert property (!$isunknown({A1,A2,A3,B1,C1}) |-> !$isunknown(Y));
+    // With B1 and C1 low, any low A input makes Y high.
+    check_any_low_a_with_low_b1_c1_forces_y_high: assert property (
+        @($global_clock)
+        ((B1 == 1'b0) && (C1 == 1'b0) &&
+         ((A1 == 1'b0) || (A2 == 1'b0) || (A3 == 1'b0))) |-> (Y == 1'b1)
+    );
 
-  // Coverage: key corners and outcomes
-  cover property (Y === 1'b1);
-  cover property (Y === 1'b0);
-  cover property (B1 === 1'b1 && Y === 1'b0);
-  cover property (C1 === 1'b1 && Y === 1'b0);
-  cover property (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b1 && A2 === 1'b1 && A3 === 1'b1 && Y === 1'b0);
-  cover property (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b0 && A2 === 1'b0 && A3 === 1'b0 && Y === 1'b1);
+    // Y high means all NOR inputs are low.
+    check_y_high_requires_all_nor_inputs_low: assert property (
+        @($global_clock)
+        (Y == 1'b1) |-> ((B1 == 1'b0) && (C1 == 1'b0) &&
+                         ((A1 == 1'b0) || (A2 == 1'b0) || (A3 == 1'b0)))
+    );
+
+    // With B1 and C1 low, Y low requires all A inputs high.
+    check_y_low_with_low_b1_c1_requires_all_a_high: assert property (
+        @($global_clock)
+        ((B1 == 1'b0) && (C1 == 1'b0) && (Y == 1'b0)) |->
+        ((A1 == 1'b1) && (A2 == 1'b1) && (A3 == 1'b1))
+    );
+
 endmodule
-
-// Bind into the DUT
-bind my_module my_module_sva sva_my_module (.*);

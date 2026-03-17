@@ -1,70 +1,44 @@
-// SVA for dff_sscan
-module dff_sscan_sva #(parameter SIZE=1)
-(
-  input  logic                  clk,
-  input  logic                  se,
-  input  logic [SIZE-1:0]       din,
-  input  logic [SIZE-1:0]       si,
-  input  logic [SIZE-1:0]       q,
-  input  logic [SIZE-1:0]       so
+module dff_sscan_sva #(
+    parameter SIZE = 1
+) (
+    input  logic [SIZE-1:0] din,
+    input  logic            clk,
+    input  logic [SIZE-1:0] q,
+    input  logic            se,
+    input  logic [SIZE-1:0] si,
+    input  logic [SIZE-1:0] so
 );
-  default clocking @(posedge clk); endclocking
 
 `ifdef CONNECT_SHADOW_SCAN
-  // Next-state check (scan mux)
-  ap_q_next_mux: assert property (disable iff ($initstate)
-                                  q == $past(se ? si : din))
-    else $error("q != $past(se?si:din)");
+    // q captures si when scan is enabled.
+    check_q_captures_scan_input: assert property (
+        @(posedge clk) se |=> (q == $past(si))
+    );
 
-  // so mirrors q
-  ap_so_eq_q: assert property (disable iff ($initstate) so == q)
-    else $error("so != q");
+    // q captures din when scan is disabled.
+    check_q_captures_functional_input: assert property (
+        @(posedge clk) !se |=> (q == $past(din))
+    );
 
-  // Functional and scan path coverage
-  cp_func_path: cover property (disable iff ($initstate) !se ##1 q == $past(din));
-  cp_scan_path: cover property (disable iff ($initstate)  se ##1 q == $past(si));
-
-  // Exercise se toggling
-  cp_se_toggle: cover property (disable iff ($initstate) se ##1 !se ##1 se);
-
-  // Bit-level toggle coverage
-  genvar i;
-  generate
-    for (i=0; i<SIZE; i++) begin : COV_Q_BITS
-      cp_q_rise: cover property (disable iff ($initstate) $rose(q[i]));
-      cp_q_fall: cover property (disable iff ($initstate) $fell(q[i]));
-    end
-  endgenerate
+    // so mirrors q when shadow scan is connected.
+    check_so_mirrors_q: assert property (
+        @(posedge clk) (so == q)
+    );
 `else
-  // Next-state check (no scan mux)
-  ap_q_next_func: assert property (disable iff ($initstate)
-                                   q == $past(din))
-    else $error("q != $past(din)");
+    // q captures din on every rising clock edge.
+    check_q_captures_din: assert property (
+        @(posedge clk) 1'b1 |=> (q == $past(din))
+    );
 
-  // so is tied to zero
-  ap_so_zero: assert property (so == {SIZE{1'b0}})
-    else $error("so != 0 when scan disabled");
+    // Scan enable does not change the captured source when scan is disconnected.
+    check_q_ignores_scan_enable: assert property (
+        @(posedge clk) se |=> (q == $past(din))
+    );
 
-  // Coverage: functional updates and q toggles
-  cp_func_update: cover property (disable iff ($initstate) q == $past(din));
-
-  genvar j;
-  generate
-    for (j=0; j<SIZE; j++) begin : COV_Q_BITS_NOSCAN
-      cp_q_rise: cover property (disable iff ($initstate) $rose(q[j]));
-      cp_q_fall: cover property (disable iff ($initstate) $fell(q[j]));
-    end
-  endgenerate
+    // so is tied low when shadow scan is not connected.
+    check_so_tied_low: assert property (
+        @(posedge clk) (so == {SIZE{1'b0}})
+    );
 `endif
-endmodule
 
-// Bind into DUT
-bind dff_sscan dff_sscan_sva #(.SIZE(SIZE)) dff_sscan_sva_i
-(
-  .clk(clk),
-  .se(se),
-  .din(din),
-  .si(si),
-  .q(q),
-  .so(so)
-);
+endmodule

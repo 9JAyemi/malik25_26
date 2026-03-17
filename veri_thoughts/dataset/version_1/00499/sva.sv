@@ -1,51 +1,65 @@
-// SVA for shift_register
-module shift_register_sva #(parameter WIDTH=4)
-(
-  input clk, reset, parallel_load, shift_left, shift_right,
-  input [WIDTH-1:0] parallel_input,
-  input [WIDTH-1:0] q
+module shift_register_sva (
+    input logic       clk,
+    input logic       reset,
+    input logic       parallel_load,
+    input logic       shift_left,
+    input logic       shift_right,
+    input logic [3:0] parallel_input,
+    input logic [3:0] q
 );
 
-  default clocking @(posedge clk); endclocking
+    // Reset drives q to zero.
+    check_reset_clears_q: assert property (
+        @(posedge clk) disable iff (reset)
+        $past(reset) |-> (q == 4'b0000)
+    );
 
-  bit past_valid;
-  always @(posedge clk) past_valid <= 1'b1;
+    // Parallel load updates q with the input value.
+    check_parallel_load_updates_q: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && $past(parallel_load) |-> (q == $past(parallel_input))
+    );
 
-  // Functional correctness and priority
-  assert property (reset |=> q == '0);
+    // Shift-left moves bits left and inserts zero in bit 0.
+    check_shift_left_updates_q: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && !$past(parallel_load) && $past(shift_left) |->
+            (q == {$past(q[2]), $past(q[1]), $past(q[0]), 1'b0})
+    );
 
-  assert property (disable iff(!past_valid)
-    (!reset && parallel_load) |=> q == $past(parallel_input));
+    // Shift-right moves bits right and inserts zero in bit 3.
+    check_shift_right_updates_q: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && !$past(parallel_load) && !$past(shift_left) && $past(shift_right) |->
+            (q == {1'b0, $past(q[3]), $past(q[2]), $past(q[1])})
+    );
 
-  assert property (disable iff(!past_valid)
-    (!reset && !parallel_load && shift_left) |=> q == {$past(q[WIDTH-2:0]), 1'b0});
+    // q holds its value when no operation is requested.
+    check_idle_holds_q: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && !$past(parallel_load) && !$past(shift_left) && !$past(shift_right) |->
+            (q == $past(q))
+    );
 
-  assert property (disable iff(!past_valid)
-    (!reset && !parallel_load && !shift_left && shift_right) |=> q == {1'b0, $past(q[WIDTH-1:1])});
+    // Parallel load has priority over shift requests.
+    check_parallel_load_priority_over_shifts: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && $past(parallel_load) && ($past(shift_left) || $past(shift_right)) |->
+            (q == $past(parallel_input))
+    );
 
-  assert property (disable iff(!past_valid)
-    (!reset && !parallel_load && !shift_left && !shift_right) |=> q == $past(q));
+    // Shift-left has priority over shift-right when load is low.
+    check_shift_left_priority_over_shift_right: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) && !$past(parallel_load) && $past(shift_left) && $past(shift_right) |->
+            (q == {$past(q[2]), $past(q[1]), $past(q[0]), 1'b0})
+    );
 
-  // Explicit left-over-right priority when both asserted
-  assert property (disable iff(!past_valid)
-    (!reset && !parallel_load && shift_left && shift_right)
-      |=> q == {$past(q[WIDTH-2:0]), 1'b0});
-
-  // Coverage
-  cover property (reset);
-  cover property (!reset && parallel_load);
-  cover property (!reset && !parallel_load && shift_left);
-  cover property (!reset && !parallel_load && !shift_left && shift_right);
-  cover property (!reset && !parallel_load && !shift_left && !shift_right);
-  cover property (!reset && !parallel_load && shift_left && shift_right); // priority exercised
-  cover property (reset && parallel_load); // reset overrides load
-  cover property ( (!reset && parallel_load)
-                   ##1 (!reset && !parallel_load && shift_left)
-                   ##1 (!reset && !parallel_load && !shift_left && shift_right) );
+    // Reset has priority over load and shift controls.
+    check_reset_priority_over_controls: assert property (
+        @(posedge clk) disable iff (reset)
+        $past(reset) && ($past(parallel_load) || $past(shift_left) || $past(shift_right)) |->
+            (q == 4'b0000)
+    );
 
 endmodule
-
-// Bind into DUT
-bind shift_register shift_register_sva #(.WIDTH(4)) sva_i (
-  .clk, .reset, .parallel_load, .shift_left, .shift_right, .parallel_input, .q
-);

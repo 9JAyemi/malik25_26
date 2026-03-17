@@ -1,74 +1,39 @@
-// SVA for register_4bit
 module register_4bit_sva (
-  input logic        CLK,
-  input logic        RST,
-  input logic        LD,
-  input logic [3:0]  D,
-  input logic [3:0]  Q,
-  input logic [3:0]  reg_Q,
-  input logic [3:0]  rst_d
+    input logic CLK,
+    input logic [3:0] D,
+    input logic LD,
+    input logic RST,
+    input logic [3:0] Q
 );
 
-  default clocking cb @(posedge CLK); endclocking
+    // Reset forces the register output to zero.
+    check_reset_clears_q: assert property (
+        @(posedge CLK) RST |-> (Q == 4'b0000)
+    );
 
-  // Async reset clears immediately
-  property p_async_reset_clears;
-    @(posedge RST) ##0 (reg_Q == 4'h0 && Q == 4'h0);
-  endproperty
-  assert property (p_async_reset_clears);
+    // A load captures D into Q on the next clock.
+    check_load_captures_d: assert property (
+        @(posedge CLK) disable iff (RST) LD |=> (Q == $past(D))
+    );
 
-  // Q mirrors reg_Q on clock or reset events
-  assert property (@(posedge CLK or posedge RST) ##0 (Q == reg_Q));
+    // With load deasserted, Q holds its previous value.
+    check_hold_when_ld_low: assert property (
+        @(posedge CLK) disable iff (RST) !LD |=> $stable(Q)
+    );
 
-  // While in reset, outputs remain zero on each clock
-  assert property (@(posedge CLK) RST |-> (Q == 4'h0 && reg_Q == 4'h0));
+    // Loading a new value causes Q to change to that value.
+    check_load_new_value_changes_q: assert property (
+        @(posedge CLK) disable iff (RST) (LD && (D != Q)) |=> ((Q == $past(D)) && !$stable(Q))
+    );
 
-  // Next-state function (covers load and hold)
-  assert property (disable iff (RST)
-                   1'b1 |=> (Q == ($past(LD) ? $past(D) : $past(Q))));
+    // Loading the current value leaves Q unchanged.
+    check_load_same_value_keeps_q_stable: assert property (
+        @(posedge CLK) disable iff (RST) (LD && (D == Q)) |=> $stable(Q)
+    );
 
-  // Inputs known on clock edges
-  assert property (@(posedge CLK) !$isunknown({RST, LD, D}));
-
-  // rst_d mapping correctness
-  assert property (@(posedge CLK or posedge RST) ##0 (rst_d == {4{~RST}}));
-
-  // Coverage
-
-  // See reset assertion
-  cover property (@(posedge RST) 1);
-
-  // After reset release, see a load then a hold
-  cover property (@(posedge CLK) $fell(RST) ##1 LD ##1 !LD);
-
-  // Load that changes value
-  cover property (disable iff (RST)
-                  (LD && (D != $past(Q))) |=> (Q == $past(D)));
-
-  // Hold stable for 2 cycles
-  cover property (disable iff (RST)
-                  (!LD)[*2] ##1 (Q == $past(Q,1) && Q == $past(Q,2)));
-
-  // Per-bit toggle coverage on loads
-  genvar i;
-  generate
-    for (i=0; i<4; i++) begin : gen_cov_bits
-      cover property (disable iff (RST)
-                      ($past(Q[i])==1'b0 && LD && D[i]==1'b1) |=> (Q[i]==1'b1));
-      cover property (disable iff (RST)
-                      ($past(Q[i])==1'b1 && LD && D[i]==1'b0) |=> (Q[i]==1'b0));
-    end
-  endgenerate
+    // After reset release, Q stays zero if no load is requested.
+    check_reset_release_keeps_zero_without_load: assert property (
+        @(posedge CLK) RST ##1 (!RST && !LD) |-> (Q == 4'b0000)
+    );
 
 endmodule
-
-// Bind into DUT
-bind register_4bit register_4bit_sva sva (
-  .CLK   (CLK),
-  .RST   (RST),
-  .LD    (LD),
-  .D     (D),
-  .Q     (Q),
-  .reg_Q (reg_Q),
-  .rst_d (rst_d)
-);

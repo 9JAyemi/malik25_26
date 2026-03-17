@@ -1,51 +1,49 @@
-// SVA for counter
-module counter_sva #(parameter WIDTH=4)
-(
-  input  logic                clk,
-  input  logic                rst,
-  input  logic                en,
-  input  logic                up,
-  input  logic [WIDTH-1:0]    count
+module counter_sva (
+    input logic clk,
+    input logic rst,
+    input logic en,
+    input logic up,
+    input logic [3:0] count
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // While reset is high, count stays at zero.
+    check_reset_holds_zero: assert property (
+        @(posedge clk) rst |-> (count == 4'b0000)
+    );
 
-  // Asynchronous reset behavior
-  assert property (@(posedge rst) count == '0);
-  assert property (rst |-> count == '0);
+    // A reset assertion clears count by the next sampled edge.
+    check_reset_clears_count: assert property (
+        @(posedge clk or posedge rst) rst |=> (count == 4'b0000)
+    );
 
-  // Sanity: no X on controls/data after reset
-  assert property (disable iff (rst) !$isunknown(en) && !$isunknown(up));
-  assert property (disable iff (rst) !$isunknown(count));
+    // When enable is low, count holds its value.
+    check_hold_when_disabled: assert property (
+        @(posedge clk or posedge rst) disable iff (rst)
+        (!en) |=> (count == $past(count))
+    );
 
-  // Hold when disabled
-  assert property (disable iff (rst) !en |-> $stable(count));
+    // When enabled and counting up, count increments by one.
+    check_increment_when_enabled_up: assert property (
+        @(posedge clk or posedge rst) disable iff (rst)
+        (en && up) |=> (count == ($past(count) + 4'h1))
+    );
 
-  // Count updates when enabled
-  assert property (disable iff (rst) en && up  |-> count == $past(count) + 1'b1);
-  assert property (disable iff (rst) en && !up |-> count == $past(count) - 1'b1);
+    // When enabled and counting down, count decrements by one.
+    check_decrement_when_enabled_down: assert property (
+        @(posedge clk or posedge rst) disable iff (rst)
+        (en && !up) |=> (count == ($past(count) - 4'h1))
+    );
 
-  // Change only when enabled (excluding reset)
-  assert property (disable iff (rst) $changed(count) |-> en);
+    // Counting up wraps from 15 to 0.
+    check_wrap_up_from_max: assert property (
+        @(posedge clk or posedge rst) disable iff (rst)
+        (en && up && count == 4'hF) |=> (count == 4'h0)
+    );
 
-  // Coverage
-  cover property (@(posedge rst) count == '0);                                   // async reset seen
-  cover property (disable iff (rst) en && up);                                   // increment enabled
-  cover property (disable iff (rst) en && !up);                                  // decrement enabled
-  cover property (disable iff (rst) !en ##1 $stable(count));                     // hold
-  cover property (disable iff (rst) $past(count)=={WIDTH{1'b1}} && en && up
-                                  ##1 count=='0);                                // wrap up
-  cover property (disable iff (rst) $past(count)=='0 && en && !up
-                                  ##1 count=={WIDTH{1'b1}});                     // wrap down
-  cover property (disable iff (rst) en && up ##1 en && !up);                     // dir flip up->down
-  cover property (disable iff (rst) en && !up ##1 en && up);                     // dir flip down->up
+    // Counting down wraps from 0 to 15.
+    check_wrap_down_from_zero: assert property (
+        @(posedge clk or posedge rst) disable iff (rst)
+        (en && !up && count == 4'h0) |=> (count == 4'hF)
+    );
+
 endmodule
-
-// Bind into DUT
-bind counter counter_sva #(.WIDTH(4)) u_counter_sva (
-  .clk  (clk),
-  .rst  (rst),
-  .en   (en),
-  .up   (up),
-  .count(count)
-);

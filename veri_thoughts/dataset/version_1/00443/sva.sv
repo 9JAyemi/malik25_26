@@ -1,30 +1,44 @@
-// SVA for sky130_fd_sc_ls__o21a: X = (A1 | A2) & B1
-// Clockless concurrent properties (continuous checking)
+module sky130_fd_sc_ls__o21a_sva (
+    input logic clk,
+    input logic X,
+    input logic A1,
+    input logic A2,
+    input logic B1
+);
 
-module sky130_fd_sc_ls__o21a_sva;
+    // X must equal the OR of A1/A2 gated by B1.
+    check_output_function: assert property (
+        @(posedge clk) X === ((A1 | A2) & B1)
+    );
 
-  // Functional equivalence (4-state)
-  ap_func:    assert property ( X === ((A1 | A2) & B1) );
+    // B1 low forces X low.
+    check_b1_low_blocks_output: assert property (
+        @(posedge clk) (B1 === 1'b0) |-> (X === 1'b0)
+    );
 
-  // Internal structure consistency
-  ap_or:      assert property ( or0_out    === (A1 | A2) );
-  ap_and:     assert property ( and0_out_X === (or0_out & B1) );
-  ap_buf:     assert property ( X          === and0_out_X );
+    // Both A inputs low force X low.
+    check_a_inputs_low_blocks_output: assert property (
+        @(posedge clk) ((A1 === 1'b0) && (A2 === 1'b0)) |-> (X === 1'b0)
+    );
 
-  // Deterministic cases and X-propagation sanity
-  ap_b0_0:    assert property ( B1 === 1'b0 |-> X === 1'b0 );
-  ap_b1_or:   assert property ( B1 === 1'b1 |-> X === (A1 | A2) );
-  ap_no_x_ok: assert property ( !$isunknown({A1,A2,B1}) |-> !$isunknown(X) );
+    // A1 high with B1 high drives X high.
+    check_a1_with_b1_drives_output: assert property (
+        @(posedge clk) ((A1 === 1'b1) && (B1 === 1'b1)) |-> (X === 1'b1)
+    );
 
-  // Coverage: exercise key truth-table regions and each OR leg
-  cp_b0:        cover property ( B1 == 1'b0 );
-  cp_or0:       cover property ( B1 && (A1==1'b0) && (A2==1'b0) );
-  cp_a1_only:   cover property ( B1 && (A1==1'b1) && (A2==1'b0) );
-  cp_a2_only:   cover property ( B1 && (A1==1'b0) && (A2==1'b1) );
-  cp_both1:     cover property ( B1 && (A1==1'b1) && (A2==1'b1) );
-  cp_toggles:   cover property ( $changed({A1,A2,B1}) );
+    // A2 high with B1 high drives X high.
+    check_a2_with_b1_drives_output: assert property (
+        @(posedge clk) ((A2 === 1'b1) && (B1 === 1'b1)) |-> (X === 1'b1)
+    );
+
+    // X high requires B1 high.
+    check_output_requires_b1: assert property (
+        @(posedge clk) (X === 1'b1) |-> (B1 === 1'b1)
+    );
+
+    // X high requires at least one A input high.
+    check_output_requires_a_input: assert property (
+        @(posedge clk) (X === 1'b1) |-> ((A1 === 1'b1) || (A2 === 1'b1))
+    );
 
 endmodule
-
-// Bind into DUT instances
-bind sky130_fd_sc_ls__o21a sky130_fd_sc_ls__o21a_sva sva_i();

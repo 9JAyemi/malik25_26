@@ -1,37 +1,37 @@
-// SVA checker for absolute_value
 module absolute_value_sva (
-  input  signed [31:0] in,
-  input  signed [31:0] out
+    input logic clk,
+    input logic signed [31:0] in,
+    input logic signed [31:0] out
 );
-  function automatic signed [31:0] abs32(input signed [31:0] v);
-    abs32 = (v < 0) ? -v : v;
-  endfunction
 
-  localparam signed [31:0] MIN_INT = 32'sh8000_0000;
+    // Output matches the implemented conditional expression.
+    check_absolute_value_function: assert property (
+        @(posedge clk) out == ((in < 32'sd0) ? -in : in)
+    );
 
-  default clocking cb @(in or out); endclocking
+    // Non-negative inputs pass through unchanged.
+    check_nonnegative_passthrough: assert property (
+        @(posedge clk) (in >= 32'sd0) |-> (out == in)
+    );
 
-  // Functional correctness for known inputs
-  ap_correct_known: assert property ( !$isunknown(in) |-> (out === abs32(in)) );
+    // Negative inputs produce the two's-complement negation.
+    check_negative_negation: assert property (
+        @(posedge clk) (in < 32'sd0) |-> (out == -in)
+    );
 
-  // Output must be known whenever input is known
-  ap_knownness:     assert property ( !$isunknown(in) |-> !$isunknown(out) );
+    // Zero maps to zero.
+    check_zero_maps_to_zero: assert property (
+        @(posedge clk) (in == 32'sd0) |-> (out == 32'sd0)
+    );
 
-  // Non-negativity except the MIN_INT overflow corner
-  ap_nonneg:        assert property ( (!$isunknown(in) && in != MIN_INT) |-> ($signed(out) >= 0) );
+    // The most-negative input remains unchanged after negation overflow.
+    check_min_negative_corner_case: assert property (
+        @(posedge clk) (in == 32'sh80000000) |-> (out == 32'sh80000000)
+    );
 
-  // Explicit MIN_INT corner-case behavior
-  ap_minint:        assert property ( (in === MIN_INT) |-> (out === MIN_INT) );
+    // Negative inputs other than the minimum value yield non-negative outputs.
+    check_negative_nonmin_yields_nonnegative: assert property (
+        @(posedge clk) ((in < 32'sd0) && (in != 32'sh80000000)) |-> (out >= 32'sd0)
+    );
 
-  // Algebraic invariant: |x| == |-x| (helps catch sign handling mistakes)
-  ap_symmetry:      assert property ( !$isunknown(in) |-> (out === abs32(-in)) );
-
-  // Coverage
-  cv_zero: cover property ( !$isunknown(in) && (in == 32'sd0) );
-  cv_pos:  cover property ( !$isunknown(in) && ($signed(in) > 0) );
-  cv_neg:  cover property ( !$isunknown(in) && ($signed(in) < 0) && (in != MIN_INT) );
-  cv_min:  cover property ( in === MIN_INT );
 endmodule
-
-// Bind into the DUT
-bind absolute_value absolute_value_sva abs_val_sva_i (.in(in), .out(out));

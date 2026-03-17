@@ -1,39 +1,49 @@
-// SVA for xor_32
-module xor_32_sva (input [31:0] a, b, input [31:0] out);
+module xor_32_sva (
+    input logic [31:0] a,
+    input logic [31:0] b,
+    input logic [31:0] out
+);
 
-  // Functional correctness (4-state accurate)
-  always_comb
-    assert (out === (a ^ b))
-      else $error("xor_32 mismatch: a=%h b=%h out=%h", a, b, out);
+    // No RTL clock/reset; sample this combinational logic on the formal global clock.
 
-  // X-propagation: known inputs => known output
-  always_comb
-    if (!$isunknown({a,b}))
-      assert (!$isunknown(out))
-        else $error("xor_32 X-prop error: a=%h b=%h out=%h", a, b, out);
+    // out must always equal the bitwise XOR of a and b.
+    check_out_matches_bitwise_xor: assert property (
+        @($global_clock) out == (a ^ b)
+    );
 
-  // Per-bit functional coverage of all input combinations
-  genvar i;
-  generate
-    for (i = 0; i < 32; i++) begin : g_cov
-      always_comb begin
-        cover (a[i]==0 && b[i]==0 && out[i]==0);
-        cover (a[i]==0 && b[i]==1 && out[i]==1);
-        cover (a[i]==1 && b[i]==0 && out[i]==1);
-        cover (a[i]==1 && b[i]==1 && out[i]==0);
-      end
-      // Toggle coverage per bit
-      cover property (@(posedge out[i]) 1'b1);
-      cover property (@(negedge out[i]) 1'b1);
-    end
-  endgenerate
+    // If b is zero, out must pass through a unchanged.
+    check_b_zero_passthrough: assert property (
+        @($global_clock) (b == 32'h0000_0000) |-> (out == a)
+    );
 
-  // Vector-level corner coverage
-  always_comb begin
-    cover ((a == b)  && (out == '0));
-    cover ((a == ~b) && (out == ~'0));
-  end
+    // If a is zero, out must pass through b unchanged.
+    check_a_zero_passthrough: assert property (
+        @($global_clock) (a == 32'h0000_0000) |-> (out == b)
+    );
+
+    // Equal inputs must produce a zero output.
+    check_equal_inputs_zero_output: assert property (
+        @($global_clock) (a == b) |-> (out == 32'h0000_0000)
+    );
+
+    // If b is all ones, out must be the bitwise inverse of a.
+    check_b_all_ones_inverts_a: assert property (
+        @($global_clock) (b == 32'hFFFF_FFFF) |-> (out == ~a)
+    );
+
+    // If a is all ones, out must be the bitwise inverse of b.
+    check_a_all_ones_inverts_b: assert property (
+        @($global_clock) (a == 32'hFFFF_FFFF) |-> (out == ~b)
+    );
+
+    // XORing out with b must recover a.
+    check_output_with_b_recovers_a: assert property (
+        @($global_clock) ((out ^ b) == a)
+    );
+
+    // XORing out with a must recover b.
+    check_output_with_a_recovers_b: assert property (
+        @($global_clock) ((out ^ a) == b)
+    );
 
 endmodule
-
-bind xor_32 xor_32_sva sva_xor_32 (.*);

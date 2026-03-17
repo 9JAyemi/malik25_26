@@ -1,52 +1,41 @@
-// SVA for logic_circuit
-module logic_circuit_sva (
-  input logic A1, A2, B1, B2, C1,
-  input logic X
+module logic_circuit_assertions (
+    input logic clk,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic B2,
+    input logic C1,
+    input logic X
 );
 
-  // Sample on any edge of inputs/output to catch combinational changes
-  default clocking cb @(
-    posedge A1 or negedge A1 or
-    posedge A2 or negedge A2 or
-    posedge B1 or negedge B1 or
-    posedge B2 or negedge B2 or
-    posedge C1 or negedge C1 or
-    posedge X  or negedge X
-  ); endclocking
+    // X must match the implemented OR-of-ANDs function.
+    check_x_function: assert property (
+        @(posedge clk) X == ((A1 & A2) | (B1 & B2) | C1)
+    );
 
-  // Local terms
-  let a_term = (A1 & A2);
-  let b_term = (B1 & B2);
-  let f     = (C1 | a_term | b_term);
+    // C1 high must drive X high.
+    check_c1_implies_x_high: assert property (
+        @(posedge clk) C1 |-> X
+    );
 
-  // Functional equivalence (when inputs are known, output must match)
-  ap_func: assert property ( !$isunknown({A1,A2,B1,B2,C1}) |-> (X === f) );
+    // A1 and A2 high together must drive X high.
+    check_a_pair_implies_x_high: assert property (
+        @(posedge clk) (A1 & A2) |-> X
+    );
 
-  // Scenario coverage across OR-term space (and correctness of X)
-  cp_000: cover property ( ({C1,a_term,b_term} == 3'b000) && (X==1'b0) );
-  cp_001: cover property ( ({C1,a_term,b_term} == 3'b001) && (X==1'b1) );
-  cp_010: cover property ( ({C1,a_term,b_term} == 3'b010) && (X==1'b1) );
-  cp_011: cover property ( ({C1,a_term,b_term} == 3'b011) && (X==1'b1) );
-  cp_100: cover property ( ({C1,a_term,b_term} == 3'b100) && (X==1'b1) );
-  cp_101: cover property ( ({C1,a_term,b_term} == 3'b101) && (X==1'b1) );
-  cp_110: cover property ( ({C1,a_term,b_term} == 3'b110) && (X==1'b1) );
-  cp_111: cover property ( ({C1,a_term,b_term} == 3'b111) && (X==1'b1) );
+    // B1 and B2 high together must drive X high.
+    check_b_pair_implies_x_high: assert property (
+        @(posedge clk) (B1 & B2) |-> X
+    );
 
-  // Toggle coverage on all primary inputs and output
-  cA1_r: cover property (@(posedge A1) 1);
-  cA1_f: cover property (@(negedge A1) 1);
-  cA2_r: cover property (@(posedge A2) 1);
-  cA2_f: cover property (@(negedge A2) 1);
-  cB1_r: cover property (@(posedge B1) 1);
-  cB1_f: cover property (@(negedge B1) 1);
-  cB2_r: cover property (@(posedge B2) 1);
-  cB2_f: cover property (@(negedge B2) 1);
-  cC1_r: cover property (@(posedge C1) 1);
-  cC1_f: cover property (@(negedge C1) 1);
-  cX_r:  cover property (@(posedge X)  1);
-  cX_f:  cover property (@(negedge X)  1);
+    // If all OR inputs are low, X must be low.
+    check_all_terms_low_implies_x_low: assert property (
+        @(posedge clk) (!C1 && !(A1 & A2) && !(B1 & B2)) |-> !X
+    );
+
+    // X low means none of the three OR terms are asserted.
+    check_x_low_only_when_all_terms_low: assert property (
+        @(posedge clk) !X |-> (!C1 && !(A1 & A2) && !(B1 & B2))
+    );
 
 endmodule
-
-// Bind into DUT
-bind logic_circuit logic_circuit_sva u_logic_circuit_sva (.*);

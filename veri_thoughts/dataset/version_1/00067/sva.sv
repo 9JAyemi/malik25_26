@@ -1,31 +1,29 @@
-// SVA for sky130_fd_sc_hd__mux_2
-module sky130_fd_sc_hd__mux_2_sva #(parameter W=4)
-(
-  input  logic [W-1:0] A,
-  input  logic [W-1:0] B,
-  input  logic         S,
-  input  logic [W-1:0] Y
+module sky130_fd_sc_hd__mux_2_sva (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic S,
+    input logic [3:0] Y
 );
 
-  // Combinational equivalence (delta-cycle safe)
-  always_comb
-    assert #0 (Y === (S ? B : A))
-      else $error("MUX func mismatch: Y != (S?B:A)");
+    // Y must equal A when S is low.
+    check_select_a: assert property (
+        @(posedge clk) (!S) |-> (Y == A)
+    );
 
-  // If all inputs are known, output must be known
-  assert property (@(A or B or S)
-                   (!$isunknown({S,A,B})) |-> !$isunknown(Y))
-    else $error("MUX X-prop: known inputs produced unknown Y");
+    // Y must equal B when S is high.
+    check_select_b: assert property (
+        @(posedge clk) S |-> (Y == B)
+    );
 
-  // Functional path coverage: observe meaningful selection on S edges
-  cover property (@(posedge S) (A !== B) && (Y === B));
-  cover property (@(negedge S) (A !== B) && (Y === A));
+    // Y must always match the mux select equation.
+    check_mux_equation: assert property (
+        @(posedge clk) Y == (S ? B : A)
+    );
 
-  // Data-path propagation coverage when selected input changes
-  cover property (@(A) (S === 1'b0 && $changed(A) && (A !== B)) ##0 (Y === A));
-  cover property (@(B) (S === 1'b1 && $changed(B) && (A !== B)) ##0 (Y === B));
+    // If A and B are equal, Y must match that common value.
+    check_equal_inputs_passthrough: assert property (
+        @(posedge clk) (A == B) |-> (Y == A)
+    );
 
 endmodule
-
-// Bind into DUT
-bind sky130_fd_sc_hd__mux_2 sky130_fd_sc_hd__mux_2_sva #(.W(4)) mux2_sva_i (.*);

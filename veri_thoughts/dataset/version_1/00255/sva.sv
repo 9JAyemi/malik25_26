@@ -1,43 +1,50 @@
-// SVA checker for comparator (binds to DUT; no DUT changes needed)
 module comparator_sva (
-  input logic [1:0] in_0,
-  input logic [1:0] in_1,
-  input logic [1:0] out
+    input logic       clk,
+    input logic [1:0] in_0,
+    input logic [1:0] in_1,
+    input logic [1:0] out
 );
 
-  function automatic logic [1:0] exp (input logic [1:0] a, input logic [1:0] b);
-    exp = (a > b) ? 2'b01 : ((a == b) ? 2'b10 : 2'b00);
-  endfunction
+    // Greater-than inputs encode as 01.
+    check_gt_encoding: assert property (
+        @(posedge clk)
+        (!$isunknown({in_0, in_1}) && (in_0 > in_1)) |-> (out === 2'b01)
+    );
 
-  // Functional correctness when inputs are known
-  property p_func_ok;
-    @(in_0 or in_1) !$isunknown({in_0,in_1}) |-> ##0 (out == exp(in_0,in_1));
-  endproperty
-  assert property(p_func_ok);
+    // Equal inputs encode as 10.
+    check_eq_encoding: assert property (
+        @(posedge clk)
+        (!$isunknown({in_0, in_1}) && (in_0 == in_1)) |-> (out === 2'b10)
+    );
 
-  // Output is 2-state when inputs are 2-state
-  property p_no_x_out_when_inputs_known;
-    @(in_0 or in_1) !$isunknown({in_0,in_1}) |-> ##0 !$isunknown(out);
-  endproperty
-  assert property(p_no_x_out_when_inputs_known);
+    // Less-than inputs encode as 00.
+    check_lt_encoding: assert property (
+        @(posedge clk)
+        (!$isunknown({in_0, in_1}) && (in_0 < in_1)) |-> (out === 2'b00)
+    );
 
-  // Output always a legal code (00,01,10)
-  property p_legal_code;
-    @(out) 1 |-> ##0 (out inside {2'b00,2'b01,2'b10});
-  endproperty
-  assert property(p_legal_code);
+    // Output is always one of the implemented encodings.
+    check_valid_output_code: assert property (
+        @(posedge clk)
+        (out === 2'b00) || (out === 2'b01) || (out === 2'b10)
+    );
 
-  // No output toggle without an input toggle
-  property p_no_spurious_toggle;
-    @(out) 1 |-> ##0 ($changed(in_0) || $changed(in_1));
-  endproperty
-  assert property(p_no_spurious_toggle);
+    // out[0] is asserted only for the greater-than case.
+    check_bit0_tracks_gt: assert property (
+        @(posedge clk)
+        (!$isunknown({in_0, in_1})) |-> (out[0] === (in_0 > in_1))
+    );
 
-  // Coverage: hit all three outcomes (with known inputs)
-  cover property (@(in_0 or in_1) !$isunknown({in_0,in_1}) ##0 (out == 2'b01)); // in_0 > in_1
-  cover property (@(in_0 or in_1) !$isunknown({in_0,in_1}) ##0 (out == 2'b10)); // in_0 == in_1
-  cover property (@(in_0 or in_1) !$isunknown({in_0,in_1}) ##0 (out == 2'b00)); // in_0 < in_1
+    // out[1] is asserted only for the equal case.
+    check_bit1_tracks_eq: assert property (
+        @(posedge clk)
+        (!$isunknown({in_0, in_1})) |-> (out[1] === (in_0 == in_1))
+    );
+
+    // Stable inputs keep the combinational output stable.
+    check_stable_inputs_keep_output_stable: assert property (
+        @(posedge clk)
+        $stable({in_0, in_1}) |-> $stable(out)
+    );
 
 endmodule
-
-bind comparator comparator_sva i_comparator_sva (.in_0(in_0), .in_1(in_1), .out(out));

@@ -1,71 +1,118 @@
-// SVA for ripple_carry_adder and full_adder
-// Bind-only; no DUT changes required.
-
 module ripple_carry_adder_sva (
-  input  logic [3:0] a,
-  input  logic [3:0] b,
-  input  logic       cin,
-  input  logic [3:0] sum,
-  input  logic       cout
+    input logic clk,
+    input logic [3:0] a,
+    input logic [3:0] b,
+    input logic cin,
+    input logic [3:0] sum,
+    input logic cout
 );
-  clocking cb @(*); endclocking
-  default clocking cb;
 
-  function automatic bit in_x();  return $isunknown({a,b,cin});          endfunction
-  function automatic bit any_x(); return $isunknown({a,b,cin,sum,cout}); endfunction
+    function automatic logic carry3(
+        input logic x,
+        input logic y,
+        input logic z
+    );
+        carry3 = (x & y) | (x & z) | (y & z);
+    endfunction
 
-  // Derived carry chain from inputs only (no need to see internal nets)
-  logic c1, c2, c3;
-  assign c1 = (a[0]&b[0]) | ((a[0]^b[0]) & cin);
-  assign c2 = (a[1]&b[1]) | ((a[1]^b[1]) & c1);
-  assign c3 = (a[2]&b[2]) | ((a[2]^b[2]) & c2);
+    function automatic logic c1_fn(
+        input logic [3:0] x,
+        input logic [3:0] y,
+        input logic c
+    );
+        c1_fn = carry3(x[0], y[0], c);
+    endfunction
 
-  // Golden arithmetic equivalence
-  assert property ( disable iff (in_x()) {cout,sum} == a + b + cin );
+    function automatic logic c2_fn(
+        input logic [3:0] x,
+        input logic [3:0] y,
+        input logic c
+    );
+        c2_fn = carry3(x[1], y[1], c1_fn(x, y, c));
+    endfunction
 
-  // Bitwise ripple correctness
-  assert property ( disable iff (in_x())
-      (sum[0] == (a[0]^b[0]^cin)) &&
-      (sum[1] == (a[1]^b[1]^c1 )) &&
-      (sum[2] == (a[2]^b[2]^c2 )) &&
-      (sum[3] == (a[3]^b[3]^c3 )) &&
-      (cout    == ((a[3]&b[3]) | ((a[3]^b[3]) & c3)))
-  );
+    function automatic logic c3_fn(
+        input logic [3:0] x,
+        input logic [3:0] y,
+        input logic c
+    );
+        c3_fn = carry3(x[2], y[2], c2_fn(x, y, c));
+    endfunction
 
-  // Outputs must be known when inputs are known
-  assert property ( disable iff (in_x()) !$isunknown({sum,cout}) );
+    function automatic logic c4_fn(
+        input logic [3:0] x,
+        input logic [3:0] y,
+        input logic c
+    );
+        c4_fn = carry3(x[3], y[3], c3_fn(x, y, c));
+    endfunction
 
-  // Targeted functional coverage
-  cover property ( !any_x() && a==4'h0 && b==4'h0 && cin==1'b0 && sum==4'h0 && cout==1'b0 ); // zero add
-  cover property ( !any_x() && a==4'hF && b==4'hF && cin==1'b1 && sum==4'hF && cout==1'b1 ); // max + overflow
-  cover property ( !any_x() && (a^b)==4'hF && (a&b)==4'h0 && cin==1'b1 && sum==4'h0 && cout==1'b1 ); // full propagate chain
-  cover property ( !any_x() && (a&b)==4'h0 && cin==1'b0 && sum==(a^b) && cout==1'b0 ); // no generate, no carry
-  cover property ( !any_x() && a==4'b0111 && b==4'b0000 && cin==1'b1 && sum==4'b1000 && cout==1'b0 ); // multi-bit ripple, no overflow
+    function automatic logic [4:0] add5_fn(
+        input logic [3:0] x,
+        input logic [3:0] y,
+        input logic c
+    );
+        add5_fn = {1'b0, x} + {1'b0, y} + c;
+    endfunction
+
+    // Combined output must equal the 4-bit addition with carry in.
+    check_total_addition: assert property (
+        @(posedge clk) disable iff (1'b0)
+        {cout, sum} == add5_fn(a, b, cin)
+    );
+
+    // Bit 0 sum matches the first full-adder stage.
+    check_sum_bit0: assert property (
+        @(posedge clk) disable iff (1'b0)
+        sum[0] == (a[0] ^ b[0] ^ cin)
+    );
+
+    // Bit 1 sum uses the carry rippled from bit 0.
+    check_sum_bit1: assert property (
+        @(posedge clk) disable iff (1'b0)
+        sum[1] == (a[1] ^ b[1] ^ c1_fn(a, b, cin))
+    );
+
+    // Bit 2 sum uses the carry rippled from bit 1.
+    check_sum_bit2: assert property (
+        @(posedge clk) disable iff (1'b0)
+        sum[2] == (a[2] ^ b[2] ^ c2_fn(a, b, cin))
+    );
+
+    // Bit 3 sum uses the carry rippled from bit 2.
+    check_sum_bit3: assert property (
+        @(posedge clk) disable iff (1'b0)
+        sum[3] == (a[3] ^ b[3] ^ c3_fn(a, b, cin))
+    );
+
+    // Carry out matches the final ripple carry.
+    check_carry_out: assert property (
+        @(posedge clk) disable iff (1'b0)
+        cout == c4_fn(a, b, cin)
+    );
+
+    // Carry out must be low when the total is below 16.
+    check_no_overflow_range: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (add5_fn(a, b, cin) < 5'd16) |-> !cout
+    );
+
+    // Carry out must be high when the total is 16 or more.
+    check_overflow_range: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (add5_fn(a, b, cin) >= 5'd16) |-> cout
+    );
+
+    // Adding zero with no carry-in passes a through unchanged.
+    check_b_zero_passthrough: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (b == 4'b0000 && cin == 1'b0) |-> (sum == a && cout == 1'b0)
+    );
+
+    // Adding zero with no carry-in passes b through unchanged.
+    check_a_zero_passthrough: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (a == 4'b0000 && cin == 1'b0) |-> (sum == b && cout == 1'b0)
+    );
+
 endmodule
-
-bind ripple_carry_adder ripple_carry_adder_sva rca_sva_i (.*);
-
-
-// Optional: per-cell SVA for full_adder (useful if reused elsewhere)
-module full_adder_sva (
-  input  logic a,
-  input  logic b,
-  input  logic cin,
-  input  logic sum,
-  input  logic cout
-);
-  clocking cb @(*); endclocking
-  default clocking cb;
-
-  function automatic bit in_x(); return $isunknown({a,b,cin}); endfunction
-
-  assert property ( disable iff (in_x()) {cout,sum} == a + b + cin );
-  assert property ( disable iff (in_x())
-                    (sum == (a^b^cin)) &&
-                    (cout == ((a&b) | ((a^b)&cin))) );
-
-  cover property ( !$isunknown({a,b,cin,sum,cout}) && a==0 && b==0 && cin==0 && sum==0 && cout==0 );
-  cover property ( !$isunknown({a,b,cin,sum,cout}) && a==1 && b==1 && cin==1 && sum==1 && cout==1 );
-endmodule
-
-bind full_adder full_adder_sva fa_sva_i (.*);

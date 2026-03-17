@@ -1,62 +1,42 @@
-// SVA for dff: concise, full behavioral checks and coverage
-module dff_sva #(parameter INIT = 1'b0) (
-  input logic Q, D, C, E, R, S
+module dff_sva #(
+    parameter INIT = 1'b0
+) (
+    input logic Q,
+    input logic D,
+    input logic C,
+    input logic E,
+    input logic R,
+    input logic S
 );
 
-  default clocking cb @(posedge C); endclocking
+    // Active-low synchronous reset loads INIT.
+    check_reset_loads_init: assert property (
+        @(posedge C) !R |=> (Q == INIT)
+    );
 
-  // Make $past safe
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always @(posedge C) past_valid <= 1'b1;
+    // Active-low set forces Q high when reset is inactive.
+    check_set_forces_one: assert property (
+        @(posedge C) disable iff (!R) !S |=> Q
+    );
 
-  // Q must never be X/Z at clock edges
-  a_q_known: assert property ( !$isunknown(Q) );
+    // With set inactive, enable loads a 0 from D.
+    check_enable_loads_zero: assert property (
+        @(posedge C) disable iff (!R) (S && E && !D) |=> !Q
+    );
 
-  // Synchronous priority and behavior (use previous-cycle controls)
-  a_reset: assert property ( disable iff (!past_valid)
-                             !$past(R) |-> (Q == INIT) );
+    // With set inactive, enable loads a 1 from D.
+    check_enable_loads_one: assert property (
+        @(posedge C) disable iff (!R) (S && E && D) |=> Q
+    );
 
-  a_set:   assert property ( disable iff (!past_valid)
-                             ($past(R) && !$past(S)) |-> (Q == 1'b1) );
+    // With reset/set inactive and enable low, Q holds 0.
+    check_hold_zero_when_disabled: assert property (
+        @(posedge C) disable iff (!R) (S && !E && !Q) |=> !Q
+    );
 
-  a_en:    assert property ( disable iff (!past_valid)
-                             ($past(R) && $past(S) && $past(E)) |-> (Q == $past(D)) );
-
-  a_hold:  assert property ( disable iff (!past_valid)
-                             ($past(R) && $past(S) && !$past(E)) |-> (Q == $past(Q)) );
-
-  // When both R and S are low, reset has priority (explicitly checked)
-  a_rs_both_low_pri: assert property ( disable iff (!past_valid)
-                                       (!$past(R) && !$past(S)) |-> (Q == INIT) );
-
-  // Q may only change coincident with C posedge (no glitches)
-  a_q_only_changes_on_c: assert property (@(posedge Q or negedge Q) $rose(C));
-
-  // Coverage: hit all key behaviors
-  c_reset:   cover property ( disable iff (!past_valid)
-                              !$past(R) ##1 (Q == INIT) );
-
-  c_set:     cover property ( disable iff (!past_valid)
-                              ($past(R) && !$past(S)) ##1 (Q == 1'b1) );
-
-  c_hold:    cover property ( disable iff (!past_valid)
-                              ($past(R) && $past(S) && !$past(E)) ##1 (Q == $past(Q)) );
-
-  // Enable-driven 0->1 and 1->0 updates
-  c_en_01:   cover property ( disable iff (!past_valid)
-                              ($past(R) && $past(S) && $past(E) &&
-                               ($past(Q)==1'b0) && ($past(D)==1'b1)) ##1 (Q==1'b1) );
-
-  c_en_10:   cover property ( disable iff (!past_valid)
-                              ($past(R) && $past(S) && $past(E) &&
-                               ($past(Q)==1'b1) && ($past(D)==1'b0)) ##1 (Q==1'b0) );
-
-  // Both controls low in same cycle (priority exercised)
-  c_rs_both_low: cover property ( disable iff (!past_valid)
-                                  (!$past(R) && !$past(S)) ##1 (Q == INIT) );
+    // With reset/set inactive and enable low, Q holds 1.
+    check_hold_one_when_disabled: assert property (
+        @(posedge C) disable iff (!R) (S && !E && Q) |=> Q
+    );
 
 endmodule
-
-// Bind example:
-// bind dff dff_sva #(.INIT(INIT)) dff_sva_i (.Q(Q), .D(D), .C(C), .E(E), .R(R), .S(S));

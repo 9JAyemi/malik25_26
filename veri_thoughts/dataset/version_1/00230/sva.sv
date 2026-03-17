@@ -1,75 +1,104 @@
-// SVA for ad_datafmt: concise, high-quality checks and key coverage
-// Bind as: bind ad_datafmt ad_datafmt_sva #(.DATA_WIDTH(DATA_WIDTH), .DISABLE(DISABLE)) sva_i(.*);
-
 module ad_datafmt_sva #(
-  parameter int DATA_WIDTH = 16,
-  parameter int DISABLE    = 0
-) (ad_datafmt dut);
+    parameter DATA_WIDTH = 16,
+    parameter DISABLE = 0
+) (
+    input logic clk,
+    input logic valid,
+    input logic [(DATA_WIDTH-1):0] data,
+    input logic valid_out,
+    input logic [15:0] data_out,
+    input logic dfmt_enable,
+    input logic dfmt_type,
+    input logic dfmt_se
+);
 
-  // Basic parameter sanity (static)
-  initial begin
-    assert (DATA_WIDTH >= 1 && DATA_WIDTH <= 16)
-      else $error("ad_datafmt: DATA_WIDTH must be 1..16 (got %0d)", DATA_WIDTH);
-  end
+generate
+if (DISABLE == 1) begin : g_disabled
 
-  default clocking cb @(posedge dut.clk); endclocking
+    // valid_out directly mirrors valid when the block is disabled.
+    check_disabled_valid_passthrough: assert property (
+        @(posedge clk) valid_out == valid
+    );
 
-  // Golden model of combinational formatter (16-bit)
-  function automatic logic [15:0] fmt16(input logic [DATA_WIDTH-1:0] d,
-                                        input logic en, t, se);
-    logic type_s, msb, upper;
-    logic [15:0] r;
-    type_s = en & t;
-    msb    = d[DATA_WIDTH-1] ^ type_s;
-    r      = '0;
-    if (DATA_WIDTH > 1) r[DATA_WIDTH-2:0] = d[DATA_WIDTH-2:0];
-    r[DATA_WIDTH-1] = msb;
-    if (DATA_WIDTH < 16) begin
-      upper = (en & se) & msb;
-      r[15:DATA_WIDTH] = {(16-DATA_WIDTH){upper}};
+    if (DATA_WIDTH < 16) begin : g_disabled_narrow
+
+        // data_out is a zero-extended copy of data when the block is disabled.
+        check_disabled_data_zero_extend: assert property (
+            @(posedge clk) data_out == {{(16-DATA_WIDTH){1'b0}}, data}
+        );
+
+        // Upper output bits stay zero for narrow disabled configurations.
+        check_disabled_upper_zero: assert property (
+            @(posedge clk) data_out[15:DATA_WIDTH] == {(16-DATA_WIDTH){1'b0}}
+        );
+
+    end else begin : g_disabled_wide
+
+        // data_out directly mirrors the low 16 bits of data when disabled.
+        check_disabled_data_word_copy: assert property (
+            @(posedge clk) data_out == data[15:0]
+        );
+
     end
-    return r;
-  endfunction
 
-  // Behavior checks
-  if (DISABLE) begin : g_disable_checks
-    // Pure passthrough (combinational) — sampled on clk for SVA
-    ap_ps_v: assert property (dut.valid_out == dut.valid)
-      else $error("DISABLE: valid_out != valid");
-    ap_ps_d: assert property (dut.data_out == { {(16-DATA_WIDTH){1'b0}}, dut.data })
-      else $error("DISABLE: data_out != zero-extended data");
-  end else begin : g_pipe_checks
-    // 1-cycle pipeline
-    ap_p_v: assert property (dut.valid_out == $past(dut.valid,1,1'b0))
-      else $error("PIPE: valid_out not 1-cycle delayed");
-    ap_p_d: assert property (
-               dut.data_out ==
-               $past(fmt16(dut.data, dut.dfmt_enable, dut.dfmt_type, dut.dfmt_se), 1, 16'h0)
-             )
-      else $error("PIPE: data_out not equal to formatted $past(data,ctrl)");
-  end
+end else begin : g_enabled
 
-  // Key functional coverage
-  if (!DISABLE) begin : g_cov
-    // Pipeline activity
-    cp_v_pipe:    cover property (dut.valid ##1 dut.valid_out);
+    // valid_out is the registered valid input.
+    check_enabled_valid_pipeline: assert property (
+        @(posedge clk) 1'b1 |=> (valid_out == $past(valid))
+    );
 
-    // Pass-through mode (dfmt_enable=0)
-    cp_passthru:  cover property (!dut.dfmt_enable);
+    if (DATA_WIDTH > 1) begin : g_enabled_low_bits
 
-    // Invert MSB only (enable & type, no sign-extend), both MSB polarities
-    cp_inv_msb0:  cover property (dut.dfmt_enable && dut.dfmt_type && !dut.dfmt_se && (dut.data[DATA_WIDTH-1]==1'b0));
-    cp_inv_msb1:  cover property (dut.dfmt_enable && dut.dfmt_type && !dut.dfmt_se && (dut.data[DATA_WIDTH-1]==1'b1));
+        // Lower data bits are registered without modification.
+        check_enabled_lower_bits_pipeline: assert property (
+            @(posedge clk) 1'b1 |=> (data_out[DATA_WIDTH-2:0] == $past(data[DATA_WIDTH-2:0]))
+        );
 
-    // Sign-extend path exercised for both MSB polarities
-    if (DATA_WIDTH < 16) begin
-      cp_se_msb0: cover property (dut.dfmt_enable && dut.dfmt_se && (dut.data[DATA_WIDTH-1]==1'b0));
-      cp_se_msb1: cover property (dut.dfmt_enable && dut.dfmt_se && (dut.data[DATA_WIDTH-1]==1'b1));
     end
-  end else begin : g_cov_disable
-    // Passthrough path toggles
-    cp_ps_dchg: cover property ($changed(dut.data) |-> $changed(dut.data_out));
-    cp_ps_vchg: cover property ($changed(dut.valid) |-> $changed(dut.valid_out));
-  end
+
+    // The output sign bit is optionally inverted and then registered.
+    check_enabled_sign_bit_format: assert property (
+        @(posedge clk) 1'b1 |=> (data_out[DATA_WIDTH-1] == ($past(dfmt_enable & dfmt_type) ^ $past(data[DATA_WIDTH-1])))
+    );
+
+    // With dfmt_type inactive, the sign bit is preserved.
+    check_enabled_type_zero_preserve_sign: assert property (
+        @(posedge clk) 1'b1 |=> ($past(dfmt_enable & dfmt_type) || (data_out[DATA_WIDTH-1] == $past(data[DATA_WIDTH-1])))
+    );
+
+    // With dfmt_type active, the sign bit is inverted.
+    check_enabled_type_one_invert_sign: assert property (
+        @(posedge clk) 1'b1 |=> (!$past(dfmt_enable & dfmt_type) || (data_out[DATA_WIDTH-1] == ~$past(data[DATA_WIDTH-1])))
+    );
+
+    if (DATA_WIDTH < 16) begin : g_enabled_narrow
+
+        // Upper bits clear when sign extension was not enabled.
+        check_enabled_upper_zero_without_signext: assert property (
+            @(posedge clk) 1'b1 |=> ($past(dfmt_enable & dfmt_se) || (data_out[15:DATA_WIDTH] == {(16-DATA_WIDTH){1'b0}}))
+        );
+
+        // Upper bits replicate the formatted sign bit when sign extension is enabled.
+        check_enabled_upper_signext: assert property (
+            @(posedge clk) 1'b1 |=> (!$past(dfmt_enable & dfmt_se) || (data_out[15:DATA_WIDTH] == {(16-DATA_WIDTH){data_out[DATA_WIDTH-1]}}))
+        );
+
+        // dfmt_enable low produces a zero-extended registered copy of data.
+        check_enabled_dfmt_disable_zero_extend: assert property (
+            @(posedge clk) 1'b1 |=> ($past(dfmt_enable) || (data_out == {{(16-DATA_WIDTH){1'b0}}, $past(data)}))
+        );
+
+    end else begin : g_enabled_wide
+
+        // dfmt_enable low produces a registered copy of data.
+        check_enabled_dfmt_disable_word_copy: assert property (
+            @(posedge clk) 1'b1 |=> ($past(dfmt_enable) || (data_out == $past(data[15:0])))
+        );
+
+    end
+
+end
+endgenerate
 
 endmodule

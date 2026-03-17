@@ -1,34 +1,50 @@
-// SVA checker for sky130_fd_sc_hd__a41oi
-// Function: Y = ~(B1 | (A1 & A2 & A3 & A4))
-
-module a41oi_sva (
-  input logic Y,
-  input logic A1, A2, A3, A4,
-  input logic B1
+module sky130_fd_sc_hd__a41oi_sva (
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic A4,
+    input logic B1
 );
-  default clocking cb @(*); endclocking
 
-  // Functional correctness
-  ap_func: assert property ( Y === ~(B1 | (A1 & A2 & A3 & A4)) )
-    else $error("a41oi func mismatch");
+    // Y implements ~(B1 | (A1 & A2 & A3 & A4)).
+    check_boolean_function: assert property (
+        @($global_clock) Y == ~(B1 | (A1 & A2 & A3 & A4))
+    );
 
-  // X-propagation: if inputs known, output must be known
-  ap_known: assert property ( !$isunknown({A1,A2,A3,A4,B1}) |-> !$isunknown(Y) )
-    else $error("a41oi X-propagation issue");
+    // B1 high forces the NOR output low.
+    check_b1_forces_low: assert property (
+        @($global_clock) B1 |-> !Y
+    );
 
-  // Dominance checks (redundant to ap_func but good for debug localization)
-  ap_b1_dom:   assert property ( B1 |-> (Y == 1'b0) ) else $error("B1 dominance fail");
-  ap_and_dom:  assert property ( (A1 & A2 & A3 & A4) |-> (Y == 1'b0) ) else $error("AND4 dominance fail");
-  ap_pass:     assert property ( (!B1 && !(A1 & A2 & A3 & A4)) |-> (Y == 1'b1) ) else $error("pass-through fail");
+    // All four A inputs high force the AND term high and Y low.
+    check_all_a_high_forces_low: assert property (
+        @($global_clock) (A1 & A2 & A3 & A4) |-> !Y
+    );
 
-  // Coverage: all meaningful output causes and toggles
-  c_y1:        cover property ( !B1 && !(A1 & A2 & A3 & A4) && Y );
-  c_y0_b1:     cover property ( B1 && !Y );
-  c_y0_and:    cover property ( !B1 && (A1 & A2 & A3 & A4) && !Y );
-  c_y_rise:    cover property ( @(posedge Y) 1'b1 );
-  c_y_fall:    cover property ( @(negedge Y) 1'b1 );
+    // With B1 low, any low A input makes Y high.
+    check_b1_low_and_any_a_low_forces_high: assert property (
+        @($global_clock) (!B1 && (!A1 || !A2 || !A3 || !A4)) |-> Y
+    );
+
+    // Y high requires B1 to be low.
+    check_y_high_requires_b1_low: assert property (
+        @($global_clock) Y |-> !B1
+    );
+
+    // Y high requires the four-input AND term to be low.
+    check_y_high_requires_a_not_all_high: assert property (
+        @($global_clock) Y |-> (!A1 || !A2 || !A3 || !A4)
+    );
+
+    // If Y is low while B1 is low, all A inputs must be high.
+    check_y_low_with_b1_low_requires_all_a_high: assert property (
+        @($global_clock) (!Y && !B1) |-> (A1 && A2 && A3 && A4)
+    );
+
+    // If Y is low while any A input is low, B1 must be high.
+    check_y_low_with_any_a_low_requires_b1_high: assert property (
+        @($global_clock) (!Y && (!A1 || !A2 || !A3 || !A4)) |-> B1
+    );
 
 endmodule
-
-// Bind into all instances of the DUT
-bind sky130_fd_sc_hd__a41oi a41oi_sva a41oi_sva_i(.*);

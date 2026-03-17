@@ -1,56 +1,44 @@
-// SVA bind module for full_adder
 module full_adder_sva (
-  input logic a, b, cin,
-  input logic s, cout,
-  input logic c1, c2
+    input logic clk,
+    input logic a,
+    input logic b,
+    input logic cin,
+    input logic s,
+    input logic cout
 );
 
-  // Combinational, 4-state safe checks
-  always_comb begin
-    // No X/Z on IOs
-    assert (!$isunknown({a,b,cin,s,cout}))
-      else $error("full_adder: X/Z detected on IOs a=%b b=%b cin=%b s=%b cout=%b", a,b,cin,s,cout);
+    // Sum must match the XOR of the three inputs.
+    check_sum_function: assert property (
+        @(posedge clk) s == (a ^ b ^ cin)
+    );
 
-    // Internal terms
-    assert (c1 === (a & b))
-      else $error("full_adder: c1 mismatch: c1=%b a&b=%b", c1, (a&b));
-    assert (c2 === (cin & (a ^ b)))
-      else $error("full_adder: c2 mismatch: c2=%b cin&(a^b)=%b", c2, (cin & (a^b)));
+    // Carry-out must match the implemented carry equation.
+    check_carry_function: assert property (
+        @(posedge clk) cout == ((a & b) | (cin & (a ^ b)))
+    );
 
-    // Output composition
-    assert (cout === (c1 | c2))
-      else $error("full_adder: cout != c1|c2: cout=%b c1=%b c2=%b", cout,c1,c2);
+    // All-zero inputs must produce zero sum and zero carry.
+    check_zero_case: assert property (
+        @(posedge clk) (!a && !b && !cin) |-> (!s && !cout)
+    );
 
-    // Functional equivalence (redundant forms)
-    assert (s === (a ^ b ^ cin))
-      else $error("full_adder: s != a^b^cin");
-    assert (cout === ((a & b) | (a & cin) | (b & cin)))
-      else $error("full_adder: cout != majority(a,b,cin)");
-    assert ({cout,s} === (a + b + cin))
-      else $error("full_adder: {cout,s} != a+b+cin");
-  end
+    // Exactly one high input must produce sum high and carry low.
+    check_one_hot_case: assert property (
+        @(posedge clk)
+        ((a && !b && !cin) || (!a && b && !cin) || (!a && !b && cin))
+        |-> (s && !cout)
+    );
 
-  // Compact functional coverage (all input tuples, all output tuples, internal term activity)
-  always_comb begin
-    cover ({a,b,cin} == 3'b000);
-    cover ({a,b,cin} == 3'b001);
-    cover ({a,b,cin} == 3'b010);
-    cover ({a,b,cin} == 3'b011);
-    cover ({a,b,cin} == 3'b100);
-    cover ({a,b,cin} == 3'b101);
-    cover ({a,b,cin} == 3'b110);
-    cover ({a,b,cin} == 3'b111);
+    // Exactly two high inputs must produce sum low and carry high.
+    check_two_hot_case: assert property (
+        @(posedge clk)
+        ((a && b && !cin) || (a && !b && cin) || (!a && b && cin))
+        |-> (!s && cout)
+    );
 
-    cover ({cout,s} == 2'b00);
-    cover ({cout,s} == 2'b01);
-    cover ({cout,s} == 2'b10);
-    cover ({cout,s} == 2'b11);
-
-    cover (c1); // generate observed
-    cover (c2); // propagate-with-cin observed
-  end
+    // All-high inputs must produce sum high and carry high.
+    check_all_high_case: assert property (
+        @(posedge clk) (a && b && cin) |-> (s && cout)
+    );
 
 endmodule
-
-// Bind into the DUT (captures internal c1/c2 as well)
-bind full_adder full_adder_sva sva (.*);

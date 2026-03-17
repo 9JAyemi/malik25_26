@@ -1,52 +1,44 @@
-// SVA checker for four_bit_adder
-module four_bit_adder_sva #(parameter int WIDTH = 4)
-(
-  input  logic                  clk,
-  input  logic [WIDTH-1:0]      a,
-  input  logic [WIDTH-1:0]      b,
-  input  logic                  cin,
-  input  logic [WIDTH-1:0]      sum,
-  input  logic                  cout
+module four_bit_adder_sva (
+    input logic [3:0] a,
+    input logic [3:0] b,
+    input logic       cin,
+    input logic [3:0] sum,
+    input logic       cout
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Carry and sum together must match the 5-bit addition result.
+    check_full_addition: assert property (
+        @($global_clock) {cout, sum} == ({1'b0, a} + {1'b0, b} + cin)
+    );
 
-  // Core functional correctness
-  assert property ( {cout, sum} == ({1'b0, a} + {1'b0, b} + cin) );
+    // Sum must be the low four bits of the addition result.
+    check_sum_low_bits: assert property (
+        @($global_clock) {1'b0, sum} == (({1'b0, a} + {1'b0, b} + cin) & 5'h0f)
+    );
 
-  // No X on outputs when inputs are known
-  assert property ( !$isunknown({a,b,cin}) |-> !$isunknown({sum,cout}) );
+    // Carry-out must assert only when the addition exceeds 4 bits.
+    check_carry_out: assert property (
+        @($global_clock) cout == (({1'b0, a} + {1'b0, b} + cin) > 5'd15)
+    );
 
-  // Purely combinational/stateness check
-  assert property ( $stable({a,b,cin}) |-> $stable({sum,cout}) );
+    // All-zero inputs must produce zero outputs.
+    check_zero_case: assert property (
+        @($global_clock) ((a == 4'd0) && (b == 4'd0) && (cin == 1'b0)) |-> ((sum == 4'd0) && (cout == 1'b0))
+    );
 
-  // Optional commutativity check across adjacent cycles when exercised by stimulus
-  assert property ( (a==$past(b) && b==$past(a) && cin==$past(cin))
-                    |-> ({cout,sum}==$past({cout,sum})) );
+    // Adding zero with no carry-in must pass through a.
+    check_pass_through_a: assert property (
+        @($global_clock) ((b == 4'd0) && (cin == 1'b0)) |-> ((sum == a) && (cout == 1'b0))
+    );
 
-  // Coverage: carry 0/1 and cin 0/1
-  cover property (cout == 0);
-  cover property (cout == 1);
-  cover property (cin  == 0);
-  cover property (cin  == 1);
-  cover property (cin==0 && cout==1); // carry without carry-in
-  cover property (cin==1 && cout==1); // carry with carry-in
+    // Adding zero with no carry-in must pass through b.
+    check_pass_through_b: assert property (
+        @($global_clock) ((a == 4'd0) && (cin == 1'b0)) |-> ((sum == b) && (cout == 1'b0))
+    );
 
-  // Extremes and exact wraparound to 2^WIDTH
-  cover property (a=={WIDTH{1'b0}} && b=={WIDTH{1'b0}} && cin==0 && sum=={WIDTH{1'b0}} && cout==0);
-  cover property (a=={WIDTH{1'b1}} && b=={WIDTH{1'b1}} && cin==1 && sum=={WIDTH{1'b1}} && cout==1);
-  cover property ( ({1'b0,a}+{1'b0,b}+cin) == {1'b1,{WIDTH{1'b0}}} && sum=={WIDTH{1'b0}} && cout==1 );
-
-  // Hit every sum value 0 .. 2^WIDTH-1
-  genvar i;
-  generate
-    for (i = 0; i < (1<<WIDTH); i++) begin : g_sum_cov
-      cover property ( sum == i[WIDTH-1:0] );
-    end
-  endgenerate
+    // Maximum inputs must produce 0xF with carry-out asserted.
+    check_max_input_case: assert property (
+        @($global_clock) ((a == 4'hf) && (b == 4'hf) && (cin == 1'b1)) |-> ((sum == 4'hf) && (cout == 1'b1))
+    );
 
 endmodule
-
-// Bind template (connect clk from your environment):
-// bind four_bit_adder four_bit_adder_sva #(.WIDTH(4))
-//   u_four_bit_adder_sva ( .clk(<your_clk>), .a(a), .b(b), .cin(cin), .sum(sum), .cout(cout) );

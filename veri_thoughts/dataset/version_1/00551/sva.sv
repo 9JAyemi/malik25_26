@@ -1,39 +1,49 @@
-// SVA for detect_0_to_1
-// Bind this file to the DUT
-
-module detect_0_to_1_sva #(parameter W=32)
-(
-  input  logic              clk,
-  input  logic              reset,
-  input  logic [W-1:0]      in,
-  input  logic [W-1:0]      out,
-  input  logic [W-1:0]      prev_in
+module detect_0_to_1_assertions (
+    input logic        clk,
+    input logic        reset,
+    input logic [31:0] in,
+    input logic [31:0] out
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // A reset cycle forces out low on the following sample.
+    check_reset_clears_out: assert property (
+        @(posedge clk) reset |=> (out == 32'b0)
+    );
 
-  // Reset behavior
-  a_reset_clears:    assert property (reset |-> (out == '0 && prev_in == '0));
+    // The first active cycle after reset compares input against zero.
+    check_first_active_cycle_after_reset: assert property (
+        @(posedge clk) disable iff (reset)
+        $past(reset) |=> (out == $past(in))
+    );
 
-  // prev_in update rules
-  a_prev_updates:    assert property ((!reset && !$past(reset)) |-> (prev_in == $past(in)));
-  a_prev_after_rst:  assert property ((!reset &&  $past(reset)) |-> (prev_in == in));
+    // Active cycles detect 0-to-1 transitions from the prior input.
+    check_detects_zero_to_one_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) |=> (out == ($past(in) & ~$past(in,2)))
+    );
 
-  // Functional correctness of out (0->1 edge detect)
-  a_out_func_run:    assert property ((!reset && !$past(reset)) |-> (out == (in & ~ $past(in))));
-  a_out_func_postR:  assert property ((!reset &&  $past(reset)) |-> (out == in));
+    // Output bits can only come from 1 bits in the generating input.
+    check_out_is_subset_of_input: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> ((out & ~$past(in)) == 32'b0)
+    );
 
-  // Safety properties
-  a_out_subset_in:   assert property ((out & ~in) == '0);                  // out ⊆ in
-  a_out_no_old_ones: assert property ((!reset && !$past(reset)) |-> ((out & $past(in)) == '0)); // no 1s where past in was 1
-  a_one_cycle_pulse: assert property ((!reset && !$past(reset)) |-> ((out & $past(out)) == '0)); // no consecutive pulses
+    // An all-zero input produces an all-zero output.
+    check_zero_input_produces_zero_out: assert property (
+        @(posedge clk) disable iff (reset)
+        (in == 32'b0) |=> (out == 32'b0)
+    );
 
-  // Coverage
-  c_post_reset_det:  cover  property (!reset && $past(reset) && (in != '0) && (out == in));
-  c_any_detect:      cover  property (!reset && !$past(reset) && (out != '0));
-  c_multi_bit:       cover  property (!reset && !$past(reset) && ($countones(out) >= 2));
-  c_single_pulse:    cover  property (!reset && !$past(reset) && (out != '0) ##1 (out == '0));
+    // Stable input across active cycles produces no detection pulse.
+    check_stable_input_produces_zero_out: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$past(reset) && (in == $past(in))) |=> (out == 32'b0)
+    );
+
+    // Bits that were already high in the prior input do not retrigger.
+    check_previous_ones_do_not_retrigger: assert property (
+        @(posedge clk) disable iff (reset)
+        !$past(reset) |=> ((out & $past(in,2)) == 32'b0)
+    );
 
 endmodule
-
-bind detect_0_to_1 detect_0_to_1_sva #(.W(32)) u_detect_0_to_1_sva (.*);

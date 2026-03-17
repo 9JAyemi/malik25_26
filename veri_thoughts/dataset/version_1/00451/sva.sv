@@ -1,45 +1,39 @@
-// SVA for magnitude_comparison
-module magnitude_comparison_sva #(parameter WIDTH=4)
-(
-  input logic [WIDTH-1:0] A,
-  input logic [WIDTH-1:0] B,
-  input logic              eq,
-  input logic              gt
+module magnitude_comparison_sva (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic eq,
+    input logic gt
 );
 
-  // Sample on any relevant change (combinational DUT)
-  // Functional correctness (4-state exact match to DUT semantics)
-  assert property (@(A or B or eq or gt) eq === (A == B));
-  assert property (@(A or B or eq or gt) gt === (A > B));
+    // eq matches the equality comparison of A and B.
+    check_eq_function: assert property (
+        @(posedge clk) eq === (A == B)
+    );
 
-  // Mutual exclusion when outputs are known
-  assert property (@(A or B or eq or gt) (eq === 1) |-> (gt === 0));
-  assert property (@(A or B or eq or gt) (gt === 1) |-> (eq === 0));
+    // gt matches the greater-than comparison of A and B.
+    check_gt_function: assert property (
+        @(posedge clk) gt === (A > B)
+    );
 
-  // No X on outputs when inputs are 2-state
-  assert property (@(A or B or eq or gt) !$isunknown({A,B}) |-> !$isunknown({eq,gt}));
+    // Equal inputs drive eq high and gt low.
+    check_equal_case: assert property (
+        @(posedge clk) (A == B) |-> (eq && !gt)
+    );
 
-  // Full trichotomy classification when inputs are 2-state
-  assert property (@(A or B or eq or gt)
-    !$isunknown({A,B}) |->
-      ( (eq && (A==B)) ||
-        (gt && (A>B))  ||
-        (!eq && !gt && (A<B)) )
-  );
+    // A greater than B drives gt high and eq low.
+    check_greater_case: assert property (
+        @(posedge clk) (A > B) |-> (gt && !eq)
+    );
 
-  // Coverage: all relation classes and key boundaries
-  cover property (@(A or B or eq or gt) (A==B) && (eq==1) && (gt==0));
-  cover property (@(A or B or eq or gt) (A>B)  && (gt==1) && (eq==0));
-  cover property (@(A or B or eq or gt) (A<B)  && (gt==0) && (eq==0));
+    // A less than B drives both outputs low.
+    check_less_case: assert property (
+        @(posedge clk) (A < B) |-> (!eq && !gt)
+    );
 
-  cover property (@(A or B or eq or gt) (A==0  && B==0)  && (eq==1) && (gt==0));
-  cover property (@(A or B or eq or gt) (A==0  && B==15) && (gt==0) && (eq==0));
-  cover property (@(A or B or eq or gt) (A==15 && B==0)  && (gt==1) && (eq==0));
-  cover property (@(A or B or eq or gt) (A==15 && B==15) && (eq==1) && (gt==0));
-  cover property (@(A or B or eq or gt) (A==7  && B==8)  && (gt==0) && (eq==0));
-  cover property (@(A or B or eq or gt) (A==8  && B==7)  && (gt==1) && (eq==0));
+    // eq and gt are never asserted at the same time.
+    check_outputs_mutex: assert property (
+        @(posedge clk) !(eq && gt)
+    );
 
 endmodule
-
-// Bind into DUT
-bind magnitude_comparison magnitude_comparison_sva #(.WIDTH(4)) magnitude_comparison_sva_i (.*);

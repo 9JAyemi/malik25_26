@@ -1,64 +1,97 @@
-// SVA checker for mux4
-module mux4_sva(
-  input A0, A1, A2, A3, S0, S1, VPWR, VGND, VPB, VNB,
-  input X
+module mux4_sva (
+    input logic clk,
+    input logic A0,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic S0,
+    input logic S1,
+    input logic VPWR,
+    input logic VGND,
+    input logic VPB,
+    input logic VNB,
+    input logic X
 );
-  // Derived expectations
-  wire sel_a0 = ~S1 & ~S0;
-  wire sel_a1 = ~S1 &  S0;
-  wire sel_a2 =  S1 & ~S0;
-  wire sel_a3 =  S1 &  S0;
 
-  wire exp_w1 = sel_a0 ? A0 : sel_a1 ? A1 : sel_a2 ? A2 : A3;
-  wire exp_w2 = (VGND == 1'b0) ? 1'b0 : VPWR;
-  wire exp_w3 = (VPB  == 1'b0) ? 1'b0 : VNB;
-  wire exp_X  = exp_w1 & exp_w2 & exp_w3;
+    // X must match the RTL mux and gating function.
+    check_output_matches_rtl_function: assert property (
+        @(posedge clk)
+        X == (
+            (
+                ((S1 == 1'b0) && (S0 == 1'b0)) ? A0 :
+                ((S1 == 1'b0) && (S0 == 1'b1)) ? A1 :
+                ((S1 == 1'b1) && (S0 == 1'b0)) ? A2 :
+                A3
+            ) &
+            ((VGND == 1'b0) ? 1'b0 : VPWR) &
+            ((VPB  == 1'b0) ? 1'b0 : VNB)
+        )
+    );
 
-  wire inputs_known = !$isunknown({A0,A1,A2,A3,S0,S1,VPWR,VGND,VPB,VNB});
-  wire sel_known    = !$isunknown({S1,S0});
-  wire power_on     = (VGND==1'b1 && VPWR==1'b1 && VPB==1'b1 && VNB==1'b1);
+    // Select 00 routes A0 through the power gating.
+    check_select_00_uses_a0: assert property (
+        @(posedge clk)
+        ((S1 == 1'b0) && (S0 == 1'b0)) |->
+        (X == (A0 & ((VGND == 1'b0) ? 1'b0 : VPWR) & ((VPB == 1'b0) ? 1'b0 : VNB)))
+    );
 
-  // Sample on any input edge
-  clocking cb @(
-    posedge A0 or negedge A0 or
-    posedge A1 or negedge A1 or
-    posedge A2 or negedge A2 or
-    posedge A3 or negedge A3 or
-    posedge S0 or negedge S0 or
-    posedge S1 or negedge S1 or
-    posedge VPWR or negedge VPWR or
-    posedge VGND or negedge VGND or
-    posedge VPB or negedge VPB or
-    posedge VNB or negedge VNB
-  ); endclocking
-  default clocking cb;
+    // Select 01 routes A1 through the power gating.
+    check_select_01_uses_a1: assert property (
+        @(posedge clk)
+        ((S1 == 1'b0) && (S0 == 1'b1)) |->
+        (X == (A1 & ((VGND == 1'b0) ? 1'b0 : VPWR) & ((VPB == 1'b0) ? 1'b0 : VNB)))
+    );
 
-  // Core functional equivalence
-  ap_func:        assert property (disable iff(!inputs_known) X == exp_X);
+    // Select 10 routes A2 through the power gating.
+    check_select_10_uses_a2: assert property (
+        @(posedge clk)
+        ((S1 == 1'b1) && (S0 == 1'b0)) |->
+        (X == (A2 & ((VGND == 1'b0) ? 1'b0 : VPWR) & ((VPB == 1'b0) ? 1'b0 : VNB)))
+    );
 
-  // Select decoding sanity
-  ap_onehot_sel:  assert property (disable iff(!sel_known) $onehot({sel_a0,sel_a1,sel_a2,sel_a3}));
+    // Select 11 routes A3 through the power gating.
+    check_select_11_uses_a3: assert property (
+        @(posedge clk)
+        ((S1 == 1'b1) && (S0 == 1'b1)) |->
+        (X == (A3 & ((VGND == 1'b0) ? 1'b0 : VPWR) & ((VPB == 1'b0) ? 1'b0 : VNB)))
+    );
 
-  // Power gating effects
-  ap_vgnd_kills:  assert property (disable iff($isunknown(VGND)) (VGND==1'b0) |-> (X==1'b0));
-  ap_vpb_kills:   assert property (disable iff($isunknown(VPB))  (VPB ==1'b0) |-> (X==1'b0));
-  ap_vpwr_zero:   assert property (disable iff($isunknown({VGND,VPWR})) ((VGND==1'b1)&&(VPWR==1'b0)) |-> (X==1'b0));
-  ap_vnb_zero:    assert property (disable iff($isunknown({VPB,VNB}))   ((VPB ==1'b1)&&(VNB ==1'b0)) |-> (X==1'b0));
+    // VGND low forces the output low.
+    check_vgnd_low_forces_x_low: assert property (
+        @(posedge clk)
+        (VGND == 1'b0) |-> (X == 1'b0)
+    );
 
-  // If X is high, all enables are high and selected input is high
-  ap_x_high_imp:  assert property (disable iff(!inputs_known) X |-> (power_on && (exp_w1==1'b1)));
+    // VPB low forces the output low.
+    check_vpb_low_forces_x_low: assert property (
+        @(posedge clk)
+        (VPB == 1'b0) |-> (X == 1'b0)
+    );
 
-  // Coverage
-  cp_power_on_sel0: cover property (power_on && sel_a0 && A0 && X);
-  cp_power_on_sel1: cover property (power_on && sel_a1 && A1 && X);
-  cp_power_on_sel2: cover property (power_on && sel_a2 && A2 && X);
-  cp_power_on_sel3: cover property (power_on && sel_a3 && A3 && X);
+    // With VGND high, low VPWR blocks the output.
+    check_vpwr_low_blocks_x: assert property (
+        @(posedge clk)
+        ((VGND == 1'b1) && (VPWR == 1'b0)) |-> (X == 1'b0)
+    );
 
-  cp_vgnd_kill:     cover property ((VGND==1'b0) ##0 (X==1'b0));
-  cp_vpb_kill:      cover property ((VPB ==1'b0) ##0 (X==1'b0));
-  cp_vpwr_zero:     cover property ((VGND==1'b1 && VPWR==1'b0) ##0 (X==1'b0));
-  cp_vnb_zero:      cover property ((VPB ==1'b1 && VNB ==1'b0) ##0 (X==1'b0));
+    // With VPB high, low VNB blocks the output.
+    check_vnb_low_blocks_x: assert property (
+        @(posedge clk)
+        ((VPB == 1'b1) && (VNB == 1'b0)) |-> (X == 1'b0)
+    );
+
+    // With all power controls high, X reduces to a plain 4:1 mux.
+    check_fully_enabled_path_behaves_as_mux: assert property (
+        @(posedge clk)
+        ((VGND == 1'b1) && (VPB == 1'b1) && (VPWR == 1'b1) && (VNB == 1'b1)) |->
+        (
+            X == (
+                ((S1 == 1'b0) && (S0 == 1'b0)) ? A0 :
+                ((S1 == 1'b0) && (S0 == 1'b1)) ? A1 :
+                ((S1 == 1'b1) && (S0 == 1'b0)) ? A2 :
+                A3
+            )
+        )
+    );
+
 endmodule
-
-// Bind the checker to the DUT
-bind mux4 mux4_sva mux4_sva_i(.*);

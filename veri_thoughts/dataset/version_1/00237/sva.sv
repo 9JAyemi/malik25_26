@@ -1,37 +1,32 @@
-// SVA checker for power_of_2_detection
 module power_of_2_detection_sva (
-  input  logic [15:0] num,
-  input  logic        is_power_of_2
+    input logic        clk,
+    input logic [15:0] num,
+    input logic        is_power_of_2
 );
 
-  // No X/Z on interface
-  assert property (@(num or is_power_of_2) !$isunknown({num, is_power_of_2}));
+    // Zero must not be flagged as a power of two.
+    check_zero_is_not_power_of_two: assert property (
+        @(posedge clk) (num == 16'd0) |-> (is_power_of_2 == 1'b0)
+    );
 
-  // Functional equivalence: exactly one bit set -> 1, else 0 (covers num==0 too)
-  assert property (@(num or is_power_of_2) is_power_of_2 == $onehot(num));
+    // A one-hot input must be flagged as a power of two.
+    check_onehot_input_sets_output: assert property (
+        @(posedge clk) $onehot(num) |-> (is_power_of_2 == 1'b1)
+    );
 
-  // Redundant but explicit special/partitioned checks
-  assert property (@(num or is_power_of_2) (num == 16'h0000) |-> (is_power_of_2 == 1'b0));
-  assert property (@(num or is_power_of_2)  $onehot(num)     |-> (is_power_of_2 == 1'b1));
-  assert property (@(num or is_power_of_2) (num != 0 && !$onehot(num)) |-> (is_power_of_2 == 1'b0));
+    // A nonzero input with multiple bits set must clear the output.
+    check_multibit_input_clears_output: assert property (
+        @(posedge clk) ((num != 16'd0) && !$onehot(num)) |-> (is_power_of_2 == 1'b0)
+    );
 
-  // Output only changes when input changes (no spontaneous glitches)
-  assert property (@(num or is_power_of_2) $changed(is_power_of_2) |-> $changed(num));
+    // A high output must only occur for a one-hot input.
+    check_high_output_requires_onehot_input: assert property (
+        @(posedge clk) (is_power_of_2 == 1'b1) |-> $onehot(num)
+    );
 
-  // Coverage
-  cover property (@(num or is_power_of_2) num == 16'h0000 && is_power_of_2 == 1'b0);
-  genvar i;
-  generate
-    for (i = 0; i < 16; i++) begin : C_ONEHOT
-      cover property (@(num or is_power_of_2) num == (16'h1 << i) && is_power_of_2 == 1'b1);
-    end
-  endgenerate
-  cover property (@(num or is_power_of_2) (num != 0 && !$onehot(num)) && is_power_of_2 == 1'b0);
+    // The output must match the RTL power-of-two detection expression.
+    check_output_matches_rtl_expression: assert property (
+        @(posedge clk) (is_power_of_2 == (((num != 16'd0) && ((num & (num - 16'd1)) == 16'd0)) ? 1'b1 : 1'b0))
+    );
 
 endmodule
-
-// Bind into DUT
-bind power_of_2_detection power_of_2_detection_sva sva_i (
-  .num(num),
-  .is_power_of_2(is_power_of_2)
-);

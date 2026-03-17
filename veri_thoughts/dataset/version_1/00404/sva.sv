@@ -1,36 +1,39 @@
-// SVA for d_ff_with_set_clear
 module d_ff_with_set_clear_sva (
-  input clk,
-  input d,
-  input set,
-  input clear,
-  input q
+    input logic clk,
+    input logic d,
+    input logic set,
+    input logic clear,
+    input logic q
 );
 
-  // Clear dominates set (and forces 0 on next state)
-  a_clr_dominates: assert property (@(posedge clk)
-    $past(clear) |-> q == 1'b0);
+    // q must match the prior cycle's clear/set/data priority.
+    check_state_update_function: assert property (
+        @(posedge clk)
+        !$initstate |-> (q == ($past(clear) ? 1'b0 : ($past(set) ? 1'b1 : $past(d))))
+    );
 
-  // Set forces 1 on next state when clear is low
-  a_set: assert property (@(posedge clk)
-    $past(set) && !$past(clear) |-> q == 1'b1);
+    // clear forces q low on the following sampled cycle.
+    check_clear_forces_zero: assert property (
+        @(posedge clk)
+        clear |=> (q == 1'b0)
+    );
 
-  // Pass-through when neither control is asserted
-  a_pass: assert property (@(posedge clk)
-    !$past(set) && !$past(clear) |-> q == $past(d));
+    // clear overrides set when both are asserted.
+    check_clear_priority_over_set: assert property (
+        @(posedge clk)
+        (clear && set) |=> (q == 1'b0)
+    );
 
-  // Knownness: if sampled inputs are known, next q must be known
-  a_q_known: assert property (@(posedge clk)
-    !$isunknown({$past(clear),$past(set),$past(d)}) |-> !($isunknown(q)));
+    // set drives q high when clear is low.
+    check_set_forces_one_when_clear_low: assert property (
+        @(posedge clk)
+        (!clear && set) |=> (q == 1'b1)
+    );
 
-  // Coverage: exercise all behaviors
-  c_clear: cover property (@(posedge clk) $past(clear) |-> q == 1'b0);
-  c_set:   cover property (@(posedge clk) $past(set) && !$past(clear) |-> q == 1'b1);
-  c_both:  cover property (@(posedge clk) $past(set) && $past(clear) |-> q == 1'b0);
-  c_d0:    cover property (@(posedge clk) !$past(set) && !$past(clear) && !$past(d) |-> q == 1'b0);
-  c_d1:    cover property (@(posedge clk) !$past(set) && !$past(clear) &&  $past(d) |-> q == 1'b1);
+    // d is captured when both control inputs are low.
+    check_data_capture_when_controls_low: assert property (
+        @(posedge clk)
+        (!clear && !set) |=> (q == $past(d))
+    );
 
 endmodule
-
-bind d_ff_with_set_clear d_ff_with_set_clear_sva
-  (.clk(clk), .d(d), .set(set), .clear(clear), .q(q));

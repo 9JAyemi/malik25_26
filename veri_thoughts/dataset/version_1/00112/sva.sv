@@ -1,82 +1,38 @@
-// SVA for v89d234_v9148cb (register with load-enable)
-module v89d234_v9148cb_sva (
-  input logic        clk,
-  input logic        load,
-  input logic [7:0]  d,
-  input logic [7:0]  q
+module v89d234_sva (
+    input logic v41eb95,
+    input logic [7:0] v39f831,
+    input logic vf892a0,
+    input logic [7:0] vb1c024
 );
-  bit past_valid = 1'b0;
-  always_ff @(posedge clk) past_valid <= 1'b1;
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!past_valid);
+    // The output follows the enabled-register next-state function.
+    check_enabled_register_transition: assert property (
+        @(posedge v41eb95) disable iff (1'b0)
+        1'b1 |=> vb1c024 == ($past(vf892a0) ? $past(v39f831) : $past(vb1c024))
+    );
 
-  // Sanity: no X/Z on sampled signals
-  assert property (!$isunknown({load, d, q}));
+    // A high load captures the input value on the next cycle.
+    check_capture_on_load: assert property (
+        @(posedge v41eb95) disable iff (1'b0)
+        vf892a0 |=> vb1c024 == $past(v39f831)
+    );
 
-  // Functional correctness
-  assert property (load  |=> q == $past(d));     // capture on load
-  assert property (!load |=> q == $past(q));     // hold when not loading
-  assert property ((q != $past(q)) |-> $past(load)); // any change implies prior load
-  assert property (load && (d == q) |=> q == $past(q)); // loading same value doesn't change q
+    // A low load holds the previous output value.
+    check_hold_without_load: assert property (
+        @(posedge v41eb95) disable iff (1'b0)
+        !vf892a0 |=> vb1c024 == $past(vb1c024)
+    );
 
-  // Coverage
-  cover property (load);
-  cover property (!load);
-  cover property (load ##1 (q == $past(d)));
-  cover property (!load ##1 (q == $past(q)));
-  cover property (load ##1 load); // back-to-back loads
+    // Loading a different value changes the output on the next cycle.
+    check_load_new_value_changes_output: assert property (
+        @(posedge v41eb95) disable iff (1'b0)
+        vf892a0 && (v39f831 != vb1c024) |=> (vb1c024 == $past(v39f831)) && (vb1c024 != $past(vb1c024))
+    );
+
+    // Loading the same value leaves the output unchanged.
+    check_load_same_value_keeps_output: assert property (
+        @(posedge v41eb95) disable iff (1'b0)
+        vf892a0 && (v39f831 == vb1c024) |=> vb1c024 == $past(vb1c024)
+    );
+
 endmodule
-
-bind v89d234_v9148cb v89d234_v9148cb_sva i_v9148cb_sva (
-  .clk (clk),
-  .load(load),
-  .d   (d),
-  .q   (q)
-);
-
-
-// Top-level connectivity and end-to-end checks
-module v89d234_top_sva (
-  input  logic        clk,
-  input  logic [7:0]  in_d,
-  input  logic        load,
-  input  logic [7:0]  out_q,
-  input  logic [7:0]  inst_d,
-  input  logic [7:0]  inst_q,
-  input  logic        inst_clk,
-  input  logic        inst_load
-);
-  bit past_valid = 1'b0;
-  always_ff @(posedge clk) past_valid <= 1'b1;
-
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!past_valid);
-
-  // Connectivity (also implicitly checks the [0:7]/[7:0] bit-ordering resolves correctly end-to-end)
-  assert property (in_d     == inst_d);
-  assert property (load     == inst_load);
-  assert property (clk      == inst_clk);
-  assert property (out_q    == inst_q);
-
-  // IO sanity
-  assert property (!$isunknown({clk, load, in_d, out_q}));
-
-  // End-to-end functional check at top
-  assert property (load |=> out_q == $past(in_d));
-
-  // Coverage
-  cover property (load ##1 (out_q == $past(in_d)));
-  cover property (!load ##1 (out_q == $past(out_q)));
-endmodule
-
-bind v89d234 v89d234_top_sva i_top_sva (
-  .clk      (v41eb95),
-  .in_d     (v39f831),
-  .load     (vf892a0),
-  .out_q    (vb1c024),
-  .inst_d   (v9148cb.d),
-  .inst_q   (v9148cb.q),
-  .inst_clk (v9148cb.clk),
-  .inst_load(v9148cb.load)
-);

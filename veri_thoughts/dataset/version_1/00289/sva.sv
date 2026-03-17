@@ -1,43 +1,42 @@
-// SVA for AND_GATE — concise, high-quality checks and coverage
-// Bindable, no DUT/testbench scaffolding beyond the bind itself
-
-module AND_GATE_sva #(parameter string GSR = "ENABLED")
-(
-  input logic D0, D1, RST, ECLK, SCLK,
-  input logic Q
+module AND_GATE_sva #(
+    parameter GSR = "ENABLED"
+)(
+    input logic D0,
+    input logic D1,
+    input logic RST,
+    input logic ECLK,
+    input logic SCLK,
+    input logic Q
 );
-  // Parameter sanity
-  initial assert (GSR=="ENABLED" || GSR=="DISABLED")
-    else $error("AND_GATE_sva: GSR must be \"ENABLED\" or \"DISABLED\"");
 
-  // Effective synchronous reset (active-high if GSR==ENABLED, else active-low)
-  wire rst_act = (GSR == "ENABLED") ? RST : ~RST;
+    // Reset forces Q low on the next clock.
+    check_reset_clears_q: assert property (
+        @(posedge SCLK)
+        (RST == (GSR == "ENABLED")) |=> (Q == 1'b0)
+    );
 
-  default clocking cb @(posedge SCLK); endclocking
+    // Enabled high with both inputs high sets Q.
+    check_load_one_when_enabled: assert property (
+        @(posedge SCLK) disable iff (RST == (GSR == "ENABLED"))
+        ((ECLK == 1'b1) && (D0 == 1'b1) && (D1 == 1'b1)) |=> (Q == 1'b1)
+    );
 
-  // Basic sanity (no X on control paths and output at sampling)
-  assert property ( !$isunknown({rst_act,ECLK}) );
-  assert property ( (!rst_act && ECLK) |-> !$isunknown({D0,D1}) );
-  assert property ( !$isunknown(Q) );
+    // Enabled high with either input low clears Q.
+    check_load_zero_when_enabled: assert property (
+        @(posedge SCLK) disable iff (RST == (GSR == "ENABLED"))
+        ((ECLK == 1'b1) && ((D0 == 1'b0) || (D1 == 1'b0))) |=> (Q == 1'b0)
+    );
 
-  // Reset: next-cycle clear to 0 and hold at 0 while reset remains asserted
-  assert property ( rst_act |=> (Q == 1'b0) );
+    // Disabled enable holds the registered value.
+    check_hold_when_not_enabled: assert property (
+        @(posedge SCLK) disable iff (RST == (GSR == "ENABLED"))
+        (ECLK == 1'b0) |=> $stable(Q)
+    );
 
-  // Enable update: when enabled and not in reset, load AND of inputs
-  assert property ( (!rst_act && ECLK) |=> (Q == (D0 & D1)) );
+    // Any Q change comes from a prior reset or enabled update.
+    check_q_changes_only_after_reset_or_enable: assert property (
+        @(posedge SCLK) disable iff ((RST == (GSR == "ENABLED")) || $initstate)
+        $changed(Q) |-> ($past(RST == (GSR == "ENABLED")) || $past(ECLK == 1'b1))
+    );
 
-  // Hold: when not enabled and not in reset, output holds prior value
-  assert property ( (!rst_act && !ECLK) |=> (Q == $past(Q)) );
-
-  // Glitch-free output: Q only changes on SCLK rising edges
-  assert property (@($global_clock) $changed(Q) |-> $rose(SCLK));
-
-  // Coverage: reset, load-1, load-0, and hold behavior
-  cover property ( rst_act ##1 (Q == 1'b0) );
-  cover property ( (!rst_act && ECLK && (D0 & D1)) ##1 (Q == 1'b1) );
-  cover property ( (!rst_act && ECLK && !(D0 & D1)) ##1 (Q == 1'b0) );
-  cover property ( (!rst_act && !ECLK) ##1 $stable(Q) );
 endmodule
-
-// Bind to DUT (connects by port names)
-bind AND_GATE AND_GATE_sva #(.GSR(GSR)) and_gate_sva_bind (.*);

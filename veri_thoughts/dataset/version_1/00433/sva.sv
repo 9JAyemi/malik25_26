@@ -1,56 +1,45 @@
-// SVA for sky130_fd_sc_ms__or4bb
-// Function: X = A | B | ~C_N | ~D_N
-
 module sky130_fd_sc_ms__or4bb_sva (
-  input logic A, B, C_N, D_N, X
+    input logic clk,
+    input logic X,
+    input logic A,
+    input logic B,
+    input logic C_N,
+    input logic D_N
 );
 
-  // Pure functional equivalence (with X/Z guard on inputs)
-  always_comb
-    if (!$isunknown({A,B,C_N,D_N}))
-      assert (X === (A | B | ~C_N | ~D_N))
-        else $error("or4bb func mismatch: X=%0b A=%0b B=%0b C_N=%0b D_N=%0b",
-                    X,A,B,C_N,D_N);
+    // X matches the OR of A, B, and the NAND of C_N and D_N.
+    check_functional_equivalence: assert property (
+        @(posedge clk) X == (A | B | ~(C_N & D_N))
+    );
 
-  // No spurious X/Z on output when inputs are known
-  assert property (!$isunknown({A,B,C_N,D_N}) |-> !$isunknown(X))
-    else $error("X/XZ on output with known inputs");
+    // A high forces X high.
+    check_a_forces_x_high: assert property (
+        @(posedge clk) A |-> (X == 1'b1)
+    );
 
-  // If output is X/Z then at least one input must be X/Z
-  assert property ($isunknown(X) |-> $isunknown({A,B,C_N,D_N}))
-    else $error("Spurious X/Z on X without X/Z on inputs");
+    // B high forces X high.
+    check_b_forces_x_high: assert property (
+        @(posedge clk) B |-> (X == 1'b1)
+    );
 
-  // Edge-based sanity (guard unknowns)
-  // Any asserting input must immediately make X=1
-  assert property (disable iff ($isunknown({A,B,C_N,D_N})) @(posedge A)  X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N})) @(posedge B)  X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N})) @(negedge C_N) X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N})) @(negedge D_N) X);
+    // C_N low forces X high through the NAND term.
+    check_c_n_low_forces_x_high: assert property (
+        @(posedge clk) !C_N |-> (X == 1'b1)
+    );
 
-  // A deassert can only drive X low if all other terms are non-asserting
-  assert property (disable iff ($isunknown({A,B,C_N,D_N}))
-                   @(negedge A) (!B &&  C_N &&  D_N) |-> !X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N}))
-                   @(negedge B) (!A &&  C_N &&  D_N) |-> !X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N}))
-                   @(posedge C_N) (!A && !B &&  D_N) |-> !X);
-  assert property (disable iff ($isunknown({A,B,C_N,D_N}))
-                   @(posedge D_N) (!A && !B &&  C_N) |-> !X);
+    // D_N low forces X high through the NAND term.
+    check_d_n_low_forces_x_high: assert property (
+        @(posedge clk) !D_N |-> (X == 1'b1)
+    );
 
-  // Coverage: all 16 input combinations and both X states
-  logic sva_sample;
-  always @(A or B or C_N or D_N) sva_sample <= ~sva_sample;
+    // X can be low only when A and B are low and both NAND inputs are high.
+    check_x_low_only_in_all_inactive_case: assert property (
+        @(posedge clk) !X |-> (!A && !B && C_N && D_N)
+    );
 
-  covergroup cg_or4bb @(posedge sva_sample);
-    cp_inputs: coverpoint {A,B,C_N,D_N} { bins all[] = {[0:15]}; }
-    cp_X:      coverpoint X { bins low = {0}; bins high = {1}; }
-  endgroup
-  cg_or4bb cov = new();
-
-  // Sanity cover: observe both functional regions
-  cover property (!$isunknown({A,B,C_N,D_N}) && (X==0));
-  cover property (!$isunknown({A,B,C_N,D_N}) && (X==1));
+    // With A and B low, X reduces to the NAND of C_N and D_N.
+    check_ab_low_reduces_to_nand: assert property (
+        @(posedge clk) (!A && !B) |-> (X == ~(C_N & D_N))
+    );
 
 endmodule
-
-bind sky130_fd_sc_ms__or4bb sky130_fd_sc_ms__or4bb_sva (.*);

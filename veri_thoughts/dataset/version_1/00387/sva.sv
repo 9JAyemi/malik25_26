@@ -1,73 +1,87 @@
-// SVA for FSM: bind into the DUT. Focused, high-quality checks and coverage.
+module FSM_assertions #(
+    parameter n = 4,
+    parameter m = 2
+)(
+    input logic [n-1:0] in,
+    input logic [m-1:0] out,
+    input logic clk,
+    input logic [2:0] state,
+    input logic [2:0] next_state
+);
 
-bind FSM FSM_sva #(.n(n), .m(m)) u_fsm_sva();
+    localparam logic [2:0] S0 = 3'b000;
+    localparam logic [2:0] S1 = 3'b001;
+    localparam logic [2:0] S2 = 3'b010;
+    localparam logic [2:0] S3 = 3'b011;
+    localparam logic [2:0] S4 = 3'b100;
+    localparam logic [2:0] S5 = 3'b101;
+    localparam logic [2:0] S6 = 3'b110;
+    localparam logic [2:0] S7 = 3'b111;
 
-module FSM_sva #(parameter int n=4, m=2) ();
-  // Implicit access to DUT scope: clk, in, out, state, next_state, S0..S7
+    // out[0] is high only in states S0 through S3.
+    check_out0_logic: assert property (
+        @(posedge clk)
+        out[0] == ((state == S0) || (state == S1) || (state == S2) || (state == S3))
+    );
 
-  default clocking cb @(posedge clk); endclocking
+    // out[1] is high only in states S4 through S7.
+    check_out1_logic: assert property (
+        @(posedge clk)
+        out[1] == ((state == S4) || (state == S5) || (state == S6) || (state == S7))
+    );
 
-  // Sanity on parameters
-  initial begin
-    assert (n >= 4) else $error("FSM SVA: n (%0d) must be >= 4", n);
-    assert (m == 2) else $error("FSM SVA: m (%0d) must be exactly 2", m);
-  end
+    // In S0, next_state depends only on in[0].
+    check_next_state_s0: assert property (
+        @(posedge clk)
+        (state == S0) |-> (next_state == (in[0] ? S1 : S0))
+    );
 
-  // Golden next-state function
-  function automatic logic [2:0] ns_func (input logic [2:0] s, input logic [n-1:0] din);
-    case (s)
-      S0: ns_func = din[0] ? S1 : S0;
-      S1: ns_func = din[1] ? S3 : S2;
-      S2: ns_func = din[2] ? S3 : S1;
-      S3: ns_func = din[3] ? S4 : S0;
-      S4: ns_func = din[0] ? S5 : S4;
-      S5: ns_func = din[1] ? S7 : S6;
-      S6: ns_func = din[2] ? S7 : S5;
-      S7: ns_func = din[3] ? S0 : S4;
-      default: ns_func = 'x;
-    endcase
-  endfunction
+    // In S1, next_state depends only on in[1].
+    check_next_state_s1: assert property (
+        @(posedge clk)
+        (state == S1) |-> (next_state == (in[1] ? S3 : S2))
+    );
 
-  // Combinational next_state mapping holds at sample times
-  assert property ( !$isunknown({state,in}) |-> next_state == ns_func(state,in) );
+    // In S2, next_state depends only on in[2].
+    check_next_state_s2: assert property (
+        @(posedge clk)
+        (state == S2) |-> (next_state == (in[2] ? S3 : S1))
+    );
 
-  // Sequential state update equals golden mapping
-  assert property ( !$isunknown($past(state)) && !$isunknown($past(in))
-                    |-> state == ns_func($past(state), $past(in)) );
+    // In S3, next_state depends only on in[3].
+    check_next_state_s3: assert property (
+        @(posedge clk)
+        (state == S3) |-> (next_state == (in[3] ? S4 : S0))
+    );
 
-  // Output correctness and one-hotness
-  assert property ( !$isunknown(state) |-> {out[1],out[0]} == {state[2], ~state[2]} );
-  assert property ( out[0] ^ out[1] );
+    // In S4, next_state depends only on in[0].
+    check_next_state_s4: assert property (
+        @(posedge clk)
+        (state == S4) |-> (next_state == (in[0] ? S5 : S4))
+    );
 
-  // State reachability coverage
-  cover property ( state == S0 );
-  cover property ( state == S1 );
-  cover property ( state == S2 );
-  cover property ( state == S3 );
-  cover property ( state == S4 );
-  cover property ( state == S5 );
-  cover property ( state == S6 );
-  cover property ( state == S7 );
+    // In S5, next_state depends only on in[1].
+    check_next_state_s5: assert property (
+        @(posedge clk)
+        (state == S5) |-> (next_state == (in[1] ? S7 : S6))
+    );
 
-  // Transition coverage (both branches from each state)
-  cover property ( $past(state)==S0 &&  $past(in[0]) ##1 state==S1 );
-  cover property ( $past(state)==S0 && !$past(in[0]) ##1 state==S0 );
-  cover property ( $past(state)==S1 &&  $past(in[1]) ##1 state==S3 );
-  cover property ( $past(state)==S1 && !$past(in[1]) ##1 state==S2 );
-  cover property ( $past(state)==S2 &&  $past(in[2]) ##1 state==S3 );
-  cover property ( $past(state)==S2 && !$past(in[2]) ##1 state==S1 );
-  cover property ( $past(state)==S3 &&  $past(in[3]) ##1 state==S4 );
-  cover property ( $past(state)==S3 && !$past(in[3]) ##1 state==S0 );
-  cover property ( $past(state)==S4 &&  $past(in[0]) ##1 state==S5 );
-  cover property ( $past(state)==S4 && !$past(in[0]) ##1 state==S4 );
-  cover property ( $past(state)==S5 &&  $past(in[1]) ##1 state==S7 );
-  cover property ( $past(state)==S5 && !$past(in[1]) ##1 state==S6 );
-  cover property ( $past(state)==S6 &&  $past(in[2]) ##1 state==S7 );
-  cover property ( $past(state)==S6 && !$past(in[2]) ##1 state==S5 );
-  cover property ( $past(state)==S7 &&  $past(in[3]) ##1 state==S0 );
-  cover property ( $past(state)==S7 && !$past(in[3]) ##1 state==S4 );
+    // In S6, next_state depends only on in[2].
+    check_next_state_s6: assert property (
+        @(posedge clk)
+        (state == S6) |-> (next_state == (in[2] ? S7 : S5))
+    );
 
-  // Output-domain crossing coverage (half-to-half)
-  cover property ( $past(out)==2'b01 && out==2'b10 );
-  cover property ( $past(out)==2'b10 && out==2'b01 );
+    // In S7, next_state depends only on in[3].
+    check_next_state_s7: assert property (
+        @(posedge clk)
+        (state == S7) |-> (next_state == (in[3] ? S0 : S4))
+    );
+
+    // The state register loads the previous cycle's next_state.
+    check_state_register_update: assert property (
+        @(posedge clk)
+        1'b1 |=> (state == $past(next_state))
+    );
+
 endmodule

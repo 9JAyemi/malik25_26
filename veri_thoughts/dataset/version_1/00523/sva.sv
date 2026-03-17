@@ -1,56 +1,52 @@
-// SVA for binary_to_gray. Bind this module to the DUT.
-// Assumes a verification clock/reset for sampling.
-module binary_to_gray_sva
-(
-  input logic        clk,
-  input logic        rst_n,
-  input logic [2:0]  in,
-  input logic [2:0]  out
+module binary_to_gray_sva (
+    input logic clk,
+    input logic [2:0] in,
+    input logic [2:0] out
 );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n);
+    // 000 maps to 000.
+    check_map_000: assert property (
+        @(posedge clk) (in == 3'b000) |-> (out == 3'b000)
+    );
 
-  // Helper: expected Gray result
-  function automatic logic [2:0] exp_gray(input logic [2:0] b);
-    return b ^ (b >> 1);
-  endfunction
+    // 001 maps to 001.
+    check_map_001: assert property (
+        @(posedge clk) (in == 3'b001) |-> (out == 3'b001)
+    );
 
-  // Core functional equivalence (when input is known)
-  a_func: assert property ( !$isunknown(in) |-> out == exp_gray(in) );
+    // 010 maps to 011.
+    check_map_010: assert property (
+        @(posedge clk) (in == 3'b010) |-> (out == 3'b011)
+    );
 
-  // Bitwise sanity (useful debug, redundant but tight)
-  a_msb:  assert property ( !$isunknown(in) |-> out[2] == in[2] );
-  a_bit1: assert property ( !$isunknown(in) |-> out[1] == (in[2]^in[1]) );
-  a_bit0: assert property ( !$isunknown(in) |-> out[0] == (in[1]^in[0]) );
+    // 011 maps to 010.
+    check_map_011: assert property (
+        @(posedge clk) (in == 3'b011) |-> (out == 3'b010)
+    );
 
-  // No X on out when in is known
-  a_no_x_out: assert property ( !$isunknown(in) |-> !$isunknown(out) );
+    // 100 maps to 110.
+    check_map_100: assert property (
+        @(posedge clk) (in == 3'b100) |-> (out == 3'b110)
+    );
 
-  // Combinational sanity wrt sampling clock
-  a_out_changes_only_if_in_changes: assert property ( $changed(out) |-> $changed(in) );
-  a_stable_in_implies_stable_out:   assert property ( $stable(in)  |-> $stable(out)  );
+    // 101 maps to 111.
+    check_map_101: assert property (
+        @(posedge clk) (in == 3'b101) |-> (out == 3'b111)
+    );
 
-  // Injectivity across sampled cycles
-  a_injective: assert property ( !$isunknown({in,$past(in)}) && in != $past(in) |-> out != $past(out) );
+    // 110 maps to 101.
+    check_map_110: assert property (
+        @(posedge clk) (in == 3'b110) |-> (out == 3'b101)
+    );
 
-  // Gray adjacency on +1 binary steps (optional but strong)
-  a_gray_step_inc: assert property (
-    !$isunknown({in,$past(in)}) && (in == $past(in) + 3'd1) |-> $onehot(out ^ $past(out))
-  );
+    // 111 maps to 100.
+    check_map_111: assert property (
+        @(posedge clk) (in == 3'b111) |-> (out == 3'b100)
+    );
 
-  // Full mapping coverage: see each input with the correct output
-  genvar i;
-  generate
-    for (i = 0; i < 8; i++) begin : COV_MAP
-      cover property ( (in == 3'(i)) && (out == exp_gray(3'(i))) );
-    end
-  endgenerate
-
-  // Transition coverage: observe gray step on +1 increments
-  cover property ( !$isunknown({in,$past(in)}) && (in == $past(in) + 3'd1) && $onehot(out ^ $past(out)) );
+    // Output matches the 3-bit binary-to-Gray formula.
+    check_gray_formula: assert property (
+        @(posedge clk) out == {in[2], (in[2] ^ in[1]), (in[1] ^ in[0])}
+    );
 
 endmodule
-
-// Example bind (adjust instance path/clock/reset as appropriate):
-// bind binary_to_gray binary_to_gray_sva u_b2g_sva (.* , .clk(tb_clk), .rst_n(tb_rst_n));

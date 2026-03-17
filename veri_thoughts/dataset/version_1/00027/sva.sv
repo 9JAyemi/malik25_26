@@ -1,60 +1,57 @@
-// SVA for smallest_number
-module smallest_number_sva #(parameter int W=4)
-(
-  input logic [W-1:0] A, B, C,
-  input logic [W-1:0] smallest
+module smallest_number_sva (
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic [3:0] C,
+    input logic [3:0] smallest
 );
 
-  function automatic logic [W-1:0] f_min3 (input logic [W-1:0] a,b,c);
-    if (a<=b && a<=c) f_min3 = a;
-    else if (b<=a && b<=c) f_min3 = b;
-    else f_min3 = c;
-  endfunction
+    // smallest must match the RTL's minimum-selection function.
+    check_smallest_function: assert property (
+        @($global_clock)
+        smallest == ((A <= B && A <= C) ? A :
+                     ((B <= A && B <= C) ? B : C))
+    );
 
-  // Correctness: output is the min when inputs are known
-  property p_min_value;
-    @(A or B or C or smallest) disable iff ($isunknown({A,B,C}))
-      1'b1 |-> ##0 (smallest == f_min3(A,B,C));
-  endproperty
-  assert property (p_min_value);
+    // smallest must not be greater than A.
+    check_smallest_le_a: assert property (
+        @($global_clock)
+        smallest <= A
+    );
 
-  // Priority/branch checks (including tie resolution)
-  property p_pick_A;
-    @(A or B or C or smallest) disable iff ($isunknown({A,B,C}))
-      (A<=B && A<=C) |-> ##0 (smallest == A);
-  endproperty
-  assert property (p_pick_A);
+    // smallest must not be greater than B.
+    check_smallest_le_b: assert property (
+        @($global_clock)
+        smallest <= B
+    );
 
-  property p_pick_B;
-    @(A or B or C or smallest) disable iff ($isunknown({A,B,C}))
-      (!(A<=B && A<=C) && (B<=A && B<=C)) |-> ##0 (smallest == B);
-  endproperty
-  assert property (p_pick_B);
+    // smallest must not be greater than C.
+    check_smallest_le_c: assert property (
+        @($global_clock)
+        smallest <= C
+    );
 
-  property p_pick_C;
-    @(A or B or C or smallest) disable iff ($isunknown({A,B,C}))
-      (!(A<=B && A<=C) && !(B<=A && B<=C)) |-> ##0 (smallest == C);
-  endproperty
-  assert property (p_pick_C);
+    // smallest must equal one of the three inputs.
+    check_smallest_matches_input: assert property (
+        @($global_clock)
+        (smallest == A) || (smallest == B) || (smallest == C)
+    );
 
-  // X-propagation sanity: known inputs -> known output
-  property p_known_out_when_known_in;
-    @(A or B or C or smallest)
-      (!$isunknown({A,B,C})) |-> ##0 (!$isunknown(smallest));
-  endproperty
-  assert property (p_known_out_when_known_in);
+    // If A is no larger than both others, smallest must equal A.
+    check_select_a_when_a_is_min: assert property (
+        @($global_clock)
+        (A <= B && A <= C) |-> (smallest == A)
+    );
 
-  // Coverage: unique minima, tie cases, and extreme
-  cover property (@(A or B or C) (A<B && A<C));      // unique A min
-  cover property (@(A or B or C) (B<A && B<C));      // unique B min
-  cover property (@(A or B or C) (C<A && C<B));      // unique C min
-  cover property (@(A or B or C) (A==B && A<C));     // A==B < C (A chosen)
-  cover property (@(A or B or C) (A==C && A<B));     // A==C < B (A chosen)
-  cover property (@(A or B or C) (B==C && B<A));     // B==C < A (B chosen)
-  cover property (@(A or B or C) (A==B && B==C));    // all equal
-  cover property (@(A or B or C) (smallest==0));     // min at 0
+    // If B is no larger than both others, smallest must equal B.
+    check_select_b_when_b_is_min: assert property (
+        @($global_clock)
+        (B <= A && B <= C) |-> (smallest == B)
+    );
+
+    // If C is no larger than both others, smallest must equal C.
+    check_select_c_when_c_is_min: assert property (
+        @($global_clock)
+        (C <= A && C <= B) |-> (smallest == C)
+    );
 
 endmodule
-
-// Bind to DUT
-bind smallest_number smallest_number_sva sva_smallest_number(.A(A), .B(B), .C(C), .smallest(smallest));

@@ -1,122 +1,153 @@
-// SVA for debouncer. Bind this file to the DUT.
-// Focus: counter correctness, m_tick, FSM legality/transitions, db behavior, and key coverage.
-
-module debouncer_sva #(parameter int N=19)
-(
-  input logic               clk, reset, sw, db,
-  input logic [N-1:0]       q_reg,
-  input logic [2:0]         state_reg,
-  input logic               m_tick
+module debouncer_sva (
+    input logic        clk,
+    input logic        reset,
+    input logic        sw,
+    input logic        db,
+    input logic [18:0] q_reg,
+    input logic [18:0] q_next,
+    input logic        m_tick,
+    input logic [2:0]  state_reg,
+    input logic [2:0]  state_next
 );
 
-  // Mirror DUT state encodings
-  localparam logic [2:0]
-    zero    = 3'b000,
-    wait1_1 = 3'b001,
-    wait1_2 = 3'b010,
-    wait1_3 = 3'b011,
-    one     = 3'b100,
-    wait0_1 = 3'b101,
-    wait0_2 = 3'b110,
-    wait0_3 = 3'b111;
+    localparam [2:0]
+        zero    = 3'b000,
+        wait1_1 = 3'b001,
+        wait1_2 = 3'b010,
+        wait1_3 = 3'b011,
+        one     = 3'b100,
+        wait0_1 = 3'b101,
+        wait0_2 = 3'b110,
+        wait0_3 = 3'b111;
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (reset);
+    // A sampled reset must leave the FSM in zero on the next clock.
+    check_reset_state_zero: assert property (
+        @(posedge clk) reset |=> (state_reg == zero)
+    );
 
-  // Basic X checks (at clock)
-  a_known_io:     assert property (!$isunknown({sw, db, m_tick, state_reg}));
+    // A sampled reset must leave the debounced output low on the next clock.
+    check_reset_db_low: assert property (
+        @(posedge clk) reset |=> (db == 1'b0)
+    );
 
-  // Asynchronous reset drives state_reg to zero
-  a_async_rst:    assert property (@(posedge reset) state_reg==zero);
-  a_sync_rst:     assert property (@(posedge clk) reset |-> state_reg==zero);
+    // q_next is always q_reg plus one.
+    check_counter_next_increment: assert property (
+        @(posedge clk) disable iff (reset)
+        (q_next == (q_reg + 19'd1))
+    );
 
-  // Counter increments by 1 every clock; m_tick reflects q_reg==0
-  a_cnt_step:     assert property (!$isunknown($past(q_reg)) |-> q_reg == $past(q_reg)+1);
-  a_tick_def:     assert property (!$isunknown(q_reg) |-> m_tick == (q_reg==0));
+    // m_tick is asserted exactly when q_reg is zero.
+    check_mtick_decode: assert property (
+        @(posedge clk) disable iff (reset)
+        (m_tick == (q_reg == 19'd0))
+    );
 
-  // State must always be legal
-  a_state_legal:  assert property (state_reg inside {zero,wait1_1,wait1_2,wait1_3,one,wait0_1,wait0_2,wait0_3});
+    // The free-running counter increments every clock.
+    check_counter_register_update: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (q_reg == ($past(q_reg) + 19'd1))
+    );
 
-  // db is 1 only in one/wait0_* states
-  a_db_map:       assert property (db == (state_reg inside {one,wait0_1,wait0_2,wait0_3}));
+    // The FSM register loads state_next when reset is not active.
+    check_state_register_update: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (state_reg == $past(state_next))
+    );
 
-  // FSM transitions: rising path
-  a_z_hold:       assert property (state_reg==zero   && !sw        |=> state_reg==zero);
-  a_z_to_w11:     assert property (state_reg==zero   &&  sw        |=> state_reg==wait1_1);
+    // zero and wait1 states must drive db low.
+    check_db_low_state_decode: assert property (
+        @(posedge clk) disable iff (reset)
+        ((state_reg == zero) || (state_reg == wait1_1) || (state_reg == wait1_2) || (state_reg == wait1_3))
+        |-> (db == 1'b0)
+    );
 
-  a_w11_drop:     assert property (state_reg==wait1_1 && !sw       |=> state_reg==zero);
-  a_w11_tick:     assert property (state_reg==wait1_1 &&  sw && m_tick |=> state_reg==wait1_2);
-  a_w11_wait:     assert property (state_reg==wait1_1 &&  sw && !m_tick |=> state_reg==wait1_1);
+    // one and wait0 states must drive db high.
+    check_db_high_state_decode: assert property (
+        @(posedge clk) disable iff (reset)
+        ((state_reg == one) || (state_reg == wait0_1) || (state_reg == wait0_2) || (state_reg == wait0_3))
+        |-> (db == 1'b1)
+    );
 
-  a_w12_drop:     assert property (state_reg==wait1_2 && !sw       |=> state_reg==zero);
-  a_w12_tick:     assert property (state_reg==wait1_2 &&  sw && m_tick |=> state_reg==wait1_3);
-  a_w12_wait:     assert property (state_reg==wait1_2 &&  sw && !m_tick |=> state_reg==wait1_2);
+    // zero either holds or starts the high-debounce sequence.
+    check_zero_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == zero)
+        |-> ((!sw && (state_next == zero)) ||
+             ( sw && (state_next == wait1_1)))
+    );
 
-  a_w13_drop:     assert property (state_reg==wait1_3 && !sw       |=> state_reg==zero);
-  a_w13_tick:     assert property (state_reg==wait1_3 &&  sw && m_tick |=> state_reg==one);
-  a_w13_wait:     assert property (state_reg==wait1_3 &&  sw && !m_tick |=> state_reg==wait1_3);
+    // wait1_1 either cancels, holds, or advances on m_tick.
+    check_wait1_1_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait1_1)
+        |-> ((!sw && (state_next == zero)) ||
+             ( sw && !m_tick && (state_next == wait1_1)) ||
+             ( sw &&  m_tick && (state_next == wait1_2)))
+    );
 
-  // FSM transitions: falling path
-  a_one_hold:     assert property (state_reg==one     &&  sw       |=> state_reg==one);
-  a_one_to_w01:   assert property (state_reg==one     && !sw       |=> state_reg==wait0_1);
+    // wait1_2 either cancels, holds, or advances on m_tick.
+    check_wait1_2_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait1_2)
+        |-> ((!sw && (state_next == zero)) ||
+             ( sw && !m_tick && (state_next == wait1_2)) ||
+             ( sw &&  m_tick && (state_next == wait1_3)))
+    );
 
-  a_w01_raise:    assert property (state_reg==wait0_1 &&  sw       |=> state_reg==one);
-  a_w01_tick:     assert property (state_reg==wait0_1 && !sw && m_tick |=> state_reg==wait0_2);
-  a_w01_wait:     assert property (state_reg==wait0_1 && !sw && !m_tick |=> state_reg==wait0_1);
+    // wait1_3 either cancels, holds, or advances to one on m_tick.
+    check_wait1_3_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait1_3)
+        |-> ((!sw && (state_next == zero)) ||
+             ( sw && !m_tick && (state_next == wait1_3)) ||
+             ( sw &&  m_tick && (state_next == one)))
+    );
 
-  a_w02_raise:    assert property (state_reg==wait0_2 &&  sw       |=> state_reg==one);
-  a_w02_tick:     assert property (state_reg==wait0_2 && !sw && m_tick |=> state_reg==wait0_3);
-  a_w02_wait:     assert property (state_reg==wait0_2 && !sw && !m_tick |=> state_reg==wait0_2);
+    // one either holds or starts the low-debounce sequence.
+    check_one_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == one)
+        |-> (( sw && (state_next == one)) ||
+             (!sw && (state_next == wait0_1)))
+    );
 
-  a_w03_raise:    assert property (state_reg==wait0_3 &&  sw       |=> state_reg==one);
-  a_w03_tick:     assert property (state_reg==wait0_3 && !sw && m_tick |=> state_reg==zero);
-  a_w03_wait:     assert property (state_reg==wait0_3 && !sw && !m_tick |=> state_reg==wait0_3);
+    // wait0_1 either returns to one, holds, or advances on m_tick.
+    check_wait0_1_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait0_1)
+        |-> (( sw && (state_next == one)) ||
+             (!sw && !m_tick && (state_next == wait0_1)) ||
+             (!sw &&  m_tick && (state_next == wait0_2)))
+    );
 
-  // db edges only at debounced boundaries, caused by prior tick
-  a_db_rise_only: assert property ($rose(db) |-> $past(state_reg)==wait1_3 && state_reg==one && $past(m_tick));
-  a_db_fall_only: assert property ($fell(db) |-> $past(state_reg)==wait0_3 && state_reg==zero && $past(m_tick));
+    // wait0_2 either returns to one, holds, or advances on m_tick.
+    check_wait0_2_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait0_2)
+        |-> (( sw && (state_next == one)) ||
+             (!sw && !m_tick && (state_next == wait0_2)) ||
+             (!sw &&  m_tick && (state_next == wait0_3)))
+    );
 
-  // Coverage
-  c_tick:         cover property (m_tick);
-
-  c_all_states:   cover property (state_reg inside {zero,wait1_1,wait1_2,wait1_3,one,wait0_1,wait0_2,wait0_3});
-
-  // Debounced press: stay high through 3 ticks to reach 'one'
-  c_press:        cover property (
-                     state_reg==zero ##[1:$]
-                     (sw && state_reg==wait1_1) ##[1:$]
-                     (sw && state_reg==wait1_2) ##[1:$]
-                     (sw && state_reg==wait1_3) ##1
-                     (sw && m_tick) ##1 state_reg==one
-                   );
-
-  // Debounced release: stay low through 3 ticks to reach 'zero'
-  c_release:      cover property (
-                     state_reg==one ##[1:$]
-                     (!sw && state_reg==wait0_1) ##[1:$]
-                     (!sw && state_reg==wait0_2) ##[1:$]
-                     (!sw && state_reg==wait0_3) ##1
-                     (!sw && m_tick) ##1 state_reg==zero
-                   );
-
-  // Bounce aborts
-  c_bounce_up_abort:   cover property (state_reg==wait1_2 ##1 !sw ##1 state_reg==zero);
-  c_bounce_down_abort: cover property (state_reg==wait0_2 ##1  sw ##1 state_reg==one);
-
-  // db edges covered
-  c_db_rise:      cover property ($rose(db));
-  c_db_fall:      cover property ($fell(db));
+    // wait0_3 either returns to one, holds, or advances to zero on m_tick.
+    check_wait0_3_transitions: assert property (
+        @(posedge clk) disable iff (reset)
+        (state_reg == wait0_3)
+        |-> (( sw && (state_next == one)) ||
+             (!sw && !m_tick && (state_next == wait0_3)) ||
+             (!sw &&  m_tick && (state_next == zero)))
+    );
 
 endmodule
 
-// Bind into DUT
-bind debouncer debouncer_sva #(.N(N)) debouncer_sva_i
-(
-  .clk(clk),
-  .reset(reset),
-  .sw(sw),
-  .db(db),
-  .q_reg(q_reg),
-  .state_reg(state_reg),
-  .m_tick(m_tick)
+bind debouncer debouncer_sva debouncer_sva_i (
+    .clk(clk),
+    .reset(reset),
+    .sw(sw),
+    .db(db),
+    .q_reg(q_reg),
+    .q_next(q_next),
+    .m_tick(m_tick),
+    .state_reg(state_reg),
+    .state_next(state_next)
 );

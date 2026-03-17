@@ -1,68 +1,49 @@
-// SVA checkers for full_adder and adder_4bit.
-// Connect a free-running clk when binding.
-
-module full_adder_sva (
-  input logic clk,
-  input logic a, b, cin,
-  input logic sum, cout
+module adder_4bit_assertions (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic [3:0] S,
+    input logic Cout
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Inputs known -> outputs known
-  assert property ( !$isunknown({a,b,cin}) |-> ##0 !$isunknown({sum,cout}) );
+    // LSB sum is the XOR of A[0] and B[0].
+    check_sum_bit0_xor: assert property (
+        @(posedge clk) S[0] == (A[0] ^ B[0])
+    );
 
-  // Functional correctness
-  assert property ( !$isunknown({a,b,cin}) |-> ##0 {cout,sum} == a + b + cin );
+    // Sum bit 1 matches the 2-bit addition of the lower slices.
+    check_sum_bit1_lower_add: assert property (
+        @(posedge clk) S[1] == (({1'b0, A[1:0]} + {1'b0, B[1:0]})[1])
+    );
 
-  // Coverage: all input combos and both cout states
-  genvar i;
-  generate
-    for (i=0; i<8; i++) begin : C_FA
-      cover property ( !$isunknown({a,b,cin}) && {a,b,cin} == i[2:0] );
-    end
-  endgenerate
-  cover property ( cout == 1'b0 );
-  cover property ( cout == 1'b1 );
+    // Sum bit 2 matches the 3-bit addition of the lower slices.
+    check_sum_bit2_lower_add: assert property (
+        @(posedge clk) S[2] == (({1'b0, A[2:0]} + {1'b0, B[2:0]})[2])
+    );
+
+    // Sum bit 3 matches the 4-bit addition result.
+    check_sum_bit3_full_add: assert property (
+        @(posedge clk) S[3] == (({1'b0, A} + {1'b0, B})[3])
+    );
+
+    // Cout matches the carry-out of the 4-bit addition.
+    check_cout_full_add: assert property (
+        @(posedge clk) Cout == (({1'b0, A} + {1'b0, B})[4])
+    );
+
+    // The full 5-bit output matches A plus B.
+    check_full_result_addition: assert property (
+        @(posedge clk) {Cout, S} == ({1'b0, A} + {1'b0, B})
+    );
+
+    // Adding zero on B leaves A unchanged.
+    check_zero_identity_on_b: assert property (
+        @(posedge clk) (B == 4'b0000) |-> ({Cout, S} == {1'b0, A})
+    );
+
+    // Adding zero on A leaves B unchanged.
+    check_zero_identity_on_a: assert property (
+        @(posedge clk) (A == 4'b0000) |-> ({Cout, S} == {1'b0, B})
+    );
+
 endmodule
-
-
-module adder_4bit_sva (
-  input  logic       clk,
-  input  logic [3:0] A, B, S,
-  input  logic       Cout,
-  // bind to internals for per-bit/ripple checks
-  input  logic [3:0] carry_i,
-  input  logic [3:0] sum_i
-);
-  default clocking cb @(posedge clk); endclocking
-
-  // Inputs known -> outputs known
-  assert property ( !$isunknown({A,B}) |-> ##0 !$isunknown({S,Cout}) );
-
-  // End-to-end correctness
-  assert property ( !$isunknown({A,B}) |-> ##0 {Cout,S} == A + B );
-
-  // Bit-slice/ripple correctness
-  assert property ( !$isunknown({A[0],B[0]})            |-> ##0 {carry_i[0], sum_i[0]} == A[0] + B[0] );
-  assert property ( !$isunknown({A[1],B[1],carry_i[0]}) |-> ##0 {carry_i[1], sum_i[1]} == A[1] + B[1] + carry_i[0] );
-  assert property ( !$isunknown({A[2],B[2],carry_i[1]}) |-> ##0 {carry_i[2], sum_i[2]} == A[2] + B[2] + carry_i[1] );
-  assert property ( !$isunknown({A[3],B[3],carry_i[2]}) |-> ##0 {Cout,      S[3]}      == A[3] + B[3] + carry_i[2] );
-
-  // Connectivity
-  assert property ( S == sum_i );
-
-  // Coverage: carry activity and corner cases
-  cover property ( carry_i[0] );
-  cover property ( carry_i[1] );
-  cover property ( carry_i[2] );
-  cover property ( Cout );
-
-  cover property ( A==4'd0  && B==4'd0  && S==4'd0  && Cout==1'b0 );
-  cover property ( A==4'hF  && B==4'hF  && S==4'hE  && Cout==1'b1 ); // 15+15=30
-  cover property ( A==4'b1111 && B==4'b0001 && Cout==1'b1 );         // full ripple
-endmodule
-
-
-// Bind examples (provide clk from your environment)
-bind full_adder  full_adder_sva  u_full_adder_sva (.clk(clk), .a(a), .b(b), .cin(cin), .sum(sum), .cout(cout));
-bind adder_4bit  adder_4bit_sva  u_adder4_sva     (.clk(clk), .A(A), .B(B), .S(S), .Cout(Cout), .carry_i(carry), .sum_i(sum));

@@ -1,54 +1,57 @@
-// SVA for top_module and sub-blocks (concise, quality-focused)
 module top_module_sva (
-  input clk,
-  input reset,
-  input [7:0] in1,
-  input [7:0] in2,
-  input select,
-  input [7:0] out,
-  input [7:0] adder1_out,
-  input [7:0] adder2_out,
-  input [7:0] and_out
+  input logic clk,
+  input logic reset,
+  input logic [7:0] in1,
+  input logic [7:0] in2,
+  input logic select,
+  input logic [7:0] out
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Adders compute registered sum of previous-cycle inputs (mod 256)
-  assert property ( !$past(reset) |-> (adder1_out == $past((in1+in2)[7:0])) );
-  assert property ( !$past(reset) |-> (adder2_out == $past((in1+in2)[7:0])) );
+  // Reset drives the registered output to zero on the next cycle.
+  check_reset_forces_zero: assert property (
+    @(posedge clk) reset |=> (out == 8'd0)
+  );
 
-  // Synchronous reset drives registered outputs to 0 on next cycle
-  assert property ( reset |=> (adder1_out == 8'h00) );
-  assert property ( reset |=> (adder2_out == 8'h00) );
+  // With select high, output matches the previous cycle's 8-bit sum.
+  check_select_high_result: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (select && !$past(reset)) |-> (out == ($past(in1) + $past(in2)))
+  );
 
-  // The two adders must always agree when known
-  assert property ( (!$isunknown({adder1_out,adder2_out})) |-> (adder1_out == adder2_out) );
+  // With select low, output matches the previous cycle's 8-bit sum.
+  check_select_low_result: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!select && !$past(reset)) |-> (out == ($past(in1) + $past(in2)))
+  );
 
-  // Control logic: AND is symmetric and independent of select value
-  assert property ( and_out == (adder1_out & adder2_out) );
+  // Adding zero on in2 passes through in1.
+  check_in2_zero_passthrough: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!$past(reset) && ($past(in2) == 8'd0)) |-> (out == $past(in1))
+  );
 
-  // Top-level connectivity and functional end-to-end check
-  assert property ( out == and_out );
-  assert property ( !$past(reset) |-> (out == $past((in1+in2)[7:0])) );
-  assert property ( reset |=> (out == 8'h00) );
+  // Adding zero on in1 passes through in2.
+  check_in1_zero_passthrough: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!$past(reset) && ($past(in1) == 8'd0)) |-> (out == $past(in2))
+  );
 
-  // Minimal functional coverage
-  cover property ( $rose(reset) );
-  cover property ( $fell(reset) );
-  cover property ( $rose(select) );
-  cover property ( $fell(select) );
-  // Overflow/wrap example: FF + 01 -> 00 (mod 256) on next cycle
-  cover property ( !$past(reset) && $past(in1)==8'hFF && $past(in2)==8'h01 ##1 (out==8'h00) );
+  // Equal operands produce an even sum.
+  check_equal_operands_even_sum: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!$past(reset) && ($past(in1) == $past(in2))) |-> (out[0] == 1'b0)
+  );
+
+  // 8-bit addition wraps on overflow.
+  check_overflow_wrap_to_zero: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!$past(reset) && ($past(in1) == 8'hFF) && ($past(in2) == 8'h01)) |-> (out == 8'h00)
+  );
+
+  // Max plus max produces 8'hFE.
+  check_max_plus_max: assert property (
+    @(posedge clk) disable iff (reset || $initstate)
+    (!$past(reset) && ($past(in1) == 8'hFF) && ($past(in2) == 8'hFF)) |-> (out == 8'hFE)
+  );
+
 endmodule
-
-// Bind into DUT (internal wires are connected via hierarchical names in the bind scope)
-bind top_module top_module_sva u_top_module_sva (
-  .clk(clk),
-  .reset(reset),
-  .in1(in1),
-  .in2(in2),
-  .select(select),
-  .out(out),
-  .adder1_out(adder1_out),
-  .adder2_out(adder2_out),
-  .and_out(and_out)
-);

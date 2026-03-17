@@ -1,105 +1,114 @@
-// Bindable SVA for AddressGenerator
-module AddressGenerator_sva
-(
-  input  logic        clk,
-  input  logic        ce,
-  input  logic [4:0]  Operation,
-  input  logic [1:0]  MuxCtrl,
-  input  logic [7:0]  DataBus, T, X, Y,
-  input  logic [15:0] AX,
-  input  logic        Carry,
-  // Internal DUT state
-  input  logic [7:0]  AL, AH,
-  input  logic        SavedCarry
+module AddressGenerator_sva (
+    input logic        clk,
+    input logic        ce,
+    input logic [4:0]  Operation,
+    input logic [1:0]  MuxCtrl,
+    input logic [7:0]  DataBus,
+    input logic [7:0]  T,
+    input logic [7:0]  X,
+    input logic [7:0]  Y,
+    input logic [15:0] AX,
+    input logic        Carry
 );
 
-  default clocking cb @(posedge clk); endclocking
+    property p_carry_matches_selected_sum;
+        logic [8:0] expected_sum;
+        @(posedge clk)
+            (1'b1, expected_sum = {1'b0, (MuxCtrl[1] ? T : AX[7:0])} + {1'b0, (MuxCtrl[0] ? Y : X)})
+            |-> (Carry == expected_sum[8]);
+    endproperty
 
-  // Past-valid guard
-  logic past_valid;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    property p_ax_holds_when_ce_low;
+        logic [15:0] held_ax;
+        @(posedge clk)
+            (!ce, held_ax = AX)
+            |=> (AX == held_ax);
+    endproperty
 
-  // Decodes and combinational helpers (current cycle)
-  let ALCtrl = Operation[4:2];
-  let AHCtrl = Operation[1:0];
-  let sum9   = {1'b0, (MuxCtrl[1] ? T  : AL)} + {1'b0, (MuxCtrl[0] ? Y : X)};
-  let tmpval = (!AHCtrl[1] | SavedCarry);
-  let tmpadd = (AHCtrl[1] ? AH : AL) + {7'b0, tmpval};
+    property p_al_holds_when_not_enabled;
+        logic [7:0] held_al;
+        @(posedge clk)
+            (ce && !Operation[4], held_al = AX[7:0])
+            |=> (AX[7:0] == held_al);
+    endproperty
 
-  // Structural correctness
-  assert property (AX == {AH, AL});
-  assert property (Carry == sum9[8]);
+    property p_al_loads_newal;
+        logic [7:0] expected_al;
+        @(posedge clk)
+            (ce && (Operation[4:2] == 3'b100),
+             expected_al = (MuxCtrl[1] ? T : AX[7:0]) + (MuxCtrl[0] ? Y : X))
+            |=> (AX[7:0] == expected_al);
+    endproperty
 
-  // State hold when ce==0
-  assert property (past_valid && !ce |=> (AL == $past(AL) && AH == $past(AH) && SavedCarry == $past(SavedCarry)));
+    property p_al_loads_databus;
+        logic [7:0] expected_al;
+        @(posedge clk)
+            (ce && (Operation[4:2] == 3'b101), expected_al = DataBus)
+            |=> (AX[7:0] == expected_al);
+    endproperty
 
-  // SavedCarry update
-  assert property (past_valid && ce |=> SavedCarry == $past(Carry));
+    property p_al_loads_incremented_al;
+        logic [7:0] expected_al;
+        @(posedge clk)
+            (ce && (Operation[4:2] == 3'b110) && !Operation[1], expected_al = AX[7:0] + 8'h01)
+            |=> (AX[7:0] == expected_al);
+    endproperty
 
-  // AL update behavior
-  // Hold when ALCtrl[2]==0
-  assert property (past_valid && ce && !$past(Operation[4]) |=> AL == $past(AL));
-  // ALCtrl[2:0] == 3'b100: AL <= NewAL (sum9[7:0])
-  assert property (past_valid && ce && $past(Operation[4:2]) == 3'b100 |=> 
-                   AL == ({1'b0, ($past(MuxCtrl[1]) ? $past(T)  : $past(AL))} + 
-                          {1'b0, ($past(MuxCtrl[0]) ? $past(Y) : $past(X))})[7:0]);
-  // 3'b101: AL <= DataBus
-  assert property (past_valid && ce && $past(Operation[4:2]) == 3'b101 |=> AL == $past(DataBus));
-  // 3'b110: AL <= TmpAdd
-  assert property (past_valid && ce && $past(Operation[4:2]) == 3'b110 |=> 
-                   AL == (( $past(Operation[1]) ? $past(AH) : $past(AL)) + 
-                          {7'b0, (! $past(Operation[1]) | $past(SavedCarry))}));
-  // 3'b111: AL <= T
-  assert property (past_valid && ce && $past(Operation[4:2]) == 3'b111 |=> AL == $past(T));
+    property p_al_loads_t;
+        logic [7:0] expected_al;
+        @(posedge clk)
+            (ce && (Operation[4:2] == 3'b111), expected_al = T)
+            |=> (AX[7:0] == expected_al);
+    endproperty
 
-  // AH update behavior (always under ce)
-  // 2'b00: hold
-  assert property (past_valid && ce && $past(Operation[1:0]) == 2'b00 |=> AH == $past(AH));
-  // 2'b01: zero
-  assert property (past_valid && ce && $past(Operation[1:0]) == 2'b01 |=> AH == 8'h00);
-  // 2'b10: TmpAdd
-  assert property (past_valid && ce && $past(Operation[1:0]) == 2'b10 |=> 
-                   AH == (( $past(Operation[1]) ? $past(AH) : $past(AL)) + 
-                          {7'b0, (! $past(Operation[1]) | $past(SavedCarry))}));
-  // 2'b11: DataBus
-  assert property (past_valid && ce && $past(Operation[1:0]) == 2'b11 |=> AH == $past(DataBus));
+    property p_ah_holds;
+        logic [7:0] held_ah;
+        @(posedge clk)
+            (ce && (Operation[1:0] == 2'b00), held_ah = AX[15:8])
+            |=> (AX[15:8] == held_ah);
+    endproperty
 
-  // Functional coverage (concise)
-  // AL write select cases
-  cover property (ce && ALCtrl[2] && (ALCtrl[1:0] == 2'b00));
-  cover property (ce && ALCtrl[2] && (ALCtrl[1:0] == 2'b01));
-  cover property (ce && ALCtrl[2] && (ALCtrl[1:0] == 2'b10));
-  cover property (ce && ALCtrl[2] && (ALCtrl[1:0] == 2'b11));
-  cover property (ce && !ALCtrl[2]); // AL hold via control
+    property p_ah_clears;
+        @(posedge clk)
+            (ce && (Operation[1:0] == 2'b01))
+            |=> (AX[15:8] == 8'h00);
+    endproperty
 
-  // AH write select cases
-  cover property (ce && (AHCtrl == 2'b00));
-  cover property (ce && (AHCtrl == 2'b01));
-  cover property (ce && (AHCtrl == 2'b10));
-  cover property (ce && (AHCtrl == 2'b11));
+    property p_ah_loads_databus;
+        logic [7:0] expected_ah;
+        @(posedge clk)
+            (ce && (Operation[1:0] == 2'b11), expected_ah = DataBus)
+            |=> (AX[15:8] == expected_ah);
+    endproperty
 
-  // MuxCtrl combinations exercised
-  cover property (MuxCtrl == 2'b00);
-  cover property (MuxCtrl == 2'b01);
-  cover property (MuxCtrl == 2'b10);
-  cover property (MuxCtrl == 2'b11);
+    // Carry is the carry-out of the selected 8-bit addition.
+    check_carry_matches_selected_sum: assert property (p_carry_matches_selected_sum);
 
-  // Carry generation/no-carry observed
-  cover property (Carry == 1'b1);
-  cover property (Carry == 1'b0);
+    // AX holds its value when clock enable is low.
+    check_ax_holds_when_ce_low: assert property (p_ax_holds_when_ce_low);
 
-  // TmpAdd path exercised with/without SavedCarry contribution
-  cover property (ce && (AHCtrl == 2'b10) && (SavedCarry == 1'b1));
-  cover property (ce && (AHCtrl == 2'b10) && (SavedCarry == 1'b0));
+    // AL holds when the AL update enable bit is not set.
+    check_al_holds_when_not_enabled: assert property (p_al_holds_when_not_enabled);
 
-  // Global hold via ce==0
-  cover property (!ce);
+    // AL loads the selected sum when ALCtrl selects NewAL.
+    check_al_loads_newal: assert property (p_al_loads_newal);
+
+    // AL loads DataBus when ALCtrl selects the bus.
+    check_al_loads_databus: assert property (p_al_loads_databus);
+
+    // AL increments from its current value when TmpAdd uses AL plus one.
+    check_al_loads_incremented_al: assert property (p_al_loads_incremented_al);
+
+    // AL loads T when ALCtrl selects T.
+    check_al_loads_t: assert property (p_al_loads_t);
+
+    // AH holds when AHCtrl selects hold.
+    check_ah_holds: assert property (p_ah_holds);
+
+    // AH clears to zero when AHCtrl selects zero.
+    check_ah_clears: assert property (p_ah_clears);
+
+    // AH loads DataBus when AHCtrl selects the bus.
+    check_ah_loads_databus: assert property (p_ah_loads_databus);
 
 endmodule
-
-// Example bind (connects to internals AL/AH/SavedCarry)
-bind AddressGenerator AddressGenerator_sva sva_addrgen (
-  .clk(clk), .ce(ce), .Operation(Operation), .MuxCtrl(MuxCtrl),
-  .DataBus(DataBus), .T(T), .X(X), .Y(Y), .AX(AX), .Carry(Carry),
-  .AL(AL), .AH(AH), .SavedCarry(SavedCarry)
-);

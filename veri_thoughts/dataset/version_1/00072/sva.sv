@@ -1,43 +1,52 @@
-// SVA checker for sky130_fd_sc_ms__nand4b
-module sky130_fd_sc_ms__nand4b_sva (input logic Y, A_N, B, C, D);
+module sky130_fd_sc_ms__nand4b_sva (
+    input logic Y,
+    input logic A_N,
+    input logic B,
+    input logic C,
+    input logic D,
+    input logic clk
+);
 
-  // No X/Z on any port
-  assert property (@(A_N or B or C or D or Y) !$isunknown({A_N,B,C,D,Y}))
-    else $error("X/Z detected on ports");
+    // Sample on an external clock because this cell is combinational and has no reset.
 
-  // Functional equivalence: Y = ~(D & C & B & ~A_N) = (A_N | ~B | ~C | ~D)
-  assert property (@(A_N or B or C or D or Y) Y == (A_N | ~B | ~C | ~D))
-    else $error("Functional mismatch");
+    // Y matches the buffered 4-input NAND with A_N inverted internally.
+    check_function_equivalence: assert property (
+        @(posedge clk) Y == ~(D & C & B & ~A_N)
+    );
 
-  // Important implications
-  assert property (@(A_N or B or C or D) (!B || !C || !D) |-> (Y == 1'b1))
-    else $error("Controlling-0 on B/C/D did not force Y=1");
-  assert property (@(A_N or B or C or D) (B && C && D) |-> (Y == A_N))
-    else $error("When B=C=D=1, Y must equal A_N");
-  assert property (@(A_N or B or C or D) (Y == 1'b0) |-> (~A_N && B && C && D))
-    else $error("Y=0 without required inputs");
+    // All effective NAND inputs high drive the output low.
+    check_all_active_inputs_drive_low: assert property (
+        @(posedge clk) (!A_N && B && C && D) |-> !Y
+    );
 
-  // Functional coverage: all minterms that determine Y
-  cover property (@(A_N or B or C or D) (~A_N &&  B &&  C &&  D && (Y==1'b0))); // only-zero case
-  cover property (@(A_N or B or C or D) ( A_N &&  B &&  C &&  D && (Y==1'b1)));
-  cover property (@(A_N or B or C or D) (!B  &&  C &&  D && (Y==1'b1)));
-  cover property (@(A_N or B or C or D) ( B  && !C &&  D && (Y==1'b1)));
-  cover property (@(A_N or B or C or D) ( B  &&  C && !D && (Y==1'b1)));
+    // A low output requires the single active-input minterm.
+    check_low_output_requires_all_active_inputs: assert property (
+        @(posedge clk) !Y |-> (!A_N && B && C && D)
+    );
 
-  // Toggle coverage in decisive contexts
-  cover property (@(posedge A_N) (B && C && D && (Y==1'b1)));
-  cover property (@(negedge A_N) (B && C && D && (Y==1'b0)));
+    // A_N high forces the output high.
+    check_a_n_high_forces_high: assert property (
+        @(posedge clk) A_N |-> Y
+    );
 
-  cover property (@(posedge B) (A_N==1'b0 && C && D && (Y==1'b0)));
-  cover property (@(negedge B) (A_N==1'b0 && C && D && (Y==1'b1)));
+    // B low forces the output high.
+    check_b_low_forces_high: assert property (
+        @(posedge clk) !B |-> Y
+    );
 
-  cover property (@(posedge C) (A_N==1'b0 && B && D && (Y==1'b0)));
-  cover property (@(negedge C) (A_N==1'b0 && B && D && (Y==1'b1)));
+    // C low forces the output high.
+    check_c_low_forces_high: assert property (
+        @(posedge clk) !C |-> Y
+    );
 
-  cover property (@(posedge D) (A_N==1'b0 && B && C && (Y==1'b0)));
-  cover property (@(negedge D) (A_N==1'b0 && B && C && (Y==1'b1)));
+    // D low forces the output high.
+    check_d_low_forces_high: assert property (
+        @(posedge clk) !D |-> Y
+    );
+
+    // A high output means at least one input blocks the low minterm.
+    check_high_output_has_blocking_input: assert property (
+        @(posedge clk) Y |-> (A_N || !B || !C || !D)
+    );
 
 endmodule
-
-// Bind into DUT
-bind sky130_fd_sc_ms__nand4b sky130_fd_sc_ms__nand4b_sva u_sva (.*);

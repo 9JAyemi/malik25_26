@@ -1,39 +1,39 @@
-// SVA bind module for mux2_1
 module mux2_1_sva (
-  input  logic [7:0] input1,
-  input  logic [7:0] input2,
-  input  logic       select,
-  input  logic [7:0] selected_out
+    input logic       clk,
+    input logic [7:0] input1,
+    input logic [7:0] input2,
+    input logic       select,
+    input logic [7:0] selected_out
 );
 
-  // Core functional correctness on any relevant change
-  assert property (@(input1 or input2 or select)
-                   ##0 selected_out == (select ? input2 : input1))
-    else $error("mux2_1 functional mismatch");
+    // Output matches the RTL mux expression on every sample.
+    check_selected_out_matches_mux: assert property (
+        @(posedge clk) selected_out === (select ? input2 : input1)
+    );
 
-  // Select must be 0/1 (no X/Z)
-  assert property (@(input1 or input2 or select) !$isunknown(select))
-    else $error("mux2_1 select is X/Z");
+    // A low select routes input1 to the output.
+    check_select_low_routes_input1: assert property (
+        @(posedge clk) (select === 1'b0) |-> (selected_out === input1)
+    );
 
-  // If both data inputs are known, output must be known
-  assert property (@(input1 or input2 or select)
-                   (!$isunknown(input1) && !$isunknown(input2)) |-> !$isunknown(selected_out))
-    else $error("mux2_1 output X/Z with known inputs");
+    // A high select routes input2 to the output.
+    check_select_high_routes_input2: assert property (
+        @(posedge clk) (select === 1'b1) |-> (selected_out === input2)
+    );
 
-  // Immediate correctness on select edges
-  assert property (@(posedge select) ##0 selected_out == input2)
-    else $error("mux2_1 failed on select=1 edge");
-  assert property (@(negedge select) ##0 selected_out == input1)
-    else $error("mux2_1 failed on select=0 edge");
+    // If both inputs are identical, the output matches that common value.
+    check_equal_inputs_match_output: assert property (
+        @(posedge clk) (input1 === input2) |-> (selected_out === input1)
+    );
 
-  // Minimal functional coverage
-  cover property (@(input1 or input2 or select) (select==0 && selected_out==input1));
-  cover property (@(input1 or input2 or select) (select==1 && selected_out==input2));
-  cover property (@(posedge select));    // exercised path to input2
-  cover property (@(negedge select));    // exercised path to input1
-  cover property (@(posedge select) (input1==input2)); // select toggle with equal inputs
+    // With stable inputs and select, the output remains stable.
+    check_stable_inputs_keep_output_stable: assert property (
+        @(posedge clk) ($stable(input1) && $stable(input2) && $stable(select)) |-> $stable(selected_out)
+    );
+
+    // A select change with stable data updates the output to the newly selected input.
+    check_select_change_updates_output: assert property (
+        @(posedge clk) ($changed(select) && $stable(input1) && $stable(input2)) |-> (selected_out === (select ? input2 : input1))
+    );
 
 endmodule
-
-// Bind into all instances of mux2_1
-bind mux2_1 mux2_1_sva sva_mux2_1 (.*);

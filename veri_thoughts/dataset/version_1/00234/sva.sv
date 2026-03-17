@@ -1,48 +1,44 @@
-// SVA for absolute_counter. Bind this to the DUT.
-module absolute_counter_sva;
+module absolute_counter_sva (
+    input logic clk,
+    input logic rst,
+    input logic en,
+    input logic ld,
+    input logic signed [31:0] in,
+    input logic [3:0] load_data,
+    input logic [35:0] out
+);
 
-  // Bound into absolute_counter scope; direct access to DUT signals.
-  default clocking cb @(posedge clk); endclocking
+    // After a reset cycle, the counter contribution is cleared.
+    check_reset_clears_counter: assert property (
+        @(posedge clk)
+        rst |=> (out == {4'b0000, ((in < 32'sd0) ? -in : in)})
+    );
 
-  // Helper expression for absolute value of input
-  let abs32 = in[31] ? -$signed(in) : $signed(in);
+    // The output is always the absolute input plus a 4-bit counter value.
+    check_counter_contribution_range: assert property (
+        @(posedge clk) disable iff (rst)
+        (out >= {4'b0000, ((in < 32'sd0) ? -in : in)}) &&
+        ((out - {4'b0000, ((in < 32'sd0) ? -in : in)}) <= 36'd15)
+    );
 
-  // Combinational functional correctness (continuous checks)
-  always_comb begin
-    assert (abs_val == abs32)
-      else $error("absolute_counter: abs_val mismatch");
-    assert (out == ({4'd0, abs32} + {32'd0, counter}))
-      else $error("absolute_counter: out mismatch");
-    assert (!$isunknown(out)) else $error("absolute_counter: out has X/Z");
-  end
+    // When en is high, the counter increments modulo 16 on the next cycle.
+    check_enable_increments_counter: assert property (
+        @(posedge clk) disable iff (rst)
+        en |=> ((out - {4'b0000, ((in < 32'sd0) ? -in : in)}) ==
+                (($past(out - {4'b0000, ((in < 32'sd0) ? -in : in)}) + 36'd1) & 36'hF))
+    );
 
-  // Synchronous reset: counter clears next cycle
-  assert property (rst |=> counter == 4'h0);
+    // When ld is high and en is low, the next counter value comes from load_data.
+    check_load_updates_counter: assert property (
+        @(posedge clk) disable iff (rst)
+        (!en && ld) |=> (out == ({4'b0000, ((in < 32'sd0) ? -in : in)} + {32'b0, $past(load_data)}))
+    );
 
-  // Increment when en (priority over ld), modulo-16
-  assert property (!rst && en |=> counter == ($past(counter)+4'd1)[3:0]);
+    // When neither en nor ld is high, the counter value holds.
+    check_hold_preserves_counter: assert property (
+        @(posedge clk) disable iff (rst)
+        (!en && !ld) |=> ((out - {4'b0000, ((in < 32'sd0) ? -in : in)}) ==
+                          $past(out - {4'b0000, ((in < 32'sd0) ? -in : in)}))
+    );
 
-  // Load when ld and !en
-  assert property (!rst && !en && ld |=> counter == $past(load_data));
-
-  // Hold when neither en nor ld
-  assert property (!rst && !en && !ld |=> counter == $past(counter));
-
-  // Explicit priority case (en && ld): still increments
-  assert property (!rst && en && ld |=> counter == ($past(counter)+4'd1)[3:0]);
-
-  // No X on state after reset deasserted
-  assert property (disable iff (rst) !$isunknown(counter));
-
-  // Coverage
-  cover property (rst);
-  cover property (!rst && en);                        // increment activity
-  cover property (!rst && !en && ld);                 // load activity
-  cover property (!rst && en && ld);                  // priority case seen
-  cover property (!rst && $past(counter)==4'hF && en && counter==4'h0); // wrap-around
-  cover property (in[31]);                            // negative input seen
-  cover property (!in[31]);                           // non-negative input seen
-  cover property (in == 32'h8000_0000);               // INT_MIN corner
 endmodule
-
-bind absolute_counter absolute_counter_sva sva_absolute_counter();

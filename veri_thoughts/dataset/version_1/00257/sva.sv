@@ -1,75 +1,47 @@
-// SVA for ripple_carry_adder
-// Bind into DUT to access internal carry chain
-checker rca_checker (
-    input logic [3:0] A, B, SUM,
-    input logic       CIN, COUT,
-    input logic [3:0] carry
+module ripple_carry_adder_sva (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic CIN,
+    input logic [3:0] SUM,
+    input logic COUT
 );
-    // Functional equivalence of the whole adder
-    property p_total_correct;
-        @(A or B or CIN)
-        !$isunknown({A,B,CIN}) |-> ##0 {COUT,SUM} == (A + B + CIN);
-    endproperty
-    assert property (p_total_correct);
 
-    // X-propagation: clean outputs when inputs are clean
-    property p_no_x_out;
-        @(A or B or CIN)
-        !$isunknown({A,B,CIN}) |-> ##0 !$isunknown({SUM,COUT,carry[2:0]});
-    endproperty
-    assert property (p_no_x_out);
+    // Sampling clock; DUT is combinational and has no reset.
 
-    // Bit-slice correctness and carry chain linking
-    // Stage 0
-    property p_s0;
-        @(A or B or CIN)
-        !$isunknown({A[0],B[0],CIN}) |-> ##0
-            (SUM[0] == (A[0]^B[0]^CIN)) &&
-            (carry[0] == ((A[0]&B[0]) | (B[0]&CIN) | (CIN&A[0])));
-    endproperty
-    assert property (p_s0);
+    // SUM[0] is the XOR of A[0], B[0], and CIN.
+    check_sum_bit0_xor: assert property (
+        @(posedge clk) SUM[0] == (A[0] ^ B[0] ^ CIN)
+    );
 
-    // Stage 1
-    property p_s1;
-        @(A or B or CIN or carry[0])
-        !$isunknown({A[1],B[1],carry[0]}) |-> ##0
-            (SUM[1] == (A[1]^B[1]^carry[0])) &&
-            (carry[1] == ((A[1]&B[1]) | (B[1]&carry[0]) | (carry[0]&A[1])));
-    endproperty
-    assert property (p_s1);
+    // SUM[1] matches bit 1 of the 5-bit addition result.
+    check_sum_bit1_matches_addition: assert property (
+        @(posedge clk) SUM[1] == (({1'b0, A} + {1'b0, B} + {4'b0000, CIN})[1])
+    );
 
-    // Stage 2
-    property p_s2;
-        @(A or B or CIN or carry[1])
-        !$isunknown({A[2],B[2],carry[1]}) |-> ##0
-            (SUM[2] == (A[2]^B[2]^carry[1])) &&
-            (carry[2] == ((A[2]&B[2]) | (B[2]&carry[1]) | (carry[1]&A[2])));
-    endproperty
-    assert property (p_s2);
+    // SUM[2] matches bit 2 of the 5-bit addition result.
+    check_sum_bit2_matches_addition: assert property (
+        @(posedge clk) SUM[2] == (({1'b0, A} + {1'b0, B} + {4'b0000, CIN})[2])
+    );
 
-    // Stage 3 (final)
-    property p_s3;
-        @(A or B or CIN or carry[2])
-        !$isunknown({A[3],B[3],carry[2]}) |-> ##0
-            (SUM[3] == (A[3]^B[3]^carry[2])) &&
-            (COUT   == ((A[3]&B[3]) | (B[3]&carry[2]) | (carry[2]&A[3])));
-    endproperty
-    assert property (p_s3);
+    // SUM[3] matches bit 3 of the 5-bit addition result.
+    check_sum_bit3_matches_addition: assert property (
+        @(posedge clk) SUM[3] == (({1'b0, A} + {1'b0, B} + {4'b0000, CIN})[3])
+    );
 
-    // Concise functional coverage
-    // Zero add, no carry
-    cover property (@(A or B or CIN) ##0 (A==4'h0 && B==4'h0 && CIN==0 && SUM==4'h0 && COUT==0));
-    // Max add with carry-out
-    cover property (@(A or B or CIN) ##0 (A==4'hF && B==4'hF && CIN==1 && SUM==4'hF && COUT==1));
-    // Full propagate chain (all P=1) with carry-in=1 causes carry-out
-    cover property (@(A or B or CIN) ##0 ((A^B)==4'hF && CIN==1 && COUT==1));
-    // Observe carries through the chain at least once
-    cover property (@(A or B or CIN) ##0 (carry[0]));
-    cover property (@(A or B or CIN) ##0 (carry[1]));
-    cover property (@(A or B or CIN) ##0 (carry[2]));
-    cover property (@(A or B or CIN) ##0 (COUT));
-endchecker
+    // COUT matches the carry bit of the 5-bit addition result.
+    check_cout_matches_addition: assert property (
+        @(posedge clk) COUT == (({1'b0, A} + {1'b0, B} + {4'b0000, CIN})[4])
+    );
 
-bind ripple_carry_adder rca_checker rca_chk (
-    .A(A), .B(B), .SUM(SUM), .CIN(CIN), .COUT(COUT), .carry(carry)
-);
+    // SUM matches the lower four bits of A + B + CIN.
+    check_sum_vector_matches_addition: assert property (
+        @(posedge clk) SUM == (({1'b0, A} + {1'b0, B} + {4'b0000, CIN})[3:0])
+    );
+
+    // COUT and SUM together equal the full 5-bit addition result.
+    check_total_result_matches_addition: assert property (
+        @(posedge clk) {COUT, SUM} == ({1'b0, A} + {1'b0, B} + {4'b0000, CIN})
+    );
+
+endmodule

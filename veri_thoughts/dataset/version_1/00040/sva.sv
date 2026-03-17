@@ -1,56 +1,65 @@
-// SVA checker bound to the DUT
 module shift_register_sva (
-  input logic        Clock,
-  input logic        ALOAD,
-  input logic [8:0]  D,
-  input logic        SO,
-  input logic [8:0]  tmp,
-  input logic        n22
+    input logic Clock,
+    input logic ALOAD,
+    input logic [8:0] D,
+    input logic SO,
+    input logic [8:0] tmp,
+    input logic n22
 );
-  default clocking cb @(posedge Clock); endclocking
 
-  // Guard for $past()
-  logic past_valid;
-  always_ff @(posedge Clock) past_valid <= 1'b1;
+    // tmp[0] captures D[0] on each clock.
+    check_tmp0_captures_d0: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[0] == $past(D[0]))
+    );
 
-  // Sanity: no X on key signals (sampled)
-  assert property (disable iff (!past_valid) !$isunknown(ALOAD) && !$isunknown(D[0]));
-  assert property (!$isunknown(SO));
-  assert property (!$isunknown(n22));
+    // tmp[1] shifts the previous tmp[0].
+    check_tmp1_shifts_tmp0: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[1] == $past(tmp[0]))
+    );
 
-  // Combinational equivalence
-  assert property (n22 === (ALOAD & tmp[8]));
+    // tmp[2] shifts the previous tmp[1].
+    check_tmp2_shifts_tmp1: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[2] == $past(tmp[1]))
+    );
 
-  // Sequential next-state checks
-  assert property (disable iff (!past_valid) tmp[0] == $past(D[0]));
-  genvar i;
-  generate
-    for (i = 1; i <= 7; i++) begin : g_shifts
-      assert property (disable iff (!past_valid) tmp[i] == $past(tmp[i-1]));
-      cover  property (disable iff (!past_valid) tmp[i] == $past(tmp[i-1]));
-    end
-  endgenerate
+    // tmp[3] shifts the previous tmp[2].
+    check_tmp3_shifts_tmp2: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[3] == $past(tmp[2]))
+    );
 
-  // SO and tmp[8] next-state behavior
-  assert property (disable iff (!past_valid)
-                   SO == ($past(ALOAD) ? $past(D[0]) : $past(tmp[1])));
-  assert property (disable iff (!past_valid)
-                   tmp[8] == ($past(ALOAD) ? $past(D[0]) : $past(tmp[1])));
-  // Optional same-cycle consistency (checked at next clock)
-  assert property (disable iff (!past_valid) 1 |-> (tmp[8] == SO));
+    // tmp[4] shifts the previous tmp[3].
+    check_tmp4_shifts_tmp3: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[4] == $past(tmp[3]))
+    );
 
-  // Detect multiple-driver conflict on tmp[8] across the two always blocks
-  // If ALOAD=1, both blocks would assign D[0] vs tmp[7]
-  // If ALOAD=0, both blocks would assign tmp[1] vs tmp[7]
-  assert property (disable iff (!past_valid)
-                   ($past(ALOAD)  && ($past(D[0])   == $past(tmp[7]))) ||
-                   (!$past(ALOAD) && ($past(tmp[1]) == $past(tmp[7]))))
-    else $error("tmp[8] next-state has conflicting drivers (race between always blocks)");
+    // tmp[5] shifts the previous tmp[4].
+    check_tmp5_shifts_tmp4: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[5] == $past(tmp[4]))
+    );
 
-  // Functional coverage of both SO paths
-  cover property (disable iff (!past_valid)  ALOAD  && (SO == $past(D[0])));
-  cover property (disable iff (!past_valid) !ALOAD && (SO == $past(tmp[1])));
+    // tmp[6] shifts the previous tmp[5].
+    check_tmp6_shifts_tmp5: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[6] == $past(tmp[5]))
+    );
+
+    // tmp[7] shifts the previous tmp[6].
+    check_tmp7_shifts_tmp6: assert property (
+        @(posedge Clock) !$initstate |-> (tmp[7] == $past(tmp[6]))
+    );
+
+    // SO loads the previous D[0] when ALOAD was high.
+    check_so_load_path: assert property (
+        @(posedge Clock) (!$initstate && $past(ALOAD)) |-> (SO == $past(D[0]))
+    );
+
+    // SO shifts the previous tmp[1] when ALOAD was low.
+    check_so_shift_path: assert property (
+        @(posedge Clock) (!$initstate && !$past(ALOAD)) |-> (SO == $past(tmp[1]))
+    );
+
+    // n22 is always the AND of ALOAD and tmp[8].
+    check_n22_and_decode: assert property (
+        @(posedge Clock) (n22 == (ALOAD & tmp[8]))
+    );
+
 endmodule
-
-// Bind into DUT
-bind shift_register shift_register_sva sva_i (.*);

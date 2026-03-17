@@ -1,43 +1,40 @@
-// SVA checker for sky130_fd_sc_ms__a31oi
-// Function: Y = ~ (B1 | (A1 & A2 & A3))
-
 module sky130_fd_sc_ms__a31oi_sva (
-  input logic A1, A2, A3, B1,
-  input logic Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic B1
 );
 
-  // Functional equivalence (4-state aware); zero-delay to avoid races
-  always_comb
-    assert #0 (Y === ~(B1 | (A1 & A2 & A3)))
-      else $error("a31oi func mismatch: Y=%b A1=%b A2=%b A3=%b B1=%b", Y,A1,A2,A3,B1);
+    // Y matches the implemented AOI31 boolean function.
+    check_boolean_function: assert property (
+        @(posedge clk) Y == ~(B1 | (A1 & A2 & A3))
+    );
 
-  // Truth-table coverage (all 16 input combinations), with expected Y
-  // B1 = 1 -> Y = 0 for all A's
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==0 && A2==0 && A3==0 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==0 && A2==0 && A3==1 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==0 && A2==1 && A3==0 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==0 && A2==1 && A3==1 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==1 && A2==0 && A3==0 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==1 && A2==0 && A3==1 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==1 && A2==1 && A3==0 && Y==0));
-  cover property (@(A1 or A2 or A3 or B1) (B1==1 && A1==1 && A2==1 && A3==1 && Y==0));
+    // A high B1 forces the NOR output low.
+    check_b1_forces_y_low: assert property (
+        @(posedge clk) (B1 == 1'b1) |-> (Y == 1'b0)
+    );
 
-  // B1 = 0 -> Y = ~(A1&A2&A3)
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==0 && A2==0 && A3==0 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==0 && A2==0 && A3==1 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==0 && A2==1 && A3==0 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==0 && A2==1 && A3==1 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==1 && A2==0 && A3==0 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==1 && A2==0 && A3==1 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==1 && A2==1 && A3==0 && Y==1));
-  cover property (@(A1 or A2 or A3 or B1) (B1==0 && A1==1 && A2==1 && A3==1 && Y==0));
+    // With B1 low, all three A inputs high force Y low.
+    check_all_a_high_force_y_low: assert property (
+        @(posedge clk) ((B1 == 1'b0) && (A1 == 1'b1) && (A2 == 1'b1) && (A3 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // X-prop corner coverage (useful to see masked and propagated X behavior)
-  cover property (@(A1 or A2 or A3 or B1) (B1===1 && (|$isunknown({A1,A2,A3})) && Y===0));
-  cover property (@(A1 or A2 or A3 or B1)
-                  (B1===0 && (A1!==0 && A2!==0 && A3!==0) && !(A1===1 && A2===1 && A3===1) && $isunknown(Y)));
+    // With B1 low, A1 low keeps Y high.
+    check_a1_low_keeps_y_high: assert property (
+        @(posedge clk) ((B1 == 1'b0) && (A1 == 1'b0)) |-> (Y == 1'b1)
+    );
+
+    // With B1 low, A2 low keeps Y high.
+    check_a2_low_keeps_y_high: assert property (
+        @(posedge clk) ((B1 == 1'b0) && (A2 == 1'b0)) |-> (Y == 1'b1)
+    );
+
+    // With B1 low, A3 low keeps Y high.
+    check_a3_low_keeps_y_high: assert property (
+        @(posedge clk) ((B1 == 1'b0) && (A3 == 1'b0)) |-> (Y == 1'b1)
+    );
 
 endmodule
-
-// Bind into DUT
-bind sky130_fd_sc_ms__a31oi sky130_fd_sc_ms__a31oi_sva sva_i (.A1(A1), .A2(A2), .A3(A3), .B1(B1), .Y(Y));

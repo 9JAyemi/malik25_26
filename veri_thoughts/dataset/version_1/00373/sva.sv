@@ -1,54 +1,51 @@
-// SVA for sky130_fd_sc_ms__o2bb2a
-module sky130_fd_sc_ms__o2bb2a_sva (sky130_fd_sc_ms__o2bb2a dut);
+module sky130_fd_sc_ms__o2bb2a_sva (
+    input logic X,
+    input logic A1_N,
+    input logic A2_N,
+    input logic B1,
+    input logic B2
+);
 
-  // Sample on any relevant change
-  default clocking cb @(dut.A1_N or dut.A2_N or dut.B1 or dut.B2 or dut.X); endclocking
+    // X must match the implemented NAND-OR-AND function.
+    check_function_exact: assert property (
+        @($global_clock)
+        X == ((~(A2_N & A1_N)) & (B2 | B1))
+    );
 
-  // Functional correctness when inputs are known: X = (~A1_N | ~A2_N) & (B1 | B2)
-  property p_func_known;
-    !$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2})
-      |->
-    (dut.X === (((~dut.A1_N)|(~dut.A2_N)) & (dut.B1|dut.B2)));
-  endproperty
-  assert property(p_func_known);
+    // Both A inputs high force the NAND leg low, so X must be low.
+    check_a_inputs_both_high_force_low: assert property (
+        @($global_clock)
+        ((A1_N == 1'b1) && (A2_N == 1'b1)) |-> (X == 1'b0)
+    );
 
-  // X can be unknown only if some input is unknown
-  assert property ($isunknown(dut.X) |-> $isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}));
+    // Both B inputs low force the OR leg low, so X must be low.
+    check_b_inputs_both_low_force_low: assert property (
+        @($global_clock)
+        ((B1 == 1'b0) && (B2 == 1'b0)) |-> (X == 1'b0)
+    );
 
-  // Structural consistency with internal nets (if visible to the tool)
-  assert property (!$isunknown({dut.A1_N,dut.A2_N}) |-> (dut.nand0_out   === ~(dut.A2_N & dut.A1_N)));
-  assert property (!$isunknown({dut.B1,dut.B2})     |-> (dut.or0_out     === (dut.B2 | dut.B1)));
-  assert property (!$isunknown({dut.nand0_out,dut.or0_out}) |-> (dut.and0_out_X === (dut.nand0_out & dut.or0_out)));
-  assert property (dut.X === dut.and0_out_X);
+    // A low A1_N with either B input high must drive X high.
+    check_a1_low_with_b_high_sets_x: assert property (
+        @($global_clock)
+        ((A1_N == 1'b0) && ((B1 == 1'b1) || (B2 == 1'b1))) |-> (X == 1'b1)
+    );
 
-  // Useful implications (corner checks)
-  assert property ((!$isunknown({dut.B1,dut.B2}) && (dut.B1==1'b0 && dut.B2==1'b0)) |-> (dut.X==1'b0));
-  assert property ((!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) &&
-                    ((dut.B1|dut.B2)==1'b1) && ((dut.A1_N & dut.A2_N)==1'b0))       |-> (dut.X==1'b1));
+    // A low A2_N with either B input high must drive X high.
+    check_a2_low_with_b_high_sets_x: assert property (
+        @($global_clock)
+        ((A2_N == 1'b0) && ((B1 == 1'b1) || (B2 == 1'b1))) |-> (X == 1'b1)
+    );
 
-  // Simple transition coverage on X
-  cover property ((dut.X==1'b0) ##1 (dut.X==1'b1));
-  cover property ((dut.X==1'b1) ##1 (dut.X==1'b0));
+    // A high X requires at least one B input to be high.
+    check_x_high_requires_b_or: assert property (
+        @($global_clock)
+        (X == 1'b1) |-> ((B1 == 1'b1) || (B2 == 1'b1))
+    );
 
-  // Exhaustive input-state coverage (all 16 input combinations with known inputs)
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==0 && dut.B1==0 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==0 && dut.B1==0 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==0 && dut.B1==1 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==0 && dut.B1==1 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==1 && dut.B1==0 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==1 && dut.B1==0 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==1 && dut.B1==1 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==0 && dut.A2_N==1 && dut.B1==1 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==0 && dut.B1==0 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==0 && dut.B1==0 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==0 && dut.B1==1 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==0 && dut.B1==1 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==1 && dut.B1==0 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==1 && dut.B1==0 && dut.B2==1));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==1 && dut.B1==1 && dut.B2==0));
-  cover property (!$isunknown({dut.A1_N,dut.A2_N,dut.B1,dut.B2}) && (dut.A1_N==1 && dut.A2_N==1 && dut.B1==1 && dut.B2==1));
+    // A high X requires at least one A input to be low.
+    check_x_high_requires_a_nand_true: assert property (
+        @($global_clock)
+        (X == 1'b1) |-> ((A1_N == 1'b0) || (A2_N == 1'b0))
+    );
 
 endmodule
-
-// Bind into DUT
-bind sky130_fd_sc_ms__o2bb2a sky130_fd_sc_ms__o2bb2a_sva sva_inst(.dut());

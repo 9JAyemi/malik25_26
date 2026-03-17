@@ -1,90 +1,59 @@
-// SVA for sky130_fd_sc_lp__o32ai (Y = ~((A1|A2|A3) & (B1|B2)))
-// Bindable checker with concise functional, structural, X, and coverage checks.
-
-module sky130_fd_sc_lp__o32ai_sva #(
-  parameter bit CHECK_INTERNALS = 1
-)(
-  input logic Y,
-  input logic A1, A2, A3,
-  input logic B1, B2,
-  input logic VPWR, VGND, VPB, VNB,
-  // internal observability (bound by name)
-  input logic nor0_out,
-  input logic nor1_out,
-  input logic or0_out_Y
+module sky130_fd_sc_lp__o32ai_sva (
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic B1,
+    input logic B2
 );
 
-  // Sample on any input change (both edges) to avoid race; use ##0 in properties.
-  default clocking cb @(
-      posedge A1 or negedge A1 or
-      posedge A2 or negedge A2 or
-      posedge A3 or negedge A3 or
-      posedge B1 or negedge B1 or
-      posedge B2 or negedge B2
-  ); endclocking
+    // Y matches the implemented OR-of-NOR function.
+    check_truth_function: assert property (
+        @(posedge clk)
+        Y == ((!A1 && !A2 && !A3) || (!B1 && !B2))
+    );
 
-  // Power-good
-  logic pgood;
-  always_comb pgood = (VPWR===1'b1) && (VPB===1'b1) && (VGND===1'b0) && (VNB===1'b0);
+    // If all A inputs are low, the A-side NOR forces Y high.
+    check_all_a_low_sets_y_high: assert property (
+        @(posedge clk)
+        (!A1 && !A2 && !A3) |-> Y
+    );
 
-  // Helper reductions
-  logic a_or, b_or, f;
-  always_comb begin
-    a_or = (A1 | A2 | A3);
-    b_or = (B1 | B2);
-    f    = ~(a_or & b_or);
-  end
+    // If both B inputs are low, the B-side NOR forces Y high.
+    check_all_b_low_sets_y_high: assert property (
+        @(posedge clk)
+        (!B1 && !B2) |-> Y
+    );
 
-  // Functional equivalence (4-state, sampled after delta to avoid races)
-  property p_func;
-    pgood |-> ##0 (Y === f);
-  endproperty
-  assert property (p_func);
+    // If any A input and any B input are high, Y must be low.
+    check_a_and_b_activity_sets_y_low: assert property (
+        @(posedge clk)
+        ((A1 || A2 || A3) && (B1 || B2)) |-> !Y
+    );
 
-  // Knownness: if inputs are known, output must be known
-  property p_known;
-    pgood && !$isunknown({A1,A2,A3,B1,B2}) |-> ##0 !$isunknown(Y);
-  endproperty
-  assert property (p_known);
+    // A low Y requires at least one asserted A-side input.
+    check_y_low_implies_a_activity: assert property (
+        @(posedge clk)
+        !Y |-> (A1 || A2 || A3)
+    );
 
-  // Fast combinational immediate checks (redundant with p_func but tightens delta behavior)
-  always_comb if (pgood) begin
-    assert (#0 (Y === f)) else $error("o32ai functional mismatch");
-  end
+    // A low Y requires at least one asserted B-side input.
+    check_y_low_implies_b_activity: assert property (
+        @(posedge clk)
+        !Y |-> (B1 || B2)
+    );
 
-  // Structural internal checks (only if bound with internals visible)
-  generate if (CHECK_INTERNALS) begin
-    always_comb if (pgood) begin
-      assert (#0 (nor0_out   === ~a_or))        else $error("nor0_out mismatch");
-      assert (#0 (nor1_out   === ~b_or))        else $error("nor1_out mismatch");
-      assert (#0 (or0_out_Y  === (nor0_out|nor1_out))) else $error("or0_out_Y mismatch");
-      assert (#0 (Y          === or0_out_Y))    else $error("buf/Y mismatch");
-    end
-  end endgenerate
+    // If Y is high while any A input is high, both B inputs must be low.
+    check_y_high_with_a_activity_requires_b_low: assert property (
+        @(posedge clk)
+        (Y && (A1 || A2 || A3)) |-> (!B1 && !B2)
+    );
 
-  // Essential functional corner covers
-  cover property (pgood &&  a_or &&  b_or ##0 (Y===1'b0)); // only case Y=0
-  cover property (pgood && !a_or &&  b_or ##0 (Y===1'b1));
-  cover property (pgood &&  a_or && !b_or ##0 (Y===1'b1));
-  cover property (pgood && !a_or && !b_or ##0 (Y===1'b1));
-
-  // Output toggle coverage
-  cover property (pgood && $rose(Y));
-  cover property (pgood && $fell(Y));
-
-  // Correlate Y change with driving group truth changes
-  cover property (pgood && $changed(a_or) && ##0 $changed(Y));
-  cover property (pgood && $changed(b_or) && ##0 $changed(Y));
+    // If Y is high while any B input is high, all A inputs must be low.
+    check_y_high_with_b_activity_requires_a_low: assert property (
+        @(posedge clk)
+        (Y && (B1 || B2)) |-> (!A1 && !A2 && !A3)
+    );
 
 endmodule
-
-// Bind into the DUT; internal nets are connected for structural checks.
-bind sky130_fd_sc_lp__o32ai sky130_fd_sc_lp__o32ai_sva
-  #(.CHECK_INTERNALS(1))
-  o32ai_sva_i (
-    .Y(Y),
-    .A1(A1), .A2(A2), .A3(A3),
-    .B1(B1), .B2(B2),
-    .VPWR(VPWR), .VGND(VGND), .VPB(VPB), .VNB(VNB),
-    .nor0_out(nor0_out), .nor1_out(nor1_out), .or0_out_Y(or0_out_Y)
-  );

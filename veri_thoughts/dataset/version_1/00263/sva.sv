@@ -1,90 +1,92 @@
-// SVA for soft_clock — concise, high-quality checks and coverage
-// Bind this module to the DUT instance (see bind at bottom).
-
-module soft_clock_sva #(
-  parameter C_SIPIF_DWIDTH = 32
-)(
-  input  logic                                Bus2IP_Reset,
-  input  logic                                Bus2IP_Clk,
-  input  logic                                Bus2IP_WrCE,
-  input  logic [0:C_SIPIF_DWIDTH-1]           Bus2IP_Data,
-  input  logic [0:(C_SIPIF_DWIDTH/8)-1]       Bus2IP_BE,
-
-  input  logic                                Clk2IP_Clk,
-  input  logic                                Clk2Bus_WrAck,
-  input  logic                                Clk2Bus_Error,
-  input  logic                                Clk2Bus_ToutSup,
-
-  // Internal state taps
-  input  logic                                isr_ce,
-  input  logic                                isr_error
+module soft_clock_sva
+#(
+    parameter C_SIPIF_DWIDTH = 32
+)
+(
+    input  logic                              Bus2IP_Reset,
+    input  logic                              Bus2IP_Clk,
+    input  logic                              Bus2IP_WrCE,
+    input  logic [0:C_SIPIF_DWIDTH-1]         Bus2IP_Data,
+    input  logic [0:(C_SIPIF_DWIDTH/8)-1]     Bus2IP_BE,
+    input  logic                              Clk2IP_Clk,
+    input  logic                              Clk2Bus_WrAck,
+    input  logic                              Clk2Bus_Error,
+    input  logic                              Clk2Bus_ToutSup
 );
 
-  // Golden decode (matches DUT intent and bit ordering)
-  localparam logic [0:3] CLOCK_ENABLE  = 4'b1010;
-  localparam logic [0:3] CLOCK_DISABLE = 4'b0101;
+    localparam [0:3] CLOCK_ENABLE  = 4'b1010;
+    localparam [0:3] CLOCK_DISABLE = 4'b0101;
 
-  wire logic [0:3] top_nibble = Bus2IP_Data[C_SIPIF_DWIDTH-4 : C_SIPIF_DWIDTH-1];
-  wire logic       top_be     = Bus2IP_BE[(C_SIPIF_DWIDTH/8)-1];
+    wire isc_enable_match  = (Bus2IP_Data[C_SIPIF_DWIDTH-4:C_SIPIF_DWIDTH-1] == CLOCK_ENABLE);
+    wire isc_disable_match = (Bus2IP_Data[C_SIPIF_DWIDTH-4:C_SIPIF_DWIDTH-1] == CLOCK_DISABLE);
+    wire isc_match         = isc_enable_match | isc_disable_match;
+    wire isc_mismatch      = ~(isc_enable_match | isc_disable_match);
+    wire isc_be_match      = (Bus2IP_BE[(C_SIPIF_DWIDTH/8)-1] == 1'b1);
 
-  wire logic en_match  = (top_nibble == CLOCK_ENABLE);
-  wire logic dis_match = (top_nibble == CLOCK_DISABLE);
-  wire logic match     = en_match | dis_match;
-  wire logic mismatch  = ~match;
+    // Timeout support output is high whenever reset is asserted.
+    check_toutsup_high_in_reset: assert property (
+        @(posedge Bus2IP_Clk)
+        Bus2IP_Reset |-> Clk2Bus_ToutSup
+    );
 
-  default clocking cb @(posedge Bus2IP_Clk); endclocking
+    // Timeout support output is low whenever reset is deasserted.
+    check_toutsup_low_out_of_reset: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        !Clk2Bus_ToutSup
+    );
 
-  // Reset behavior
-  a_reset_vals:       assert property (cb Bus2IP_Reset |-> (isr_ce==1'b1 && isr_error==1'b0 && Clk2Bus_ToutSup==1'b1));
-  a_toutsup_eq_reset: assert property (cb Clk2Bus_ToutSup == Bus2IP_Reset);
+    // Write acknowledge matches the command and byte-enable decode.
+    check_wrack_decode: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Clk2Bus_WrAck == (isc_match && Bus2IP_WrCE && isc_be_match))
+    );
 
-  // Clock gating correctness (sampled on both edges)
-  a_clk_gate_pos: assert property (@(posedge Bus2IP_Clk) Clk2IP_Clk == isr_ce);
-  a_clk_gate_neg: assert property (@(negedge Bus2IP_Clk) Clk2IP_Clk == 1'b0);
+    // Error response matches the invalid-command and byte-enable decode.
+    check_error_decode: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Clk2Bus_Error == (isc_mismatch && Bus2IP_WrCE && isc_be_match))
+    );
 
-  // isr_ce update rules
-  a_ce_enable:           assert property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && top_be && en_match)  |=> isr_ce==1'b1);
-  a_ce_disable:          assert property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && top_be && dis_match) |=> isr_ce==1'b0);
-  a_ce_hold_mismatch:    assert property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && top_be && mismatch)  |=> isr_ce==$past(isr_ce));
-  a_ce_hold_be0:         assert property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && !top_be)             |=> isr_ce==$past(isr_ce));
-  a_ce_stable_no_write:  assert property (cb disable iff (Bus2IP_Reset) (!Bus2IP_WrCE)                       |=> isr_ce==$past(isr_ce));
+    // Acknowledge and error are never asserted together.
+    check_ack_error_mutex: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        !(Clk2Bus_WrAck && Clk2Bus_Error)
+    );
 
-  // isr_error update/hold rules (note: BE does not gate isr_error in DUT)
-  a_err_update_on_wr: assert property (cb disable iff (Bus2IP_Reset) Bus2IP_WrCE |=> (isr_error == mismatch));
-  a_err_hold_no_wr:   assert property (cb disable iff (Bus2IP_Reset) !Bus2IP_WrCE |=> (isr_error == $past(isr_error)));
+    // A valid write with the selected byte enabled gets exactly one response.
+    check_valid_be_write_has_one_response: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Bus2IP_WrCE && isc_be_match) |-> (Clk2Bus_WrAck ^ Clk2Bus_Error)
+    );
 
-  // Output response definitions and mutual exclusion
-  a_ack_def:        assert property (cb Clk2Bus_WrAck == (match    && Bus2IP_WrCE && top_be));
-  a_err_def:        assert property (cb Clk2Bus_Error == (mismatch && Bus2IP_WrCE && top_be));
-  a_ack_err_mutex:  assert property (cb !(Clk2Bus_WrAck && Clk2Bus_Error));
-  a_no_resp_wo_wr:  assert property (cb (!Bus2IP_WrCE || !top_be) |-> (!Clk2Bus_WrAck && !Clk2Bus_Error));
+    // Writes with the selected byte disabled produce no bus response.
+    check_bad_be_write_has_no_response: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Bus2IP_WrCE && !isc_be_match) |-> (!Clk2Bus_WrAck && !Clk2Bus_Error)
+    );
 
-  // Decode sanity
-  a_exclusive_matches: assert property (cb !(en_match && dis_match));
-  a_match_partition:   assert property (cb match == !mismatch);
+    // A valid disable command turns off the gated clock on the next cycle.
+    check_disable_write_turns_off_clock_next_cycle: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Bus2IP_WrCE && isc_be_match && isc_disable_match) |=> !Clk2IP_Clk
+    );
 
-  // Coverage: key behaviors
-  c_enable_wr:         cover property (cb disable iff (Bus2IP_Reset) Bus2IP_WrCE && top_be && en_match  && Clk2Bus_WrAck);
-  c_disable_wr:        cover property (cb disable iff (Bus2IP_Reset) Bus2IP_WrCE && top_be && dis_match && Clk2Bus_WrAck);
-  c_mismatch_error:    cover property (cb disable iff (Bus2IP_Reset) Bus2IP_WrCE && top_be && mismatch  && Clk2Bus_Error);
-  c_be0_suppressed:    cover property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && !top_be && match) |=> (!Clk2Bus_WrAck && !Clk2Bus_Error && isr_ce==$past(isr_ce)));
-  c_ce_toggle_down:    cover property (cb disable iff (Bus2IP_Reset) (isr_ce==1'b1) ##1 (Bus2IP_WrCE && top_be && dis_match) ##1 (isr_ce==1'b0));
-  c_ce_toggle_up:      cover property (cb disable iff (Bus2IP_Reset) (isr_ce==1'b0) ##1 (Bus2IP_WrCE && top_be && en_match)  ##1 (isr_ce==1'b1));
-  c_err_latch_clear:   cover property (cb disable iff (Bus2IP_Reset) (Bus2IP_WrCE && mismatch) ##1 (!Bus2IP_WrCE && isr_error) ##1 (Bus2IP_WrCE && match) ##1 (isr_error==1'b0));
+    // A valid enable command turns on the gated clock on the next cycle.
+    check_enable_write_turns_on_clock_next_cycle: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Bus2IP_WrCE && isc_be_match && isc_enable_match) |=> Clk2IP_Clk
+    );
+
+    // Once on, the gated clock stays on unless a valid disable command is written.
+    check_clock_holds_high_without_disable: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (Clk2IP_Clk && !(Bus2IP_WrCE && isc_be_match && isc_disable_match)) |=> Clk2IP_Clk
+    );
+
+    // Once off, the gated clock stays off unless a valid enable command is written.
+    check_clock_holds_low_without_enable: assert property (
+        @(posedge Bus2IP_Clk) disable iff (Bus2IP_Reset)
+        (!Clk2IP_Clk && !(Bus2IP_WrCE && isc_be_match && isc_enable_match)) |=> !Clk2IP_Clk
+    );
 
 endmodule
-
-// Bind to all instances of soft_clock
-bind soft_clock soft_clock_sva #(.C_SIPIF_DWIDTH(C_SIPIF_DWIDTH)) soft_clock_sva_i (
-  .Bus2IP_Reset     (Bus2IP_Reset),
-  .Bus2IP_Clk       (Bus2IP_Clk),
-  .Bus2IP_WrCE      (Bus2IP_WrCE),
-  .Bus2IP_Data      (Bus2IP_Data),
-  .Bus2IP_BE        (Bus2IP_BE),
-  .Clk2IP_Clk       (Clk2IP_Clk),
-  .Clk2Bus_WrAck    (Clk2Bus_WrAck),
-  .Clk2Bus_Error    (Clk2Bus_Error),
-  .Clk2Bus_ToutSup  (Clk2Bus_ToutSup),
-  .isr_ce           (isr_ce),
-  .isr_error        (isr_error)
-);

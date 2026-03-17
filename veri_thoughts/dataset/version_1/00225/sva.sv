@@ -1,76 +1,57 @@
-// SVA bind file for top_module and submodules
-// Concise, combinationally-clocked checks and coverage
+module top_module_sva (
+    input logic clk,
+    input logic signed [3:0] A,
+    input logic signed [3:0] B,
+    input logic signed [3:0] out,
+    input logic eq,
+    input logic gt,
+    input logic lt,
+    input logic overflow
+);
 
-`ifndef SVA_TOP_MODULE
-`define SVA_TOP_MODULE
-`ifndef SYNTHESIS
+    // eq must reflect signed equality.
+    check_eq_relation: assert property (
+        @(posedge clk) (eq == (A == B))
+    );
 
-// Top-level checker (bind into top_module)
-module top_module_sva;
-  // Sample on any A/B activity; ##0 to evaluate after delta propagation
-  default clocking cb @ (A or B); endclocking
-  wire inputs_known = !$isunknown({A,B});
+    // gt must reflect signed greater-than.
+    check_gt_relation: assert property (
+        @(posedge clk) (gt == (A > B))
+    );
 
-  // Comparator correctness and exclusivity at top
-  a_cmp_eq:     assert property (disable iff (!inputs_known) ##0 (eq == ($signed(A) == $signed(B))));
-  a_cmp_gt:     assert property (disable iff (!inputs_known) ##0 (gt == ($signed(A) >  $signed(B))));
-  a_cmp_lt:     assert property (disable iff (!inputs_known) ##0 (lt == ($signed(A) <  $signed(B))));
-  a_cmp_onehot: assert property (disable iff (!inputs_known) ##0 $onehot({eq,gt,lt}));
+    // lt must reflect signed less-than.
+    check_lt_relation: assert property (
+        @(posedge clk) (lt == (A < B))
+    );
 
-  // Mux selection correctness
-  a_mux_eq: assert property (disable iff (!inputs_known) ##0 (eq |-> (out == sum)));
-  a_mux_gt: assert property (disable iff (!inputs_known) ##0 (gt |-> (out == A)));
-  a_mux_lt: assert property (disable iff (!inputs_known) ##0 (lt |-> (out == B)));
+    // Exactly one comparator result must be asserted.
+    check_compare_onehot: assert property (
+        @(posedge clk) (eq || gt || lt) && !(eq && gt) && !(eq && lt) && !(gt && lt)
+    );
 
-  // Overflow passthrough from adder
-  a_oflow_passthru: assert property (disable iff (!inputs_known) ##0 (overflow == overflow_adder));
+    // overflow must match 4-bit signed addition overflow.
+    check_overflow_relation: assert property (
+        @(posedge clk) (overflow == ((A[3] == B[3]) && ((A + B)[3] != A[3])))
+    );
 
-  // Top-level functional coverage
-  c_eq:          cover property (disable iff (!inputs_known) ##0 eq);
-  c_gt:          cover property (disable iff (!inputs_known) ##0 gt);
-  c_lt:          cover property (disable iff (!inputs_known) ##0 lt);
-  c_mux_eq:      cover property (disable iff (!inputs_known) ##0 (eq && (out == sum)));
-  c_mux_gt:      cover property (disable iff (!inputs_known) ##0 (gt && (out == A)));
-  c_mux_lt:      cover property (disable iff (!inputs_known) ##0 (lt && (out == B)));
-  c_eq_overflow: cover property (disable iff (!inputs_known) ##0 (eq && overflow));
+    // out must follow the top-level mux selection.
+    check_out_mux_relation: assert property (
+        @(posedge clk) (out == (eq ? (A + B) : (gt ? A : B)))
+    );
+
+    // When A equals B, out must be the wrapped 4-bit sum.
+    check_out_when_equal: assert property (
+        @(posedge clk) eq |-> (out == (A + B))
+    );
+
+    // When A is greater than B, out must pass through A.
+    check_out_when_greater: assert property (
+        @(posedge clk) gt |-> (out == A)
+    );
+
+    // When A is less than B, out must pass through B.
+    check_out_when_less: assert property (
+        @(posedge clk) lt |-> (out == B)
+    );
+
 endmodule
-bind top_module top_module_sva tps();
-
-// Signed adder checker (bind into signed_adder)
-module signed_adder_sva;
-  default clocking cb @ (A or B); endclocking
-  wire inputs_known = !$isunknown({A,B});
-
-  // Out equals 4-bit two's-complement sum (wrapping)
-  a_sum: assert property (disable iff (!inputs_known) ##0 (out == (A + B)));
-
-  // Two's-complement overflow detection
-  a_overflow: assert property (disable iff (!inputs_known) ##0
-                               (overflow == ((A[3] == B[3]) && ((A + B)[3] != A[3]))));
-
-  // Adder coverage
-  c_overflow_pos: cover property (disable iff (!inputs_known) ##0 (overflow && (A[3]==0) && (B[3]==0)));
-  c_overflow_neg: cover property (disable iff (!inputs_known) ##0 (overflow && (A[3]==1) && (B[3]==1)));
-  c_no_overflow:  cover property (disable iff (!inputs_known) ##0 !overflow);
-endmodule
-bind signed_adder signed_adder_sva sas();
-
-// Signed comparator checker (bind into signed_comparator)
-module signed_comparator_sva;
-  default clocking cb @ (A or B); endclocking
-  wire inputs_known = !$isunknown({A,B});
-
-  a_eq:     assert property (disable iff (!inputs_known) ##0 (eq == ($signed(A) == $signed(B))));
-  a_gt:     assert property (disable iff (!inputs_known) ##0 (gt == ($signed(A) >  $signed(B))));
-  a_lt:     assert property (disable iff (!inputs_known) ##0 (lt == ($signed(A) <  $signed(B))));
-  a_onehot: assert property (disable iff (!inputs_known) ##0 $onehot({eq,gt,lt}));
-
-  // Relation coverage
-  c_eq: cover property (disable iff (!inputs_known) ##0 eq);
-  c_gt: cover property (disable iff (!inputs_known) ##0 gt);
-  c_lt: cover property (disable iff (!inputs_known) ##0 lt);
-endmodule
-bind signed_comparator signed_comparator_sva scs();
-
-`endif
-`endif

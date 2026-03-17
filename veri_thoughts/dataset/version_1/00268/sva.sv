@@ -1,46 +1,39 @@
-// SVA for add_sub_4bit
-// Bind these assertions to the DUT; provide clk/rst_n from TB.
-// Example bind:
-// bind add_sub_4bit add_sub_4bit_sva u_sva(.clk(tb_clk), .rst_n(tb_rst_n), .A(A), .B(B), .mode(mode), .O(O), .COUT(COUT));
-
 module add_sub_4bit_sva (
-  input logic        clk,
-  input logic        rst_n,
-  input logic [3:0]  A,
-  input logic [3:0]  B,
-  input logic        mode,
-  input logic [3:0]  O,
-  input logic        COUT
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic mode,
+    input logic [3:0] O,
+    input logic COUT
 );
-  default clocking cb @ (posedge clk); endclocking
-  default disable iff (!rst_n)
 
-  // Helpers
-  logic [4:0] sum5, diff5;
-  assign sum5  = {1'b0, A} + {1'b0, B};
-  assign diff5 = {1'b0, A} - {1'b0, B};
+    // Addition mode must drive the concatenated result from A + B.
+    check_add_result: assert property (
+        @($global_clock) (mode == 1'b0) |-> ({COUT, O} == (A + B))
+    );
 
-  // No X/Z on outputs when inputs are known
-  assert property ( !$isunknown({A,B,mode}) |-> !$isunknown({O,COUT}) );
+    // Subtraction mode must drive the concatenated result from A - B.
+    check_sub_result: assert property (
+        @($global_clock) (mode == 1'b1) |-> ({COUT, O} == (A - B))
+    );
 
-  // Functional correctness (5-bit accurate math)
-  assert property ( (!$isunknown({A,B,mode})) && (mode==1'b0) |-> {COUT,O} == sum5  );
-  assert property ( (!$isunknown({A,B,mode})) && (mode==1'b1) |-> {COUT,O} == diff5 );
+    // Adding zero on B must pass A through unchanged.
+    check_add_zero_b_identity: assert property (
+        @($global_clock) ((mode == 1'b0) && (B == 4'b0000)) |-> ({COUT, O} == A)
+    );
 
-  // Carry/borrow bit sanity
-  assert property ( (!$isunknown({A,B,mode})) && (mode==1'b0) |-> COUT == sum5[4]  );
-  assert property ( (!$isunknown({A,B,mode})) && (mode==1'b1) |-> COUT == diff5[4] );
+    // Adding zero on A must pass B through unchanged.
+    check_add_zero_a_identity: assert property (
+        @($global_clock) ((mode == 1'b0) && (A == 4'b0000)) |-> ({COUT, O} == B)
+    );
 
-  // Purely combinational: if inputs hold, outputs hold
-  assert property ( $stable({A,B,mode}) |-> $stable({O,COUT}) );
+    // Subtracting zero must pass A through unchanged.
+    check_sub_zero_b_identity: assert property (
+        @($global_clock) ((mode == 1'b1) && (B == 4'b0000)) |-> ({COUT, O} == A)
+    );
 
-  // Minimal functional coverage
-  cover property ( (mode==1'b0) && (sum5[4]==1'b0) ); // add no carry
-  cover property ( (mode==1'b0) && (sum5[4]==1'b1) ); // add with carry
-  cover property ( (mode==1'b1) && (diff5[4]==1'b0) ); // sub no borrow
-  cover property ( (mode==1'b1) && (diff5[4]==1'b1) ); // sub with borrow
-  cover property ( (mode==1'b0) && (A==4'hF) && (B==4'h1) );
-  cover property ( (mode==1'b1) && (A==4'h0) && (B==4'h1) );
-  cover property ( (mode==1'b1) && (A==4'h8) && (B==4'h8) );
-  cover property ( $changed(mode) );
+    // Subtracting equal operands must produce zero.
+    check_sub_equal_operands_zero: assert property (
+        @($global_clock) ((mode == 1'b1) && (A == B)) |-> ({COUT, O} == 5'b00000)
+    );
+
 endmodule

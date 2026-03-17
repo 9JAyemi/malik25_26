@@ -1,51 +1,50 @@
-// SVA for mux_4to1 — concise, high-quality checks and coverage
-// Bind this checker to the DUT.
-
-checker mux_4to1_sva (
-  input logic        in0, in1, in2, in3,
-  input logic [1:0]  sel,
-  input logic        out
+module mux_4to1_sva (
+    input logic clk,
+    input logic out,
+    input logic in0,
+    input logic in1,
+    input logic in2,
+    input logic in3,
+    input logic [1:0] sel
 );
 
-  // Functional equivalence when select is known
-  always_comb begin
-    if (!$isunknown(sel)) begin
-      assert (out === ((sel==2'b00)? in0 :
-                       (sel==2'b01)? in1 :
-                       (sel==2'b10)? in2 : in3))
-        else $error("mux_4to1: out mismatch for sel=%b", sel);
-    end
-  end
+    // Output matches the implemented gate-level mux equation.
+    check_out_matches_mux_equation: assert property (
+        @(posedge clk)
+        out == ((in0 & ~sel[0] & ~sel[1]) |
+                (in1 &  sel[0] & ~sel[1]) |
+                (in2 & ~sel[0] &  sel[1]) |
+                (in3 &  sel[0] &  sel[1]))
+    );
 
-  // No X/Z on out when all drivers and select are known
-  always_comb begin
-    if (!$isunknown({in0,in1,in2,in3,sel})) begin
-      assert (!$isunknown(out))
-        else $error("mux_4to1: out is X/Z with fully known inputs/sel");
-    end
-  end
+    // Select value 00 routes in0 to the output.
+    check_sel_00_routes_in0: assert property (
+        @(posedge clk)
+        (sel == 2'b00) |-> (out == in0)
+    );
 
-  // Basic state coverage for all select values
-  always_comb begin
-    cover (! $isunknown(sel) && sel==2'b00);
-    cover (! $isunknown(sel) && sel==2'b01);
-    cover (! $isunknown(sel) && sel==2'b10);
-    cover (! $isunknown(sel) && sel==2'b11);
-  end
+    // Select value 01 routes in1 to the output.
+    check_sel_01_routes_in1: assert property (
+        @(posedge clk)
+        (sel == 2'b01) |-> (out == in1)
+    );
 
-  // Propagation coverage: selected input edges drive out
-  always @(posedge in0) if (!$isunknown(sel) && sel==2'b00 && !$isunknown(in0)) cover (out==1'b1);
-  always @(negedge in0) if (!$isunknown(sel) && sel==2'b00 && !$isunknown(in0)) cover (out==1'b0);
+    // Select value 10 routes in2 to the output.
+    check_sel_10_routes_in2: assert property (
+        @(posedge clk)
+        (sel == 2'b10) |-> (out == in2)
+    );
 
-  always @(posedge in1) if (!$isunknown(sel) && sel==2'b01 && !$isunknown(in1)) cover (out==1'b1);
-  always @(negedge in1) if (!$isunknown(sel) && sel==2'b01 && !$isunknown(in1)) cover (out==1'b0);
+    // Select value 11 routes in3 to the output.
+    check_sel_11_routes_in3: assert property (
+        @(posedge clk)
+        (sel == 2'b11) |-> (out == in3)
+    );
 
-  always @(posedge in2) if (!$isunknown(sel) && sel==2'b10 && !$isunknown(in2)) cover (out==1'b1);
-  always @(negedge in2) if (!$isunknown(sel) && sel==2'b10 && !$isunknown(in2)) cover (out==1'b0);
+    // If all inputs and select stay constant, the output stays constant.
+    check_output_stable_when_inputs_stable: assert property (
+        @(posedge clk)
+        ($stable(sel) && $stable(in0) && $stable(in1) && $stable(in2) && $stable(in3)) |-> $stable(out)
+    );
 
-  always @(posedge in3) if (!$isunknown(sel) && sel==2'b11 && !$isunknown(in3)) cover (out==1'b1);
-  always @(negedge in3) if (!$isunknown(sel) && sel==2'b11 && !$isunknown(in3)) cover (out==1'b0);
-
-endchecker
-
-bind mux_4to1 mux_4to1_sva sva_i (.*);
+endmodule

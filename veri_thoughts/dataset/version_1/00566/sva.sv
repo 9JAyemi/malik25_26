@@ -1,37 +1,38 @@
-// SVA for OAI21X1: Y = ~((A | B) & C)
-module OAI21X1_sva (input logic A, B, C, Y);
+module OAI21X1_sva (
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic Y
+);
 
-  // Functional equivalence (allow a delta for propagation)
-  property p_func;
-    @(A or B or C or Y) 1 |-> ##0 (Y === ~((A | B) & C));
-  endproperty
-  assert property (p_func);
+    // Y matches the implemented NAND-of-OR function.
+    check_function_equivalence: assert property (
+        @($global_clock) Y == ~((A | B) & C)
+    );
 
-  // Y must be known whenever inputs are known
-  assert property (@(A or B or C or Y) (!$isunknown({A,B,C})) |-> ##0 (!$isunknown(Y)));
+    // When C is low, Y must be high.
+    check_c_low_forces_y_high: assert property (
+        @($global_clock) !C |-> Y
+    );
 
-  // Useful simplified checks
-  assert property (@(A or B or C or Y) (C == 1'b0) |-> ##0 (Y == 1'b1));
-  assert property (@(A or B or C or Y) (C == 1'b1) |-> ##0 (Y === ~(A | B)));
+    // When C is high and both OR inputs are low, Y must be high.
+    check_only_c_high_keeps_y_high: assert property (
+        @($global_clock) (C && !A && !B) |-> Y
+    );
 
-  // Truth-table coverage (all minterms)
-  cover property (@(A or B or C) (A==0 && B==0 && C==0 && Y==1));
-  cover property (@(A or B or C) (A==0 && B==1 && C==0 && Y==1));
-  cover property (@(A or B or C) (A==1 && B==0 && C==0 && Y==1));
-  cover property (@(A or B or C) (A==1 && B==1 && C==0 && Y==1));
-  cover property (@(A or B or C) (A==0 && B==0 && C==1 && Y==1));
-  cover property (@(A or B or C) (A==0 && B==1 && C==1 && Y==0));
-  cover property (@(A or B or C) (A==1 && B==0 && C==1 && Y==0));
-  cover property (@(A or B or C) (A==1 && B==1 && C==1 && Y==0));
+    // When C and A are high, Y must be low.
+    check_a_and_c_high_force_y_low: assert property (
+        @($global_clock) (C && A) |-> !Y
+    );
 
-  // Key transition coverage
-  cover property (@(A or B or C) $rose(C) && (A||B) ##0 (Y==0));
-  cover property (@(A or B or C) $fell(C) ##0 (Y==1));
-  cover property (@(A or B or C) $rose(A) && C ##0 (Y==0));
-  cover property (@(A or B or C) $rose(B) && C ##0 (Y==0));
-  cover property (@(A or B or C) (C && !A && !B) ##0 (Y==1));
+    // When C and B are high, Y must be low.
+    check_b_and_c_high_force_y_low: assert property (
+        @($global_clock) (C && B) |-> !Y
+    );
+
+    // A low Y implies C is high and at least one OR input is high.
+    check_y_low_implies_active_input_path: assert property (
+        @($global_clock) !Y |-> (C && (A || B))
+    );
 
 endmodule
-
-// Bind into the DUT
-bind OAI21X1 OAI21X1_sva oai21x1_sva_i (.*);

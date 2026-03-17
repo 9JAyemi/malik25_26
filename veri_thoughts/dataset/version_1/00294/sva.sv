@@ -1,45 +1,37 @@
-// SVA for counter
-module counter_sva #(parameter int WIDTH=4)
-(
-  input logic              CLK,
-  input logic              RST,
-  input logic              enable,
-  input logic [WIDTH-1:0]  count_out
+module counter_sva (
+    input logic       CLK,
+    input logic       RST,
+    input logic       enable,
+    input logic [3:0] count_out
 );
 
-  default clocking cb @(posedge CLK); endclocking
+    // Reset clears the counter.
+    check_reset_clears_count: assert property (
+        @(posedge CLK) RST |=> (count_out == 4'b0000)
+    );
 
-  // Control sanity
-  assert property (!$isunknown(RST) && !$isunknown(enable))
-    else $error("counter: control inputs have X/Z");
+    // When enabled outside reset, the counter increments by one.
+    check_enable_increments_count: assert property (
+        @(posedge CLK) disable iff (RST)
+        enable |=> (count_out == ($past(count_out) + 4'b0001))
+    );
 
-  // Synchronous reset dominates and drives zero
-  assert property (RST |-> (count_out == '0))
-    else $error("counter: count_out not zero during RST");
+    // When disabled outside reset, the counter holds its value.
+    check_disable_holds_count: assert property (
+        @(posedge CLK) disable iff (RST)
+        !enable |=> (count_out == $past(count_out))
+    );
 
-  // When not in reset: increment on enable
-  assert property (disable iff (RST) (enable |-> (count_out == $past(count_out) + 1'b1)))
-    else $error("counter: increment mismatch");
+    // Counting from 4'hF wraps the counter to 4'h0.
+    check_wraps_after_max: assert property (
+        @(posedge CLK) disable iff (RST)
+        (enable && (count_out == 4'hF)) |=> (count_out == 4'h0)
+    );
 
-  // When not in reset: hold when disabled
-  assert property (disable iff (RST) (!enable |-> (count_out == $past(count_out))))
-    else $error("counter: held value changed without enable");
-
-  // Explicit wrap-around check (redundant with increment, but makes intent clear)
-  assert property (disable iff (RST) (enable && ($past(count_out) == {WIDTH{1'b1}}) |-> (count_out == '0)))
-    else $error("counter: wrap-around failed");
-
-  // Output known when active (no X/Z after reset deasserted)
-  assert property (!RST |-> !$isunknown(count_out))
-    else $error("counter: count_out has X/Z when not in reset");
-
-  // Coverage
-  cover property (RST);                                            // saw reset
-  cover property (disable iff (RST) enable);                       // saw increment opportunity
-  cover property (disable iff (RST) !enable);                      // saw hold opportunity
-  cover property (disable iff (RST) (enable && $past(count_out)=={WIDTH{1'b1}} && count_out=='0)); // wrap event
-  cover property (RST && enable && count_out=='0);                 // simultaneous RST & enable
+    // Reset takes priority over enable.
+    check_reset_priority_over_enable: assert property (
+        @(posedge CLK)
+        (RST && enable) |=> (count_out == 4'b0000)
+    );
 
 endmodule
-
-bind counter counter_sva #(.WIDTH(4)) counter_sva_i (.*);

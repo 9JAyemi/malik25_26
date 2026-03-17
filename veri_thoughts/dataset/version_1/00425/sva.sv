@@ -1,46 +1,44 @@
-// SVA for Mux_3x1_W11
-// Bind this file alongside the DUT
-
 module Mux_3x1_W11_sva (
-  input [1:0]  ctrl,
-  input [10:0] D0,
-  input [10:0] D1,
-  input [10:0] D2,
-  input [10:0] S
+    input logic [1:0]  ctrl,
+    input logic [10:0] D0,
+    input logic [10:0] D1,
+    input logic [10:0] D2,
+    input logic [10:0] S
 );
-  default clocking cb @(*); endclocking
 
-  // Functional equivalence (4-state accurate)
-  a_func: assert property (S === (ctrl==2'b00 ? D0 :
-                                  ctrl==2'b01 ? D1 :
-                                  ctrl==2'b10 ? D2 : 11'b0));
+    // No clock or reset exists in the RTL; assertions use the global clock.
 
-  // Default path for all non-00/01/10 encodings (including X/Z)
-  a_default: assert property ((ctrl!=2'b00 && ctrl!=2'b01 && ctrl!=2'b10) |-> (S === 11'b0));
+    // When ctrl selects D0, the output must match D0.
+    check_select_d0: assert property (
+        @($global_clock) (ctrl === 2'b00) |-> (S === D0)
+    );
 
-  // No X/Z on S when selected input is known
-  a_known_d0: assert property ((ctrl==2'b00 && !$isunknown(D0)) |-> (!$isunknown(S) && S==D0));
-  a_known_d1: assert property ((ctrl==2'b01 && !$isunknown(D1)) |-> (!$isunknown(S) && S==D1));
-  a_known_d2: assert property ((ctrl==2'b10 && !$isunknown(D2)) |-> (!$isunknown(S) && S==D2));
+    // When ctrl selects D1, the output must match D1.
+    check_select_d1: assert property (
+        @($global_clock) (ctrl === 2'b01) |-> (S === D1)
+    );
 
-  // Non-interference: unselected inputs must not affect S
-  a_nonint_00_d1: assert property ((ctrl==2'b00 && $changed(D1)) |-> $stable(S));
-  a_nonint_00_d2: assert property ((ctrl==2'b00 && $changed(D2)) |-> $stable(S));
-  a_nonint_01_d0: assert property ((ctrl==2'b01 && $changed(D0)) |-> $stable(S));
-  a_nonint_01_d2: assert property ((ctrl==2'b01 && $changed(D2)) |-> $stable(S));
-  a_nonint_10_d0: assert property ((ctrl==2'b10 && $changed(D0)) |-> $stable(S));
-  a_nonint_10_d1: assert property ((ctrl==2'b10 && $changed(D1)) |-> $stable(S));
+    // When ctrl selects D2, the output must match D2.
+    check_select_d2: assert property (
+        @($global_clock) (ctrl === 2'b10) |-> (S === D2)
+    );
 
-  // Coverage: hit all selections and default, and observe data pass-through activity
-  c_sel_00: cover property (ctrl==2'b00 && S===D0);
-  c_sel_01: cover property (ctrl==2'b01 && S===D1);
-  c_sel_10: cover property (ctrl==2'b10 && S===D2);
-  c_def:    cover property ((ctrl!=2'b00 && ctrl!=2'b01 && ctrl!=2'b10) && S===11'b0);
+    // Any control value outside 00, 01, or 10 must drive zero.
+    check_default_zero: assert property (
+        @($global_clock) !((ctrl === 2'b00) || (ctrl === 2'b01) || (ctrl === 2'b10)) |-> (S === 11'b0)
+    );
 
-  c_pass_d0: cover property (ctrl==2'b00 && $changed(D0) && $changed(S) && S===D0);
-  c_pass_d1: cover property (ctrl==2'b01 && $changed(D1) && $changed(S) && S===D1);
-  c_pass_d2: cover property (ctrl==2'b10 && $changed(D2) && $changed(S) && S===D2);
+    // The output must always implement the full mux function.
+    check_mux_function: assert property (
+        @($global_clock)
+        S === ((ctrl === 2'b00) ? D0 :
+               (ctrl === 2'b01) ? D1 :
+               (ctrl === 2'b10) ? D2 : 11'b0)
+    );
+
+    // If all inputs are stable across samples, the output must remain stable.
+    check_output_stable_when_inputs_stable: assert property (
+        @($global_clock) ($stable(ctrl) && $stable(D0) && $stable(D1) && $stable(D2)) |-> $stable(S)
+    );
 
 endmodule
-
-bind Mux_3x1_W11 Mux_3x1_W11_sva i_Mux_3x1_W11_sva (.ctrl(ctrl), .D0(D0), .D1(D1), .D2(D2), .S(S));

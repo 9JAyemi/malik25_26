@@ -1,95 +1,62 @@
-// SVA checkers for rippleCarryAdder and fullAdder.
-// Bind these in your testbench and provide a sampling clock/reset.
-
-module rca_asserts (
-  input logic        clk,
-  input logic        rst_n,
-  input logic [3:0]  A,
-  input logic [3:0]  B,
-  input logic        Cin,
-  input logic [3:0]  Sum,
-  input logic        Cout
+module rippleCarryAdder_sva (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic Cin,
+    input logic [3:0] Sum,
+    input logic Cout,
+    input logic [3:0] C,
+    input logic [3:0] S
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // helpers
-  let maj3(a,b,c) = (a & b) | (b & c) | (c & a);
-  let c0 = maj3(A[0], B[0], Cin);
-  let s0 = A[0] ^ B[0] ^ Cin;
-  let c1 = maj3(A[1], B[1], c0);
-  let s1 = A[1] ^ B[1] ^ c0;
-  let c2 = maj3(A[2], B[2], c1);
-  let s2 = A[2] ^ B[2] ^ c1;
-  let c3 = maj3(A[3], B[3], c2);
-  let s3 = A[3] ^ B[3] ^ c2;
+    // Sum must mirror the internal S bus.
+    check_sum_alias: assert property (
+        @(posedge clk) Sum == S
+    );
 
-  // arithmetic equivalence (width-safe)
-  assert property (disable iff (!rst_n)
-    {Cout, Sum} == ({1'b0, A} + {1'b0, B} + Cin)
-  );
+    // FA0 sum must match the full-adder XOR equation.
+    check_fa0_sum_function: assert property (
+        @(posedge clk) S[0] == (A[0] ^ B[0] ^ Cin)
+    );
 
-  // bitwise ripple correctness
-  assert property (disable iff (!rst_n)
-    (Sum[0]==s0) && (Sum[1]==s1) && (Sum[2]==s2) && (Sum[3]==s3) && (Cout==c3)
-  );
+    // FA0 carry must match the full-adder carry equation.
+    check_fa0_carry_function: assert property (
+        @(posedge clk) C[0] == ((A[0] & B[0]) | (A[0] & Cin) | (B[0] & Cin))
+    );
 
-  // no X on outputs when inputs are 0/1
-  assert property (disable iff (!rst_n)
-    !$isunknown({A,B,Cin}) |-> !$isunknown({Sum,Cout})
-  );
+    // FA1 sum must use C[0] as its carry-in.
+    check_fa1_sum_function: assert property (
+        @(posedge clk) S[1] == (A[1] ^ B[1] ^ C[0])
+    );
 
-  // pure combinational determinism (no memory)
-  assert property (disable iff (!rst_n)
-    {A,B,Cin} == $past({A,B,Cin}) |-> {Sum,Cout} == $past({Sum,Cout})
-  );
+    // FA1 carry must match the full-adder carry equation.
+    check_fa1_carry_function: assert property (
+        @(posedge clk) C[1] == ((A[1] & B[1]) | (A[1] & C[0]) | (B[1] & C[0]))
+    );
 
-  // Coverage: carry-out 0/1, propagate chain, generate/kill at LSB
-  cover property (disable iff (!rst_n) Cout);
-  cover property (disable iff (!rst_n) !Cout);
-  cover property (disable iff (!rst_n) (&(A ^ B)) && Cin && Cout);            // full propagate chain
-  cover property (disable iff (!rst_n) (A[0] & B[0]) && !Cin && c0);          // generate at bit0
-  cover property (disable iff (!rst_n) !A[0] && !B[0] && Cin && !c0);         // kill at bit0
+    // FA2 sum must use C[1] as its carry-in.
+    check_fa2_sum_function: assert property (
+        @(posedge clk) S[2] == (A[2] ^ B[2] ^ C[1])
+    );
+
+    // FA2 carry must match the full-adder carry equation.
+    check_fa2_carry_function: assert property (
+        @(posedge clk) C[2] == ((A[2] & B[2]) | (A[2] & C[1]) | (B[2] & C[1]))
+    );
+
+    // FA3 sum must use C[2] as its carry-in.
+    check_fa3_sum_function: assert property (
+        @(posedge clk) S[3] == (A[3] ^ B[3] ^ C[2])
+    );
+
+    // FA3 carry-out must match the full-adder carry equation.
+    check_fa3_carry_function: assert property (
+        @(posedge clk) Cout == ((A[3] & B[3]) | (A[3] & C[2]) | (B[3] & C[2]))
+    );
+
+    // The full 5-bit result must equal A + B + Cin.
+    check_overall_addition_result: assert property (
+        @(posedge clk) {Cout, Sum} == ({1'b0, A} + {1'b0, B} + {{4{1'b0}}, Cin})
+    );
 
 endmodule
-
-
-module fa_asserts (
-  input logic clk,
-  input logic rst_n,
-  input logic A,
-  input logic B,
-  input logic Cin,
-  input logic Sum,
-  input logic Cout
-);
-  default clocking cb @(posedge clk); endclocking
-
-  // truth-function checks
-  assert property (disable iff (!rst_n) Sum  == (A ^ B ^ Cin));
-  assert property (disable iff (!rst_n) Cout == ((A & B) | (B & Cin) | (Cin & A)));
-
-  // arithmetic width-safe check
-  assert property (disable iff (!rst_n)
-    {Cout, Sum} == ({1'b0, A} + {1'b0, B} + Cin)
-  );
-
-  // no X on outputs when inputs are 0/1
-  assert property (disable iff (!rst_n)
-    !$isunknown({A,B,Cin}) |-> !$isunknown({Sum,Cout})
-  );
-
-  // full input truth table coverage (all 8 minterms)
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b000);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b001);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b010);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b011);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b100);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b101);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b110);
-  cover property (disable iff (!rst_n) {A,B,Cin} == 3'b111);
-endmodule
-
-
-// Example bind statements (hook clk/rst_n from your TB):
-// bind rippleCarryAdder rca_asserts u_rca_asserts(.clk(tb_clk), .rst_n(tb_rst_n), .A(A), .B(B), .Cin(Cin), .Sum(Sum), .Cout(Cout));
-// bind fullAdder       fa_asserts  u_fa_asserts (.clk(tb_clk), .rst_n(tb_rst_n), .A(A), .B(B), .Cin(Cin), .Sum(Sum), .Cout(Cout));

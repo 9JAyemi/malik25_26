@@ -1,49 +1,44 @@
-// SVA for shift_register: concise, high-quality checks and coverage
 module shift_register_sva (
-  input logic        clk,
-  input logic        reset,      // async active-high
-  input logic        shift,
-  input logic        shift_in,
-  input logic [7:0]  data_out
+    input logic       clk,
+    input logic       reset,
+    input logic       shift_in,
+    input logic       shift,
+    input logic [7:0] data_out
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Basic sanity/X checks
-  ap_inputs_known:   assert property (!$isunknown({reset,shift,shift_in}));
-  ap_out_known:      assert property (disable iff (reset) !$isunknown(data_out));
+    // Sampling reset high clears the register by the next clock sample.
+    check_reset_clears_data_out: assert property (
+        @(posedge clk) reset |=> (data_out == 8'b0)
+    );
 
-  // Asynchronous reset must drive zeros immediately
-  ap_async_reset:    assert property (@(posedge reset) data_out == 8'b0);
+    // With shift high, the next value shifts in a zero at bit 0.
+    check_shift_mode_updates_full_register: assert property (
+        @(posedge clk) disable iff (reset)
+        shift |=> (data_out == { $past(data_out[6:0]), 1'b0 })
+    );
 
-  // While reset is sampled high at clk, output is 0 in the same cycle
-  ap_sync_reset:     assert property (reset |=> data_out == 8'b0);
+    // With shift low, the next value shifts in shift_in at bit 0.
+    check_load_mode_updates_full_register: assert property (
+        @(posedge clk) disable iff (reset)
+        !shift |=> (data_out == { $past(data_out[6:0]), $past(shift_in) })
+    );
 
-  // Core shift behavior (all cycles out of reset):
-  // Upper bits move up by one every cycle (independent of shift/shift_in)
-  ap_shift_move:     assert property (disable iff (reset)
-                                      1'b1 |-> ##1 data_out[7:1] == $past(data_out[6:0]));
+    // Upper bits always come from the previous lower bits.
+    check_upper_bits_always_shift: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (data_out[7:1] == $past(data_out[6:0]))
+    );
 
-  // LSB insert rules
-  ap_lsb_zero_ins:   assert property (disable iff (reset)
-                                      shift |-> ##1 data_out[0] == 1'b0);
+    // In shift mode, the next LSB is always zero.
+    check_shift_mode_inserts_zero: assert property (
+        @(posedge clk) disable iff (reset)
+        shift |=> (data_out[0] == 1'b0)
+    );
 
-  ap_lsb_data_ins:   assert property (disable iff (reset)
-                                      !shift |-> ##1 data_out[0] == $past(shift_in));
-
-  // Optional full-vector equivalence (redundant but strong)
-  ap_vec_zero_ins:   assert property (disable iff (reset)
-                                      shift |-> ##1 data_out == {$past(data_out[6:0]),1'b0});
-  ap_vec_data_ins:   assert property (disable iff (reset)
-                                      !shift |-> ##1 data_out == {$past(data_out[6:0]),$past(shift_in)});
-
-  // Coverage: exercise both insertion paths
-  cv_zero_insert:    cover  property (disable iff (reset)
-                                      shift ##1 (data_out[0] == 1'b0));
-
-  cv_data_insert:    cover  property (disable iff (reset)
-                                      (!shift && shift_in) ##1 (data_out[0] == 1'b1));
+    // In non-shift mode, the next LSB captures shift_in.
+    check_load_mode_captures_shift_in: assert property (
+        @(posedge clk) disable iff (reset)
+        !shift |=> (data_out[0] == $past(shift_in))
+    );
 
 endmodule
-
-// Bind into DUT
-bind shift_register shift_register_sva u_shift_register_sva (.*);

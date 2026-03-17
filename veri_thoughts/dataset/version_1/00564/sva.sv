@@ -1,67 +1,66 @@
-// SVA checker for four_way_min (bindable, clockless, concise yet thorough)
-module four_way_min_sva
-  #(parameter WIDTH=8)
-  (input  logic [WIDTH-1:0] a, b, c, d,
-   input  logic [WIDTH-1:0] min,
-   input  logic [WIDTH-1:0] ab_min, cd_min, abcd_min);
+module four_way_min_sva (
+    input logic clk,
+    input logic [7:0] a,
+    input logic [7:0] b,
+    input logic [7:0] c,
+    input logic [7:0] d,
+    input logic [7:0] min
+);
 
-  // 2-way and 4-way mins (use 4-state-aware '<'; gated by known inputs)
-  function automatic logic [WIDTH-1:0] f_min2 (input logic [WIDTH-1:0] x, y);
-    return (x < y) ? x : y;
-  endfunction
-  function automatic logic [WIDTH-1:0] f_min4 (input logic [WIDTH-1:0] w, x, y, z);
-    return f_min2(f_min2(w, x), f_min2(y, z));
-  endfunction
+    logic [7:0] ab_min, cd_min, abcd_min;
 
-  // End-to-end correctness when inputs are known
-  property p_min_correct;
-    @(a or b or c or d or min)
-      !$isunknown({a,b,c,d}) |-> (min == f_min4(a,b,c,d));
-  endproperty
-  assert property (p_min_correct);
+    assign ab_min   = (a < b) ? a : b;
+    assign cd_min   = (c < d) ? c : d;
+    assign abcd_min = (ab_min < cd_min) ? ab_min : cd_min;
 
-  // Stage-wise correctness (also gated for known operands)
-  assert property (@(a or b or ab_min)           !$isunknown({a,b})           |-> (ab_min   == f_min2(a,b)));
-  assert property (@(c or d or cd_min)           !$isunknown({c,d})           |-> (cd_min   == f_min2(c,d)));
-  assert property (@(ab_min or cd_min or abcd_min) !$isunknown({ab_min,cd_min}) |-> (abcd_min == f_min2(ab_min,cd_min)));
-  assert property (@(abcd_min or min)            !$isunknown(abcd_min)        |-> (min      == abcd_min));
+    // Output must match the RTL minimum computation.
+    check_output_matches_rtl: assert property (
+        @(posedge clk) min == abcd_min
+    );
 
-  // Sanity: min is no greater than each input when inputs are known
-  assert property (@(a or b or c or d or min)
-                   !$isunknown({a,b,c,d}) |-> (min <= a && min <= b && min <= c && min <= d));
+    // The reported minimum cannot exceed input a.
+    check_min_le_a: assert property (
+        @(posedge clk) min <= a
+    );
 
-  // ----------------------------------
-  // Coverage (branching, winners, ties)
-  // ----------------------------------
+    // The reported minimum cannot exceed input b.
+    check_min_le_b: assert property (
+        @(posedge clk) min <= b
+    );
 
-  // Pairwise comparator branching
-  cover property (@(a or b) !$isunknown({a,b}) && (a <  b));
-  cover property (@(a or b) !$isunknown({a,b}) && (a >= b));
-  cover property (@(c or d) !$isunknown({c,d}) && (c <  d));
-  cover property (@(c or d) !$isunknown({c,d}) && (c >= d));
+    // The reported minimum cannot exceed input c.
+    check_min_le_c: assert property (
+        @(posedge clk) min <= c
+    );
 
-  // Second-stage comparator outcomes
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) &&
-                  (f_min2(a,b) <  f_min2(c,d)));
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) &&
-                  (f_min2(a,b) == f_min2(c,d)));
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) &&
-                  (f_min2(a,b) >  f_min2(c,d)));
+    // The reported minimum cannot exceed input d.
+    check_min_le_d: assert property (
+        @(posedge clk) min <= d
+    );
 
-  // Unique winners (strict minima)
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (a<b && a<c && a<d) && (min==a));
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (b<a && b<c && b<d) && (min==b));
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (c<a && c<b && c<d) && (min==c));
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (d<a && d<b && d<c) && (min==d));
+    // The reported minimum must be one of the four inputs.
+    check_min_is_input_value: assert property (
+        @(posedge clk) (min == a) || (min == b) || (min == c) || (min == d)
+    );
 
-  // Tie behaviors per implementation (< prefers right operand on tie)
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (a==b) && (a<c) && (a<d) && (min==b)); // ab tie -> pick b
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (c==d) && (c<a) && (c<b) && (min==d)); // cd tie -> pick d
+    // If a is no greater than all other inputs, the output must equal a.
+    check_a_when_a_is_minimal: assert property (
+        @(posedge clk) ((a <= b) && (a <= c) && (a <= d)) |-> (min == a)
+    );
 
-  // All equal
-  cover property (@(a or b or c or d) !$isunknown({a,b,c,d}) && (a==b && b==c && c==d) && (min==a));
+    // If b is no greater than all other inputs, the output must equal b.
+    check_b_when_b_is_minimal: assert property (
+        @(posedge clk) ((b <= a) && (b <= c) && (b <= d)) |-> (min == b)
+    );
+
+    // If c is no greater than all other inputs, the output must equal c.
+    check_c_when_c_is_minimal: assert property (
+        @(posedge clk) ((c <= a) && (c <= b) && (c <= d)) |-> (min == c)
+    );
+
+    // If d is no greater than all other inputs, the output must equal d.
+    check_d_when_d_is_minimal: assert property (
+        @(posedge clk) ((d <= a) && (d <= b) && (d <= c)) |-> (min == d)
+    );
 
 endmodule
-
-// Bind into the DUT; connects to internals by name
-bind four_way_min four_way_min_sva #(.WIDTH(8)) four_way_min_sva_i (.*);

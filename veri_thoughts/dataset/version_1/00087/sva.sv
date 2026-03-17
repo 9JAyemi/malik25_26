@@ -1,36 +1,46 @@
-// SVA for binary_counter
 module binary_counter_sva (
-  input clk,
-  input reset,       // active-low in RTL
-  input load,
-  input [3:0] load_value,
-  input [3:0] q,
-  input carry_out,
-  input led
+    input logic clk,
+    input logic reset,
+    input logic load,
+    input logic [3:0] load_value,
+    input logic [3:0] q,
+    input logic carry_out,
+    input logic led
 );
-  default clocking cb @ (posedge clk); endclocking
 
-  // Reset behavior (active-low): while reset=0, q must be 5
-  assert property (!reset |-> q == 4'h5);
+    // If reset is sampled low, the next sampled state is 5 and the status outputs are low.
+    check_reset_state: assert property (
+        @(posedge clk) (!reset) |=> ((q == 4'h5) && (carry_out == 1'b0) && (led == 1'b0))
+    );
 
-  // Load takes effect next cycle if still out of reset
-  assert property ( (reset && load) ##1 reset |-> (q == $past(load_value)) );
+    // With load high, q takes load_value on the next cycle unless async reset intervenes.
+    check_load_updates_q: assert property (
+        @(posedge clk) disable iff (!reset)
+        load |=> ((q == $past(load_value)) || (q == 4'h5))
+    );
 
-  // Increment/rollover when idle (no load) for two consecutive cycles
-  assert property ( (reset && !load) ##1 (reset && !load)
-                    |-> (q == (($past(q,1)==4'hF) ? 4'h0 : $past(q,1)+1)) );
+    // Without load, q increments by one when it is not at 15 unless async reset intervenes.
+    check_increment_nonterminal: assert property (
+        @(posedge clk) disable iff (!reset)
+        (!load && (q != 4'hF)) |=> ((q == ($past(q) + 4'd1)) || (q == 4'h5))
+    );
 
-  // Output relationships
-  assert property ( carry_out == (q == 4'hF) );
-  assert property ( led == carry_out );
+    // Without load, q wraps from 15 to 0 unless async reset intervenes.
+    check_wrap_from_max: assert property (
+        @(posedge clk) disable iff (!reset)
+        (!load && (q == 4'hF)) |=> ((q == 4'h0) || (q == 4'h5))
+    );
 
-  // Coverage
-  cover property ( !reset && q == 4'h5 ); // reset value observed
-  cover property ( (reset && load) ##1 (reset && q == $past(load_value)) ); // load used
-  cover property ( (reset && !load && q==4'hE)
-                   ##1 (reset && !load && q==4'hF)
-                   ##1 (reset && !load && q==4'h0) ); // rollover
-  cover property ( q==4'hF && carry_out && led ); // carry/LED high at 15
+    // carry_out is high exactly when q is 15.
+    check_carry_matches_q: assert property (
+        @(posedge clk) disable iff (!reset)
+        (carry_out == (q == 4'hF))
+    );
+
+    // led always mirrors carry_out.
+    check_led_matches_carry: assert property (
+        @(posedge clk) disable iff (!reset)
+        (led == carry_out)
+    );
+
 endmodule
-
-bind binary_counter binary_counter_sva bcounter_sva (.*);

@@ -1,37 +1,46 @@
-// SVA for up_down_counter
 module up_down_counter_sva (
-  input logic        clk,
-  input logic        load,
-  input logic        up_down,
-  input logic [2:0]  out
+    input logic clk,
+    input logic load,
+    input logic up_down,
+    input logic [2:0] out
 );
-  localparam int WIDTH = $bits(out);
-  typedef logic [WIDTH-1:0] T;
 
-  default clocking cb @(posedge clk); endclocking
+    // Counter state follows the RTL next-state function each cycle.
+    check_next_state_matches_rtl: assert property (
+        @(posedge clk)
+        1'b1 |=> (out == ($past(load) ? 3'b000 :
+                          ($past(up_down) ? ($past(out) + 3'b001) :
+                                            ($past(out) - 3'b001))))
+    );
 
-  logic past_valid; initial past_valid = 1'b0;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    // A load request clears the counter to zero on the next cycle.
+    check_load_clears_out: assert property (
+        @(posedge clk)
+        load |=> (out == 3'b000)
+    );
 
-  // Sanity/X checks
-  ap_load_known:       assert property ( !$isunknown(load) );
-  ap_ud_known_when_used: assert property ( load || !$isunknown(up_down) );
-  ap_out_known:        assert property ( past_valid |-> !$isunknown(out) );
+    // With load low and up_down high, the counter increments by one.
+    check_count_up: assert property (
+        @(posedge clk)
+        (!load && up_down) |=> (out == ($past(out) + 3'b001))
+    );
 
-  // Functional next-state (modulo-2**WIDTH)
-  ap_next_state: assert property (
-    past_valid |=> out ==
-      ( $past(load) ? '0
-        : ($past(up_down) ? T'($past(out)+1) : T'($past(out)-1)) )
-  );
+    // With load low and up_down low, the counter decrements by one.
+    check_count_down: assert property (
+        @(posedge clk)
+        (!load && !up_down) |=> (out == ($past(out) - 3'b001))
+    );
 
-  // Coverage: each branch and both wraps
-  cv_load:      cover property ( past_valid && load |=> out == '0 );
-  cv_inc:       cover property ( past_valid && !load && up_down |=> out == T'($past(out)+1) );
-  cv_dec:       cover property ( past_valid && !load && !up_down |=> out == T'($past(out)-1) );
-  cv_wrap_up:   cover property ( past_valid && !load && up_down && (out == {WIDTH{1'b1}}) |=> out == '0 );
-  cv_wrap_down: cover property ( past_valid && !load && !up_down && (out == '0)             |=> out == {WIDTH{1'b1}} );
+    // Counting up wraps from 7 back to 0.
+    check_count_up_wrap: assert property (
+        @(posedge clk)
+        (!load && up_down && (out == 3'b111)) |=> (out == 3'b000)
+    );
+
+    // Counting down wraps from 0 back to 7.
+    check_count_down_wrap: assert property (
+        @(posedge clk)
+        (!load && !up_down && (out == 3'b000)) |=> (out == 3'b111)
+    );
+
 endmodule
-
-// Bind into DUT
-bind up_down_counter up_down_counter_sva sva(.clk(clk), .load(load), .up_down(up_down), .out(out));

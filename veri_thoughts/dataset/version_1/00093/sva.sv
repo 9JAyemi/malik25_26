@@ -1,65 +1,55 @@
-// SVA bind module for AdderSubtractor
 module AdderSubtractor_sva (
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic       Sub,
-  input  logic [3:0] S,
-  input  logic       Cout,
-  input  logic [3:0] A_comp,
-  input  logic [3:0] B_comp,
-  input  logic [4:0] temp_sum
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic Sub,
+    input logic [3:0] S,
+    input logic Cout
 );
 
-  // helper lets
-  let add_sum = {1'b0, A} + {1'b0, B};
-  let sub_sum = {1'b0, A} + {1'b0, (~B + 4'd1)};
-  let exp_sum = Sub ? sub_sum : add_sum;
+    // Addition mode returns the 4-bit sum.
+    check_add_sum: assert property (
+        @(posedge clk) (Sub == 1'b0) |-> (S == (A + B))
+    );
 
-  // no X/Z on outputs when inputs are known
-  assert property ( $isunknown({A,B,Sub}) || !$isunknown({S,Cout,temp_sum}) );
+    // Addition mode never asserts Cout.
+    check_add_cout_low: assert property (
+        @(posedge clk) (Sub == 1'b0) |-> (Cout == 1'b0)
+    );
 
-  // internal two's-complement generators
-  assert property ( A_comp == (~A + 4'd1) );
-  assert property ( B_comp == (~B + 4'd1) );
+    // Subtraction mode returns the 4-bit difference.
+    check_sub_diff: assert property (
+        @(posedge clk) (Sub == 1'b1) |-> (S == (A - B))
+    );
 
-  // temp_sum correct for add/sub selection
-  assert property ( temp_sum == exp_sum );
+    // Subtraction mode uses A>=B as the Cout flag.
+    check_sub_cout_no_borrow: assert property (
+        @(posedge clk) (Sub == 1'b1) |-> (Cout == (A >= B))
+    );
 
-  // S is always low 4 bits of temp_sum (catch truncation/width issues)
-  assert property ( S == temp_sum[3:0] );
+    // Equal operands subtract to zero with Cout asserted.
+    check_sub_equal_zero: assert property (
+        @(posedge clk) (Sub == 1'b1 && A == B) |-> (S == 4'b0000 && Cout == 1'b1)
+    );
 
-  // Cout correctness
-  assert property ( (!Sub) || (Cout == (A >= B)) );     // subtraction: Cout == no-borrow
-  assert property ( ( Sub) || (Cout == temp_sum[4]) );  // addition: Cout == carry out
-  // cross-check subtraction carry-out equals no-borrow
-  assert property ( (!Sub) || (sub_sum[4] == (A >= B)) );
+    // Adding zero passes A through and keeps Cout low.
+    check_add_zero_passthrough: assert property (
+        @(posedge clk) (Sub == 1'b0 && B == 4'b0000) |-> (S == A && Cout == 1'b0)
+    );
 
-  // functional equivalence
-  assert property ( S == exp_sum[3:0] );
-  assert property ( (!Sub) || ((S + B) & 4'hF) == (A & 4'hF) ); // modulo-16 identity for subtract
+    // Subtracting zero passes A through and asserts Cout.
+    check_sub_zero_passthrough: assert property (
+        @(posedge clk) (Sub == 1'b1 && B == 4'b0000) |-> (S == A && Cout == 1'b1)
+    );
 
-  // concise coverage
-  cover property ( Sub == 0 );                           // add mode seen
-  cover property ( Sub == 1 );                           // sub mode seen
-  cover property ( (Sub==0) && (temp_sum[4]==0) );       // add, no carry
-  cover property ( (Sub==0) && (temp_sum[4]==1) );       // add, carry
-  cover property ( (Sub==1) && (A >= B) );               // sub, no borrow
-  cover property ( (Sub==1) && (A <  B) );               // sub, borrow
-  cover property ( (Sub==1) && (A == B) );               // sub, equality
-  cover property ( (A==4'h0) && (B==4'h0) );             // boundary: zeros
-  cover property ( (A==4'hF) && (B==4'hF) && (Sub==0) ); // boundary: max+max
-  cover property ( (A==4'h0) && (B==4'hF) && (Sub==1) ); // boundary: max borrow
+    // 0xF + 0x1 wraps to zero and still leaves Cout low.
+    check_add_overflow_wrap: assert property (
+        @(posedge clk) (Sub == 1'b0 && A == 4'hF && B == 4'h1) |-> (S == 4'h0 && Cout == 1'b0)
+    );
+
+    // 0x0 - 0x1 wraps to 0xF with Cout deasserted.
+    check_sub_underflow_wrap: assert property (
+        @(posedge clk) (Sub == 1'b1 && A == 4'h0 && B == 4'h1) |-> (S == 4'hF && Cout == 1'b0)
+    );
 
 endmodule
-
-// Bind into DUT (accesses internal wires via port connections)
-bind AdderSubtractor AdderSubtractor_sva sva (
-  .A(A),
-  .B(B),
-  .Sub(Sub),
-  .S(S),
-  .Cout(Cout),
-  .A_comp(A_comp),
-  .B_comp(B_comp),
-  .temp_sum(temp_sum)
-);

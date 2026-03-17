@@ -1,68 +1,83 @@
-// SVA for resultcounter
-checker resultcounter_sva (
-  input  logic        clk,
-  input  logic [1:0]  resultID,
-  input  logic        newresult,
-  input  logic [1:0]  done,
-  input  logic        reset,
-  input  logic        globalreset,
-  input  logic [3:0]  count,
-  input  logic [1:0]  curr
+module resultcounter_sva (
+    input logic [1:0] resultID,
+    input logic       newresult,
+    input logic [1:0] done,
+    input logic       reset,
+    input logic       globalreset,
+    input logic       clk,
+    input logic [3:0] count,
+    input logic [1:0] curr
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Invariants
-  assert property (count inside {[4'd0:4'd8)});
-  assert property (done == ((count==4'd0) ? curr : 2'b00));
+    // done is zero whenever the counter is nonzero.
+    check_done_zero_when_count_nonzero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (count != 4'b0000) |-> (done == 2'b00)
+    );
 
-  // Resets and auto-reload
-  assert property (globalreset |=> (count==4'd8 && curr==2'b00));
-  assert property (!globalreset && reset |=> (count==4'd8 && curr==2'b00));
-  assert property (!globalreset && !reset && count==4'd0 |=> (count==4'd8 && curr==2'b00));
+    // done matches curr only when the counter has reached zero.
+    check_done_matches_curr_when_count_zero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (count == 4'b0000) |-> (done == curr)
+    );
 
-  // Decrement and hold rules
-  assert property (!globalreset && !reset && count!=4'd0 && newresult && (resultID!=2'b00)
-                   |=> (count == $past(count)-4'd1 && curr == $past(resultID)));
-  assert property (!globalreset && !reset && count!=4'd0 && (!newresult || (resultID==2'b00))
-                   |=> (count == $past(count) && curr == $past(curr)));
+    // globalreset reloads the counter and clears curr on the next cycle.
+    check_globalreset_loads_state: assert property (
+        @(posedge clk) disable iff ($initstate)
+        globalreset |=> (count == 4'b1000 && curr == 2'b00)
+    );
 
-  // Count changes only per rules (no unexpected jumps/increments)
-  assert property ( (!$past(globalreset) && !$past(reset) && $changed(count))
-                    |-> ( ($past(count)==4'd0 && count==4'd8)
-                       ||  ($past(count)!=4'd0 && $past(newresult) && $past(resultID)!=2'b00
-                            && count==$past(count)-4'd1) ) );
+    // reset reloads the counter and clears curr when globalreset is low.
+    check_reset_loads_state: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && reset) |=> (count == 4'b1000 && curr == 2'b00)
+    );
 
-  // Done pulse semantics and cause
-  assert property (done!=2'b00 |-> ($past(count)==4'd1 && $past(newresult) && $past(resultID)!=2'b00
-                                    && curr==$past(resultID)));
-  assert property (done!=2'b00 |=> (done==2'b00 && count==4'd8 && curr==2'b00));
+    // A zero count causes the next cycle to reload the counter and clear curr.
+    check_zero_count_reloads_state: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count == 4'b0000))
+        |=> (count == 4'b1000 && curr == 2'b00)
+    );
 
-  // Priority: globalreset dominates
-  assert property ($past(globalreset) |-> (count==4'd8 && curr==2'b00));
+    // A valid newresult decrements the counter.
+    check_valid_newresult_decrements_count: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count != 4'b0000) &&
+         newresult && (resultID != 2'b00))
+        |=> (count == ($past(count) - 4'b0001))
+    );
 
-  // No decrement when resultID==0 even if newresult=1
-  assert property (!globalreset && !reset && count!=4'd0 && newresult && (resultID==2'b00)
-                   |=> (count==$past(count) && curr==$past(curr)));
+    // A valid newresult updates curr with resultID.
+    check_valid_newresult_updates_curr: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count != 4'b0000) &&
+         newresult && (resultID != 2'b00))
+        |=> (curr == $past(resultID))
+    );
 
-  // Coverage
-  sequence qual_dec; !globalreset && !reset && newresult && (resultID!=2'b00); endsequence
-  cover property (count==4'd8 ##1 qual_dec[*7] ##1 (done!=2'b00));
-  cover property (done==2'b01);
-  cover property (done==2'b10);
-  cover property (done==2'b11);
-  cover property (!globalreset && !reset && count!=4'd0 && newresult && (resultID==2'b00)
-                  ##1 (count==$past(count) && curr==$past(curr)));
-  cover property ($rose(globalreset));
-  cover property ($rose(reset));
-endchecker
+    // Without reset, zero count, or a valid newresult, count holds.
+    check_idle_holds_count: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count != 4'b0000) &&
+         !(newresult && (resultID != 2'b00)))
+        |=> (count == $past(count))
+    );
 
-bind resultcounter resultcounter_sva rc_chk (
-  .clk(clk),
-  .resultID(resultID),
-  .newresult(newresult),
-  .done(done),
-  .reset(reset),
-  .globalreset(globalreset),
-  .count(count),
-  .curr(curr)
-);
+    // Without reset, zero count, or a valid newresult, curr holds.
+    check_idle_holds_curr: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count != 4'b0000) &&
+         !(newresult && (resultID != 2'b00)))
+        |=> (curr == $past(curr))
+    );
+
+    // The final valid decrement drives done with the accepted result ID.
+    check_terminal_result_drives_done: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!globalreset && !reset && (count == 4'b0001) &&
+         newresult && (resultID != 2'b00))
+        |=> (count == 4'b0000 && curr == $past(resultID) && done == $past(resultID))
+    );
+
+endmodule

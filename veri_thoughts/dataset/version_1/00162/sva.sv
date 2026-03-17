@@ -1,60 +1,53 @@
-// SVA checker for mux4to1
 module mux4to1_sva (
-  input I0, I1, I2, I3, S,
-  input not_S, sel1, sel2,
-  input O
+    input logic clk,
+    input logic I0,
+    input logic I1,
+    input logic I2,
+    input logic I3,
+    input logic S,
+    input logic O
 );
 
-  // End-to-end functional equivalence
-  assert property (@(I0 or I1 or I2 or I3 or S)
-    O == ((S ? I1 : I0) ^ (S ? I3 : I2))
-  );
+    // O matches the implemented XOR of the two selected branches.
+    check_output_equation: assert property (
+        @(posedge clk)
+        O == ((((~S) & I0) | (S & I1)) ^ (((~S) & I2) | (S & I3)))
+    );
 
-  // Internal combinational correctness
-  assert property (@(S) not_S == ~S);
-  assert property (@(I0 or I1 or S) sel1 == ((~S & I0) | (S & I1)));
-  assert property (@(I2 or I3 or S) sel2 == ((~S & I2) | (S & I3)));
-  assert property (@(I0 or I1 or I2 or I3 or S) O == (sel1 ^ sel2));
+    // With S low, O is the XOR of I0 and I2.
+    check_select_low_function: assert property (
+        @(posedge clk)
+        (S == 1'b0) |-> (O == (I0 ^ I2))
+    );
 
-  // X/Z propagation check
-  assert property (@(I0 or I1 or I2 or I3 or S)
-    !$isunknown({I0,I1,I2,I3,S}) |-> !$isunknown({not_S,sel1,sel2,O})
-  );
+    // With S high, O is the XOR of I1 and I3.
+    check_select_high_function: assert property (
+        @(posedge clk)
+        (S == 1'b1) |-> (O == (I1 ^ I3))
+    );
 
-  // Behavior on S edges: output changes iff contributing XORs differ
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I0,I1,I2,I3,S,O}) && ((I0^I2)!=(I1^I3)) |-> O != $past(O)
-  );
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I0,I1,I2,I3,S,O}) && ((I0^I2)==(I1^I3)) |-> O == $past(O)
-  );
+    // With S low, equal selected inputs drive O low.
+    check_select_low_equal_inputs_zero: assert property (
+        @(posedge clk)
+        ((S == 1'b0) && (I0 == I2)) |-> (O == 1'b0)
+    );
 
-  // sel1/sel2 toggle expectations on S edges
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I0,I1,S,sel1}) && (I0^I1) |-> sel1 != $past(sel1)
-  );
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I0,I1,S,sel1}) && !(I0^I1) |-> sel1 == $past(sel1)
-  );
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I2,I3,S,sel2}) && (I2^I3) |-> sel2 != $past(sel2)
-  );
-  assert property (@(posedge S or negedge S)
-    !$isunknown({I2,I3,S,sel2}) && !(I2^I3) |-> sel2 == $past(sel2)
-  );
+    // With S low, different selected inputs drive O high.
+    check_select_low_different_inputs_one: assert property (
+        @(posedge clk)
+        ((S == 1'b0) && (I0 != I2)) |-> (O == 1'b1)
+    );
 
-  // Minimal functional coverage
-  cover property (@(I0 or I1 or I2 or I3 or S) S==0);
-  cover property (@(I0 or I1 or I2 or I3 or S) S==1);
-  cover property (@(I0 or I1 or I2 or I3 or S) O==0);
-  cover property (@(I0 or I1 or I2 or I3 or S) O==1);
-  cover property (@(posedge S) ((I0^I2)!=(I1^I3)) && (O != $past(O)));
-  cover property (@(negedge S) ((I0^I2)!=(I1^I3)) && (O != $past(O)));
+    // With S high, equal selected inputs drive O low.
+    check_select_high_equal_inputs_zero: assert property (
+        @(posedge clk)
+        ((S == 1'b1) && (I1 == I3)) |-> (O == 1'b0)
+    );
+
+    // With S high, different selected inputs drive O high.
+    check_select_high_different_inputs_one: assert property (
+        @(posedge clk)
+        ((S == 1'b1) && (I1 != I3)) |-> (O == 1'b1)
+    );
 
 endmodule
-
-// Bind into DUT
-bind mux4to1 mux4to1_sva u_mux4to1_sva (
-  .I0(I0), .I1(I1), .I2(I2), .I3(I3), .S(S),
-  .not_S(not_S), .sel1(sel1), .sel2(sel2), .O(O)
-);

@@ -1,54 +1,46 @@
-// SVA checker for sky130_fd_sc_hd__a221oi
 module sky130_fd_sc_hd__a221oi_sva (
-  input logic A1,
-  input logic A2,
-  input logic B1,
-  input logic B2,
-  input logic C1,
-  input logic Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic B2,
+    input logic C1
 );
 
-  default clocking cb @(A1 or A2 or B1 or B2 or C1 or Y); endclocking
+    // Y implements the AOI221 combinational equation.
+    check_function_equation: assert property (
+        @(posedge clk) Y == ~((B1 & B2) | C1 | (A1 & A2))
+    );
 
-  let termA     = (A1 & A2);
-  let termB     = (B1 & B2);
-  let expY      = ~(termA | termB | C1);
-  let all_known = !$isunknown({A1,A2,B1,B2,C1});
+    // C1 high forces the output low.
+    check_c1_forces_output_low: assert property (
+        @(posedge clk) C1 |-> !Y
+    );
 
-  // Functional equivalence (4-state aware) once signals settle in the timestep
-  assert property (all_known |-> ##0 (Y === expY));
+    // A1 and A2 high together force the output low.
+    check_a_and_pair_forces_output_low: assert property (
+        @(posedge clk) (A1 && A2) |-> !Y
+    );
 
-  // Dominance checks
-  assert property (all_known &&  C1    |-> ##0 (Y == 1'b0));
-  assert property (all_known &&  termA |-> ##0 (Y == 1'b0));
-  assert property (all_known &&  termB |-> ##0 (Y == 1'b0));
-  assert property (all_known && !C1 && !termA && !termB |-> ##0 (Y == 1'b1));
+    // B1 and B2 high together force the output low.
+    check_b_and_pair_forces_output_low: assert property (
+        @(posedge clk) (B1 && B2) |-> !Y
+    );
 
-  // X-propagation sanity: output X implies at least one input is X/Z
-  assert property ($isunknown(Y) |-> !all_known);
+    // All three NOR inputs low drive the output high.
+    check_all_nor_inputs_low_drive_output_high: assert property (
+        @(posedge clk) (!C1 && !(A1 && A2) && !(B1 && B2)) |-> Y
+    );
 
-  // Targeted functional coverage
-  cover property (all_known ##0 (Y == 1'b1));
-  cover property (all_known ##0 (Y == 1'b0));
-  cover property (all_known && $rose(Y));
-  cover property (all_known && $fell(Y));
-  cover property (all_known &&  C1                       ##0 (Y == 1'b0));
-  cover property (all_known &&  termA && !C1 && !termB   ##0 (Y == 1'b0));
-  cover property (all_known &&  termB && !C1 && !termA   ##0 (Y == 1'b0));
-  cover property (all_known && !C1 && !termA && !termB   ##0 (Y == 1'b1));
+    // A high output requires all three NOR inputs to be low.
+    check_output_high_requires_all_nor_inputs_low: assert property (
+        @(posedge clk) Y |-> (!C1 && !(A1 && A2) && !(B1 && B2))
+    );
 
-  // Full input-space coverage (all 32 input combinations at end-of-delta)
-  genvar i;
-  generate
-    for (i = 0; i < 32; i++) begin : C_ALL_COMBOS
-      localparam logic [4:0] v = i[4:0];
-      cover property (##0 {A1,A2,B1,B2,C1} === v);
-    end
-  endgenerate
+    // A low output requires at least one NOR input to be high.
+    check_output_low_requires_any_nor_input_high: assert property (
+        @(posedge clk) !Y |-> (C1 || (A1 && A2) || (B1 && B2))
+    );
 
 endmodule
-
-// Bind into the DUT
-bind sky130_fd_sc_hd__a221oi sky130_fd_sc_hd__a221oi_sva u_a221oi_sva (
-  .A1(A1), .A2(A2), .B1(B1), .B2(B2), .C1(C1), .Y(Y)
-);

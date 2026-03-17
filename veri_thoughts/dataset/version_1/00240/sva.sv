@@ -1,38 +1,46 @@
-// SVA for sequential_circuit
-// Bind with: bind sequential_circuit sequential_circuit_sva sva();
+module sequential_circuit_sva (
+    input logic       clk,
+    input logic       a,
+    input logic       b,
+    input logic [1:0] q,
+    input logic [1:0] counter,
+    input logic       flip_flop
+);
 
-module sequential_circuit_sva (sequential_circuit dut);
+    // q is a direct reflection of the counter register.
+    check_q_matches_counter: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (q == counter)
+    );
 
-  default clocking cb @(posedge dut.clk); endclocking
+    // When only b was high, the counter resets to zero on the next cycle.
+    check_counter_resets_on_b: assert property (
+        @(posedge clk) disable iff ($initstate)
+        ($past(b) && !$past(a)) |-> (counter == 2'b00)
+    );
 
-  bit past_valid;
-  initial past_valid = 0;
-  always @(posedge dut.clk) past_valid <= 1'b1;
+    // When both a and b were high, b has priority and the counter resets.
+    check_b_priority_over_a: assert property (
+        @(posedge clk) disable iff ($initstate)
+        ($past(b) && $past(a)) |-> (counter == 2'b00)
+    );
 
-  default disable iff (!past_valid);
+    // When only a was high, the counter increments by one on the next cycle.
+    check_counter_increments_on_a: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!$past(b) && $past(a)) |-> (counter == ($past(counter) + 2'b01))
+    );
 
-  // Functional correctness
-  a_reset_dominates: assert property (dut.b |=> dut.counter == 2'd0);
-  a_inc:             assert property ((!dut.b && dut.a) |=> dut.counter == $past(dut.counter) + 2'd1);
-  a_hold:            assert property ((!dut.b && !dut.a) |=> dut.counter == $past(dut.counter));
-  a_reset_over_inc:  assert property ((dut.a && dut.b) |=> dut.counter == 2'd0);
-  a_q_alias:         assert property (dut.q == dut.counter);
-  a_ff_capture:      assert property (dut.flip_flop == $past(dut.counter[1]));
+    // When neither input was high, the counter holds its value.
+    check_counter_holds_when_idle: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (!$past(b) && !$past(a)) |-> (counter == $past(counter))
+    );
 
-  // Change only when expected
-  a_change_caused:   assert property (
-                       (dut.counter != $past(dut.counter))
-                       |-> ($past(dut.b) || (!$past(dut.b) && $past(dut.a)))
-                     );
-
-  // Coverage
-  c_inc:                    cover property (!dut.b && dut.a);
-  c_hold:                   cover property (!dut.b && !dut.a);
-  c_b_only:                 cover property ( dut.b && !dut.a);
-  c_a_and_b:                cover property ( dut.a &&  dut.b);
-  c_wrap:                   cover property (($past(dut.counter)==2'd3 && !dut.b && dut.a) |=> dut.counter==2'd0);
-  c_reset_from_nonzero:     cover property (($past(dut.counter)!=2'd0 && dut.b)         |=> dut.counter==2'd0);
-  c_ff_rose:                cover property ($rose(dut.flip_flop));
-  c_ff_fell:                cover property ($fell(dut.flip_flop));
+    // flip_flop captures the previous cycle's counter MSB.
+    check_flip_flop_tracks_counter_msb: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (flip_flop == $past(counter[1]))
+    );
 
 endmodule

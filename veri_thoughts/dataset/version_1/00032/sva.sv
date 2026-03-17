@@ -1,44 +1,52 @@
-// SVA for logic_gate
-// Bind-friendly, concise, and covers functionality, reset, unknowns, and both select paths.
-
 module logic_gate_sva (
-  input A1,
-  input [1:0] select,
-  input A2,
-  input A3,
-  input B1,
-  input C1,
-  input reset,
-  input X,
-  input valid
+    input logic clk,
+    input logic A1,
+    input logic [1:0] select,
+    input logic A2,
+    input logic A3,
+    input logic B1,
+    input logic C1,
+    input logic reset,
+    input logic X,
+    input logic valid
 );
 
-  // Trigger on any input/reset change to align with combinational DUT
-  default clocking cb @ (A1 or select or A2 or A3 or B1 or C1 or reset); endclocking
+    // Reset forces both outputs low.
+    check_reset_clears_outputs: assert property (
+        @(posedge clk) disable iff (!reset)
+            (X == 1'b0 && valid == 1'b0)
+    );
 
-  // Expected function
-  let exp = (select==2'b00) ? (A1 && A2 && A3) : (A1 && B1 && C1);
+    // Outside reset, X and valid always match.
+    check_outputs_match: assert property (
+        @(posedge clk) disable iff (reset)
+            (X == valid)
+    );
 
-  // Reset drives zeros (and not X/Z), sample after combinational update
-  a_reset_zeros: assert property (reset |-> ##0 (X===1'b0 && valid===1'b0));
+    // With select set to 00, all A inputs high drives both outputs high.
+    check_select00_all_high_sets_outputs: assert property (
+        @(posedge clk) disable iff (reset)
+            ((select == 2'b00) && A1 && A2 && A3) |-> (X == 1'b1 && valid == 1'b1)
+    );
 
-  // Outputs are known and match the function when inputs are known and not in reset
-  a_known_io_match: assert property (
-    (!reset && !$isunknown({A1,A2,A3,B1,C1,select})) |-> ##0
-      (!$isunknown({X,valid}) && X==exp && valid==exp)
-  );
+    // With select set to 00, any low A input drives both outputs low.
+    check_select00_missing_input_clears_outputs: assert property (
+        @(posedge clk) disable iff (reset)
+            ((select == 2'b00) && !(A1 && A2 && A3)) |-> (X == 1'b0 && valid == 1'b0)
+    );
 
-  // valid always equals X (catch accidental divergence)
-  a_valid_eq_x: assert property (1'b1 |-> ##0 (valid===X));
+    // With select not equal to 00, A1/B1/C1 high drives both outputs high.
+    check_select_nonzero_all_high_sets_outputs: assert property (
+        @(posedge clk) disable iff (reset)
+            (((select == 2'b01) || (select == 2'b10) || (select == 2'b11)) && A1 && B1 && C1)
+            |-> (X == 1'b1 && valid == 1'b1)
+    );
 
-  // Functional coverage: both select paths, true/false outcomes, and reset behavior
-  c_00_true:   cover property ((!reset && select==2'b00 &&  A1 && A2 && A3) ##0 ( X &&  valid));
-  c_00_false:  cover property ((!reset && select==2'b00 && !(A1 && A2 && A3)) ##0 (!X && !valid));
-  c_ne00_true: cover property ((!reset && select!=2'b00 &&  A1 && B1 && C1) ##0 ( X &&  valid));
-  c_ne00_false:cover property ((!reset && select!=2'b00 && !(A1 && B1 && C1)) ##0 (!X && !valid));
-  c_reset:     cover property (reset ##0 (X==1'b0 && valid==1'b0));
+    // With select not equal to 00, any low selected input drives both outputs low.
+    check_select_nonzero_missing_input_clears_outputs: assert property (
+        @(posedge clk) disable iff (reset)
+            (((select == 2'b01) || (select == 2'b10) || (select == 2'b11)) && !(A1 && B1 && C1))
+            |-> (X == 1'b0 && valid == 1'b0)
+    );
 
 endmodule
-
-// Example bind (instantiate once per DUT instance)
-// bind logic_gate logic_gate_sva sva (.*);

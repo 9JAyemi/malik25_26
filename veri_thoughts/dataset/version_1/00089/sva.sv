@@ -1,44 +1,35 @@
-// SVA for power_ground_module
 module power_ground_module_sva (
-  input logic clk,
-  input logic rst_n,
-  input logic enable,
-  input logic VPWR,
-  input logic VGND
+    input logic clk,
+    input logic rst_n,
+    input logic enable,
+    input logic VPWR,
+    input logic VGND
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Clock: clk; reset: rst_n active-low; logic is sequential.
+    // VPWR follows enable on the next clocked state update, and VGND is always low.
 
-  // Async reset immediately forces zeros (allow NBA with ##0)
-  assert property (@(negedge rst_n) 1'b1 |-> ##0 (VPWR==1'b0 && VGND==1'b0));
+    // If reset is low, both outputs are low by the next sampled clock.
+    check_reset_clears_outputs: assert property (
+        @(posedge clk) !rst_n |=> (VPWR == 1'b0 && VGND == 1'b0)
+    );
 
-  // Outputs never X/Z at clock edges
-  assert property (!$isunknown({VPWR,VGND}));
+    // Outside reset, the next sampled outputs match the current enable value.
+    check_outputs_follow_enable: assert property (
+        @(posedge clk) disable iff (!rst_n)
+        1'b1 |=> ((VPWR == $past(enable)) && (VGND == 1'b0))
+    );
 
-  // VGND is always 0
-  assert property (VGND == 1'b0);
+    // When enable is high, the next registered outputs are VPWR=1 and VGND=0.
+    check_enable_sets_outputs: assert property (
+        @(posedge clk) disable iff (!rst_n)
+        enable |=> (VPWR == 1'b1 && VGND == 1'b0)
+    );
 
-  // During reset, outputs stay 0
-  assert property (!rst_n |-> (VPWR==1'b0 && VGND==1'b0));
-
-  // Functional relation: VPWR equals prior-cycle enable when out of reset
-  assert property (disable iff (!rst_n) $past(rst_n) |-> (VPWR == $past(enable)));
-
-  // Never both supplies high
-  assert property (!(VPWR && VGND));
-
-  // Coverage
-  cover property ($rose(rst_n));                              // reset release seen
-  cover property (disable iff (!rst_n) VPWR);                 // VPWR can go high
-  cover property (disable iff (!rst_n) $rose(enable) ##1 VPWR);
-  cover property (disable iff (!rst_n) $fell(enable) ##1 !VPWR);
+    // When enable is low, the next registered outputs are VPWR=0 and VGND=0.
+    check_disable_clears_outputs: assert property (
+        @(posedge clk) disable iff (!rst_n)
+        !enable |=> (VPWR == 1'b0 && VGND == 1'b0)
+    );
 
 endmodule
-
-bind power_ground_module power_ground_module_sva sva_i (
-  .clk(clk),
-  .rst_n(rst_n),
-  .enable(enable),
-  .VPWR(VPWR),
-  .VGND(VGND)
-);

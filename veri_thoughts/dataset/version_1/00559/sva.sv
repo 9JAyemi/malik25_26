@@ -1,34 +1,33 @@
-// SVA for dff_posedge_reset
-module dff_posedge_reset_sva(input logic CLK, D, reset, Q);
+module dff_posedge_reset_sva (
+    input logic CLK,
+    input logic D,
+    input logic reset,
+    input logic Q
+);
 
-  // Sample on all controlling events so we can relate reset deassert to next clk
-  default clocking cb @(posedge CLK or posedge reset or negedge reset); endclocking
+    // A sampled high reset clears Q by the next clock.
+    check_reset_clears_q: assert property (
+        @(posedge CLK) disable iff ($initstate) reset |=> (Q == 1'b0)
+    );
 
-  // Async reset clears immediately and dominates
-  ap_async_rst_clear: assert property ( $rose(reset) |-> ##0 (Q == 1'b0) );
+    // A sampled low D drives Q low by the next clock.
+    check_zero_data_captures_zero: assert property (
+        @(posedge CLK) disable iff ($initstate) (D == 1'b0) |=> (Q == 1'b0)
+    );
 
-  // While reset is asserted, Q stays low (checked at all controlling events)
-  ap_q_low_during_reset: assert property ( reset |-> (Q == 1'b0) );
+    // Reset overrides D when both are sampled high.
+    check_reset_priority_over_d: assert property (
+        @(posedge CLK) disable iff ($initstate) (reset && D) |=> (Q == 1'b0)
+    );
 
-  // On posedge CLK when not in reset, Q reflects the previously-sampled D
-  ap_capture_d: assert property ( ($rose(CLK) && !reset) |-> (Q == $past(D)) );
+    // A high Q must come from a previously sampled high D.
+    check_high_q_requires_prior_high_d: assert property (
+        @(posedge CLK) disable iff (reset || $initstate) (Q == 1'b1) |-> $past(D == 1'b1)
+    );
 
-  // After reset deasserts, Q must remain 0 until the next posedge CLK
-  ap_hold_zero_until_clk_after_deassert:
-    assert property ( $fell(reset) |-> (Q == 1'b0) until_with $rose(CLK) );
-
-  // Basic X checks around controlling events
-  ap_q_known_after_events:
-    assert property ( (($rose(CLK) && !reset) || $rose(reset)) |-> ##0 !$isunknown(Q) );
-  ap_d_known_when_sampled:
-    assert property ( ($rose(CLK) && !reset) |-> !$isunknown(D) );
-
-  // Coverage
-  cp_reset_pulse:           cover property ( $rose(reset) ##[1:$] $fell(reset) );
-  cp_normal_capture:        cover property ( ($rose(CLK) && !reset) && (Q == $past(D)) );
-  cp_clk_and_reset_same_ts: cover property ( $rose(reset) && $rose(CLK) );
+    // A high Q cannot follow a sampled reset.
+    check_high_q_not_after_sampled_reset: assert property (
+        @(posedge CLK) disable iff (reset || $initstate) (Q == 1'b1) |-> !$past(reset)
+    );
 
 endmodule
-
-// Example bind (optional):
-// bind dff_posedge_reset dff_posedge_reset_sva sva_inst(.CLK(CLK), .D(D), .reset(reset), .Q(Q));

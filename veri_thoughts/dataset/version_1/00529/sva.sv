@@ -1,41 +1,47 @@
-// SVA checker for sky130_fd_sc_lp__o221ai
 module sky130_fd_sc_lp__o221ai_sva (
-  input logic A1, A2, B1, B2, C1,
-  input logic Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic B2,
+    input logic C1
 );
-  wire a_or  = A1 | A2;
-  wire b_or  = B1 | B2;
-  wire expY  = ~(C1 & a_or & b_or);
 
-  // Functional equivalence (4-state accurate)
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) Y === expY);
+    // Y implements the buffered NAND of (A1|A2), (B1|B2), and C1.
+    check_o221ai_equation: assert property (
+        @(posedge clk)
+        Y == ~(((A1 | A2) & (B1 | B2) & C1))
+    );
 
-  // Dominating conditions
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) (C1===1'b0) |-> (Y===1'b1));
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) ((A1===1'b0)&&(A2===1'b0)) |-> (Y===1'b1));
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) ((B1===1'b0)&&(B2===1'b0)) |-> (Y===1'b1));
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) (C1===1'b1 && a_or===1'b1 && b_or===1'b1) |-> (Y===1'b0));
+    // A low C1 input forces the NAND output high.
+    check_c1_low_forces_y_high: assert property (
+        @(posedge clk)
+        (C1 == 1'b0) |-> (Y == 1'b1)
+    );
 
-  // Known-when-inputs-known
-  assert property (@(A1 or A2 or B1 or B2 or C1 or Y) (!$isunknown({A1,A2,B1,B2,C1})) |-> !$isunknown(Y));
+    // Both A inputs low force the first OR term low and Y high.
+    check_a_inputs_low_force_y_high: assert property (
+        @(posedge clk)
+        ((A1 == 1'b0) && (A2 == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  // Coverage: Y both polarities
-  cover property (@(A1 or A2 or B1 or B2 or C1 or Y) Y===1'b1);
-  cover property (@(A1 or A2 or B1 or B2 or C1 or Y) Y===1'b0);
+    // Both B inputs low force the second OR term low and Y high.
+    check_b_inputs_low_force_y_high: assert property (
+        @(posedge clk)
+        ((B1 == 1'b0) && (B2 == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  // Coverage: all 8 combinations of (a_or, b_or, C1)
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b0 && b_or===1'b0 && C1===1'b0));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b0 && b_or===1'b0 && C1===1'b1));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b0 && b_or===1'b1 && C1===1'b0));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b0 && b_or===1'b1 && C1===1'b1));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b1 && b_or===1'b0 && C1===1'b0));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b1 && b_or===1'b0 && C1===1'b1));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b1 && b_or===1'b1 && C1===1'b0));
-  cover property (@(A1 or A2 or B1 or B2 or C1) (a_or===1'b1 && b_or===1'b1 && C1===1'b1));
+    // When both OR terms and C1 are high, the NAND output must be low.
+    check_all_terms_high_drive_y_low: assert property (
+        @(posedge clk)
+        (((A1 | A2) == 1'b1) && ((B1 | B2) == 1'b1) && (C1 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // Y toggle coverage
-  cover property (@(A1 or A2 or B1 or B2 or C1 or Y) $rose(Y));
-  cover property (@(A1 or A2 or B1 or B2 or C1 or Y) $fell(Y));
+    // A low Y can only occur when both OR terms and C1 are high.
+    check_y_low_requires_all_terms_high: assert property (
+        @(posedge clk)
+        (Y == 1'b0) |-> (((A1 | A2) == 1'b1) && ((B1 | B2) == 1'b1) && (C1 == 1'b1))
+    );
+
 endmodule
-
-bind sky130_fd_sc_lp__o221ai sky130_fd_sc_lp__o221ai_sva sva_o221ai (.*);

@@ -1,44 +1,58 @@
-// SVA for mult_gate. Bind this to the DUT.
-// Focus: functional equivalence, X-propagation guard, dominance implications, and compact but thorough coverage.
-
 module mult_gate_sva (
-  input  A,B,C,D,E,F,G,H,I,J,
-  input  Y
+    input logic clk,
+    input logic Y,
+    input logic J,
+    input logic I,
+    input logic H,
+    input logic G,
+    input logic F,
+    input logic E,
+    input logic D,
+    input logic C,
+    input logic B,
+    input logic A
 );
-  // Local recomputation of terms
-  wire t1 = C & B & A;
-  wire t2 = F & E & D;
-  wire t3 = I & H & G;
-  wire [3:0] terms = {t3,t2,t1,J};
 
-  // Functional equivalence when inputs are known; also ensures Y is 0/1
-  ap_func_no_x: assert property (@(*)
-    (!$isunknown({A,B,C,D,E,F,G,H,I,J})) |->
-      (!$isunknown(Y) && (Y == (|terms)))
-  );
+    // Y must equal J OR the three 3-input AND terms.
+    check_output_equation: assert property (
+        @(posedge clk)
+        Y == (J | (I & H & G) | (F & E & D) | (C & B & A))
+    );
 
-  // Simple dominance implications
-  ap_dom_j:  assert property (@(*) J  |-> Y);
-  ap_dom_t1: assert property (@(*) t1 |-> Y);
-  ap_dom_t2: assert property (@(*) t2 |-> Y);
-  ap_dom_t3: assert property (@(*) t3 |-> Y);
+    // J asserted must drive Y high.
+    check_j_drives_y_high: assert property (
+        @(posedge clk)
+        J |-> Y
+    );
 
-  // Zero-case implication
-  ap_zero: assert property (@(*) (terms == 4'b0000) |-> (Y==1'b0));
+    // I, H, and G all high must drive Y high.
+    check_ihg_drives_y_high: assert property (
+        @(posedge clk)
+        (I & H & G) |-> Y
+    );
 
-  // Coverage: all key combinations and Y edges
-  cv_none:   cover property (@(*) (terms == 4'b0000) && (Y==0)); // none true
-  cv_j:      cover property (@(*) (terms == 4'b0001) && (Y==1)); // only J
-  cv_t1:     cover property (@(*) (terms == 4'b0010) && (Y==1)); // only C&B&A
-  cv_t2:     cover property (@(*) (terms == 4'b0100) && (Y==1)); // only F&E&D
-  cv_t3:     cover property (@(*) (terms == 4'b1000) && (Y==1)); // only I&H&G
+    // F, E, and D all high must drive Y high.
+    check_fed_drives_y_high: assert property (
+        @(posedge clk)
+        (F & E & D) |-> Y
+    );
 
-  cv_two:    cover property (@(*) ($countones(terms)==2) && (Y==1));
-  cv_three:  cover property (@(*) ($countones(terms)==3) && (Y==1));
-  cv_four:   cover property (@(*) ($countones(terms)==4) && (Y==1));
+    // C, B, and A all high must drive Y high.
+    check_cba_drives_y_high: assert property (
+        @(posedge clk)
+        (C & B & A) |-> Y
+    );
 
-  cv_rise:   cover property (@(posedge Y) 1);
-  cv_fall:   cover property (@(negedge Y) 1);
+    // Y high must come from J or one of the AND terms.
+    check_y_high_has_valid_source: assert property (
+        @(posedge clk)
+        Y |-> (J | (I & H & G) | (F & E & D) | (C & B & A))
+    );
+
+    // With all source terms low, Y must be low.
+    check_no_source_means_y_low: assert property (
+        @(posedge clk)
+        !(J | (I & H & G) | (F & E & D) | (C & B & A)) |-> !Y
+    );
+
 endmodule
-
-bind mult_gate mult_gate_sva sva_i (.*);

@@ -1,41 +1,39 @@
-// SVA for sky130_fd_sc_ls__a21o
-// Bind into DUT; checks functional equivalence, structure, known-ness, and full input-space coverage.
-
 module sky130_fd_sc_ls__a21o_sva (
-  input logic A1, A2, B1, X,
-  input logic and0_out, or0_out_X
+    input logic X,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic clk
 );
 
-  // Functional equivalence (combinational)
-  a_func:    assert property ( X === ((A1 & A2) | B1) );
+    // X must implement (A1 & A2) | B1.
+    check_function_equation: assert property (
+        @(posedge clk) X == ((A1 & A2) | B1)
+    );
 
-  // Structural/local checks
-  a_and:     assert property ( and0_out  === (A1 & A2) );
-  a_or:      assert property ( or0_out_X === (and0_out | B1) );
-  a_buf:     assert property ( X === or0_out_X );
+    // B1 high must force X high through the OR stage.
+    check_b1_forces_high: assert property (
+        @(posedge clk) B1 |-> X
+    );
 
-  // Dominance and partitioned correctness
-  a_dom_b1:  assert property ( B1 |-> X );
-  a_b1low:   assert property ( !B1 |-> (X === (A1 & A2)) );
-  a_dom_and: assert property ( (A1 & A2) |-> X );
+    // A1 and A2 high must force X high through the AND stage.
+    check_and_term_forces_high: assert property (
+        @(posedge clk) (A1 && A2) |-> X
+    );
 
-  // Known-ness: if inputs are known, all internal/outputs must be known
-  a_known:   assert property ( !$isunknown({A1,A2,B1}) |-> (!$isunknown(and0_out) && !$isunknown(or0_out_X) && !$isunknown(X)) );
+    // With B1 low, X must reduce to the A1/A2 AND term.
+    check_b1_low_reduces_to_and: assert property (
+        @(posedge clk) !B1 |-> (X == (A1 & A2))
+    );
 
-  // Input-space coverage (all 8 cubes with expected X)
-  c_000: cover property ( !A1 && !A2 && !B1 && !X );
-  c_001: cover property ( !A1 && !A2 &&  B1 &&  X );
-  c_010: cover property ( !A1 &&  A2 && !B1 && !X );
-  c_011: cover property ( !A1 &&  A2 &&  B1 &&  X );
-  c_100: cover property (  A1 && !A2 && !B1 && !X );
-  c_101: cover property (  A1 && !A2 &&  B1 &&  X );
-  c_110: cover property (  A1 &&  A2 && !B1 &&  X );
-  c_111: cover property (  A1 &&  A2 &&  B1 &&  X );
+    // With B1 low and the AND term false, X must be low.
+    check_no_active_term_means_low: assert property (
+        @(posedge clk) (!B1 && !(A1 && A2)) |-> !X
+    );
 
-  // Output toggle coverage
-  cx_rise: cover property ( $rose(X) );
-  cx_fall: cover property ( $fell(X) );
+    // A high X must come from B1 or from both A1 and A2.
+    check_high_output_has_valid_cause: assert property (
+        @(posedge clk) X |-> (B1 || (A1 && A2))
+    );
 
 endmodule
-
-bind sky130_fd_sc_ls__a21o sky130_fd_sc_ls__a21o_sva sva (.*);

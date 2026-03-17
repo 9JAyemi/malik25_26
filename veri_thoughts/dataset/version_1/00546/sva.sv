@@ -1,35 +1,56 @@
-// SVA checker for sky130_fd_sc_ms__clkdlyinv3sd3
 module sky130_fd_sc_ms__clkdlyinv3sd3_sva (
-  input logic A,
-  input logic VPWR,
-  input logic VGND,
-  input logic VPB,
-  input logic VNB,
-  input logic clk,
-  input logic Y
+    input logic A,
+    input logic VPWR,
+    input logic VGND,
+    input logic VPB,
+    input logic VNB,
+    input logic clk,
+    input logic Y
 );
-  logic pwr_good;
-  assign pwr_good = (VPWR===1'b1) && (VGND===1'b0) && (VPB===VPWR) && (VNB===VGND);
 
-  default clocking cb @(posedge clk); endclocking
+    // Y is the result of three inversions of A.
+    check_y_matches_triple_inversion: assert property (
+        @(posedge clk) Y == ~A
+    );
 
-  // Power pin sanity
-  assert property (cb !$isunknown({VPWR,VGND}) |-> (VPWR===1'b1 && VGND===1'b0));
-  assert property (cb !$isunknown({VPB,VNB,VPWR,VGND}) |-> (VPB===VPWR && VNB===VGND));
+    // A low produces Y high.
+    check_output_high_when_input_low: assert property (
+        @(posedge clk) !A |-> Y
+    );
 
-  // Functional inversion and X-propagation
-  assert property (cb disable iff (!pwr_good) (!$isunknown(A) |-> (Y === ~A)));
-  assert property (cb disable iff (!pwr_good) ( $isunknown(A) |->  $isunknown(Y)));
+    // A high produces Y low.
+    check_output_low_when_input_high: assert property (
+        @(posedge clk) A |-> !Y
+    );
 
-  // No clk sensitivity (combinational w.r.t. A)
-  assert property (cb disable iff (!pwr_good) ($stable(A) |-> $stable(Y)));
-  assert property (cb disable iff (!pwr_good) (!$stable(Y) |-> !$stable(A)));
+    // Y always differs from A.
+    check_output_is_logical_opposite: assert property (
+        @(posedge clk) Y != A
+    );
 
-  // Coverage
-  cover  property (cb pwr_good && A==1'b0 && Y==1'b1);
-  cover  property (cb pwr_good && A==1'b1 && Y==1'b0);
-  cover  property (cb pwr_good && $rose(A) && $fell(Y));
-  cover  property (cb pwr_good && $fell(A) && $rose(Y));
+    // If A is stable across samples, Y is also stable.
+    check_output_stable_when_input_stable: assert property (
+        @(posedge clk) 1'b1 |=> ($stable(A) |-> $stable(Y))
+    );
+
+    // If A changes across samples, Y changes too.
+    check_output_changes_with_input: assert property (
+        @(posedge clk) 1'b1 |=> ($changed(A) |-> $changed(Y))
+    );
+
+    // Y can only change when A changes across samples.
+    check_output_only_changes_with_input: assert property (
+        @(posedge clk) 1'b1 |=> ($changed(Y) |-> $changed(A))
+    );
+
+    // A sampled rise yields a low sampled Y.
+    check_output_low_on_input_rise: assert property (
+        @(posedge clk) 1'b1 |=> ($rose(A) |-> !Y)
+    );
+
+    // A sampled fall yields a high sampled Y.
+    check_output_high_on_input_fall: assert property (
+        @(posedge clk) 1'b1 |=> ($fell(A) |-> Y)
+    );
+
 endmodule
-
-bind sky130_fd_sc_ms__clkdlyinv3sd3 sky130_fd_sc_ms__clkdlyinv3sd3_sva sva_i (.*);

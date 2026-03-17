@@ -1,32 +1,29 @@
-// SVA for dffsi_4
 module dffsi_4_sva (
-  input logic        clk,
-  input logic        reset,
-  input logic [3:0]  init,
-  input logic [3:0]  d,
-  input logic [3:0]  q
+    input logic       clk,
+    input logic       reset,
+    input logic [3:0] init,
+    input logic [3:0] d,
+    input logic [3:0] q
 );
-  // Functional correctness: next-cycle q equals selected input on current cycle
-  assert property (@(posedge clk) 1'b1 |=> q == (reset ? init : d));
 
-  // No glitches between rising edges (q only updates on posedge)
-  assert property (@(negedge clk) $stable(q));
+    // A reset clock edge loads q from init.
+    check_reset_loads_init: assert property (
+        @(posedge clk) reset |=> (q == $past(init))
+    );
 
-  // Coverage: exercise reset path
-  cover property (@(posedge clk) reset ##1 (q == $past(init)));
+    // A non-reset clock edge loads q from d.
+    check_data_loads_d: assert property (
+        @(posedge clk) (!reset) |=> (q == $past(d))
+    );
 
-  // Coverage: exercise data path with a change
-  cover property (@(posedge clk) !reset && $changed(d) ##1 (q == $past(d)));
+    // Across consecutive non-reset cycles, q continues to follow d.
+    check_data_loads_d_across_non_reset_cycles: assert property (
+        @(posedge clk) disable iff (reset) (!reset) |=> (!reset && (q == $past(d)))
+    );
 
-  // Per-bit toggle coverage through data path
-  genvar i;
-  generate
-    for (i=0; i<4; i++) begin : COV_BITS
-      cover property (@(posedge clk) !reset && $rose(d[i]) ##1 $rose(q[i]));
-      cover property (@(posedge clk) !reset && $fell(d[i]) ##1 $fell(q[i]));
-    end
-  endgenerate
+    // q always matches the source selected on the previous clock edge.
+    check_selected_input_update: assert property (
+        @(posedge clk) 1'b1 |=> (q == $past(reset ? init : d))
+    );
+
 endmodule
-
-// Bind to DUT
-bind dffsi_4 dffsi_4_sva sva (.*);

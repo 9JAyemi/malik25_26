@@ -1,42 +1,60 @@
-// SVA checker for full_adder
 module full_adder_sva (
-  input logic clk,
-  input logic A, B, Cin,
-  input logic Sum, Cout
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic Cin,
+    input logic Sum,
+    input logic Cout
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Outputs must be known when inputs are known
-  assert property (!$isunknown({A,B,Cin})) |-> !$isunknown({Sum,Cout});
+    // Sum is the xor of all three inputs.
+    check_sum_definition: assert property (
+        @(posedge clk) Sum == (A ^ B ^ Cin)
+    );
 
-  // Functional correctness (sampled every clock)
-  assert property (!$isunknown({A,B,Cin})) |-> (Sum == (A ^ B ^ Cin));
-  assert property (!$isunknown({A,B,Cin})) |-> (Cout == ((A & B) | (Cin & (A ^ B))));
+    // Cout matches the implemented carry equation.
+    check_cout_definition: assert property (
+        @(posedge clk) Cout == ((A & B) | (Cin & (A ^ B)))
+    );
 
-  // Propagate / Generate / Kill semantics
-  assert property (!$isunknown({A,B,Cin}) && (A ^ B)) |-> (Cout == Cin) && (Sum == ~Cin);
-  assert property (!$isunknown({A,B,Cin}) && (A & B))  |-> (Cout == 1) && (Sum == Cin);
-  assert property (!$isunknown({A,B,Cin}) && (!A && !B)) |-> (Cout == 0) && (Sum == Cin);
+    // 000 produces no sum bit and no carry.
+    check_add_000: assert property (
+        @(posedge clk) (A == 1'b0 && B == 1'b0 && Cin == 1'b0) |-> ({Cout, Sum} == 2'b00)
+    );
 
-  // Full truth-table coverage (with expected outputs)
-  cover property ({A,B,Cin} == 3'b000 && Sum==0 && Cout==0);
-  cover property ({A,B,Cin} == 3'b001 && Sum==1 && Cout==0);
-  cover property ({A,B,Cin} == 3'b010 && Sum==1 && Cout==0);
-  cover property ({A,B,Cin} == 3'b011 && Sum==0 && Cout==1);
-  cover property ({A,B,Cin} == 3'b100 && Sum==1 && Cout==0);
-  cover property ({A,B,Cin} == 3'b101 && Sum==0 && Cout==1);
-  cover property ({A,B,Cin} == 3'b110 && Sum==0 && Cout==1);
-  cover property ({A,B,Cin} == 3'b111 && Sum==1 && Cout==1);
+    // 001 produces sum 1 with no carry.
+    check_add_001: assert property (
+        @(posedge clk) (A == 1'b0 && B == 1'b0 && Cin == 1'b1) |-> ({Cout, Sum} == 2'b01)
+    );
 
-  // Toggle coverage
-  cover property ($rose(Sum));
-  cover property ($fell(Sum));
-  cover property ($rose(Cout));
-  cover property ($fell(Cout));
+    // 010 produces sum 1 with no carry.
+    check_add_010: assert property (
+        @(posedge clk) (A == 1'b0 && B == 1'b1 && Cin == 1'b0) |-> ({Cout, Sum} == 2'b01)
+    );
+
+    // 011 produces carry 1 and sum 0.
+    check_add_011: assert property (
+        @(posedge clk) (A == 1'b0 && B == 1'b1 && Cin == 1'b1) |-> ({Cout, Sum} == 2'b10)
+    );
+
+    // 100 produces sum 1 with no carry.
+    check_add_100: assert property (
+        @(posedge clk) (A == 1'b1 && B == 1'b0 && Cin == 1'b0) |-> ({Cout, Sum} == 2'b01)
+    );
+
+    // 101 produces carry 1 and sum 0.
+    check_add_101: assert property (
+        @(posedge clk) (A == 1'b1 && B == 1'b0 && Cin == 1'b1) |-> ({Cout, Sum} == 2'b10)
+    );
+
+    // 110 produces carry 1 and sum 0.
+    check_add_110: assert property (
+        @(posedge clk) (A == 1'b1 && B == 1'b1 && Cin == 1'b0) |-> ({Cout, Sum} == 2'b10)
+    );
+
+    // 111 produces sum 1 and carry 1.
+    check_add_111: assert property (
+        @(posedge clk) (A == 1'b1 && B == 1'b1 && Cin == 1'b1) |-> ({Cout, Sum} == 2'b11)
+    );
+
 endmodule
-
-// Bind into DUT (connect clk from your TB)
-bind full_adder full_adder_sva u_full_adder_sva (
-  .clk(tb_clk),
-  .A(A), .B(B), .Cin(Cin), .Sum(Sum), .Cout(Cout)
-);

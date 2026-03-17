@@ -1,37 +1,28 @@
-// SVA for mux_4to1: concise, high-quality checks and coverage
 module mux_4to1_sva (
-  input logic [3:0] in,
-  input logic [1:0] sel,
-  input logic       out
+    input logic clk,
+    input logic [3:0] in,
+    input logic [1:0] sel,
+    input logic out
 );
 
-  // Combinational functional equivalence and X-behavior
-  always_comb begin
-    if (!$isunknown(sel)) begin
-      assert (out === in[sel])
-        else $error("mux_4to1: out != in[sel] (sel=%b in=%b out=%b)", sel, in, out);
-    end else begin
-      assert (out === 1'bx)
-        else $error("mux_4to1: out not X when sel has X/Z (sel=%b out=%b)", sel, out);
-    end
+    // When sel is 2'b00, out must reflect in[0].
+    check_sel_00_routes_in0: assert property (
+        @(posedge clk) (sel == 2'b00) |-> (out == in[0])
+    );
 
-    // No spurious X on out when both sel and selected input are known
-    assert (!$isunknown(out) || $isunknown(sel) || $isunknown(in[sel]))
-      else $error("mux_4to1: out is X though sel and in[sel] are known (sel=%b in=%b out=%b)", sel, in, out);
-  end
+    // When sel is 2'b01, out must reflect in[1].
+    check_sel_01_routes_in1: assert property (
+        @(posedge clk) (sel == 2'b01) |-> (out == in[1])
+    );
 
-  // Coverage: each select exercised with both 0/1 data, and X-propagation when sel unknown
-  generate
-    for (genvar i = 0; i < 4; i++) begin : COV_PER_SEL
-      localparam logic [1:0] IDX = i[1:0];
-      cover property (@(*) ##0 (! $isunknown(sel) && sel == IDX && ! $isunknown(in[i]) && out === 1'b0));
-      cover property (@(*) ##0 (! $isunknown(sel) && sel == IDX && ! $isunknown(in[i]) && out === 1'b1));
-    end
-  endgenerate
+    // When sel is 2'b10, out must reflect in[2].
+    check_sel_10_routes_in2: assert property (
+        @(posedge clk) (sel == 2'b10) |-> (out == in[2])
+    );
 
-  cover property (@(*) ##0 ($isunknown(sel) && out === 1'bx));
+    // When sel is 2'b11, out must reflect in[3].
+    check_sel_11_routes_in3: assert property (
+        @(posedge clk) (sel == 2'b11) |-> (out == in[3])
+    );
 
 endmodule
-
-// Bind into the DUT
-bind mux_4to1 mux_4to1_sva u_mux_4to1_sva (.in(in), .sel(sel), .out(out));

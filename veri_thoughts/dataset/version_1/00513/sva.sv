@@ -1,40 +1,62 @@
-// SVA for comparator_4bit
-module comparator_4bit_sva(input logic [3:0] A, B,
-                           input logic [1:0] result);
+module comparator_4bit_sva (
+    input logic       clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic [1:0] result
+);
 
-  // Event-based sampling for combinational checks
-  default clocking cb @ (A or B or result); endclocking
+    // Result only uses the three encodings implemented in the RTL.
+    check_result_encoding: assert property (
+        @(posedge clk)
+        (result == 2'b00) || (result == 2'b01) || (result == 2'b10)
+    );
 
-  // Always-on structural/encoding checks
-  assert property (! $isunknown(result)) else $error("result has X/Z");
-  assert property (result inside {2'b00,2'b01,2'b10})
-    else $error("Illegal result code (11)");
+    // If A has MSB set and B does not, result indicates A > B.
+    check_msb_a_high_b_low: assert property (
+        @(posedge clk)
+        ((A[3] == 1'b1) && (B[3] == 1'b0)) |-> (result == 2'b01)
+    );
 
-  // Functional checks only when inputs are known
-  default disable iff ($isunknown({A,B}));
+    // If B has MSB set and A does not, result indicates A < B.
+    check_msb_a_low_b_high: assert property (
+        @(posedge clk)
+        ((A[3] == 1'b0) && (B[3] == 1'b1)) |-> (result == 2'b10)
+    );
 
-  // Correct encoding vs arithmetic compare
-  assert property ( (result==2'b01) == (A > B) );
-  assert property ( (result==2'b10) == (A < B) );
-  assert property ( (result==2'b00) == (A == B) );
+    // When A is greater than B, result must indicate greater-than.
+    check_a_greater_than_b_maps_to_01: assert property (
+        @(posedge clk)
+        (A > B) |-> (result == 2'b01)
+    );
 
-  // MSB-different shortcut honored
-  assert property ( (A[3]^B[3]) |-> (result == (A[3] ? 2'b01 : 2'b10)) );
+    // When A is less than B, result must indicate less-than.
+    check_a_less_than_b_maps_to_10: assert property (
+        @(posedge clk)
+        (A < B) |-> (result == 2'b10)
+    );
 
-  // Coverage: all relations and key corners
-  cover property (A > B && result==2'b01);
-  cover property (A < B && result==2'b10);
-  cover property (A == B && result==2'b00);
+    // When A equals B, result must indicate equality.
+    check_a_equal_b_maps_to_00: assert property (
+        @(posedge clk)
+        (A == B) |-> (result == 2'b00)
+    );
 
-  cover property (A[3] && !B[3] && result==2'b01);
-  cover property (!A[3] && B[3] && result==2'b10);
+    // A greater-than result must correspond to A > B.
+    check_result_01_implies_a_greater_than_b: assert property (
+        @(posedge clk)
+        (result == 2'b01) |-> (A > B)
+    );
 
-  cover property (A==4'h0 && B==4'h0 && result==2'b00);
-  cover property (A==4'hF && B==4'hF && result==2'b00);
-  cover property (A==4'hF && B==4'h0 && result==2'b01);
-  cover property (A==4'h0 && B==4'hF && result==2'b10);
+    // A less-than result must correspond to A < B.
+    check_result_10_implies_a_less_than_b: assert property (
+        @(posedge clk)
+        (result == 2'b10) |-> (A < B)
+    );
+
+    // An equality result must correspond to A == B.
+    check_result_00_implies_a_equal_b: assert property (
+        @(posedge clk)
+        (result == 2'b00) |-> (A == B)
+    );
 
 endmodule
-
-// Bind into DUT
-bind comparator_4bit comparator_4bit_sva sva_inst(.A(A), .B(B), .result(result));

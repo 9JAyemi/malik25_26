@@ -1,48 +1,54 @@
-// SVA for sky130_fd_sc_ls__a2bb2oi
 module sky130_fd_sc_ls__a2bb2oi_sva (
-  input logic A1_N, A2_N, B1, B2, Y
+    input logic Y,
+    input logic A1_N,
+    input logic A2_N,
+    input logic B1,
+    input logic B2
 );
 
-  `define ANY_EDGE (posedge A1_N or negedge A1_N or \
-                     posedge A2_N or negedge A2_N or \
-                     posedge B1   or negedge B1   or \
-                     posedge B2   or negedge B2)
+    // Y matches the implemented gate equation.
+    check_output_equation: assert property (
+        @($global_clock) Y == ~((~(A1_N | A2_N)) | (B1 & B2))
+    );
 
-  // Local terms
-  logic tA, tB;
-  always_comb begin
-    tA = (~A1_N & ~A2_N);
-    tB = (B1 & B2);
-  end
+    // Both B inputs high force the output low.
+    check_b_and_forces_low: assert property (
+        @($global_clock) (B1 && B2) |-> !Y
+    );
 
-  // Functional equivalence (use ##0 to avoid preponed sampling race)
-  property p_eq; @(`ANY_EDGE) ##0 (Y === ~(tA | tB)); endproperty
-  assert property (p_eq);
+    // Both A inputs low force the output low.
+    check_a_inputs_low_force_low: assert property (
+        @($global_clock) (!A1_N && !A2_N) |-> !Y
+    );
 
-  // No X on Y when inputs are known
-  property p_no_x; @(`ANY_EDGE) (!$isunknown({A1_N,A2_N,B1,B2})) |-> ##0 (!$isunknown(Y)); endproperty
-  assert property (p_no_x);
+    // A1_N can drive Y high when the B path is inactive.
+    check_a1_path_drives_high: assert property (
+        @($global_clock) (A1_N && !(B1 && B2)) |-> Y
+    );
 
-  // Dominance checks
-  property p_tA_dominates; @(`ANY_EDGE) tA |-> ##0 (Y == 1'b0); endproperty
-  assert property (p_tA_dominates);
+    // A2_N can drive Y high when the B path is inactive.
+    check_a2_path_drives_high: assert property (
+        @($global_clock) (A2_N && !(B1 && B2)) |-> Y
+    );
 
-  property p_tB_dominates; @(`ANY_EDGE) tB |-> ##0 (Y == 1'b0); endproperty
-  assert property (p_tB_dominates);
+    // A high output requires at least one A input high.
+    check_high_output_requires_a_path: assert property (
+        @($global_clock) Y |-> (A1_N || A2_N)
+    );
 
-  // Y high only when both terms are 0
-  property p_Y_high_conditions; @(`ANY_EDGE) Y |-> ##0 (!tA && !tB); endproperty
-  assert property (p_Y_high_conditions);
+    // A high output requires the B AND term to be low.
+    check_high_output_blocks_b_and: assert property (
+        @($global_clock) Y |-> !(B1 && B2)
+    );
 
-  // Compact functional coverage of all cause combinations and Y activity
-  cover property (@(`ANY_EDGE) ##0 (!tA && !tB &&  Y)); // both 0 -> Y=1
-  cover property (@(`ANY_EDGE) ##0 ( tA && !tB && !Y)); // tA=1
-  cover property (@(`ANY_EDGE) ##0 (!tA &&  tB && !Y)); // tB=1
-  cover property (@(`ANY_EDGE) ##0 ( tA &&  tB && !Y)); // both 1
-  cover property (@(`ANY_EDGE) ##0 $changed(Y));
+    // A low output with an asserted A path must come from B1&B2 being high.
+    check_low_output_with_a_path_requires_b_and: assert property (
+        @($global_clock) (!Y && (A1_N || A2_N)) |-> (B1 && B2)
+    );
+
+    // A low output without the B AND term must come from both A inputs being low.
+    check_low_output_without_b_and_requires_a_low: assert property (
+        @($global_clock) (!Y && !(B1 && B2)) |-> (!A1_N && !A2_N)
+    );
 
 endmodule
-
-bind sky130_fd_sc_ls__a2bb2oi sky130_fd_sc_ls__a2bb2oi_sva sva_i (
-  .A1_N(A1_N), .A2_N(A2_N), .B1(B1), .B2(B2), .Y(Y)
-);

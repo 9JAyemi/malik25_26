@@ -1,82 +1,106 @@
-// SVA for emesh_if. Bind this module to emesh_if and provide clk/rst_n.
-module emesh_if_sva #(parameter AW=32, PW=2*AW+40) (
-  input logic clk, rst_n,
-
-  input  logic         cmesh_access_in,
-  input  logic [PW-1:0] cmesh_packet_in,
-  input  logic         cmesh_ready_in,
-  input  logic         rmesh_access_in,
-  input  logic [PW-1:0] rmesh_packet_in,
-  input  logic         rmesh_ready_in,
-  input  logic         xmesh_access_in,
-  input  logic [PW-1:0] xmesh_packet_in,
-  input  logic         xmesh_ready_in,
-  input  logic         emesh_access_in,
-  input  logic [PW-1:0] emesh_packet_in,
-  input  logic         emesh_ready_in,
-
-  input  logic         cmesh_ready_out,
-  input  logic         cmesh_access_out,
-  input  logic [PW-1:0] cmesh_packet_out,
-  input  logic         rmesh_ready_out,
-  input  logic         rmesh_access_out,
-  input  logic [PW-1:0] rmesh_packet_out,
-  input  logic         xmesh_ready_out,
-  input  logic         xmesh_access_out,
-  input  logic [PW-1:0] xmesh_packet_out,
-  input  logic         emesh_ready_out,
-  input  logic         emesh_access_out,
-  input  logic [PW-1:0] emesh_packet_out
+module emesh_if_sva #(
+    parameter AW = 32,
+    parameter PW = 2*AW+40
+) (
+    input logic          clk,
+    input logic          cmesh_ready_out,
+    input logic          cmesh_access_out,
+    input logic [PW-1:0] cmesh_packet_out,
+    input logic          rmesh_ready_out,
+    input logic          rmesh_access_out,
+    input logic [PW-1:0] rmesh_packet_out,
+    input logic          xmesh_ready_out,
+    input logic          xmesh_access_out,
+    input logic [PW-1:0] xmesh_packet_out,
+    input logic          emesh_ready_out,
+    input logic          emesh_access_out,
+    input logic [PW-1:0] emesh_packet_out,
+    input logic          cmesh_access_in,
+    input logic [PW-1:0] cmesh_packet_in,
+    input logic          cmesh_ready_in,
+    input logic          rmesh_access_in,
+    input logic [PW-1:0] rmesh_packet_in,
+    input logic          rmesh_ready_in,
+    input logic          xmesh_access_in,
+    input logic [PW-1:0] xmesh_packet_in,
+    input logic          xmesh_ready_in,
+    input logic          emesh_access_in,
+    input logic [PW-1:0] emesh_packet_in,
+    input logic          emesh_ready_in
 );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n)
+    // cmesh access is selected when emesh is active and packet bit 0 is set.
+    check_cmesh_access_decode: assert property (
+        @(posedge clk)
+        cmesh_access_out == (emesh_access_in & emesh_packet_in[0])
+    );
 
-  // Decode to C/R meshes
-  a_cmesh_access: assert property (cmesh_access_out == (emesh_access_in & emesh_packet_in[0]));
-  a_rmesh_access: assert property (rmesh_access_out == (emesh_access_in & ~emesh_packet_in[0]));
-  a_access_excl:  assert property (!(cmesh_access_out && rmesh_access_out));
-  a_access_part:  assert property ((cmesh_access_out ^ rmesh_access_out) == emesh_access_in);
-  a_xmesh_access0:assert property (xmesh_access_out == 1'b0);
+    // rmesh access is selected when emesh is active and packet bit 0 is clear.
+    check_rmesh_access_decode: assert property (
+        @(posedge clk)
+        rmesh_access_out == (emesh_access_in & ~emesh_packet_in[0])
+    );
 
-  // Packet fanout to meshes
-  a_cmesh_pkt:    assert property (cmesh_packet_out == emesh_packet_in);
-  a_rmesh_pkt:    assert property (rmesh_packet_out == emesh_packet_in);
-  a_xmesh_pkt:    assert property (xmesh_packet_out == emesh_packet_in);
+    // xmesh access output is permanently tied low.
+    check_xmesh_access_tied_low: assert property (
+        @(posedge clk)
+        xmesh_access_out == 1'b0
+    );
 
-  // Aggregation from meshes
-  a_emesh_ready:  assert property (emesh_ready_out == (cmesh_ready_in & rmesh_ready_in & xmesh_ready_in));
-  a_emesh_access: assert property (emesh_access_out == (cmesh_access_in & rmesh_access_in & xmesh_access_in));
+    // cmesh packet output mirrors the emesh packet input.
+    check_cmesh_packet_forward: assert property (
+        @(posedge clk)
+        cmesh_packet_out == emesh_packet_in
+    );
 
-  // Output packet select priority C > R > X
-  a_sel_c:        assert property ( cmesh_access_in                           |-> (emesh_packet_out == cmesh_packet_in));
-  a_sel_r:        assert property ((!cmesh_access_in &&  rmesh_access_in)     |-> (emesh_packet_out == rmesh_packet_in));
-  a_sel_x:        assert property ((!cmesh_access_in && !rmesh_access_in)     |-> (emesh_packet_out == xmesh_packet_in));
+    // rmesh packet output mirrors the emesh packet input.
+    check_rmesh_packet_forward: assert property (
+        @(posedge clk)
+        rmesh_packet_out == emesh_packet_in
+    );
 
-  // Ready backpressure logic
-  a_c_ready:      assert property (cmesh_ready_out == ~(cmesh_access_in & ~emesh_ready_in));
-  a_r_ready:      assert property (rmesh_ready_out == ~(rmesh_access_in & (~emesh_ready_in | ~cmesh_ready_in)));
-  a_x_ready:      assert property (xmesh_ready_out == ~(xmesh_access_in & (~emesh_ready_in | ~cmesh_access_in | ~rmesh_access_in)));
+    // xmesh packet output mirrors the emesh packet input.
+    check_xmesh_packet_forward: assert property (
+        @(posedge clk)
+        xmesh_packet_out == emesh_packet_in
+    );
 
-  // Sanity implications for backpressure
-  a_c_blk:        assert property (cmesh_access_in && !emesh_ready_in                                   |-> !cmesh_ready_out);
-  a_r_blk:        assert property (rmesh_access_in && (!emesh_ready_in || !cmesh_ready_in)              |-> !rmesh_ready_out);
-  a_x_blk:        assert property (xmesh_access_in && (!emesh_ready_in || !cmesh_access_in || !rmesh_access_in) |-> !xmesh_ready_out);
+    // emesh ready is the AND of all downstream ready inputs.
+    check_emesh_ready_and: assert property (
+        @(posedge clk)
+        emesh_ready_out == (cmesh_ready_in & rmesh_ready_in & xmesh_ready_in)
+    );
 
-  // Functional coverage
-  c_dec_c:        cover property (emesh_access_in &&  emesh_packet_in[0] && cmesh_access_out);
-  c_dec_r:        cover property (emesh_access_in && !emesh_packet_in[0] && rmesh_access_out);
+    // emesh access out is the AND of all mesh access inputs.
+    check_emesh_access_and: assert property (
+        @(posedge clk)
+        emesh_access_out == (cmesh_access_in & rmesh_access_in & xmesh_access_in)
+    );
 
-  c_sel_c:        cover property ( cmesh_access_in                           && (emesh_packet_out == cmesh_packet_in));
-  c_sel_r:        cover property ((!cmesh_access_in &&  rmesh_access_in)     && (emesh_packet_out == rmesh_packet_in));
-  c_sel_x:        cover property ((!cmesh_access_in && !rmesh_access_in)     && (emesh_packet_out == xmesh_packet_in));
+    // emesh packet out follows the documented priority mux.
+    check_emesh_packet_priority_mux: assert property (
+        @(posedge clk)
+        emesh_packet_out == (cmesh_access_in ? cmesh_packet_in :
+                             rmesh_access_in ? rmesh_packet_in :
+                                               xmesh_packet_in)
+    );
 
-  c_ready_all:    cover property (cmesh_ready_in && rmesh_ready_in && xmesh_ready_in && emesh_ready_out);
-  c_c_backpress:  cover property (cmesh_access_in && !emesh_ready_in && !cmesh_ready_out);
-  c_r_backpress:  cover property (rmesh_access_in && (!emesh_ready_in || !cmesh_ready_in) && !rmesh_ready_out);
-  c_x_backpress:  cover property (xmesh_access_in && (!emesh_ready_in || !cmesh_access_in || !rmesh_access_in) && !xmesh_ready_out);
+    // cmesh ready deasserts only when cmesh is accessing and emesh is not ready.
+    check_cmesh_ready_backpressure: assert property (
+        @(posedge clk)
+        cmesh_ready_out == ~(cmesh_access_in & ~emesh_ready_in)
+    );
+
+    // rmesh ready deasserts only under the implemented rmesh backpressure condition.
+    check_rmesh_ready_backpressure: assert property (
+        @(posedge clk)
+        rmesh_ready_out == ~(rmesh_access_in & (~emesh_ready_in | ~cmesh_ready_in))
+    );
+
+    // xmesh ready deasserts only under the implemented xmesh backpressure condition.
+    check_xmesh_ready_backpressure: assert property (
+        @(posedge clk)
+        xmesh_ready_out == ~(xmesh_access_in & (~emesh_ready_in | ~cmesh_access_in | ~rmesh_access_in))
+    );
 
 endmodule
-
-// Example bind (provide your clock/reset):
-// bind emesh_if emesh_if_sva #(.AW(AW), .PW(PW)) u_emesh_if_sva (.* , .clk(tb_clk), .rst_n(tb_rst_n));

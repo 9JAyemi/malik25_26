@@ -1,80 +1,73 @@
-// SVA for top_module and sub-blocks
 module top_module_sva (
-  input clk, input reset,
-  input [3:0] A, input [1:0] B,
-  input UP, input DOWN,
-  input [3:0] shifted, input [2:0] Q,
-  input [7:0] q
+    input logic clk,
+    input logic reset,
+    input logic [3:0] A,
+    input logic [1:0] B,
+    input logic UP,
+    input logic DOWN,
+    input logic [7:0] q,
+    input logic [3:0] shifted,
+    input logic [2:0] Q
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // B=00 leaves A unchanged.
+    check_shift_passthrough: assert property (
+        @(posedge clk) disable iff (reset)
+        (B == 2'b00) |-> (shifted == A)
+    );
 
-  // ---------------- Barrel shifter correctness ----------------
-  assert property (disable iff ($isunknown({A,B,shifted})))
-    shifted == ((B==2'b00)? A :
-                (B==2'b01)? {A[2:0],A[3]} :
-                (B==2'b10)? {A[1:0],A[3:2]} :
-                            {A[0],A[3:1]});
+    // B=01 rotates A left by 1.
+    check_shift_rotate_left_1: assert property (
+        @(posedge clk) disable iff (reset)
+        (B == 2'b01) |-> (shifted == {A[2:0], A[3]})
+    );
 
-  // Coverage of all shift selections
-  cover property (B==2'b00);
-  cover property (B==2'b01);
-  cover property (B==2'b10);
-  cover property (B==2'b11);
+    // B=10 rotates A left by 2.
+    check_shift_rotate_left_2: assert property (
+        @(posedge clk) disable iff (reset)
+        (B == 2'b10) |-> (shifted == {A[1:0], A[3:2]})
+    );
 
-  // ---------------- Up/Down counter correctness ----------------
-  // Synchronous reset behavior
-  assert property (reset |=> Q==3'b000);
-  cover  property (reset |=> Q==3'b000);
+    // B=11 rotates A left by 3.
+    check_shift_rotate_left_3: assert property (
+        @(posedge clk) disable iff (reset)
+        (B == 2'b11) |-> (shifted == {A[0], A[3:1]})
+    );
 
-  // Increment, decrement, and hold behaviors
-  assert property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    (UP && !DOWN) |=> Q == $past(Q)+3'd1;
+    // Reset clears the counter state.
+    check_counter_reset_clears_Q: assert property (
+        @(posedge clk)
+        reset |=> (Q == 3'b000)
+    );
 
-  assert property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    (!UP && DOWN) |=> Q == $past(Q)-3'd1;
+    // UP without DOWN increments the counter.
+    check_counter_increment: assert property (
+        @(posedge clk) disable iff (reset)
+        (UP && !DOWN) |=> (Q == ($past(Q) + 3'b001))
+    );
 
-  assert property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    (UP && DOWN) |=> Q == $past(Q);
+    // DOWN without UP decrements the counter.
+    check_counter_decrement: assert property (
+        @(posedge clk) disable iff (reset)
+        (!UP && DOWN) |=> (Q == ($past(Q) - 3'b001))
+    );
 
-  assert property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    (!UP && !DOWN) |=> Q == $past(Q);
+    // No request leaves the counter unchanged.
+    check_counter_hold_idle: assert property (
+        @(posedge clk) disable iff (reset)
+        (!UP && !DOWN) |=> (Q == $past(Q))
+    );
 
-  // Wrap-around coverage
-  cover property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    ($past(Q)==3'd7 && UP && !DOWN) |=> (Q==3'd0);
+    // Simultaneous UP and DOWN leaves the counter unchanged.
+    check_counter_hold_both_high: assert property (
+        @(posedge clk) disable iff (reset)
+        (UP && DOWN) |=> (Q == $past(Q))
+    );
 
-  cover property (disable iff (reset || $isunknown({UP,DOWN,Q})))
-    ($past(Q)==3'd0 && !UP && DOWN) |=> (Q==3'd7);
-
-  // Exercise all control cases
-  cover property (disable iff (reset)) (UP && !DOWN);
-  cover property (disable iff (reset)) (!UP && DOWN);
-  cover property (disable iff (reset)) (UP && DOWN);
-  cover property (disable iff (reset)) (!UP && !DOWN);
-
-  // ---------------- Functional module correctness ----------------
-  // Exact arithmetic result
-  assert property (disable iff ($isunknown({shifted,Q,q})))
-    q == ({4'b0000, shifted} + {3'b000, Q});
-
-  // Carry-out/nibble-crossing coverage
-  cover property (({4'b0000, shifted} + {3'b000, Q})[7:4] != 4'b0000);
-
-  // ---------------- Sanity: no Xs on key outputs after reset ----------------
-  assert property (disable iff (reset)) !$isunknown({shifted,Q,q});
+    // Output q is the sum of shifted and Q with zero extension.
+    check_output_sum: assert property (
+        @(posedge clk) disable iff (reset)
+        (q == ({4'b0000, shifted} + {3'b000, Q}))
+    );
 
 endmodule
-
-// Bind into the DUT
-bind top_module top_module_sva sva_i (
-  .clk   (clk),
-  .reset (reset),
-  .A     (A),
-  .B     (B),
-  .UP    (UP),
-  .DOWN  (DOWN),
-  .shifted (shifted),
-  .Q     (Q),
-  .q     (q)
-);

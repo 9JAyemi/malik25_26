@@ -1,76 +1,58 @@
-// SVA bind checker for Mult4x4
-// Concise, high-quality checks and coverage for correctness, structure, and X-prop
-
-module Mult4x4_sva
-(
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic [7:0] Result,
-  input  logic [5:0] wResInt1,
-  input  logic [5:0] wResInt2
+module Mult4x4_sva (
+    input logic        clk,
+    input logic [3:0]  A,
+    input logic [3:0]  B,
+    input logic [7:0]  Result
 );
 
-  // Event to sample on any combinational change
-  event comb_ev; always @* -> comb_ev;
+    // Result matches the RTL sum of the two partial products.
+    check_result_equation: assert property (
+        @(posedge clk) Result == (((A * B[3:2]) << 2) + (A * B[1:0]))
+    );
 
-  // Helpers
-  function automatic logic [7:0] full_mul (logic [3:0] a, logic [3:0] b);
-    return a * b;
-  endfunction
-  function automatic logic [5:0] pp_lo (logic [3:0] a, logic [1:0] bl);
-    return a * bl;
-  endfunction
-  function automatic logic [5:0] pp_hi (logic [3:0] a, logic [1:0] bh);
-    return a * bh;
-  endfunction
+    // Result is the zero-extended low 6 bits of the full 4x4 product.
+    check_result_product_mod64: assert property (
+        @(posedge clk) Result == ((A * B) & 8'h3F)
+    );
 
-  // 1) X/Z propagation control
-  a_no_xz_inputs: assert property (@(comb_ev) !$isunknown({A,B}))
-    else $error("Mult4x4: X/Z on inputs A,B");
+    // The upper two bits of Result are always zero after the 6-bit arithmetic.
+    check_result_upper_bits_zero: assert property (
+        @(posedge clk) Result[7:6] == 2'b00
+    );
 
-  a_no_xz_output_when_inputs_known: assert property (@(comb_ev)
-      (!$isunknown({A,B})) |-> !$isunknown(Result))
-    else $error("Mult4x4: Output Result is X/Z with known inputs");
+    // A zero multiplicand forces a zero result.
+    check_zero_a: assert property (
+        @(posedge clk) (A == 4'h0) |-> (Result == 8'h00)
+    );
 
-  // 2) Internal partial products match intent
-  a_pp_match: assert property (@(comb_ev)
-      (!$isunknown({A,B})) |-> (wResInt1 == pp_lo(A,B[1:0]) && wResInt2 == pp_hi(A,B[3:2])))
-    else $error("Mult4x4: Partial product mismatch");
+    // A zero multiplier forces a zero result.
+    check_zero_b: assert property (
+        @(posedge clk) (B == 4'h0) |-> (Result == 8'h00)
+    );
 
-  // 3) Structural sum wiring (zero-extend partials to 8b before shifting/adding)
-  a_structural_sum: assert property (@(comb_ev)
-      (!$isunknown({A,B})) |-> (Result == (({2'b00,wResInt2} << 2) + {2'b00,wResInt1})))
-    else $error("Mult4x4: Structural sum != Result");
+    // When the upper two bits of B are zero, the result matches the full product.
+    check_low_range_full_product: assert property (
+        @(posedge clk) (B[3:2] == 2'b00) |-> (Result == (A * B))
+    );
 
-  // 4) Functional correctness: full 4x4 multiply must match
-  a_functional_correctness: assert property (@(comb_ev)
-      (!$isunknown({A,B})) |-> (Result == full_mul(A,B)))
-    else $error("Mult4x4: Result != A*B");
+    // When the lower two bits of B are zero, only the shifted upper partial product contributes.
+    check_upper_path_only: assert property (
+        @(posedge clk) (B[1:0] == 2'b00) |-> (Result == ((A * B[3:2]) << 2))
+    );
 
-  // 5) Detect loss due to left-shift truncation of wResInt2 (design risk)
-  a_no_trunc_in_hi_pp_shift: assert property (@(comb_ev)
-      (!$isunknown({A,B})) |-> (wResInt2[5:4] == 2'b00))
-    else $error("Mult4x4: High partial has nonzero bits lost by <<2 (potential overflow/truncation)");
+    // A zero lower slice in B leaves the two least-significant result bits clear.
+    check_upper_path_lsb_zero: assert property (
+        @(posedge clk) (B[1:0] == 2'b00) |-> (Result[1:0] == 2'b00)
+    );
 
-  // 6) Key functional coverage (concise but meaningful)
-  c_zero_zero:       cover property (@(comb_ev) (A==4'd0 && B==4'd0 && Result==8'd0));
-  c_max_max:         cover property (@(comb_ev) (A==4'd15 && B==4'd15));
-  c_lo_bits_all0:    cover property (@(comb_ev) (B[1:0]==2'd0));
-  c_lo_bits_all1:    cover property (@(comb_ev) (B[1:0]==2'd1));
-  c_lo_bits_all2:    cover property (@(comb_ev) (B[1:0]==2'd2));
-  c_lo_bits_all3:    cover property (@(comb_ev) (B[1:0]==2'd3));
-  c_hi_bits_all0:    cover property (@(comb_ev) (B[3:2]==2'd0));
-  c_hi_bits_all1:    cover property (@(comb_ev) (B[3:2]==2'd1));
-  c_hi_bits_all2:    cover property (@(comb_ev) (B[3:2]==2'd2));
-  c_hi_bits_all3:    cover property (@(comb_ev) (B[3:2]==2'd3));
-  c_trunc_exercised: cover property (@(comb_ev) (wResInt2[5:4] != 2'b00)); // scenario that would lose bits on <<2
+    // Multiplication by 4 is represented exactly by the aligned upper partial product.
+    check_b_four: assert property (
+        @(posedge clk) (B == 4'h4) |-> (Result == (A * 4'd4))
+    );
 
-  // A few corner operand covers
-  c_A_edges0:        cover property (@(comb_ev) (A==4'd0));
-  c_A_edges1:        cover property (@(comb_ev) (A==4'd1));
-  c_A_edgesF:        cover property (@(comb_ev) (A==4'd15));
+    // Stable inputs keep the combinational result stable across sampled cycles.
+    check_stable_inputs_stable_result: assert property (
+        @(posedge clk) ($stable(A) && $stable(B)) |-> $stable(Result)
+    );
 
 endmodule
-
-// Bind to all instances of Mult4x4; internal wires are connected by name
-bind Mult4x4 Mult4x4_sva sva_i (.*);

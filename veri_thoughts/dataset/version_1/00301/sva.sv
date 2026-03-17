@@ -1,37 +1,54 @@
-// SVA for full_adder (concise, high-quality, full functional checks + coverage)
-// Bind these assertions to the DUT.
+module full_adder_sva (
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic Cin,
+    input logic S,
+    input logic Cout
+);
 
-module full_adder_sva (input logic A, B, Cin, S, Cout);
+    // Sum output matches the XOR of all three inputs.
+    check_sum_function: assert property (
+        @(posedge clk) S == (A ^ B ^ Cin)
+    );
 
-  // Functional correctness (give outputs a delta to settle after any input change)
-  assert property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {Cout,S} == (A + B + Cin))
-    else $error("full_adder: {Cout,S} != A+B+Cin");
+    // Carry output matches the implemented carry equation.
+    check_carry_function: assert property (
+        @(posedge clk) Cout == ((A & B) | ((A ^ B) & Cin))
+    );
 
-  // Independent parity/majority checks (orthogonal to the adder check)
-  assert property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> S == (A ^ B ^ Cin))
-    else $error("full_adder: S != A^B^Cin");
+    // All-zero inputs produce zero sum and zero carry.
+    check_all_zero_case: assert property (
+        @(posedge clk) (!A && !B && !Cin) |-> (!S && !Cout)
+    );
 
-  assert property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> Cout == ((A & B) | (B & Cin) | (A & Cin)))
-    else $error("full_adder: Cout != majority(A,B,Cin)");
+    // Any single high input produces sum high and carry low.
+    check_single_one_case: assert property (
+        @(posedge clk)
+        ((A && !B && !Cin) || (!A && B && !Cin) || (!A && !B && Cin))
+        |-> (S && !Cout)
+    );
 
-  // X/Z robustness
-  assert property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> !$isunknown({S,Cout}))
-    else $error("full_adder: X/Z on outputs with clean inputs");
+    // Any two high inputs produce sum low and carry high.
+    check_two_ones_case: assert property (
+        @(posedge clk)
+        ((A && B && !Cin) || (A && !B && Cin) || (!A && B && Cin))
+        |-> (!S && Cout)
+    );
 
-  assert property (@(S or Cout) $isunknown({S,Cout}) |-> $isunknown({A,B,Cin}))
-    else $error("full_adder: Spurious X/Z on outputs without X/Z on inputs");
+    // All-one inputs produce sum high and carry high.
+    check_all_one_case: assert property (
+        @(posedge clk) (A && B && Cin) |-> (S && Cout)
+    );
 
-  // Full input/output combination coverage (all 8 cases)
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b00000);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b00101);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b01001);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b01110);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b10001);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b10110);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b11010);
-  cover property (@(A or B or Cin) !$isunknown({A,B,Cin}) |=> {A,B,Cin,S,Cout} == 5'b11111);
+    // With Cin low, the block behaves like a half adder.
+    check_half_adder_mode: assert property (
+        @(posedge clk) !Cin |-> ((S == (A ^ B)) && (Cout == (A & B)))
+    );
+
+    // With Cin high, carry reduces to OR of A and B.
+    check_cin_high_mode: assert property (
+        @(posedge clk) Cin |-> ((S == ~(A ^ B)) && (Cout == (A | B)))
+    );
 
 endmodule
-
-// Bind to the DUT
-bind full_adder full_adder_sva sva(.A(A), .B(B), .Cin(Cin), .S(S), .Cout(Cout));

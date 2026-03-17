@@ -1,51 +1,63 @@
-// SVA for four_bit_adder
 module four_bit_adder_sva (
-  input logic        clk,
-  input logic        rst,
-  input logic [3:0]  a, b,
-  input logic        cin,
-  input logic [3:0]  sum,
-  input logic        cout
+    input logic clk,
+    input logic rst,
+    input logic [3:0] a,
+    input logic [3:0] b,
+    input logic cin,
+    input logic [3:0] sum,
+    input logic cout
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Reset behavior
-  property p_reset_zero;
-    rst |=> (sum == 4'b0 && cout == 1'b0);
-  endproperty
-  assert property (p_reset_zero);
+    // Reset forces outputs low on the next cycle.
+    check_reset_clears_outputs: assert property (
+        @(posedge clk) rst |=> (sum == 4'b0000 && cout == 1'b0)
+    );
 
-  property p_reset_hold;
-    rst && $past(rst,1,1'b1) |-> (sum == 4'b0 && cout == 1'b0);
-  endproperty
-  assert property (p_reset_hold);
+    // Sum reflects the previous cycle's registered addition.
+    check_sum_matches_previous_inputs: assert property (
+        @(posedge clk) disable iff (rst)
+            $past(!rst) |-> (sum == ($past(a) + $past(b) + $past(cin)))
+    );
 
-  // Core functionality: registered 5-bit addition
-  property p_add_correct;
-    (!rst && !$past(rst,1,1'b1))
-      |-> {cout, sum} == ($past({1'b0,a}) + $past({1'b0,b}) + $past(cin));
-  endproperty
-  assert property (p_add_correct);
+    // Cout reflects the previous cycle's registered MSB majority logic.
+    check_cout_matches_previous_inputs: assert property (
+        @(posedge clk) disable iff (rst)
+            $past(!rst) |-> (cout == (($past(a[3]) & $past(b[3])) |
+                                      ($past(a[3]) & $past(cin))  |
+                                      ($past(b[3]) & $past(cin))))
+    );
 
-  // X-propagation: no X on outputs when inputs known and not in reset
-  property p_no_x_out;
-    (!rst && !$past(rst,1,1'b1) && !$isunknown($past({a,b,cin})))
-      |-> !$isunknown({sum,cout});
-  endproperty
-  assert property (p_no_x_out);
+    // With b and cin low, sum passes through the previous a.
+    check_a_passthrough_when_b_and_cin_zero: assert property (
+        @(posedge clk) disable iff (rst)
+            ($past(!rst) && ($past(b) == 4'b0000) && ($past(cin) == 1'b0))
+            |-> (sum == $past(a) && cout == 1'b0)
+    );
 
-  // Coverage
-  cover property (rst ##1 !rst); // reset then deassert
-  cover property ((!rst && !$past(rst,1,1'b1))
-                  && (($past({1'b0,a}) + $past({1'b0,b}) + $past(cin))[4] == 1'b0));
-  cover property ((!rst && !$past(rst,1,1'b1))
-                  && (($past({1'b0,a}) + $past({1'b0,b}) + $past(cin))[4] == 1'b1));
+    // With a and cin low, sum passes through the previous b.
+    check_b_passthrough_when_a_and_cin_zero: assert property (
+        @(posedge clk) disable iff (rst)
+            ($past(!rst) && ($past(a) == 4'b0000) && ($past(cin) == 1'b0))
+            |-> (sum == $past(b) && cout == 1'b0)
+    );
+
+    // All-zero inputs produce all-zero outputs on the next cycle.
+    check_zero_inputs_produce_zero_outputs: assert property (
+        @(posedge clk) disable iff (rst)
+            ($past(!rst) && ($past(a) == 4'b0000) && ($past(b) == 4'b0000) && ($past(cin) == 1'b0))
+            |-> (sum == 4'b0000 && cout == 1'b0)
+    );
+
+    // High previous MSBs on a and b force cout high.
+    check_cout_high_for_msb_pair: assert property (
+        @(posedge clk) disable iff (rst)
+            ($past(!rst) && $past(a[3]) && $past(b[3])) |-> (cout == 1'b1)
+    );
+
+    // Low previous MSBs and low cin force cout low.
+    check_cout_low_for_zero_msb_inputs: assert property (
+        @(posedge clk) disable iff (rst)
+            ($past(!rst) && !$past(a[3]) && !$past(b[3]) && !$past(cin)) |-> (cout == 1'b0)
+    );
 
 endmodule
-
-// Bind into DUT
-bind four_bit_adder four_bit_adder_sva sva_i (
-  .clk(clk), .rst(rst),
-  .a(a), .b(b), .cin(cin),
-  .sum(sum), .cout(cout)
-);

@@ -1,104 +1,110 @@
-// Assertions for input_pipeline
-// Bind this SVA module to the DUT
-bind input_pipeline input_pipeline_sva #(.WIDTH(WIDTH)) u_input_pipeline_sva (.*);
+module input_pipeline_sva #(
+    parameter WIDTH = 1
+) (
+    input logic clk,
+    input logic clk_ena,
+    input logic [WIDTH-1:0] in_stream,
+    input logic [WIDTH-1:0] pipeline_reg_0,
+    input logic [WIDTH-1:0] pipeline_reg_1,
+    input logic [WIDTH-1:0] pipeline_reg_2,
+    input logic [WIDTH-1:0] pipeline_reg_3,
+    input logic [WIDTH-1:0] pipeline_reg_4,
+    input logic [WIDTH-1:0] pipeline_reg_5,
+    input logic [WIDTH-1:0] pipeline_reg_6,
+    input logic [WIDTH-1:0] pipeline_reg_7,
+    input logic [WIDTH-1:0] pipeline_reg_8,
+    input logic [WIDTH-1:0] pipeline_reg_9,
+    input logic reset
+);
 
-module input_pipeline_sva #(parameter WIDTH=1) (input_pipeline dut);
+    // Reset forces all pipeline registers to zero.
+    check_reset_clears_pipeline: assert property (
+        @(posedge clk)
+        reset |-> ((pipeline_reg_0 == '0) &&
+                   (pipeline_reg_1 == '0) &&
+                   (pipeline_reg_2 == '0) &&
+                   (pipeline_reg_3 == '0) &&
+                   (pipeline_reg_4 == '0) &&
+                   (pipeline_reg_5 == '0) &&
+                   (pipeline_reg_6 == '0) &&
+                   (pipeline_reg_7 == '0) &&
+                   (pipeline_reg_8 == '0) &&
+                   (pipeline_reg_9 == '0))
+    );
 
-  localparam int STAGES = 10;
+    // Enabled clock loads stage 0 from the input stream.
+    check_stage0_captures_input: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_0 == $past(in_stream))
+    );
 
-  // Convenience concatenations
-  wire [STAGES*WIDTH-1:0] regs_cat = { dut.pipeline_reg_9, dut.pipeline_reg_8, dut.pipeline_reg_7,
-                                       dut.pipeline_reg_6, dut.pipeline_reg_5, dut.pipeline_reg_4,
-                                       dut.pipeline_reg_3, dut.pipeline_reg_2, dut.pipeline_reg_1,
-                                       dut.pipeline_reg_0 };
+    // Enabled clock shifts stage 0 into stage 1.
+    check_stage1_shifts_stage0: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_1 == $past(pipeline_reg_0))
+    );
 
-  wire [(STAGES-1)*WIDTH-1:0] upper_cat = { dut.pipeline_reg_9, dut.pipeline_reg_8, dut.pipeline_reg_7,
-                                            dut.pipeline_reg_6, dut.pipeline_reg_5, dut.pipeline_reg_4,
-                                            dut.pipeline_reg_3, dut.pipeline_reg_2, dut.pipeline_reg_1 };
+    // Enabled clock shifts stage 1 into stage 2.
+    check_stage2_shifts_stage1: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_2 == $past(pipeline_reg_1))
+    );
 
-  wire [(STAGES-1)*WIDTH-1:0] lower_cat = { dut.pipeline_reg_8, dut.pipeline_reg_7, dut.pipeline_reg_6,
-                                            dut.pipeline_reg_5, dut.pipeline_reg_4, dut.pipeline_reg_3,
-                                            dut.pipeline_reg_2, dut.pipeline_reg_1, dut.pipeline_reg_0 };
+    // Enabled clock shifts stage 2 into stage 3.
+    check_stage3_shifts_stage2: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_3 == $past(pipeline_reg_2))
+    );
 
-  default clocking cb @ (posedge dut.clk); endclocking
-  default disable iff (dut.reset);
+    // Enabled clock shifts stage 3 into stage 4.
+    check_stage4_shifts_stage3: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_4 == $past(pipeline_reg_3))
+    );
 
-  // -------------------------
-  // Reset behavior (async clear and hold at zero)
-  // -------------------------
-  // Async clear occurs immediately on posedge reset
-  assert property (@(posedge dut.reset) regs_cat == '0)
-    else $error("Async reset did not clear all pipeline registers to 0");
+    // Enabled clock shifts stage 4 into stage 5.
+    check_stage5_shifts_stage4: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_5 == $past(pipeline_reg_4))
+    );
 
-  // While reset is asserted, regs stay at zero on every clk edge
-  assert property (dut.reset |-> regs_cat == '0)
-    else $error("Pipeline registers not held at 0 while reset asserted");
+    // Enabled clock shifts stage 5 into stage 6.
+    check_stage6_shifts_stage5: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_6 == $past(pipeline_reg_5))
+    );
 
-  // -------------------------
-  // Hold behavior when clk_ena is low
-  // -------------------------
-  assert property (!dut.clk_ena |=> regs_cat == $past(regs_cat))
-    else $error("Registers changed while clk_ena=0");
+    // Enabled clock shifts stage 6 into stage 7.
+    check_stage7_shifts_stage6: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_7 == $past(pipeline_reg_6))
+    );
 
-  // -------------------------
-  // Shift behavior when clk_ena is high (single-cycle next-state checks)
-  // -------------------------
-  assert property (dut.clk_ena |=> dut.pipeline_reg_0 == $past(dut.in_stream))
-    else $error("pipeline_reg_0 did not capture in_stream on enable");
+    // Enabled clock shifts stage 7 into stage 8.
+    check_stage8_shifts_stage7: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_8 == $past(pipeline_reg_7))
+    );
 
-  assert property (dut.clk_ena |=> upper_cat == $past(lower_cat))
-    else $error("Pipeline did not shift correctly on enable");
+    // Enabled clock shifts stage 8 into stage 9.
+    check_stage9_shifts_stage8: assert property (
+        @(posedge clk) disable iff (reset)
+        clk_ena |=> (pipeline_reg_9 == $past(pipeline_reg_8))
+    );
 
-  // -------------------------
-  // Multicycle latency checks for contiguous enables
-  // reg_k equals in_stream delayed by k cycles when clk_ena is high for k cycles
-  // -------------------------
-  assert property (dut.clk_ena[*1] |=> dut.pipeline_reg_1 == $past(dut.in_stream,1))
-    else $error("Latency-1 mismatch");
-  assert property (dut.clk_ena[*2] |=> dut.pipeline_reg_2 == $past(dut.in_stream,2))
-    else $error("Latency-2 mismatch");
-  assert property (dut.clk_ena[*3] |=> dut.pipeline_reg_3 == $past(dut.in_stream,3))
-    else $error("Latency-3 mismatch");
-  assert property (dut.clk_ena[*4] |=> dut.pipeline_reg_4 == $past(dut.in_stream,4))
-    else $error("Latency-4 mismatch");
-  assert property (dut.clk_ena[*5] |=> dut.pipeline_reg_5 == $past(dut.in_stream,5))
-    else $error("Latency-5 mismatch");
-  assert property (dut.clk_ena[*6] |=> dut.pipeline_reg_6 == $past(dut.in_stream,6))
-    else $error("Latency-6 mismatch");
-  assert property (dut.clk_ena[*7] |=> dut.pipeline_reg_7 == $past(dut.in_stream,7))
-    else $error("Latency-7 mismatch");
-  assert property (dut.clk_ena[*8] |=> dut.pipeline_reg_8 == $past(dut.in_stream,8))
-    else $error("Latency-8 mismatch");
-  assert property (dut.clk_ena[*9] |=> dut.pipeline_reg_9 == $past(dut.in_stream,9))
-    else $error("Latency-9 mismatch");
-
-  // -------------------------
-  // Sanity: no X/Z on key signals when not in reset
-  // -------------------------
-  assert property (!$isunknown({dut.clk_ena, dut.in_stream}))
-    else $error("X/Z detected on clk_ena or in_stream");
-  assert property (!$isunknown(regs_cat))
-    else $error("X/Z detected on pipeline registers");
-
-  // -------------------------
-  // Coverage
-  // -------------------------
-  // Observe an enable burst long enough to push data across the whole pipe
-  cover property (dut.clk_ena[*10]);
-
-  // See reset, then release, then a shift
-  cover property (@(posedge dut.clk) dut.reset ##1 !dut.reset ##1 dut.clk_ena);
-
-  // Each stage updates at least once under enable
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_0));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_1));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_2));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_3));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_4));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_5));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_6));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_7));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_8));
-  cover property (dut.clk_ena ##1 $changed(dut.pipeline_reg_9));
+    // Disabled clock enable holds all pipeline registers.
+    check_hold_when_clk_ena_low: assert property (
+        @(posedge clk) disable iff (reset)
+        !clk_ena |=> ((pipeline_reg_0 == $past(pipeline_reg_0)) &&
+                      (pipeline_reg_1 == $past(pipeline_reg_1)) &&
+                      (pipeline_reg_2 == $past(pipeline_reg_2)) &&
+                      (pipeline_reg_3 == $past(pipeline_reg_3)) &&
+                      (pipeline_reg_4 == $past(pipeline_reg_4)) &&
+                      (pipeline_reg_5 == $past(pipeline_reg_5)) &&
+                      (pipeline_reg_6 == $past(pipeline_reg_6)) &&
+                      (pipeline_reg_7 == $past(pipeline_reg_7)) &&
+                      (pipeline_reg_8 == $past(pipeline_reg_8)) &&
+                      (pipeline_reg_9 == $past(pipeline_reg_9)))
+    );
 
 endmodule

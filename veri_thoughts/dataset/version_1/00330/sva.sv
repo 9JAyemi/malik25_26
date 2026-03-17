@@ -1,65 +1,82 @@
-// SVA for full_adder and mux2. Bind these to the DUTs.
-// Focused, high-signal-quality checks with concise full functional coverage.
-
-module full_adder_sva (
-  input logic A, B, Cin,
-  input logic Sum, Cout
+module full_adder_sva(
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic Cin,
+    input logic Cout,
+    input logic Sum
 );
-  // Functional correctness under known inputs
-  assert property (@(A or B or Cin or Sum or Cout)
-                   !$isunknown({A,B,Cin}) |-> ({Cout,Sum} == (A + B + Cin)));
 
-  // Outputs must be known when inputs are known
-  assert property (@(A or B or Cin) !$isunknown({A,B,Cin}) |-> !$isunknown({Sum,Cout}));
+    // Sum matches three-input parity.
+    check_sum_function: assert property (
+        @(posedge clk) Sum === (A ^ B ^ Cin)
+    );
 
-  // Full input-space coverage (8 combinations)
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b000);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b001);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b010);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b011);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b100);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b101);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b110);
-  cover property (@(A or B or Cin) {A,B,Cin} == 3'b111);
+    // Carry matches the three-input majority function.
+    check_carry_function: assert property (
+        @(posedge clk) Cout === ((A & B) | (B & Cin) | (Cin & A))
+    );
 
-  // Output pattern coverage
-  cover property (@(A or B or Cin) (Sum==0 && Cout==0));
-  cover property (@(A or B or Cin) (Sum==1 && Cout==0));
-  cover property (@(A or B or Cin) (Sum==0 && Cout==1));
-  cover property (@(A or B or Cin) (Sum==1 && Cout==1));
+    // All-zero inputs produce zero outputs.
+    check_zero_input_case: assert property (
+        @(posedge clk)
+        ((A === 1'b0) && (B === 1'b0) && (Cin === 1'b0))
+        |-> ((Sum === 1'b0) && (Cout === 1'b0))
+    );
+
+    // Exactly one high input produces sum high and carry low.
+    check_single_high_input_case: assert property (
+        @(posedge clk)
+        (((A === 1'b1) && (B === 1'b0) && (Cin === 1'b0)) ||
+         ((A === 1'b0) && (B === 1'b1) && (Cin === 1'b0)) ||
+         ((A === 1'b0) && (B === 1'b0) && (Cin === 1'b1)))
+        |-> ((Sum === 1'b1) && (Cout === 1'b0))
+    );
+
+    // Exactly two high inputs produce sum low and carry high.
+    check_two_high_input_case: assert property (
+        @(posedge clk)
+        (((A === 1'b1) && (B === 1'b1) && (Cin === 1'b0)) ||
+         ((A === 1'b1) && (B === 1'b0) && (Cin === 1'b1)) ||
+         ((A === 1'b0) && (B === 1'b1) && (Cin === 1'b1)))
+        |-> ((Sum === 1'b0) && (Cout === 1'b1))
+    );
+
+    // All-high inputs produce sum high and carry high.
+    check_all_high_input_case: assert property (
+        @(posedge clk)
+        ((A === 1'b1) && (B === 1'b1) && (Cin === 1'b1))
+        |-> ((Sum === 1'b1) && (Cout === 1'b1))
+    );
+
 endmodule
 
-bind full_adder full_adder_sva u_full_adder_sva (
-  .A(A), .B(B), .Cin(Cin), .Sum(Sum), .Cout(Cout)
+module mux2_sva(
+    input logic clk,
+    input logic I0,
+    input logic I1,
+    input logic S,
+    input logic O
 );
 
+    // Output matches the mux select expression.
+    check_mux_function: assert property (
+        @(posedge clk) O === (S ? I1 : I0)
+    );
 
-// ----------------------------------------------------------------------------
+    // Low select chooses I0.
+    check_select_low_path: assert property (
+        @(posedge clk) (S === 1'b0) |-> (O === I0)
+    );
 
-module mux2_sva (
-  input logic I0, I1, S,
-  input logic O
-);
-  // Functional correctness under known inputs
-  assert property (@(I0 or I1 or S or O)
-                   !$isunknown({I0,I1,S}) |-> (O == (S ? I1 : I0)));
+    // High select chooses I1.
+    check_select_high_path: assert property (
+        @(posedge clk) (S === 1'b1) |-> (O === I1)
+    );
 
-  // Output must be known when select and selected input are known
-  assert property (@(I0 or I1 or S)
-                   (!$isunknown(S) && (S ? !$isunknown(I1) : !$isunknown(I0)))
-                   |-> !$isunknown(O));
+    // Equal data inputs pass through regardless of select.
+    check_equal_inputs_passthrough: assert property (
+        @(posedge clk) (I0 === I1) |-> (O === I0)
+    );
 
-  // Path coverage: both legs selected with both values
-  cover property (@(I0 or I1 or S) (!S && I0==0 && O==0));
-  cover property (@(I0 or I1 or S) (!S && I0==1 && O==1));
-  cover property (@(I0 or I1 or S) ( S && I1==0 && O==0));
-  cover property (@(I0 or I1 or S) ( S && I1==1 && O==1));
-
-  // Select toggling coverage
-  cover property (@(posedge S) 1);
-  cover property (@(negedge S) 1);
 endmodule
-
-bind mux2 mux2_sva u_mux2_sva (
-  .I0(I0), .I1(I1), .S(S), .O(O)
-);

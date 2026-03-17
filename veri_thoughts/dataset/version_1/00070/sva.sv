@@ -1,52 +1,35 @@
-// SVA for bidirectional_data_port
 module bidirectional_data_port_sva (
-  input logic        clk,
-  input logic        reset,   // active-low
-  input logic [3:0]  in,
-  input logic        dir,
-  input logic [3:0]  out,
-  input logic [3:0]  dout
+    input logic clk,
+    input logic reset,
+    input logic [3:0] in,
+    input logic dir,
+    input logic [3:0] out,
+    input logic [3:0] dout
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Sampled low reset clears both outputs.
+    check_reset_clears_outputs: assert property (
+        @(posedge clk) (reset == 1'b0) |-> (out == 4'b0000) && (dout == 4'b0000)
+    );
 
-  function automatic logic [3:0] rev4 (input logic [3:0] v);
-    return {v[0], v[1], v[2], v[3]};
-  endfunction
+    // With dir high, out loads the input value.
+    check_out_loads_input_when_dir_high: assert property (
+        @(posedge clk) disable iff (!reset) (dir == 1'b1) |=> (out == $past(in))
+    );
 
-  // Asynchronous reset drives zeros immediately
-  ap_async_reset_zero: assert property (@(negedge reset) (out == 4'b0 && dout == 4'b0));
+    // With dir high, dout loads the reversed input value.
+    check_dout_loads_reversed_input_when_dir_high: assert property (
+        @(posedge clk) disable iff (!reset) (dir == 1'b1) |=> (dout == {$past(in[0]), $past(in[1]), $past(in[2]), $past(in[3])})
+    );
 
-  // While in reset, outputs are held at zero
-  ap_reset_hold: assert property (cb !reset |-> (out == 4'b0 && dout == 4'b0));
+    // With dir low, out still loads the input value.
+    check_out_loads_input_when_dir_low: assert property (
+        @(posedge clk) disable iff (!reset) (dir == 1'b0) |=> (out == $past(in))
+    );
 
-  // No X/Z on outputs when not in reset
-  ap_no_unknowns: assert property (cb disable iff (!reset) (!$isunknown(out) && !$isunknown(dout)));
-
-  // out always follows in (registered by 1 cycle) regardless of dir
-  ap_out_follows_in: assert property (cb disable iff (!reset) 1'b1 |=> out == $past(in));
-
-  // dout updates only when dir==1; otherwise holds its value
-  ap_dout_holds_when_dir0: assert property (cb disable iff (!reset) (!dir) |=> $stable(dout));
-
-  // When dir==1, dout is the bit-reversed version of in (registered by 1 cycle)
-  ap_dout_rev_when_dir1: assert property (cb disable iff (!reset) dir |=> dout == rev4($past(in)));
-
-  // Simple functional coverage
-  cp_dir0:              cover property (cb disable iff (!reset) !dir);
-  cp_dir1:              cover property (cb disable iff (!reset) dir);
-  cp_dir_toggle:        cover property (cb disable iff (!reset) dir ##1 !dir ##1 dir);
-  cp_dout_reversal:     cover property (cb disable iff (!reset) dir |=> dout == rev4($past(in)));
-  cp_dout_hold_dir0:    cover property (cb disable iff (!reset) !dir |=> dout == $past(dout));
+    // With dir low, dout holds its previous value.
+    check_dout_holds_when_dir_low: assert property (
+        @(posedge clk) disable iff (!reset) (dir == 1'b0) |=> (dout == $past(dout))
+    );
 
 endmodule
-
-// Bind into DUT
-bind bidirectional_data_port bidirectional_data_port_sva sva_i (
-  .clk(clk),
-  .reset(reset),
-  .in(in),
-  .dir(dir),
-  .out(out),
-  .dout(dout)
-);

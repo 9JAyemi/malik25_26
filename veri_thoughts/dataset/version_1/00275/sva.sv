@@ -1,41 +1,39 @@
-// SVA for add_subtract: concise, high-quality checks and coverage
 module add_subtract_sva (
-  input logic [7:0] a,
-  input logic [7:0] b,
-  input logic       sel,
-  input logic [7:0] out
+    input logic clk,
+    input logic [7:0] a,
+    input logic [7:0] b,
+    input logic sel,
+    input logic [7:0] out
 );
 
-  // Functional correctness on any input change (allow 0-delay settle)
-  property p_add;
-    @(a or b or sel)
-      (!$isunknown({a,b,sel}) && sel) |-> ##0 (out == ((a + b) & 8'hFF));
-  endproperty
-  assert property (p_add);
+    // In add mode, the output is the 8-bit sum of a and b.
+    check_add_mode_result: assert property (
+        @(posedge clk) sel |-> (out == (a + b))
+    );
 
-  property p_sub;
-    @(a or b or sel)
-      (!$isunknown({a,b,sel}) && !sel) |-> ##0 (out == ((a - b) & 8'hFF));
-  endproperty
-  assert property (p_sub);
+    // In subtract mode, the output is the 8-bit difference of a and b.
+    check_subtract_mode_result: assert property (
+        @(posedge clk) !sel |-> (out == (a - b))
+    );
 
-  // Output must not be X/Z when inputs are known
-  property p_no_x;
-    @(a or b or sel)
-      (!$isunknown({a,b,sel})) |-> ##0 (!$isunknown(out));
-  endproperty
-  assert property (p_no_x);
+    // If all inputs stay the same, the output stays the same.
+    check_output_stable_when_inputs_stable: assert property (
+        @(posedge clk) ($stable(a) && $stable(b) && $stable(sel)) |-> $stable(out)
+    );
 
-  // Output stable if inputs are stable (sampled on global clock)
-  assert property (@(posedge $global_clock) $stable({a,b,sel}) |-> $stable(out));
+    // A select change with stable operands updates output to the newly selected result.
+    check_select_change_updates_result: assert property (
+        @(posedge clk) ($changed(sel) && $stable(a) && $stable(b)) |-> (out == (sel ? (a + b) : (a - b)))
+    );
 
-  // Coverage: exercise add/sub, with/without carry/borrow, and key edge cases
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && sel && !({1'b0,a}+{1'b0,b})[8]) ##0 (out == ((a + b) & 8'hFF))); // add no-carry
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && sel &&  ({1'b0,a}+{1'b0,b})[8]) ##0 (out == ((a + b) & 8'hFF))); // add carry
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && !sel && (a >= b)) ##0 (out == ((a - b) & 8'hFF)));            // sub no-borrow
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && !sel && (a <  b)) ##0 (out == ((a - b) & 8'hFF)));            // sub borrow
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && !sel && (a == b)) ##0 (out == 8'h00));                        // subtract to zero
-  cover property (@(a or b or sel) (!$isunknown({a,b,sel}) && sel && ((a==8'h00)||(b==8'h00))) ##0 (out == ((a + b) & 8'hFF))); // add with zero
+    // Addition wraps around on 8-bit overflow.
+    check_add_overflow_wrap: assert property (
+        @(posedge clk) (sel && (a == 8'hff) && (b == 8'h01)) |-> (out == 8'h00)
+    );
+
+    // Subtraction wraps around on 8-bit underflow.
+    check_subtract_underflow_wrap: assert property (
+        @(posedge clk) (!sel && (a == 8'h00) && (b == 8'h01)) |-> (out == 8'hff)
+    );
+
 endmodule
-
-bind add_subtract add_subtract_sva sva_inst (.a(a), .b(b), .sel(sel), .out(out));

@@ -1,76 +1,56 @@
-// SVA checker for pipelined_circuit. Bind this to the DUT.
-// Focused, concise, and covers functionality, consistency, and key coverage.
-
-module pc_sva (
-  input  logic [3:0] in,
-  input  logic       out_and,
-  input  logic       out_or,
-  input  logic       out_xor,
-  input  logic [3:0] stage1_out,
-  input  logic [2:0] stage2_out
+module pipelined_circuit_sva(
+    input logic [3:0] in,
+    input logic out_and,
+    input logic out_or,
+    input logic out_xor
 );
 
-  // Stage 1 functional correctness
-  assert property (@(*)) stage1_out[0] === (in[0] & in[1]);
-  assert property (@(*)) stage1_out[1] === (in[2] & in[3]);
-  assert property (@(*)) stage1_out[2] === (stage1_out[0] | stage1_out[1]);
-  assert property (@(*)) stage1_out[3] === (stage1_out[0] ^ stage1_out[1]);
+    // out_and is the AND of the two pairwise input AND terms.
+    check_out_and_function: assert property (
+        @($global_clock)
+        out_and == ((in[0] & in[1]) & (in[2] & in[3]))
+    );
 
-  // Stage 2 functional correctness
-  assert property (@(*)) stage2_out[0] === (stage1_out[0] & stage1_out[1]); // AND
-  assert property (@(*)) stage2_out[1] === (stage1_out[2] | stage1_out[3]); // OR
-  assert property (@(*)) stage2_out[2] === (stage1_out[2] ^ stage1_out[3]); // XOR
+    // out_or matches the second-stage OR expression.
+    check_out_or_stage_function: assert property (
+        @($global_clock)
+        out_or == (((in[0] & in[1]) | (in[2] & in[3])) | ((in[0] & in[1]) ^ (in[2] & in[3])))
+    );
 
-  // Output mapping correctness
-  assert property (@(*)) out_and === stage2_out[0];
-  assert property (@(*)) out_or  === stage2_out[1];
-  assert property (@(*)) out_xor === stage2_out[2];
+    // out_xor matches the second-stage XOR expression.
+    check_out_xor_stage_function: assert property (
+        @($global_clock)
+        out_xor == (((in[0] & in[1]) | (in[2] & in[3])) ^ ((in[0] & in[1]) ^ (in[2] & in[3])))
+    );
 
-  // End-to-end correctness from inputs
-  assert property (@(*)) out_and === ((in[0]&in[1]) & (in[2]&in[3]));
-  assert property (@(*)) out_or  === (((in[0]&in[1]) | (in[2]&in[3])) | ((in[0]&in[1]) ^ (in[2]&in[3])));
-  assert property (@(*)) out_xor === (((in[0]&in[1]) | (in[2]&in[3])) ^ ((in[0]&in[1]) ^ (in[2]&in[3])));
+    // out_or simplifies to the OR of the two pairwise input AND terms.
+    check_out_or_simplified_function: assert property (
+        @($global_clock)
+        out_or == ((in[0] & in[1]) | (in[2] & in[3]))
+    );
 
-  // X-propagation sanity: known inputs imply known internals/outputs
-  assert property (@(*)) (!$isunknown(in)) |-> (!$isunknown({stage1_out,stage2_out,out_and,out_or,out_xor}));
+    // out_xor is always equal to out_and for this logic.
+    check_out_xor_matches_out_and: assert property (
+        @($global_clock)
+        out_xor == out_and
+    );
 
-  // Logical consistency implications
-  // XOR implies OR (for both stages)
-  assert property (@(*)) stage1_out[3] |->  stage1_out[2];
-  assert property (@(*)) stage2_out[2] |->  stage2_out[1];
-  // AND vs XOR mutual exclusion at stage boundary
-  assert property (@(*)) stage2_out[0] |-> (stage1_out[2] && !stage1_out[3]);
-  assert property (@(*)) stage1_out[3] |-> !stage2_out[0];
+    // If neither input pair ANDs high, all outputs are low.
+    check_no_pair_and_gives_zero_outputs: assert property (
+        @($global_clock)
+        (!(in[0] & in[1]) && !(in[2] & in[3])) |-> ((out_and == 1'b0) && (out_or == 1'b0) && (out_xor == 1'b0))
+    );
 
-  // Combinational stability: stable inputs => stable internals/outputs
-  assert property (@(*)) $stable(in) |-> $stable({stage1_out,stage2_out,out_and,out_or,out_xor});
+    // If exactly one input pair ANDs high, only out_or is high.
+    check_one_pair_and_gives_only_or: assert property (
+        @($global_clock)
+        ((in[0] & in[1]) ^ (in[2] & in[3])) |-> ((out_and == 1'b0) && (out_or == 1'b1) && (out_xor == 1'b0))
+    );
 
-  // Coverage: exercise OR/XOR quadrant at stage 1
-  cover property (@(*)) (stage1_out[2]==0 && stage1_out[3]==0);
-  cover property (@(*)) (stage1_out[2]==0 && stage1_out[3]==1);
-  cover property (@(*)) (stage1_out[2]==1 && stage1_out[3]==0);
-  cover property (@(*)) (stage1_out[2]==1 && stage1_out[3]==1);
-
-  // Coverage: each output can assert and toggle
-  cover property (@(*)) out_and;
-  cover property (@(*)) out_or;
-  cover property (@(*)) out_xor;
-
-  cover property (@(*)) $rose(out_and));
-  cover property (@(*)) $fell(out_and));
-  cover property (@(*)) $rose(out_or));
-  cover property (@(*)) $fell(out_or));
-  cover property (@(*)) $rose(out_xor));
-  cover property (@(*)) $fell(out_xor));
+    // If both input pairs AND high, all outputs are high.
+    check_both_pair_ands_give_all_outputs_high: assert property (
+        @($global_clock)
+        ((in[0] & in[1]) && (in[2] & in[3])) |-> ((out_and == 1'b1) && (out_or == 1'b1) && (out_xor == 1'b1))
+    );
 
 endmodule
-
-// Bind into DUT (accesses internal nets stage1_out/stage2_out)
-bind pipelined_circuit pc_sva pc_sva_i (
-  .in(in),
-  .out_and(out_and),
-  .out_or(out_or),
-  .out_xor(out_xor),
-  .stage1_out(stage1_out),
-  .stage2_out(stage2_out)
-);

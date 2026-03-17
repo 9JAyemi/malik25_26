@@ -1,66 +1,63 @@
-// SVA checker for alu. Bind this to the DUT and provide a sampling clock.
-// Example bind (replace tb_clk with your env clock):
-// bind alu alu_sva u_alu_sva (.clk(tb_clk), .A(A), .B(B), .Op(Op), .result(result));
-
 module alu_sva(
-  input logic        clk,
-  input logic [3:0]  A,
-  input logic [3:0]  B,
-  input logic [2:0]  Op,
-  input logic [3:0]  result
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic [2:0] Op,
+    input logic [3:0] result
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Addition opcode produces A + B.
+    check_addition_result: assert property (
+        @(posedge clk)
+        (Op == 3'b000) |-> (result == (A + B))
+    );
 
-  // Golden model (same ops as DUT, 4-bit truncation by type)
-  function automatic logic [3:0] exp_val(input logic [3:0] a, b,
-                                         input logic [2:0] op);
-    case (op)
-      3'b000: exp_val = a + b;    // add
-      3'b001: exp_val = a - b;    // sub
-      3'b010: exp_val = a & b;    // and
-      3'b011: exp_val = a | b;    // or
-      3'b100: exp_val = a ^ b;    // xor
-      3'b101: exp_val = a << 1;   // shl
-      3'b110: exp_val = a >> 1;   // shr
-      3'b111: exp_val = a + 1;    // inc
-      default: exp_val = a - 1;   // dec (only if Op has X/Z)
-    endcase
-  endfunction
+    // Subtraction opcode produces A - B.
+    check_subtraction_result: assert property (
+        @(posedge clk)
+        (Op == 3'b001) |-> (result == (A - B))
+    );
 
-  // No unknowns on control/data; prevents taking default via X/Z on Op
-  ap_inputs_known: assert property ( !$isunknown({A,B,Op}) )
-    else $error("ALU: X/Z on inputs A/B/Op");
+    // AND opcode produces A & B.
+    check_and_result: assert property (
+        @(posedge clk)
+        (Op == 3'b010) |-> (result == (A & B))
+    );
 
-  // If inputs known, output must be known
-  ap_result_known: assert property ( (!$isunknown({A,B,Op})) |-> !$isunknown(result) )
-    else $error("ALU: result has X/Z with known inputs");
+    // OR opcode produces A | B.
+    check_or_result: assert property (
+        @(posedge clk)
+        (Op == 3'b011) |-> (result == (A | B))
+    );
 
-  // Functional correctness for all opcodes (single concise golden check)
-  ap_func_correct: assert property ( result == exp_val(A,B,Op) )
-    else $error("ALU: result mismatch. Op=%0b A=%0h B=%0h res=%0h exp=%0h",
-                Op, A, B, result, exp_val(A,B,Op));
+    // XOR opcode produces A ^ B.
+    check_xor_result: assert property (
+        @(posedge clk)
+        (Op == 3'b100) |-> (result == (A ^ B))
+    );
 
-  // Opcode coverage
-  cp_op_add: cover property (Op == 3'b000);
-  cp_op_sub: cover property (Op == 3'b001);
-  cp_op_and: cover property (Op == 3'b010);
-  cp_op_or : cover property (Op == 3'b011);
-  cp_op_xor: cover property (Op == 3'b100);
-  cp_op_shl: cover property (Op == 3'b101);
-  cp_op_shr: cover property (Op == 3'b110);
-  cp_op_inc: cover property (Op == 3'b111);
+    // Shift-left opcode produces A shifted left by one.
+    check_shift_left_result: assert property (
+        @(posedge clk)
+        (Op == 3'b101) |-> (result == (A << 1))
+    );
 
-  // Corner-case coverage (wrap/borrow/bit-drops)
-  cp_add_overflow: cover property (Op==3'b000 && ({1'b0,A}+{1'b0,B})[4]);
-  cp_sub_borrow  : cover property (Op==3'b001 && (A < B));
-  cp_shl_drop_msb: cover property (Op==3'b101 && A[3]);
-  cp_shr_drop_lsb: cover property (Op==3'b110 && A[0]);
-  cp_inc_wrap    : cover property (Op==3'b111 && A==4'hF);
+    // Shift-right opcode produces A shifted right by one.
+    check_shift_right_result: assert property (
+        @(posedge clk)
+        (Op == 3'b110) |-> (result == (A >> 1))
+    );
 
-  // Bitwise extremes (sanity)
-  cp_and_zero: cover property (Op==3'b010 && (A & B)==4'h0);
-  cp_or_full : cover property (Op==3'b011 && (A | B)==4'hF);
-  cp_xor_zero: cover property (Op==3'b100 && (A ^ B)==4'h0);
+    // Increment opcode produces A + 1.
+    check_increment_result: assert property (
+        @(posedge clk)
+        (Op == 3'b111) |-> (result == (A + 1))
+    );
+
+    // Stable inputs keep the combinational result stable.
+    check_result_stable_when_inputs_stable: assert property (
+        @(posedge clk)
+        $stable({A, B, Op}) |-> $stable(result)
+    );
 
 endmodule

@@ -1,36 +1,39 @@
-// SVA for karnaugh_map
-module karnaugh_map_sva(input logic A, B, C, D, F);
+module karnaugh_map_sva (
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D,
+    input logic F
+);
 
-  // Sample on any input change
-  default clocking cb @(A or B or C or D); endclocking
+    // F must match the implemented Boolean expression.
+    check_f_matches_expression: assert property (
+        @($global_clock) F == (!A && (B || C))
+    );
 
-  // Functional equivalence (primary check)
-  ap_func: assert property (disable iff ($isunknown({A,B,C}))
-                            F === (!A && (B || C)));
+    // A high forces F low.
+    check_a_high_forces_f_low: assert property (
+        @($global_clock) A |-> !F
+    );
 
-  // Output must be 0 whenever A=1 (redundant safety check)
-  ap_a_dominates: assert property (A |-> !F);
+    // With A low, either B or C high forces F high.
+    check_b_or_c_with_a_low_sets_f: assert property (
+        @($global_clock) (!A && (B || C)) |-> F
+    );
 
-  // No X/Z on F when inputs are known
-  ap_no_x: assert property ((!$isunknown({A,B,C})) |-> !$isunknown(F));
+    // With B and C both low, F must be low.
+    check_both_b_and_c_low_clear_f: assert property (
+        @($global_clock) (!B && !C) |-> !F
+    );
 
-  // Independence from D: changing D with A,B,C stable must not change F
-  ap_d_indep: assert property (($stable({A,B,C}) && $changed(D)) |-> $stable(F));
+    // If A, B, and C do not change, F must not change.
+    check_f_depends_only_on_a_b_c: assert property (
+        @($global_clock) ($stable(A) && $stable(B) && $stable(C)) |-> $stable(F)
+    );
 
-  // Truth-table coverage for all A,B, C combinations (full functional coverage)
-  cp_000: cover property ({A,B,C}==3'b000 && !F);
-  cp_001: cover property ({A,B,C}==3'b001 &&  F);
-  cp_010: cover property ({A,B,C}==3'b010 &&  F);
-  cp_011: cover property ({A,B,C}==3'b011 &&  F);
-  cp_100: cover property ({A,B,C}==3'b100 && !F);
-  cp_101: cover property ({A,B,C}==3'b101 && !F);
-  cp_110: cover property ({A,B,C}==3'b110 && !F);
-  cp_111: cover property ({A,B,C}==3'b111 && !F);
-
-  // Cover that D toggles while A,B,C are stable and F remains unchanged
-  cp_d_toggle: cover property ($stable({A,B,C}) && $changed(D) && $stable(F));
+    // If only D changes, F must remain stable.
+    check_d_change_does_not_affect_f: assert property (
+        @($global_clock) ($changed(D) && $stable(A) && $stable(B) && $stable(C)) |-> $stable(F)
+    );
 
 endmodule
-
-// Bind into DUT
-bind karnaugh_map karnaugh_map_sva sva_i(.A(A), .B(B), .C(C), .D(D), .F(F));

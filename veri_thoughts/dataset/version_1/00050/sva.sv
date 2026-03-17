@@ -1,59 +1,63 @@
-// SVA for XNOR3HD2X
-module XNOR3HD2X_sva(input logic A, B, C, Z);
+module XNOR3HD2X_sva (
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic Z
+);
 
-  // Sample on any input/output edge
-  default clocking cb @(
-    posedge A or negedge A or
-    posedge B or negedge B or
-    posedge C or negedge C or
-    posedge Z or negedge Z
-  ); endclocking
+    // Z must always implement the 3-input XNOR function.
+    check_function_exact: assert property (
+        @($global_clock) Z == ~(A ^ B ^ C)
+    );
 
-  // Functional correctness for known inputs
-  ap_func: assert property ( !$isunknown({A,B,C}) |-> (Z === ~(^ {A,B,C})) );
+    // If A and B match, Z must be the inverse of C.
+    check_equal_ab: assert property (
+        @($global_clock) (A == B) |-> (Z == ~C)
+    );
 
-  // X-propagation: any unknown on inputs must produce unknown Z
-  ap_xprop: assert property ( $isunknown({A,B,C}) |-> $isunknown(Z) );
+    // If B and C match, Z must be the inverse of A.
+    check_equal_bc: assert property (
+        @($global_clock) (B == C) |-> (Z == ~A)
+    );
 
-  // No spurious toggles: Z can only change when some input changes
-  ap_no_spurious: assert property ( $changed(Z) |-> $changed({A,B,C}) );
+    // If A and C match, Z must be the inverse of B.
+    check_equal_ac: assert property (
+        @($global_clock) (A == C) |-> (Z == ~B)
+    );
 
-  // Parity-change behavior
-  ap_toggle_1: assert property (
-    !$isunknown({A,B,C}) &&
-    ( ($changed(A) && !$changed(B) && !$changed(C)) ||
-      (!$changed(A) && $changed(B) && !$changed(C)) ||
-      (!$changed(A) && !$changed(B) && $changed(C)) )
-    |-> $changed(Z)
-  );
+    // If A and B differ, Z must match C.
+    check_diff_ab: assert property (
+        @($global_clock) (A != B) |-> (Z == C)
+    );
 
-  ap_toggle_2: assert property (
-    !$isunknown({A,B,C}) &&
-    ( ($changed(A) && $changed(B) && !$changed(C)) ||
-      ($changed(A) && !$changed(B) && $changed(C)) ||
-      (!$changed(A) && $changed(B) && $changed(C)) )
-    |-> !$changed(Z)
-  );
+    // If B and C differ, Z must match A.
+    check_diff_bc: assert property (
+        @($global_clock) (B != C) |-> (Z == A)
+    );
 
-  ap_toggle_3: assert property (
-    !$isunknown({A,B,C}) &&
-    ($changed(A) && $changed(B) && $changed(C)) |-> $changed(Z)
-  );
+    // If A and C differ, Z must match B.
+    check_diff_ac: assert property (
+        @($global_clock) (A != C) |-> (Z == B)
+    );
 
-  // Full truth-table coverage (known states)
-  cp_000: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b0001);
-  cp_001: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b0010);
-  cp_010: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b0100);
-  cp_011: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b0111);
-  cp_100: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b1000);
-  cp_101: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b1011);
-  cp_110: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b1101);
-  cp_111: cover property (!$isunknown({A,B,C,Z}) && {A,B,C,Z} == 4'b1110);
+    // When all inputs are low, Z must be high.
+    check_all_zero: assert property (
+        @($global_clock) (!A && !B && !C) |-> Z
+    );
 
-  // X-propagation coverage
-  cp_xprop: cover property ($isunknown({A,B,C}) && $isunknown(Z));
+    // When exactly one input is high, Z must be low.
+    check_one_hot: assert property (
+        @($global_clock) ((A && !B && !C) || (!A && B && !C) || (!A && !B && C)) |-> !Z
+    );
+
+    // When exactly two inputs are high, Z must be high.
+    check_two_hot: assert property (
+        @($global_clock) ((A && B && !C) || (A && !B && C) || (!A && B && C)) |-> Z
+    );
+
+    // When all inputs are high, Z must be low.
+    check_all_one: assert property (
+        @($global_clock) (A && B && C) |-> !Z
+    );
 
 endmodule
-
-// Bind into DUT
-bind XNOR3HD2X XNOR3HD2X_sva sva(.A(A), .B(B), .C(C), .Z(Z));

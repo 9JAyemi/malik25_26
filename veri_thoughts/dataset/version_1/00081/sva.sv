@@ -1,62 +1,47 @@
-// SVA checker for five_to_one
-// Bind this to the DUT and hook up a sampling clock/reset from your env.
-
 module five_to_one_sva (
-  input logic clk,
-  input logic rst_n,
-
-  input  logic input1,
-  input  logic input2,
-  input  logic input3,
-  input  logic input4,
-  input  logic input5,
-  input  logic output1
+    input logic clk,
+    input logic input1,
+    input logic input2,
+    input logic input3,
+    input logic input4,
+    input logic input5,
+    input logic output1
 );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n)
+    // Output matches the RTL sum-of-products equation.
+    check_output_equation: assert property (
+        @(posedge clk)
+        output1 == ((input1 & input2) | (input3 & input4 & input5))
+    );
 
-  // Golden functional equivalence (primary check)
-  property p_func_eq;
-    output1 === ((input1 & input2) | ((input3 & input4) & input5));
-  endproperty
-  a_func_eq: assert property (p_func_eq);
+    // The input1/input2 AND path forces the output high.
+    check_first_path_drives_high: assert property (
+        @(posedge clk)
+        (input1 & input2) |-> output1
+    );
 
-  // If all inputs are known, output must be known (X/Z clean)
-  a_known: assert property (
-    !$isunknown({input1,input2,input3,input4,input5}) |-> !$isunknown(output1)
-  );
+    // The input3/input4/input5 AND path forces the output high.
+    check_second_path_drives_high: assert property (
+        @(posedge clk)
+        (input3 & input4 & input5) |-> output1
+    );
 
-  // With inputs stable across a cycle, output must be stable (purely combinational)
-  a_stable: assert property (
-    $stable({input1,input2,input3,input4,input5}) |=> $stable(output1)
-  );
+    // A high output must come from at least one implemented path.
+    check_output_high_has_valid_cause: assert property (
+        @(posedge clk)
+        output1 |-> ((input1 & input2) | (input3 & input4 & input5))
+    );
 
-  // Minimal yet meaningful functional coverage
-  // Output low case
-  c_low:   cover property ( !((input1 & input2) | ((input3 & input4) & input5)) );
+    // If the first path is inactive, output equals the second path.
+    check_no_first_path_means_second_path_only: assert property (
+        @(posedge clk)
+        !(input1 & input2) |-> (output1 == (input3 & input4 & input5))
+    );
 
-  // Each OR-leg exclusively drives output high
-  c_and1_only: cover property ( (input1 & input2) && !(input3 & input4 & input5) );
-  c_and3_only: cover property ( !(input1 & input2) &&  (input3 & input4 & input5) );
-
-  // Both legs high simultaneously
-  c_both:  cover property ( (input1 & input2) && (input3 & input4 & input5) );
-
-  // Output edge coverage
-  c_rise:  cover property ( $rose(output1) );
-  c_fall:  cover property ( $fell(output1) );
+    // If the second path is inactive, output equals the first path.
+    check_no_second_path_means_first_path_only: assert property (
+        @(posedge clk)
+        !(input3 & input4 & input5) |-> (output1 == (input1 & input2))
+    );
 
 endmodule
-
-// Example bind (put in your TB; provide a clock/reset from your environment)
-// bind five_to_one five_to_one_sva u_five_to_one_sva (
-//   .clk   (clk),
-//   .rst_n (rst_n),
-//   .input1(input1),
-//   .input2(input2),
-//   .input3(input3),
-//   .input4(input4),
-//   .input5(input5),
-//   .output1(output1)
-// );

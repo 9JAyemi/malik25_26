@@ -1,41 +1,40 @@
-// SVA for Adder
-// Bind this module to the DUT. Provide clk/rst_n from your environment.
-
 module Adder_sva (
-  input logic        clk,
-  input logic        rst_n,
-  input logic [19:0] Data_A_i,
-  input logic [19:0] Data_B_i,
-  input logic [20:0] O,
-  input logic        CO,
-  input logic [3:0]  S,
-  input logic [3:0]  DI
+    input logic [19:0] Data_A_i,
+    input logic [19:0] Data_B_i,
+    input logic [20:0] O,
+    input logic CO,
+    input logic [3:0] S,
+    input logic [3:0] DI
 );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n);
+    // O is the 20-bit sum zero-extended to 21 bits.
+    check_o_zero_extended_sum: assert property (
+        @($global_clock) disable iff (1'b0)
+        O == {1'b0, (Data_A_i + Data_B_i)}
+    );
 
-  // Basic sanity (no X/Z on outputs when inputs are known)
-  assert property (!$isunknown({Data_A_i,Data_B_i}) |-> !$isunknown({O,CO,S,DI}));
+    // O[20] is always 0 because the sum is zero-extended.
+    check_o_msb_zero: assert property (
+        @($global_clock) disable iff (1'b0)
+        O[20] == 1'b0
+    );
 
-  // Arithmetic correctness
-  assert property (O == Data_A_i + Data_B_i);
-  assert property (CO == O[20]);
-  assert property (S == (O[3:0] + CO)[3:0]);
-  assert property (DI == {CO, S[3:1]});
+    // CO follows the top bit of O.
+    check_co_matches_o_msb: assert property (
+        @($global_clock) disable iff (1'b0)
+        CO == O[20]
+    );
 
-  // Cross-consistency (redundant guardrails, still concise)
-  assert property ({CO, O[19:0]} == (Data_A_i + Data_B_i));
+    // S is the low 4-bit sum of the inputs plus CO.
+    check_s_low_nibble_sum: assert property (
+        @($global_clock) disable iff (1'b0)
+        S == (Data_A_i[3:0] + Data_B_i[3:0] + CO)
+    );
 
-  // Coverage
-  cover property (!CO);                              // no carry
-  cover property (CO);                               // carry
-  cover property (Data_A_i == 20'h0 && Data_B_i == 20'h0);
-  cover property (Data_A_i == 20'hFFFFF && Data_B_i == 20'h00001); // overflow case
-  cover property (Data_A_i == 20'hFFFFE && Data_B_i == 20'h00001); // boundary no-carry
-  cover property (CO && (O[3:0] == 4'hF));           // nibble wrap scenario for S
+    // DI packs CO with S[3:1].
+    check_di_packing: assert property (
+        @($global_clock) disable iff (1'b0)
+        DI == {CO, S[3:1]}
+    );
 
 endmodule
-
-// Example bind (put in your TB/top-level, ensure clk/rst_n are in scope):
-// bind Adder Adder_sva u_adder_sva (.* , .clk(clk), .rst_n(rst_n));

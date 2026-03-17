@@ -1,40 +1,36 @@
-// SVA for binary_counter
-module binary_counter_sva #(parameter N=4)(
-  input  logic              clk,
-  input  logic              reset,
-  input  logic [N-1:0]      count
+module binary_counter_sva
+#(
+  parameter N = 4
+)
+(
+  input logic clk,
+  input logic reset,
+  input logic [N-1:0] count
 );
 
-  // establish a safe $past window
-  logic past_valid;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+  // A reset cycle drives count to zero by the next clock.
+  check_reset_drives_zero: assert property (
+    @(posedge clk) reset |=> (count == '0)
+  );
 
-  // default clock
-  default clocking cb @(posedge clk); endclocking
+  // The first cycle after reset deassertion still observes count at zero.
+  check_release_from_reset_zero: assert property (
+    @(posedge clk) disable iff (reset)
+    !$initstate && $past(reset) |-> (count == '0)
+  );
 
-  // 1) Synchronous reset clears count on the next clock
-  assert property (reset |=> count == '0);
+  // In normal operation, a non-maximum count increments by one.
+  check_increment_nonmax: assert property (
+    @(posedge clk) disable iff (reset)
+    !$initstate && !$past(reset) && ($past(count) != {N{1'b1}})
+    |-> (count == ($past(count) + 1'b1))
+  );
 
-  // 2) When previous cycle was not reset, counter increments by 1 (mod 2^N)
-  assert property (past_valid && !$past(reset) |-> count == $past(count) + 1);
-
-  // 3) Explicitly check wrap from max -> 0 on increment
-  assert property (past_valid && !$past(reset) && ($past(count) == {N{1'b1}}) |-> count == '0);
-
-  // 4) No unknowns on count once we have at least one sample
-  assert property (past_valid |-> !$isunknown(count));
-
-  // Coverage
-  cover property (reset);                               // saw reset asserted
-  cover property ($rose(reset));                        // reset rise
-  cover property ($fell(reset));                        // reset deassert
-  cover property (past_valid && !$past(reset) &&       // observed a wrap event
-                  ($past(count) == {N{1'b1}}) && (count == '0));
-  // From a reset, observe first increment 0 -> 1
-  cover property ($past(reset) && !reset && (count == $past(count) + 1));
+  // In normal operation, the maximum count wraps back to zero.
+  check_wrap_from_max: assert property (
+    @(posedge clk) disable iff (reset)
+    !$initstate && !$past(reset) && ($past(count) == {N{1'b1}})
+    |-> (count == '0)
+  );
 
 endmodule
-
-// Bind into DUT
-bind binary_counter binary_counter_sva #(.N(N))
-  binary_counter_sva_i (.clk(clk), .reset(reset), .count(count));

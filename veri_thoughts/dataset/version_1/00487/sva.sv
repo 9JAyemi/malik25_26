@@ -1,29 +1,37 @@
-// SVA for counter
-module counter_sva(input logic clk, reset, up_down, input logic [3:0] out);
-  default clocking cb @(posedge clk); endclocking
+module counter_sva(
+    input logic       clk,
+    input logic       reset,
+    input logic       up_down,
+    input logic [3:0] out
+);
 
-  // Sanity
-  a_no_x_out:    assert property (! $isunknown(out));
+    // Reset clears the counter on the next sampled clock.
+    reset_clears_out: assert property (
+        @(posedge clk) reset |=> (out == 4'b0000)
+    );
 
-  // Synchronous reset behavior
-  a_reset_next:  assert property ($past(reset) |-> out == 4'h0);
+    // With reset low and up_down high, the counter increments by one.
+    count_up_step: assert property (
+        @(posedge clk) disable iff (reset)
+        up_down |=> (out == ($past(out) + 4'd1))
+    );
 
-  // Next-state correctness (up/down with wrap)
-  a_up_next:     assert property ($past(!reset && up_down)
-                                  |-> out == (($past(out)==4'hF) ? 4'h0 : $past(out)+1));
-  a_down_next:   assert property ($past(!reset && !up_down)
-                                  |-> out == (($past(out)==4'h0) ? 4'hF : $past(out)-1));
+    // With reset low and up_down low, the counter decrements by one.
+    count_down_step: assert property (
+        @(posedge clk) disable iff (reset)
+        !up_down |=> (out == ($past(out) - 4'd1))
+    );
 
-  // Counter changes every non-reset cycle when inputs known
-  a_progress:    assert property ($past(!reset && !$isunknown(up_down) && !$isunknown(out))
-                                  |-> out != $past(out));
+    // Counting up from 4'hF wraps around to 4'h0.
+    up_wraps_from_f_to_0: assert property (
+        @(posedge clk) disable iff (reset)
+        up_down && (out == 4'hF) |=> (out == 4'h0)
+    );
 
-  // Coverage
-  c_reset:       cover property (reset ##1 out == 4'h0);
-  c_up_wrap:     cover property ($past(!reset && up_down && $past(out)==4'hF) |-> out == 4'h0);
-  c_down_wrap:   cover property ($past(!reset && !up_down && $past(out)==4'h0) |-> out == 4'hF);
-  c_toggle_ud:   cover property ($past(!reset && up_down) && !up_down);
-  c_toggle_du:   cover property ($past(!reset && !up_down) && up_down);
+    // Counting down from 4'h0 wraps around to 4'hF.
+    down_wraps_from_0_to_f: assert property (
+        @(posedge clk) disable iff (reset)
+        !up_down && (out == 4'h0) |=> (out == 4'hF)
+    );
+
 endmodule
-
-bind counter counter_sva i_counter_sva (.*);

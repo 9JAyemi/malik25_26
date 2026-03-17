@@ -1,50 +1,40 @@
-// SVA for my_module: concise, structural + functional checks, with coverage.
-// Bind into the DUT; no DUT edits required.
-
 module my_module_sva (
-  input Y, A1, A2, B1, B2,
-  input nand0_out, nand1_out, and0_out_Y, and1_out_Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic B2
 );
 
-  // Structural gate semantics (4-state, same-timestep sampling on any change)
-  assert property (@(A1 or A2 or B1 or B2 or nand0_out or nand1_out or and0_out_Y or and1_out_Y or Y)
-                   nand0_out === ~(A1 & A2));
-  assert property (@(A1 or A2 or B1 or B2 or nand0_out or nand1_out or and0_out_Y or and1_out_Y or Y)
-                   nand1_out === ~(B1 & B2));
-  assert property (@(A1 or A2 or B1 or B2 or nand0_out or nand1_out or and0_out_Y or and1_out_Y or Y)
-                   and0_out_Y === (nand0_out & nand1_out));
-  assert property (@(A1 or A2 or B1 or B2 or nand0_out or nand1_out or and0_out_Y or and1_out_Y or Y)
-                   and1_out_Y === ~and0_out_Y);
-  assert property (@(A1 or A2 or B1 or B2 or nand0_out or nand1_out or and0_out_Y or and1_out_Y or Y)
-                   Y === and1_out_Y);
+    // Y matches the gate-level structure in the RTL.
+    check_y_matches_structure: assert property (
+        @(posedge clk) Y == ~((~(A2 & A1)) & (~(B2 & B1)))
+    );
 
-  // Functional equivalence: Y == (A1&A2) | (B1&B2)
-  assert property (@(A1 or A2 or B1 or B2 or Y)
-                   Y === ((A1 & A2) | (B1 & B2)))
-    else $error("my_module functional mismatch: Y != (A1&A2)|(B1&B2)");
+    // Y simplifies to the OR of the two input pairs.
+    check_y_matches_simplified_function: assert property (
+        @(posedge clk) Y == ((A1 & A2) | (B1 & B2))
+    );
 
-  // If inputs are known (0/1), output must be known
-  assert property (@(A1 or A2 or B1 or B2 or Y)
-                   !$isunknown({A1,A2,B1,B2}) |-> !$isunknown(Y));
+    // A1 and A2 both high force Y high.
+    check_a_pair_drives_y_high: assert property (
+        @(posedge clk) (A1 & A2) |-> Y
+    );
 
-  // Functional coverage: all outcome classes
-  cover property (@(A1 or A2 or B1 or B2 or Y)
-                  (A1 & A2) && !(B1 & B2) ##0 (Y==1));
-  cover property (@(A1 or A2 or B1 or B2 or Y)
-                  !(A1 & A2) && (B1 & B2) ##0 (Y==1));
-  cover property (@(A1 or A2 or B1 or B2 or Y)
-                  (A1 & A2) && (B1 & B2) ##0 (Y==1));
-  cover property (@(A1 or A2 or B1 or B2 or Y)
-                  !(A1 & A2) && !(B1 & B2) ##0 (Y==0));
+    // B1 and B2 both high force Y high.
+    check_b_pair_drives_y_high: assert property (
+        @(posedge clk) (B1 & B2) |-> Y
+    );
 
-  // Output toggle coverage
-  cover property (@(A1 or A2 or B1 or B2 or Y) $rose(Y));
-  cover property (@(A1 or A2 or B1 or B2 or Y) $fell(Y));
+    // If neither pair is fully high, Y must be low.
+    check_no_complete_pair_drives_y_low: assert property (
+        @(posedge clk) (!(A1 & A2) && !(B1 & B2)) |-> !Y
+    );
+
+    // A low Y means neither input pair is fully high.
+    check_y_low_implies_no_complete_pair: assert property (
+        @(posedge clk) !Y |-> (!(A1 & A2) && !(B1 & B2))
+    );
 
 endmodule
-
-bind my_module my_module_sva sva_i (
-  .Y(Y), .A1(A1), .A2(A2), .B1(B1), .B2(B2),
-  .nand0_out(nand0_out), .nand1_out(nand1_out),
-  .and0_out_Y(and0_out_Y), .and1_out_Y(and1_out_Y)
-);

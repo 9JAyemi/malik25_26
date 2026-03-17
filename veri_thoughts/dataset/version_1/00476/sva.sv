@@ -1,24 +1,43 @@
-// SVA for counter
-module counter_sva(input logic clk, rst, input logic [3:0] count);
-  default clocking @(posedge clk); endclocking
+module counter_sva (
+    input logic       clk,
+    input logic       rst,
+    input logic [3:0] count
+);
 
-  // Reset behavior
-  a_async_reset:      assert property (@(posedge rst) count == 4'd0);
-  a_sync_reset_hold:  assert property (rst |-> count == 4'd0);
+    // A sampled reset must leave the counter at zero by the next clock sample.
+    reset_forces_zero_next_sample: assert property (
+        @(posedge clk) disable iff ($initstate)
+        rst |=> (count == 4'h0)
+    );
 
-  // Next-state function (mod-16), tolerant to async reset asserting before next clk
-  a_next_state_mod16: assert property (disable iff (rst)
-                                       1 |=> (rst || count == (($past(count)==4'hF) ? 4'h0 : $past(count)+1)));
+    // After a sampled reset cycle, the next non-reset sample must still see zero.
+    post_reset_sample_is_zero: assert property (
+        @(posedge clk) disable iff (rst || $initstate)
+        $past(rst) |-> (count == 4'h0)
+    );
 
-  // No X on key signals at clock edge
-  a_no_x:             assert property (!$isunknown({rst, count}));
+    // Between clock samples, the counter can only stay at zero from reset or increment by one.
+    count_is_zero_or_incremented: assert property (
+        @(posedge clk) disable iff (rst || $initstate)
+        ((count == 4'h0) || (count == ($past(count) + 4'h1)))
+    );
 
-  // Coverage
-  c_seen_reset:             cover property (@(posedge rst) 1);
-  c_first_inc_after_reset:  cover property ($fell(rst) ##1 (count == 4'd1));
-  c_normal_inc:             cover property (disable iff (rst)
-                                            (count inside {[4'h0:4'hE]}) ##1 (count == $past(count)+1));
-  c_wrap:                   cover property (disable iff (rst) (count == 4'hF) ##1 (count == 4'h0));
+    // A sampled count of 1 must come from a sampled count of 0.
+    one_has_zero_predecessor: assert property (
+        @(posedge clk) disable iff (rst || $initstate)
+        (count == 4'h1) |-> ($past(count) == 4'h0)
+    );
+
+    // A sampled count of 15 must come from a sampled count of 14.
+    fifteen_has_fourteen_predecessor: assert property (
+        @(posedge clk) disable iff (rst || $initstate)
+        (count == 4'hF) |-> ($past(count) == 4'hE)
+    );
+
+    // A sampled count of 15 must wrap to zero by the next clock sample.
+    max_count_wraps_to_zero: assert property (
+        @(posedge clk) disable iff (rst || $initstate)
+        ($past(count) == 4'hF) |-> (count == 4'h0)
+    );
+
 endmodule
-
-bind counter counter_sva u_counter_sva(.clk(clk), .rst(rst), .count(count));

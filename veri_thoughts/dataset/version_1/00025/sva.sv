@@ -1,38 +1,69 @@
-// SVA for pipelined_xor_gate
-// Bind into DUT; references internal regs/wires directly
+module pipelined_xor_gate_sva (
+    input logic a,
+    input logic b,
+    input logic clk,
+    input logic out,
+    input logic a_reg,
+    input logic b_reg,
+    input logic a_reg1,
+    input logic b_reg1,
+    input logic xor_out,
+    input logic xor_out1
+);
 
-module pipelined_xor_gate_sva;
+    // Stage 2 captures input a on the previous clock.
+    check_stage2_capture_a: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate)) |-> (a_reg == $past(a))
+    );
 
-  default clocking cb @(posedge clk); endclocking
+    // Stage 2 captures input b on the previous clock.
+    check_stage2_capture_b: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate)) |-> (b_reg == $past(b))
+    );
 
-  bit init;
-  initial init = 1'b0;
-  always @(posedge clk) init <= 1'b1;
+    // Stage 1 captures the previous value of a_reg.
+    check_stage1_capture_a: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate)) |-> (a_reg1 == $past(a_reg))
+    );
 
-  // Structural/registering checks
-  assert property (@cb (a_reg == a && b_reg == b));
-  assert property (@cb disable iff (!init) (a_reg1 == $past(a_reg) && b_reg1 == $past(b_reg)));
+    // Stage 1 captures the previous value of b_reg.
+    check_stage1_capture_b: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate)) |-> (b_reg1 == $past(b_reg))
+    );
 
-  // Combinational XOR nets and output wiring
-  assert property (@cb (xor_out == (a_reg ^ b_reg)));
-  assert property (@cb (xor_out1 == (a_reg1 ^ b_reg1)));
-  assert property (@cb (out == xor_out1));
-  assert property (@cb disable iff (!init) (out == $past(xor_out)));
+    // xor_out is the XOR of the stage 2 registers.
+    check_stage2_xor_logic: assert property (
+        @(posedge clk) (xor_out == (a_reg ^ b_reg))
+    );
 
-  // Functional behavior: 1-cycle latency from inputs to out
-  assert property (@cb disable iff (!init)
-                   (!$isunknown($past({a,b}))) |-> (!$isunknown(out) && out == ($past(a) ^ $past(b))));
+    // xor_out1 is the XOR of the stage 1 registers.
+    check_stage1_xor_logic: assert property (
+        @(posedge clk) (xor_out1 == (a_reg1 ^ b_reg1))
+    );
 
-  // Coverage: XOR truth table observed at output (1-cycle later)
-  cover property (@cb disable iff (!init) ($past({a,b})==2'b00) && out==1'b0);
-  cover property (@cb disable iff (!init) ($past({a,b})==2'b01) && out==1'b1);
-  cover property (@cb disable iff (!init) ($past({a,b})==2'b10) && out==1'b1);
-  cover property (@cb disable iff (!init) ($past({a,b})==2'b11) && out==1'b0);
+    // The module output is directly driven by xor_out1.
+    check_output_connection: assert property (
+        @(posedge clk) (out == xor_out1)
+    );
 
-  // Coverage: output toggles
-  cover property (@cb disable iff (!init) $rose(out));
-  cover property (@cb disable iff (!init) $fell(out));
+    // The stage 1 XOR is the previous cycle's stage 2 XOR.
+    check_xor_pipeline_delay: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate)) |-> (xor_out1 == $past(xor_out))
+    );
+
+    // Equal inputs produce a low output two clocks later.
+    check_equal_inputs_drive_zero: assert property (
+        @(posedge clk) (a == b) |=> ##1 (out == 1'b0)
+    );
+
+    // Different inputs produce a high output two clocks later.
+    check_different_inputs_drive_one: assert property (
+        @(posedge clk) (a != b) |=> ##1 (out == 1'b1)
+    );
+
+    // After pipeline fill, out matches the XOR of inputs from two clocks earlier.
+    check_output_two_cycle_latency: assert property (
+        @(posedge clk) (!$initstate && !$past($initstate) && !$past($initstate, 2)) |-> (out == ($past(a, 2) ^ $past(b, 2)))
+    );
 
 endmodule
-
-bind pipelined_xor_gate pipelined_xor_gate_sva sva_pipelined_xor_gate();

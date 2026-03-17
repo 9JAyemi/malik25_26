@@ -1,35 +1,45 @@
-// SVA for phase_detector
-module phase_detector_sva (
-  input clk,
-  input ref,
-  input in,
-  input error,
-  input ref_reg,
-  input in_reg
+module phase_detector_assertions (
+    input logic clk,
+    input logic \ref ,
+    input logic in,
+    input logic error
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Registers capture inputs (1-cycle latency), when past is known
-  a_cap_ref: assert property ( !$isunknown($past(ref)) |-> (ref_reg == $past(ref)) );
-  a_cap_in : assert property ( !$isunknown($past(in))  |-> (in_reg  == $past(in))  );
+property p_error_matches_sampled_xor;
+    logic ref_sampled, in_sampled;
+    @(posedge clk)
+        (1'b1, ref_sampled = \ref , in_sampled = in)
+        |-> ##2 (error == (ref_sampled ^ in_sampled));
+endproperty
 
-  // Functional spec: error = XOR of prior-cycle inputs (when known)
-  a_func_past_in: assert property ( !$isunknown($past({ref,in})) |-> (error == ($past(ref) ^ $past(in))) );
+// Error equals the XOR of ref and in sampled two clocks earlier.
+check_error_matches_sampled_xor: assert property (p_error_matches_sampled_xor);
 
-  // Structural check: error = XOR of current regs (when known)
-  a_struct_regs: assert property ( !$isunknown({ref_reg,in_reg}) |-> (error == (ref_reg ^ in_reg)) );
+// Equal sampled inputs drive error low two clocks later.
+check_equal_inputs_drive_zero: assert property (
+    @(posedge clk) (\ref  == in) |-> ##2 (error == 1'b0)
+);
 
-  // No X on error once prior inputs are known
-  a_no_x_error: assert property ( !$isunknown($past({ref,in})) |-> !$isunknown(error) );
+// Different sampled inputs drive error high two clocks later.
+check_different_inputs_drive_one: assert property (
+    @(posedge clk) (\ref  != in) |-> ##2 (error == 1'b1)
+);
 
-  // Coverage: both XOR outcomes observed
-  c_err1: cover property ( !$isunknown($past({ref,in})) && ($past(ref) ^ $past(in)) && (error == 1) );
-  c_err0: cover property ( !$isunknown($past({ref,in})) && !($past(ref) ^ $past(in)) && (error == 0) );
+// Stable inputs produce a stable error two clocks later.
+check_stable_inputs_hold_error: assert property (
+    @(posedge clk) ($stable(\ref ) && $stable(in)) |-> ##2 $stable(error)
+);
 
-  // Coverage: error toggles
-  c_rise: cover property ( $rose(error) );
-  c_fall: cover property ( $fell(error) );
+// A toggle on exactly one input causes error to toggle two clocks later.
+check_single_input_toggle_toggles_error: assert property (
+    @(posedge clk)
+        (($changed(\ref ) && $stable(in)) || ($stable(\ref ) && $changed(in)))
+        |-> ##2 $changed(error)
+);
+
+// Simultaneous toggles on both inputs keep the XOR result unchanged two clocks later.
+check_both_inputs_toggle_hold_error: assert property (
+    @(posedge clk) ($changed(\ref ) && $changed(in)) |-> ##2 $stable(error)
+);
+
 endmodule
-
-// Bind into the DUT (ports match DUT internal names via .*)
-bind phase_detector phase_detector_sva sva_i (.*);

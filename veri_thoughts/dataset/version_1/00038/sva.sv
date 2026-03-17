@@ -1,123 +1,146 @@
-// SVA checker for FSM. Bind to the DUT to verify next-state/output logic and cover all paths.
-
-module fsm_sva #(parameter int n=4, m=2, s=8)
-(
-  input  logic [n-1:0] in,
-  input  logic [m-1:0] out,
-  input  logic [s-1:0] state
+module FSM_assertions #(
+    parameter n = 4,
+    parameter m = 2,
+    parameter s = 8,
+    parameter t = 12
+) (
+    input logic [n-1:0] in,
+    input logic [m-1:0] out,
+    input logic [s-1:0] state
 );
 
-  // Fire assertions when inputs change (matches DUT sensitivity)
-  event in_ev;
-  always @(in) -> in_ev;
+    localparam logic [s-1:0] ST0 = {{(s-3){1'b0}}, 3'b000};
+    localparam logic [s-1:0] ST1 = {{(s-3){1'b0}}, 3'b001};
+    localparam logic [s-1:0] ST2 = {{(s-3){1'b0}}, 3'b010};
+    localparam logic [s-1:0] ST3 = {{(s-3){1'b0}}, 3'b011};
+    localparam logic [s-1:0] ST4 = {{(s-3){1'b0}}, 3'b100};
+    localparam logic [s-1:0] ST5 = {{(s-3){1'b0}}, 3'b101};
+    localparam logic [s-1:0] ST6 = {{(s-3){1'b0}}, 3'b110};
+    localparam logic [s-1:0] ST7 = {{(s-3){1'b0}}, 3'b111};
 
-  // Sanity on params
-  initial begin
-    if (n < 4) $error("FSM SVA: n must be >= 4");
-    if (m != 2) $error("FSM SVA: m must be 2");
-    if (s < 3) $error("FSM SVA: s must be >= 3");
-  end
+    // State and output only change when the input vector changes.
+    check_hold_when_input_stable: assert property (
+        @($global_clock) disable iff ($initstate)
+        $stable(in) |-> ($stable(state) && $stable(out))
+    );
 
-  // Expected next-state and output functions (per RTL)
-  function automatic logic [2:0] ns3 (input logic [2:0] st, input logic [n-1:0] i);
-    case (st)
-      3'b000: ns3 = (i[0] && i[1]) ? 3'b001 :
-                    (i[2])         ? 3'b010 : 3'b000;
-      3'b001: ns3 = (i[0] && i[1]) ? 3'b001 :
-                    (i[2])         ? 3'b011 : 3'b000;
-      3'b010: ns3 = (i[0] && i[1]) ? 3'b011 :
-                    (i[2])         ? 3'b010 : 3'b000;
-      3'b011: ns3 = (i[0] && i[1]) ? 3'b011 :
-                    (i[2])         ? 3'b010 : 3'b001;
-      3'b100: ns3 = (i[1] && i[3]) ? 3'b101 :
-                    (i[0])         ? 3'b110 : 3'b100;
-      3'b101: ns3 = (i[1] && i[3]) ? 3'b101 :
-                    (i[0])         ? 3'b111 : 3'b100;
-      3'b110: ns3 = (i[1] && i[3]) ? 3'b111 :
-                    (i[0])         ? 3'b110 : 3'b100;
-      3'b111: ns3 = (i[1] && i[3]) ? 3'b111 :
-                    (i[0])         ? 3'b110 : 3'b101;
-      default: ns3 = st;
-    endcase
-  endfunction
+    // An invalid state encoding causes no assignment because there is no default case.
+    check_invalid_state_holds_on_input_change: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         ($past(state) != ST0) && ($past(state) != ST1) &&
+         ($past(state) != ST2) && ($past(state) != ST3) &&
+         ($past(state) != ST4) && ($past(state) != ST5) &&
+         ($past(state) != ST6) && ($past(state) != ST7))
+        |-> ($stable(state) && $stable(out))
+    );
 
-  function automatic logic [1:0] no3 (input logic [2:0] st, input logic [n-1:0] i);
-    case (st)
-      3'b000,3'b001,3'b010,3'b011:
-        no3 = (i[0] && i[1]) ? 2'b10 :
-              (i[2])         ? 2'b01 : 2'b00;
-      3'b100,3'b101,3'b110,3'b111:
-        no3 = (i[1] && i[3]) ? 2'b10 :
-              (i[0])         ? 2'b01 : 2'b00;
-      default: no3 = 2'b00;
-    endcase
-  endfunction
+    // In states 0 or 1, in[0]&in[1] leads to state 1 with output 10.
+    check_state01_cond_ab: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST0) || ($past(state) == ST1)) &&
+         in[0] && in[1])
+        |-> ((state == ST1) && (out == 2'b10))
+    );
 
-  // Legal state encoding: upper bits must be 0
-  generate if (s > 3) begin
-    assert property (@(in_ev) ##0 (state[s-1:3] == '0))
-      else $error("FSM: upper state bits must remain 0");
-  end endgenerate
+    // In states 2 or 3, in[0]&in[1] leads to state 3 with output 10.
+    check_state23_cond_ab: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST2) || ($past(state) == ST3)) &&
+         in[0] && in[1])
+        |-> ((state == ST3) && (out == 2'b10))
+    );
 
-  // Output encoding only allows 00/01/10
-  assert property (@(in_ev) ##0 (out inside {2'b00,2'b01,2'b10}))
-    else $error("FSM: out has illegal value");
+    // In states 0, 2, or 3, in[2] without in[0]&in[1] leads to state 2 with output 01.
+    check_state023_cond_c: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST0) || ($past(state) == ST2) || ($past(state) == ST3)) &&
+         !(in[0] && in[1]) && in[2])
+        |-> ((state == ST2) && (out == 2'b01))
+    );
 
-  // Core functional check: after an input change, state/out match RTL mapping (NBA-aware)
-  assert property (@(in_ev) 1 |-> ##0
-                   (state[2:0] == ns3($past(state[2:0],0), in) &&
-                    out        == no3($past(state[2:0],0), in)))
-    else $error("FSM: next-state/output mismatch");
+    // In state 1, in[2] without in[0]&in[1] leads to state 3 with output 01.
+    check_state1_cond_c: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         ($past(state) == ST1) &&
+         !(in[0] && in[1]) && in[2])
+        |-> ((state == ST3) && (out == 2'b01))
+    );
 
-  // Hold-path stability checks
-  assert property (@(in_ev)
-                   ($past(state[2:0],0) inside {3'b000,3'b001,3'b010,3'b011} &&
-                    !(in[0]&&in[1]) && !in[2]) |-> ##0 $stable(state[2:0]))
-    else $error("FSM: unexpected state change in 0..3 hold path");
+    // In states 0, 1, or 2, neither condition leads to state 0 with output 00.
+    check_state012_else: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST0) || ($past(state) == ST1) || ($past(state) == ST2)) &&
+         !(in[0] && in[1]) && !in[2])
+        |-> ((state == ST0) && (out == 2'b00))
+    );
 
-  assert property (@(in_ev)
-                   ($past(state[2:0],0) inside {3'b100,3'b101,3'b110,3'b111} &&
-                    !(in[1]&&in[3]) && !in[0]) |-> ##0 $stable(state[2:0]))
-    else $error("FSM: unexpected state change in 4..7 hold path");
+    // In state 3, neither condition leads to state 1 with output 00.
+    check_state3_else: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         ($past(state) == ST3) &&
+         !(in[0] && in[1]) && !in[2])
+        |-> ((state == ST1) && (out == 2'b00))
+    );
 
-  // Coverage: visit all states and outputs
-  genvar k;
-  for (k=0; k<8; k++) begin : C_STATES
-    cover property (@(in_ev) ##0 state[2:0] == k[2:0]);
-  end
-  cover property (@(in_ev) ##0 out==2'b00);
-  cover property (@(in_ev) ##0 out==2'b01);
-  cover property (@(in_ev) ##0 out==2'b10);
+    // In states 4 or 5, in[1]&in[3] leads to state 5 with output 10.
+    check_state45_cond_bd: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST4) || ($past(state) == ST5)) &&
+         in[1] && in[3])
+        |-> ((state == ST5) && (out == 2'b10))
+    );
 
-  // Coverage: all branches/transitions
-  // 0-group
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b000 &&  in[0]&&in[1]) ##0 (state[2:0]==3'b001 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b000 && !(in[0]&&in[1]) &&  in[2]) ##0 (state[2:0]==3'b010 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b000 && !(in[0]&&in[1]) && !in[2]) ##0 (state[2:0]==3'b000 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b001 &&  in[0]&&in[1]) ##0 (state[2:0]==3'b001 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b001 && !(in[0]&&in[1]) &&  in[2]) ##0 (state[2:0]==3'b011 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b001 && !(in[0]&&in[1]) && !in[2]) ##0 (state[2:0]==3'b000 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b010 &&  in[0]&&in[1]) ##0 (state[2:0]==3'b011 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b010 && !(in[0]&&in[1]) &&  in[2]) ##0 (state[2:0]==3'b010 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b010 && !(in[0]&&in[1]) && !in[2]) ##0 (state[2:0]==3'b000 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b011 &&  in[0]&&in[1]) ##0 (state[2:0]==3'b011 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b011 && !(in[0]&&in[1]) &&  in[2]) ##0 (state[2:0]==3'b010 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b011 && !(in[0]&&in[1]) && !in[2]) ##0 (state[2:0]==3'b001 && out==2'b00));
-  // 4-group
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b100 &&  in[1]&&in[3]) ##0 (state[2:0]==3'b101 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b100 && !(in[1]&&in[3]) &&  in[0]) ##0 (state[2:0]==3'b110 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b100 && !(in[1]&&in[3]) && !in[0]) ##0 (state[2:0]==3'b100 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b101 &&  in[1]&&in[3]) ##0 (state[2:0]==3'b101 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b101 && !(in[1]&&in[3]) &&  in[0]) ##0 (state[2:0]==3'b111 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b101 && !(in[1]&&in[3]) && !in[0]) ##0 (state[2:0]==3'b100 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b110 &&  in[1]&&in[3]) ##0 (state[2:0]==3'b111 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b110 && !(in[1]&&in[3]) &&  in[0]) ##0 (state[2:0]==3'b110 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b110 && !(in[1]&&in[3]) && !in[0]) ##0 (state[2:0]==3'b100 && out==2'b00));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b111 &&  in[1]&&in[3]) ##0 (state[2:0]==3'b111 && out==2'b10));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b111 && !(in[1]&&in[3]) &&  in[0]) ##0 (state[2:0]==3'b110 && out==2'b01));
-  cover property (@(in_ev) ($past(state[2:0],0)==3'b111 && !(in[1]&&in[3]) && !in[0]) ##0 (state[2:0]==3'b101 && out==2'b00));
+    // In states 6 or 7, in[1]&in[3] leads to state 7 with output 10.
+    check_state67_cond_bd: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST6) || ($past(state) == ST7)) &&
+         in[1] && in[3])
+        |-> ((state == ST7) && (out == 2'b10))
+    );
+
+    // In states 4, 6, or 7, in[0] without in[1]&in[3] leads to state 6 with output 01.
+    check_state467_cond_a: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST4) || ($past(state) == ST6) || ($past(state) == ST7)) &&
+         !(in[1] && in[3]) && in[0])
+        |-> ((state == ST6) && (out == 2'b01))
+    );
+
+    // In state 5, in[0] without in[1]&in[3] leads to state 7 with output 01.
+    check_state5_cond_a: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         ($past(state) == ST5) &&
+         !(in[1] && in[3]) && in[0])
+        |-> ((state == ST7) && (out == 2'b01))
+    );
+
+    // In states 4, 5, or 6, neither condition leads to state 4 with output 00.
+    check_state456_else: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         (($past(state) == ST4) || ($past(state) == ST5) || ($past(state) == ST6)) &&
+         !(in[1] && in[3]) && !in[0])
+        |-> ((state == ST4) && (out == 2'b00))
+    );
+
+    // In state 7, neither condition leads to state 5 with output 00.
+    check_state7_else: assert property (
+        @($global_clock) disable iff ($initstate)
+        ($changed(in) &&
+         ($past(state) == ST7) &&
+         !(in[1] && in[3]) && !in[0])
+        |-> ((state == ST5) && (out == 2'b00))
+    );
 
 endmodule
-
-// Bind into the DUT scope; connects to internal 'state' reg
-bind FSM fsm_sva #(.n(n), .m(m), .s(s)) i_fsm_sva (.*);

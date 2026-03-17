@@ -1,33 +1,41 @@
-// SVA for DLATCHR
 module DLATCHR_sva (
-  input logic D,
-  input logic nCLK,
-  input logic nRST,
-  input logic INIT,
-  input logic Q
+    input logic D,
+    input logic nCLK,
+    input logic nRST,
+    input logic INIT,
+    input logic Q
 );
 
-  default clocking cb @(posedge nCLK); endclocking
+    // nCLK is the clock; nRST is a synchronous active-low reset.
 
-  // Functional correctness: Q equals the mux of prior-cycle inputs
-  assert property ($past(1'b1) |-> (Q == $past(nRST ? D : INIT)));
+    // Q reflects the input selected on the previous clock edge.
+    check_selected_input_function: assert property (
+        @(posedge nCLK) disable iff ($initstate)
+        1'b1 |=> (Q == $past((!nRST) ? INIT : D))
+    );
 
-  // Inputs known at sampling; Q known after first sampled cycle
-  assert property (!$isunknown({nRST, D, INIT}));
-  assert property ($past(1'b1) |-> !$isunknown(Q));
+    // After a non-reset clock edge, the stored value is the previous D.
+    check_data_capture: assert property (
+        @(posedge nCLK) disable iff ($initstate || !nRST)
+        $past(nRST) |-> (Q == $past(D))
+    );
 
-  // Q changes only on clock edges (no glitches)
-  property q_changes_only_on_clk;
-    @(posedge nCLK or posedge Q or negedge Q)
-      $changed(Q) |-> $rose(nCLK);
-  endproperty
-  assert property (q_changes_only_on_clk);
+    // After a reset clock edge, the reset value is visible once reset releases.
+    check_reset_load: assert property (
+        @(posedge nCLK) disable iff ($initstate || !nRST)
+        $past(!nRST) |-> (Q == $past(INIT))
+    );
 
-  // Coverage: exercise reset load, data capture, and reset release then capture
-  cover property (!nRST ##1 (Q == $past(INIT)));
-  cover property ( nRST ##1 (Q == $past(D)));
-  cover property (!nRST ##1 nRST ##1 (Q == $past(D)));
+    // When reset was active and D differed from INIT, Q still comes from INIT.
+    check_reset_priority_over_d: assert property (
+        @(posedge nCLK) disable iff ($initstate || !nRST)
+        $past(!nRST && (D != INIT)) |-> ((Q == $past(INIT)) && (Q != $past(D)))
+    );
+
+    // When reset was inactive and D differed from INIT, Q comes from D.
+    check_data_path_selected: assert property (
+        @(posedge nCLK) disable iff ($initstate || !nRST)
+        $past(nRST && (D != INIT)) |-> ((Q == $past(D)) && (Q != $past(INIT)))
+    );
 
 endmodule
-
-bind DLATCHR DLATCHR_sva sva_i (.D(D), .nCLK(nCLK), .nRST(nRST), .INIT(INIT), .Q(Q));
