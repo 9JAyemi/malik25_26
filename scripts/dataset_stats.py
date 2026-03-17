@@ -38,6 +38,12 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
+try:
+    import plotly.graph_objects as go
+    HAS_PLOTLY = True
+except ImportError:
+    HAS_PLOTLY = False
+
 # ── Regex to count SVA properties ────────────────────────────────────────────
 RE_ASSERT = re.compile(r'\bassert\s+property\b', re.IGNORECASE)
 RE_COVER  = re.compile(r'\bcover\s+property\b',  re.IGNORECASE)
@@ -1023,6 +1029,146 @@ def generate_charts_for_dataset(records, label, out_dir):
     print(f"  All {label} charts saved to {out_dir}")
 
 
+def parse_id_summary_csv(csv_path: str) -> list[dict]:
+    """Parse an id_summary.csv file and return a list of row dicts.
+
+    Handles both formats (with and without auto_bind column).
+    """
+    rows = []
+    if not os.path.isfile(csv_path):
+        return rows
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            entry = {
+                "id": row["id"].strip(),
+                "csv_status": row.get("csv_status", "").strip(),
+                "total_assertions": int(row.get("total_assertions", 0)),
+                "proven": int(row.get("proven", 0)),
+                "cex": int(row.get("cex", 0)),
+                "total_covers": int(row.get("total_covers", 0)),
+                "covered": int(row.get("covered", 0)),
+                "unreachable": int(row.get("unreachable", 0)),
+            }
+            rows.append(entry)
+    return rows
+
+
+def collect_id_summaries(dataset_dir: str) -> list[dict]:
+    """Collect id_summary.csv rows across all version_X dirs, latest wins."""
+    verif_base = os.path.join(dataset_dir, "verification_results")
+    if not os.path.isdir(verif_base):
+        return []
+    merged = {}  # keyed by id
+    version_dirs = sorted(
+        [d for d in os.listdir(verif_base) if d.startswith("version_") and
+         os.path.isdir(os.path.join(verif_base, d))]
+    )
+    for vdir in version_dirs:
+        csv_path = os.path.join(verif_base, vdir, "visual_data", "id_summary.csv")
+        for row in parse_id_summary_csv(csv_path):
+            merged[row["id"]] = row
+    return sorted(merged.values(), key=lambda r: r["id"])
+
+
+def generate_interactive_pie_html(all_rows: list[dict], label: str, out_path: str):
+    """Generate an interactive HTML page with a dropdown to select an ID
+    and view a pie chart of proven vs CEX assertions (and covered vs unreachable covers).
+
+    Requires plotly.  Falls back to a warning message if plotly is unavailable.
+    """
+    if not HAS_PLOTLY:
+        print(f"  WARNING: plotly not installed, skipping interactive pie chart for {label}")
+        return
+
+    # Filter to IDs that have at least one assertion or cover
+    rows = [r for r in all_rows if r["total_assertions"] > 0 or r["total_covers"] > 0]
+    if not rows:
+        print(f"  No IDs with assertions/covers found for {label}, skipping interactive pie.")
+        return
+
+    ids = [r["id"] for r in rows]
+
+    # Build one figure with two pie subcharts per ID, using dropdown visibility
+    from plotly.subplots import make_subplots
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        specs=[[{"type": "pie"}, {"type": "pie"}]],
+        subplot_titles=["Assertions: Proven vs CEX", "Covers: Covered vs Unreachable"],
+    )
+
+    # Add two pie traces per ID (all hidden except the first)
+    for i, r in enumerate(rows):
+        visible = (i == 0)
+        # Assertions pie
+        fig.add_trace(
+            go.Pie(
+                labels=["Proven", "CEX"],
+                values=[r["proven"], r["cex"]],
+                marker=dict(colors=["#4CAF50", "#F44336"]),
+                textinfo="label+value+percent",
+                name=f"Assertions – {r['id']}",
+                visible=visible,
+                hole=0.3,
+            ),
+            row=1, col=1,
+        )
+        # Covers pie
+        fig.add_trace(
+            go.Pie(
+                labels=["Covered", "Unreachable"],
+                values=[r["covered"], r["unreachable"]],
+                marker=dict(colors=["#2196F3", "#FF9800"]),
+                textinfo="label+value+percent",
+                name=f"Covers – {r['id']}",
+                visible=visible,
+                hole=0.3,
+            ),
+            row=1, col=2,
+        )
+
+    # Build dropdown buttons — each button makes exactly 2 traces visible
+    n_ids = len(rows)
+    buttons = []
+    for i, r in enumerate(rows):
+        vis = [False] * (2 * n_ids)
+        vis[2 * i] = True      # assertions pie for this ID
+        vis[2 * i + 1] = True  # covers pie for this ID
+        summary = (f"ID {r['id']}  —  Assertions: {r['proven']} proven, {r['cex']} cex"
+                   f"  |  Covers: {r['covered']} covered, {r['unreachable']} unreachable")
+        buttons.append(dict(
+            label=r["id"],
+            method="update",
+            args=[{"visible": vis},
+                  {"title": f"{label} — {summary}"}],
+        ))
+
+    fig.update_layout(
+        updatemenus=[dict(
+            active=0,
+            buttons=buttons,
+            x=0.5, xanchor="center",
+            y=1.15, yanchor="top",
+            bgcolor="#e0e0e0",
+            font=dict(size=13),
+        )],
+        title=dict(
+            text=(f"{label} — ID {rows[0]['id']}  —  "
+                  f"Assertions: {rows[0]['proven']} proven, {rows[0]['cex']} cex  |  "
+                  f"Covers: {rows[0]['covered']} covered, {rows[0]['unreachable']} unreachable"),
+            x=0.5,
+        ),
+        height=550,
+        width=1000,
+        showlegend=True,
+    )
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    fig.write_html(out_path)
+    print(f"  Saved interactive pie chart: {out_path}")
+
+
 def plot_cdf_comparison(data_a, data_b, label_a, label_b,
                         xlabel, title, out_path):
     """Overlapping CDF curves for two datasets with percentile cutoff annotations."""
@@ -1102,6 +1248,15 @@ def _process_version(version_dir, dataset_dir, label, version_name, verif_stats)
     # ── Verification/counterexample summary and plots ──
     print_verification_summary(records, version_label, out_dir)
 
+    # ── Interactive pie chart from id_summary.csv ──
+    id_summary_csv = os.path.join(
+        dataset_dir, "verification_results", version_name, "visual_data", "id_summary.csv"
+    )
+    id_rows = parse_id_summary_csv(id_summary_csv)
+    if id_rows:
+        html_path = os.path.join(out_dir, "interactive_pie_per_id.html")
+        generate_interactive_pie_html(id_rows, version_label, html_path)
+
     print(f"\nAll {version_label} outputs saved to {out_dir}")
 
 
@@ -1148,6 +1303,14 @@ def main():
 
     process_single_dataset(metrex_dir, "metrex")
     process_single_dataset(vt_dir, "veri_thoughts")
+
+    # ── Combined interactive pie charts (all versions merged, one per dataset) ──
+    for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
+        combined_rows = collect_id_summaries(ddir)
+        if combined_rows:
+            html_out = os.path.join(ddir, "dataset_stats",
+                                    f"interactive_pie_per_id_{lbl}.html")
+            generate_interactive_pie_html(combined_rows, lbl, html_out)
 
     print("Done!")
 
