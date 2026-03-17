@@ -1,51 +1,40 @@
-// SVA for power_module
 module power_module_sva (
-  input logic VPB, VPWR, VGND, VNB,
-  input logic HI, LO
+    input logic VPB,
+    input logic VPWR,
+    input logic VGND,
+    input logic VNB,
+    input logic HI,
+    input logic LO
 );
 
-  // Sample on any input change
-  clocking cb @(
-    posedge VPB or negedge VPB or
-    posedge VPWR or negedge VPWR or
-    posedge VGND or negedge VGND or
-    posedge VNB or negedge VNB
-  ); endclocking
-  default clocking cb;
+    // VPB forces HI high and LO low.
+    check_vpb_branch: assert property (
+        @($global_clock) VPB |-> (HI == 1'b1) && (LO == 1'b0)
+    );
 
-  // Derived conditions (sampled)
-  wire c1 = VPB;
-  wire c2 = VPWR && !VGND;
-  wire c3 = VNB;
-  wire c4 = !VPWR && VGND;
+    // With VPB low, VPWR high and VGND low drive HI high and LO low.
+    check_vpwr_branch: assert property (
+        @($global_clock) (!VPB && VPWR && !VGND) |-> (HI == 1'b1) && (LO == 1'b0)
+    );
 
-  // Basic encoding checks
-  a_no_both_hi_lo:      assert property (!(HI && LO));
-  a_valid_states_only:  assert property ((HI && !LO) || (!HI && LO) || (!HI && !LO));
-  a_no_x_out:           assert property (!$isunknown({HI, LO}));
+    // VNB drives LO high when the HI-driving conditions are absent.
+    check_vnb_branch: assert property (
+        @($global_clock) (!VPB && !(VPWR && !VGND) && VNB) |-> (HI == 1'b0) && (LO == 1'b1)
+    );
 
-  // Functional equivalence of priority logic
-  a_hi_func: assert property (HI == (c1 || c2));
-  a_lo_func: assert property (LO == ((!(c1 || c2)) && (c3 || c4)));
+    // With no VPWR and asserted VGND, LO is high when higher-priority branches are absent.
+    check_no_vpwr_vgnd_branch: assert property (
+        @($global_clock) (!VPB && !VNB && !VPWR && VGND) |-> (HI == 1'b0) && (LO == 1'b1)
+    );
 
-  // Priority mask: when HI drivers active, LO must be 0 even if LO drivers request it
-  a_lo_masked_when_hi: assert property (((c3 || c4) && (c1 || c2)) |-> !LO);
+    // When neither HI nor LO conditions apply, both outputs are low.
+    check_default_branch: assert property (
+        @($global_clock) (!VPB && !VNB && ((VPWR && VGND) || (!VPWR && !VGND))) |-> (HI == 1'b0) && (LO == 1'b0)
+    );
 
-  // Full branch coverage
-  c_hi_by_vpb:       cover property ( c1                              &&  HI && !LO);
-  c_hi_by_vpwr:      cover property (!c1 &&  c2                       &&  HI && !LO);
-  c_lo_by_vnb:       cover property (!(c1||c2) &&  c3                 && !HI &&  LO);
-  c_lo_by_rails:     cover property (!(c1||c2||c3) &&  c4             && !HI &&  LO);
-  c_default_zero:    cover property (!(c1||c2||c3||c4)                && !HI && !LO);
-
-  // Overlap/priority scenarios
-  c_vpb_over_vnb:    cover property ( c1 &&  c3 &&                    HI && !LO);
-  c_vpwr_over_vnb:   cover property ( c2 &&  c3 &&                    HI && !LO);
+    // HI and LO are never high at the same time.
+    check_hi_lo_mutex: assert property (
+        @($global_clock) !((HI == 1'b1) && (LO == 1'b1))
+    );
 
 endmodule
-
-// Bind into DUT
-bind power_module power_module_sva sva (
-  .VPB(VPB), .VPWR(VPWR), .VGND(VGND), .VNB(VNB),
-  .HI(HI), .LO(LO)
-);

@@ -1,64 +1,43 @@
-// SVA checker for shift_nor
-module shift_nor_sva #(parameter int WIDTH = 100)
-(
-  input  logic                 clk,
-  input  logic                 load,
-  input  logic [1:0]           ena,
-  input  logic [WIDTH-1:0]     data,
-  input  logic                 a,
-  input  logic                 b,
-  input  logic                 out,
-  input  logic [WIDTH-1:0]     shifted_data,
-  input  logic [WIDTH-1:0]     shift_reg
+module shift_nor_sva (
+    input logic        clk,
+    input logic        load,
+    input logic [1:0]  ena,
+    input logic [99:0] data,
+    input logic        a,
+    input logic        b,
+    input logic        out,
+    input logic [99:0] shift_reg,
+    input logic [99:0] shifted_data
 );
-  localparam int MSB = WIDTH-1;
 
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    // Load captures data into the shift register on the next clock.
+    check_load_captures_data: assert property (
+        @(posedge clk) load |=> (shift_reg == $past(data))
+    );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!past_valid);
+    // ena=01 rotates the shift register right by one bit when load is low.
+    check_rotate_right: assert property (
+        @(posedge clk) (!load && (ena == 2'b01)) |=> (shift_reg == {$past(shift_reg[0]), $past(shift_reg[99:1])})
+    );
 
-  // Functional correctness
-  assert property (load |=> shift_reg == $past(data));
+    // ena=10 rotates the shift register left by one bit when load is low.
+    check_rotate_left: assert property (
+        @(posedge clk) (!load && (ena == 2'b10)) |=> (shift_reg == {$past(shift_reg[98:0]), $past(shift_reg[99])})
+    );
 
-  assert property (!load && (ena == 2'b01)
-                   |=> shift_reg == {$past(shift_reg[0]), $past(shift_reg[MSB:1])});
+    // ena=00 or ena=11 holds the shift register value when load is low.
+    check_hold_when_not_enabled: assert property (
+        @(posedge clk) (!load && ((ena == 2'b00) || (ena == 2'b11))) |=> (shift_reg == $past(shift_reg))
+    );
 
-  assert property (!load && (ena == 2'b10)
-                   |=> shift_reg == {$past(shift_reg[MSB-1:0]), $past(shift_reg[MSB])});
+    // shifted_data always mirrors the shift register.
+    check_shifted_data_mirrors_shift_reg: assert property (
+        @(posedge clk) shifted_data == shift_reg
+    );
 
-  assert property (!load && !(ena inside {2'b01,2'b10})
-                   |=> shift_reg == $past(shift_reg));
-
-  // No spurious updates
-  assert property ($changed(shift_reg)
-                   |-> $past(load || (ena inside {2'b01,2'b10})));
-
-  // Alias check
-  assert property (shifted_data === shift_reg);
-
-  // NOR gate correctness
-  assert property (out === ~(a | b));
-
-  // Coverage
-  cover property (load);
-  cover property (!load && ena == 2'b01);
-  cover property (!load && ena == 2'b10);
-  cover property (!load && !(ena inside {2'b01,2'b10}));
-
-  // Wrap-around coverage
-  cover property (!load && ena == 2'b01 |=> shift_reg[MSB] == $past(shift_reg[0]));
-  cover property (!load && ena == 2'b10 |=> shift_reg[0]   == $past(shift_reg[MSB]));
-
-  // NOR truth table coverage
-  cover property (a==0 && b==0 && out==1);
-  cover property (a==0 && b==1 && out==0);
-  cover property (a==1 && b==0 && out==0);
-  cover property (a==1 && b==1 && out==0);
+    // out is always the NOR of inputs a and b.
+    check_nor_output: assert property (
+        @(posedge clk) out == ~(a | b)
+    );
 
 endmodule
-
-// Bind the checker into the DUT scope (gains access to internal shift_reg)
-bind shift_nor shift_nor_sva #(.WIDTH(100)) shift_nor_sva_i (.*);

@@ -1,54 +1,75 @@
-// SVA checker for karnaugh_map. Bind this to the DUT.
-// Uses an input-change sampling event and ##0 to avoid race with combinational update.
-module karnaugh_map_sva (
-  input logic A, B, C, D,
-  input logic F
+module karnaugh_map_assertions (
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D,
+    input logic F
 );
 
-  // Sample on any input edge
-  default clocking cb @(
-    posedge A or negedge A or
-    posedge B or negedge B or
-    posedge C or negedge C or
-    posedge D or negedge D
-  ); endclocking
+    // F matches the implemented sum-of-products expression.
+    check_f_matches_expression: assert property (
+        @($global_clock)
+        F == ((A & ~B & C & ~D) |
+              (~A & B & ~C & D) |
+              (A & ~B & ~C & D) |
+              (~A & B & C & ~D))
+    );
 
-  // X-prop and functional equivalence (simplified form: F == (A^B) & (C^D))
-  property p_func_eq;
-    !$isunknown({A,B,C,D}) |-> ##0 (! $isunknown(F) && (F == ((A ^ B) & (C ^ D))));
-  endproperty
-  assert property (p_func_eq)
-    else $error("karnaugh_map: F != (A^B)&(C^D) or X detected");
+    // F is high for the minterm A=1, B=0, C=1, D=0.
+    check_f_high_for_1010: assert property (
+        @($global_clock)
+        (A && !B && C && !D) |-> F
+    );
 
-  // Sanity: F must be 1 on each asserted minterm (post-update)
-  assert property ( (A && !B &&  C && !D) |-> ##0 F )
-    else $error("karnaugh_map: minterm A!BC!D not driving F=1");
-  assert property ( (!A && B && !C &&  D) |-> ##0 F )
-    else $error("karnaugh_map: minterm !AB!CD not driving F=1");
-  assert property ( (A && !B && !C &&  D) |-> ##0 F )
-    else $error("karnaugh_map: minterm A!B!CD not driving F=1");
-  assert property ( (!A && B &&  C && !D) |-> ##0 F )
-    else $error("karnaugh_map: minterm !AB C!D not driving F=1");
+    // F is high for the minterm A=0, B=1, C=0, D=1.
+    check_f_high_for_0101: assert property (
+        @($global_clock)
+        (!A && B && !C && D) |-> F
+    );
 
-  // Coverage: exercise both output polarities
-  cover property ( !$isunknown({A,B,C,D}) |-> ##0 F );
-  cover property ( !$isunknown({A,B,C,D}) |-> ##0 !F );
+    // F is high for the minterm A=1, B=0, C=0, D=1.
+    check_f_high_for_1001: assert property (
+        @($global_clock)
+        (A && !B && !C && D) |-> F
+    );
 
-  // Coverage: hit all 4 on-set minterms
-  cover property ( ##0 (A && !B &&  C && !D) );
-  cover property ( ##0 (!A && B && !C &&  D) );
-  cover property ( ##0 (A && !B && !C &&  D) );
-  cover property ( ##0 (!A && B &&  C && !D) );
+    // F is high for the minterm A=0, B=1, C=1, D=0.
+    check_f_high_for_0110: assert property (
+        @($global_clock)
+        (!A && B && C && !D) |-> F
+    );
 
-  // Full input-space coverage (compact): SV covergroup
-  covergroup cg_inputs @(cb);
-    coverpoint {A,B,C,D} { bins all[] = {[0:15]}; }
-    coverpoint F;
-    cross {A,B,C,D}, F;
-  endgroup
-  cg_inputs cg = new();
+    // F is low when none of the implemented product terms is active.
+    check_f_low_outside_implemented_minterms: assert property (
+        @($global_clock)
+        !((A & ~B & C & ~D) |
+          (~A & B & ~C & D) |
+          (A & ~B & ~C & D) |
+          (~A & B & C & ~D)) |-> !F
+    );
+
+    // F can only be high when A and B differ.
+    check_f_requires_ab_difference: assert property (
+        @($global_clock)
+        F |-> (A ^ B)
+    );
+
+    // F can only be high when C and D differ.
+    check_f_requires_cd_difference: assert property (
+        @($global_clock)
+        F |-> (C ^ D)
+    );
+
+    // F is low whenever A and B are equal.
+    check_f_low_when_ab_equal: assert property (
+        @($global_clock)
+        !(A ^ B) |-> !F
+    );
+
+    // F is low whenever C and D are equal.
+    check_f_low_when_cd_equal: assert property (
+        @($global_clock)
+        !(C ^ D) |-> !F
+    );
 
 endmodule
-
-// Bind into the DUT
-bind karnaugh_map karnaugh_map_sva kmap_sva_i (.A(A), .B(B), .C(C), .D(D), .F(F));

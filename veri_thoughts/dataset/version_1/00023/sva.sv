@@ -1,70 +1,100 @@
-// SVA checker for BCD_Converter
-// Bind this to the DUT; provide a clock/reset from your TB.
-module bcd_converter_sva (
-  input  logic        clk,
-  input  logic        rst_n,
-  input  logic [3:0]  bin,
-  input  logic [3:0]  bcd
+module BCD_Converter_sva (
+    input logic clk,
+    input logic [3:0] bin,
+    input logic [3:0] bcd
 );
 
-  // Golden model (derived from the DUT's logic)
-  function automatic logic [3:0] exp_bcd (input logic [3:0] b);
-    unique case (b)
-      4'h0: exp_bcd = 4'h0;
-      4'h1: exp_bcd = 4'h1;
-      4'h2: exp_bcd = 4'h0;
-      4'h3: exp_bcd = 4'h2;
-      4'h4: exp_bcd = 4'h0;
-      4'h5: exp_bcd = 4'h0;
-      4'h6: exp_bcd = 4'h2;
-      4'h7: exp_bcd = 4'h4;
-      4'h8: exp_bcd = 4'h1;
-      4'h9: exp_bcd = 4'h2;
-      4'hA: exp_bcd = 4'h1;
-      4'hB: exp_bcd = 4'h4;
-      4'hC: exp_bcd = 4'h3;
-      4'hD: exp_bcd = 4'h4;
-      4'hE: exp_bcd = 4'h4;
-      4'hF: exp_bcd = 4'h8;
-      default: exp_bcd = 'x;
-    endcase
-  endfunction
+    // bcd[3] is high only for an all-ones input.
+    check_bcd_bit3_all_ones: assert property (
+        @(posedge clk)
+        (bcd[3] == (bin == 4'b1111))
+    );
 
-  // Inputs must be known when sampled
-  a_inputs_known: assert property (@(posedge clk) disable iff (!rst_n)
-                                   !$isunknown(bin));
+    // bcd[2] is high for the four three-ones input patterns.
+    check_bcd_bit2_three_high_patterns: assert property (
+        @(posedge clk)
+        (bcd[2] == (
+            (bin == 4'b0111) ||
+            (bin == 4'b1011) ||
+            (bin == 4'b1101) ||
+            (bin == 4'b1110)
+        ))
+    );
 
-  // Functional equivalence to golden model
-  a_functional:   assert property (@(posedge clk) disable iff (!rst_n)
-                                   !$isunknown(bin) |-> (bcd === exp_bcd(bin)));
+    // bcd[1] is high for the four patterns encoded by the RTL.
+    check_bcd_bit1_selected_patterns: assert property (
+        @(posedge clk)
+        (bcd[1] == (
+            (bin == 4'b0011) ||
+            (bin == 4'b0110) ||
+            (bin == 4'b1001) ||
+            (bin == 4'b1100)
+        ))
+    );
 
-  // Output domain sanity (only values the DUT can produce)
-  a_out_domain:   assert property (@(posedge clk) disable iff (!rst_n)
-                                   !$isunknown(bin) |-> (bcd inside {4'h0,4'h1,4'h2,4'h3,4'h4,4'h8}));
+    // bcd[0] is high for the four patterns encoded by the RTL.
+    check_bcd_bit0_selected_patterns: assert property (
+        @(posedge clk)
+        (bcd[0] == (
+            (bin == 4'b0001) ||
+            (bin == 4'b1000) ||
+            (bin == 4'b1010) ||
+            (bin == 4'b1100)
+        ))
+    );
 
-  // Stable output if input is stable across cycles
-  a_stability:    assert property (@(posedge clk) disable iff (!rst_n)
-                                   (bin == $past(bin)) |-> (bcd == $past(bcd)));
+    // Inputs 0, 2, 4, and 5 produce a zero output.
+    check_zero_output_cases: assert property (
+        @(posedge clk)
+        (
+            (bin == 4'b0000) ||
+            (bin == 4'b0010) ||
+            (bin == 4'b0100) ||
+            (bin == 4'b0101)
+        ) |-> (bcd == 4'b0000)
+    );
 
-  // Coverage: hit every input and its expected output
-  genvar i;
-  generate
-    for (i = 0; i < 16; i++) begin : COV_IN_OUT
-      c_in_out: cover property (@(posedge clk) disable iff (!rst_n)
-                                (bin == i[3:0]) && (bcd == exp_bcd(i[3:0])));
-    end
-  endgenerate
+    // Inputs 1, 8, and 10 produce 0001.
+    check_one_output_cases: assert property (
+        @(posedge clk)
+        (
+            (bin == 4'b0001) ||
+            (bin == 4'b1000) ||
+            (bin == 4'b1010)
+        ) |-> (bcd == 4'b0001)
+    );
 
-  // Coverage: each output bit toggles both ways
-  genvar j;
-  generate
-    for (j = 0; j < 4; j++) begin : COV_TOGGLE
-      c_rose: cover property (@(posedge clk) disable iff (!rst_n) $rose(bcd[j]));
-      c_fell: cover property (@(posedge clk) disable iff (!rst_n) $fell(bcd[j]));
-    end
-  endgenerate
+    // Inputs 3, 6, and 9 produce 0010.
+    check_two_output_cases: assert property (
+        @(posedge clk)
+        (
+            (bin == 4'b0011) ||
+            (bin == 4'b0110) ||
+            (bin == 4'b1001)
+        ) |-> (bcd == 4'b0010)
+    );
+
+    // Inputs 7, 11, 13, and 14 produce 0100.
+    check_four_output_cases: assert property (
+        @(posedge clk)
+        (
+            (bin == 4'b0111) ||
+            (bin == 4'b1011) ||
+            (bin == 4'b1101) ||
+            (bin == 4'b1110)
+        ) |-> (bcd == 4'b0100)
+    );
+
+    // Input 12 is the only case that produces 0011.
+    check_three_output_case: assert property (
+        @(posedge clk)
+        (bin == 4'b1100) |-> (bcd == 4'b0011)
+    );
+
+    // Input 15 produces 1000.
+    check_eight_output_case: assert property (
+        @(posedge clk)
+        (bin == 4'b1111) |-> (bcd == 4'b1000)
+    );
 
 endmodule
-
-// Example bind (adjust clk/rst_n to your environment)
-// bind BCD_Converter bcd_converter_sva u_bcd_converter_sva (.clk(clk), .rst_n(rst_n), .bin(bin), .bcd(bcd));

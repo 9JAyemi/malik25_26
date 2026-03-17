@@ -1,57 +1,77 @@
-// SVA for select_logic – concise, high-quality checks and coverage
-// Bind this file to the DUT: bind select_logic select_logic_sva u_sva (.*);
-
-module select_logic_sva(
-  input i1, i2, i3, i4, i5, i6, i7, i8,
-  input s1, s2, s3,
-  input a1
+module select_logic_sva (
+    input logic i1,
+    input logic i2,
+    input logic i3,
+    input logic i4,
+    input logic i5,
+    input logic i6,
+    input logic i7,
+    input logic i8,
+    input logic s1,
+    input logic s2,
+    input logic s3,
+    input logic a1
 );
 
-  wire [2:0] sel = {s1,s2,s3};
+    // a1 must match the RTL mux equation.
+    check_mux_equation: assert property (
+        @($global_clock)
+        a1 == ((i1 & (!s1) & (!s2) & (!s3)) |
+               (i2 & (!s1) & (!s2) & ( s3)) |
+               (i3 & (!s1) & ( s2) & (!s3)) |
+               (i4 & (!s1) & ( s2) & ( s3)) |
+               (i5 & ( s1) & (!s2) & (!s3)) |
+               (i6 & ( s1) & (!s2) & ( s3)) |
+               (i7 & ( s1) & ( s2) & (!s3)) |
+               (i8 & ( s1) & ( s2) & ( s3)))
+    );
 
-  // Decode
-  wire d0 = (sel == 3'b000);
-  wire d1 = (sel == 3'b001);
-  wire d2 = (sel == 3'b010);
-  wire d3 = (sel == 3'b011);
-  wire d4 = (sel == 3'b100);
-  wire d5 = (sel == 3'b101);
-  wire d6 = (sel == 3'b110);
-  wire d7 = (sel == 3'b111);
+    // When select is 000, a1 must equal i1.
+    check_select_000_i1: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b000) |-> (a1 == i1)
+    );
 
-  // Basic sanity/X checks
-  assert property (@(*)) !$isunknown(sel)
-    else $error("select_logic: s1/s2/s3 contain X/Z");
+    // When select is 001, a1 must equal i2.
+    check_select_001_i2: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b001) |-> (a1 == i2)
+    );
 
-  // Exactly one decode active
-  assert property (@(*)) $onehot({d7,d6,d5,d4,d3,d2,d1,d0})
-    else $error("select_logic: decode not one-hot");
+    // When select is 010, a1 must equal i3.
+    check_select_010_i3: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b010) |-> (a1 == i3)
+    );
 
-  // Functional correctness: output equals selected input
-  assert property (@(*)) d0 |-> (a1 == i1);
-  assert property (@(*)) d1 |-> (a1 == i2);
-  assert property (@(*)) d2 |-> (a1 == i3);
-  assert property (@(*)) d3 |-> (a1 == i4);
-  assert property (@(*)) d4 |-> (a1 == i5);
-  assert property (@(*)) d5 |-> (a1 == i6);
-  assert property (@(*)) d6 |-> (a1 == i7);
-  assert property (@(*)) d7 |-> (a1 == i8);
+    // When select is 011, a1 must equal i4.
+    check_select_011_i4: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b011) |-> (a1 == i4)
+    );
 
-  // Optional consolidated equivalence (guards regressions succinctly)
-  assert property (@(*))
-    a1 == ((d0&i1)|(d1&i2)|(d2&i3)|(d3&i4)|(d4&i5)|(d5&i6)|(d6&i7)|(d7&i8));
+    // When select is 100, a1 must equal i5.
+    check_select_100_i5: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b100) |-> (a1 == i5)
+    );
 
-  // Functional coverage: hit all selects, and both a1=0/1 under each select
-  cover property (@(*)) d0;  cover property (@(*)) d0 &&  a1;  cover property (@(*)) d0 && !a1;
-  cover property (@(*)) d1;  cover property (@(*)) d1 &&  a1;  cover property (@(*)) d1 && !a1;
-  cover property (@(*)) d2;  cover property (@(*)) d2 &&  a1;  cover property (@(*)) d2 && !a1;
-  cover property (@(*)) d3;  cover property (@(*)) d3 &&  a1;  cover property (@(*)) d3 && !a1;
-  cover property (@(*)) d4;  cover property (@(*)) d4 &&  a1;  cover property (@(*)) d4 && !a1;
-  cover property (@(*)) d5;  cover property (@(*)) d5 &&  a1;  cover property (@(*)) d5 && !a1;
-  cover property (@(*)) d6;  cover property (@(*)) d6 &&  a1;  cover property (@(*)) d6 && !a1;
-  cover property (@(*)) d7;  cover property (@(*)) d7 &&  a1;  cover property (@(*)) d7 && !a1;
+    // When select is 101, a1 must equal i6.
+    check_select_101_i6: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b101) |-> (a1 == i6)
+    );
+
+    // When select is 110, a1 must equal i7.
+    check_select_110_i7: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b110) |-> (a1 == i7)
+    );
+
+    // When select is 111, a1 must equal i8.
+    check_select_111_i8: assert property (
+        @($global_clock)
+        ({s1, s2, s3} == 3'b111) |-> (a1 == i8)
+    );
 
 endmodule
-
-// Bind to the DUT
-bind select_logic select_logic_sva u_sva (.*);

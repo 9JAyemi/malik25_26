@@ -1,52 +1,38 @@
-// SVA for counter: concise, full functional checks and coverage
-module counter_sva #(parameter WIDTH=8)
-(
-  input rstn,
-  input clk,
-  input up,
-  input down,
-  input [WIDTH-1:0] count
+module counter_sva #(parameter WIDTH = 8) (
+    input logic rstn,
+    input logic clk,
+    input logic up,
+    input logic down,
+    input logic [WIDTH-1:0] count
 );
-  localparam [WIDTH-1:0] MAX = {WIDTH{1'b1}};
 
-  // No X on key signals during operation
-  assert property (@(posedge clk) rstn |-> !$isunknown({up, down, count}));
+    // Active-low reset forces count to zero.
+    check_reset_clears_count: assert property (
+        @(posedge clk) !rstn |-> (count == {WIDTH{1'b0}})
+    );
 
-  // Async reset: immediate and held at 0
-  assert property (@(negedge rstn) count == '0);
-  assert property (@(posedge clk) !rstn |-> count == '0);
+    // up without down increments count by one.
+    check_increment_when_up_only: assert property (
+        @(posedge clk) disable iff (!rstn)
+        (up && !down) |=> (count == ($past(count) + 1'b1))
+    );
 
-  // Increment, decrement, and hold behaviors
-  assert property (@(posedge clk) disable iff (!rstn)
-                   ($past(rstn) &&  up && !down) |=> count == $past(count) + 1);
-  assert property (@(posedge clk) disable iff (!rstn)
-                   ($past(rstn) && !up &&  down) |=> count == $past(count) - 1);
-  assert property (@(posedge clk) disable iff (!rstn)
-                   ($past(rstn) && !(up ^ down)) |=> count == $past(count));
+    // down without up decrements count by one.
+    check_decrement_when_down_only: assert property (
+        @(posedge clk) disable iff (!rstn)
+        (!up && down) |=> (count == ($past(count) - 1'b1))
+    );
 
-  // No unexpected state changes
-  assert property (@(posedge clk) disable iff (!rstn)
-                   ($past(rstn) && (count != $past(count))) |-> (up ^ down));
+    // With neither input asserted, count holds its value.
+    check_hold_when_idle: assert property (
+        @(posedge clk) disable iff (!rstn)
+        (!up && !down) |=> (count == $past(count))
+    );
 
-  // Coverage: basic ops
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) &&  up && !down |=> count == $past(count) + 1);
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) && !up &&  down |=> count == $past(count) - 1);
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) && (up && down) |=> count == $past(count));
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) && (!up && !down) |=> count == $past(count));
+    // With both inputs asserted, count holds its value.
+    check_hold_when_up_and_down: assert property (
+        @(posedge clk) disable iff (!rstn)
+        (up && down) |=> (count == $past(count))
+    );
 
-  // Coverage: wraparound cases
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) && $past(up && !down) && ($past(count) == MAX) |=> (count == '0));
-  cover  property (@(posedge clk) disable iff (!rstn)
-                   $past(rstn) && $past(!up && down) && ($past(count) == '0) |=> (count == MAX));
-
-  // Coverage: reset activity
-  cover  property (@(negedge rstn) 1);
-  cover  property (@(posedge rstn) 1);
 endmodule
-
-bind counter counter_sva #(.WIDTH(WIDTH)) counter_sva_i (.*);

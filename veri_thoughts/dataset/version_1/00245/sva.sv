@@ -1,50 +1,45 @@
-// SVA for sky130_fd_sc_ls__a311o
-// Function: X = (A1 & A2 & A3) | B1 | C1
-
-`define A311O_INPUT_EVT (posedge A1 or negedge A1 or \
-                         posedge A2 or negedge A2 or \
-                         posedge A3 or negedge A3 or \
-                         posedge B1 or negedge B1 or \
-                         posedge C1 or negedge C1)
-
-module sky130_fd_sc_ls__a311o_sva
-(
-  input logic X,
-  input logic A1, A2, A3,
-  input logic B1, C1
+module sky130_fd_sc_ls__a311o_sva (
+    input logic X,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic B1,
+    input logic C1
 );
 
-  // Functional equivalence (4-state, sampled after delta)
-  assert property (@(`A311O_INPUT_EVT) ##0
-                   (X === ((A1 & A2 & A3) | B1 | C1)));
+    // X implements the OR of B1, C1, and the three-input AND term.
+    check_x_matches_logic_function: assert property (
+        @($global_clock) X == ((A1 & A2 & A3) | B1 | C1)
+    );
 
-  // Dominating OR inputs force X=1 regardless of others
-  assert property (@(`A311O_INPUT_EVT) (B1===1'b1) |-> ##0 (X===1'b1));
-  assert property (@(`A311O_INPUT_EVT) (C1===1'b1) |-> ##0 (X===1'b1));
+    // B1 alone is sufficient to drive X high.
+    check_b1_forces_x_high: assert property (
+        @($global_clock) B1 |-> X
+    );
 
-  // When B1=C1=0, output equals 3-input AND
-  assert property (@(`A311O_INPUT_EVT)
-                   ((B1===1'b0) && (C1===1'b0)) |-> ##0
-                   (X === (A1 & A2 & A3)));
+    // C1 alone is sufficient to drive X high.
+    check_c1_forces_x_high: assert property (
+        @($global_clock) C1 |-> X
+    );
 
-  // If all inputs are known, output must be known
-  assert property (@(`A311O_INPUT_EVT)
-                   (!$isunknown({A1,A2,A3,B1,C1})) |-> ##0
-                   (!$isunknown(X)));
+    // All three A inputs high are sufficient to drive X high.
+    check_and_term_forces_x_high: assert property (
+        @($global_clock) (A1 & A2 & A3) |-> X
+    );
 
-  // Coverage: each controlling path and all-zero case
-  cover property (@(`A311O_INPUT_EVT) ##0
-                  ( B1 && !C1 && !(A1 & A2 & A3) && X ));
-  cover property (@(`A311O_INPUT_EVT) ##0
-                  ( C1 && !B1 && !(A1 & A2 & A3) && X ));
-  cover property (@(`A311O_INPUT_EVT) ##0
-                  ( !B1 && !C1 &&  A1 && A2 && A3 && X ));
-  cover property (@(`A311O_INPUT_EVT) ##0
-                  ( !A1 && !A2 && !A3 && !B1 && !C1 && !X ));
+    // With B1 and C1 low, X reduces to the A1/A2/A3 AND term.
+    check_x_equals_and_term_when_b1_c1_low: assert property (
+        @($global_clock) (!B1 && !C1) |-> (X == (A1 & A2 & A3))
+    );
+
+    // If all OR inputs are low, X must be low.
+    check_x_low_when_all_or_terms_low: assert property (
+        @($global_clock) (!B1 && !C1 && !(A1 & A2 & A3)) |-> !X
+    );
+
+    // If X is high while B1 and C1 are low, it must come from the AND term.
+    check_x_high_without_b1_c1_requires_and_term: assert property (
+        @($global_clock) (X && !B1 && !C1) |-> (A1 & A2 & A3)
+    );
 
 endmodule
-
-bind sky130_fd_sc_ls__a311o sky130_fd_sc_ls__a311o_sva
-  i_sva ( .X(X), .A1(A1), .A2(A2), .A3(A3), .B1(B1), .C1(C1) );
-
-`undef A311O_INPUT_EVT

@@ -1,44 +1,34 @@
-// SVA checker for calculator
 module calculator_sva (
-  input  [2:0] opcode,
-  input  [7:0] A,
-  input  [7:0] B,
-  input  [7:0] result
+    input logic clk,
+    input logic [2:0] opcode,
+    input logic [7:0] A,
+    input logic [7:0] B,
+    input logic [7:0] result
 );
-  default clocking cb @(*); endclocking
 
-  // Functional correctness
-  assert property (opcode==3'b000 |-> result == (A + B)[7:0]);
-  assert property (opcode==3'b001 |-> result == (A - B)[7:0]);
-  assert property (opcode==3'b010 |-> result == (A * B)[7:0]);
-  assert property ((opcode==3'b011 && B!=8'd0) |-> result == (A / B));
-  assert property ((opcode==3'b011 && B==8'd0) |-> $isunknown(result));
-  assert property ((opcode inside {[3'b100:3'b111]}) |-> result == 8'h00);
+    // Addition opcode drives the 8-bit sum.
+    check_addition_result: assert property (
+        @(posedge clk) (opcode == 3'b000) |-> ({8'h00, result} == ((A + B) & 16'h00FF))
+    );
 
-  // Knownness when defined
-  assert property ( ((opcode inside {3'b000,3'b001,3'b010}) ||
-                     (opcode==3'b011 && B!=8'd0) ||
-                     (opcode inside {[3'b100:3'b111]})) |-> !$isunknown(result));
+    // Subtraction opcode drives the 8-bit difference.
+    check_subtraction_result: assert property (
+        @(posedge clk) (opcode == 3'b001) |-> ({8'h00, result} == ((A - B) & 16'h00FF))
+    );
 
-  // Pure combinational behavior (no storage)
-  assert property ($stable({opcode,A,B}) |-> $stable(result));
+    // Multiplication opcode drives the low 8 bits of the product.
+    check_multiplication_result: assert property (
+        @(posedge clk) (opcode == 3'b010) |-> ({8'h00, result} == ((A * B) & 16'h00FF))
+    );
 
-  // Coverage: all ops, errors, and key corners
-  cover property (opcode==3'b000);
-  cover property (opcode==3'b001);
-  cover property (opcode==3'b010);
-  cover property (opcode==3'b011 && B!=8'd0);
-  cover property (opcode==3'b011 && B==8'd0);
-  cover property (opcode inside {[3'b100:3'b111]});
-  cover property (opcode==3'b000 && (A + B) > 9'd255);     // add overflow
-  cover property (opcode==3'b001 && A < B);                // subtract borrow
-  cover property (opcode==3'b010 && (A * B) > 16'd255);    // multiply overflow
+    // Division opcode drives the quotient when the divisor is nonzero.
+    check_division_result: assert property (
+        @(posedge clk) (opcode == 3'b011 && B != 8'h00) |-> ({8'h00, result} == ((A / B) & 16'h00FF))
+    );
+
+    // Invalid opcodes drive result to zero.
+    check_default_result_zero: assert property (
+        @(posedge clk) (opcode[2] == 1'b1) |-> (result == 8'h00)
+    );
+
 endmodule
-
-// Bind into DUT
-bind calculator calculator_sva u_calculator_sva (
-  .opcode(opcode),
-  .A(A),
-  .B(B),
-  .result(result)
-);

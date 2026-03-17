@@ -1,42 +1,62 @@
-// SVA checker for sky130_fd_sc_hdll__nand4bb
 module sky130_fd_sc_hdll__nand4bb_sva (
-  input A_N, input B_N, input C, input D,
-  input VPWR, input VGND, input VPB, input VNB,
-  input Y
+    input logic clk,
+    input logic A_N,
+    input logic B_N,
+    input logic C,
+    input logic D,
+    input logic VPWR,
+    input logic VGND,
+    input logic VPB,
+    input logic VNB,
+    input logic Y
 );
-  // Sample on any data input edge
-  default clocking cb @(
-    posedge A_N or negedge A_N or
-    posedge B_N or negedge B_N or
-    posedge C   or negedge C   or
-    posedge D   or negedge D
-  ); endclocking
 
-  // Power-good gating
-  wire pg = (VPWR===1'b1 && VGND===1'b0 && VPB===1'b1 && VNB===1'b0);
-  default disable iff (!pg)
+    // Y must be high when all functional inputs are low.
+    check_all_low_drives_high: assert property (
+        @(posedge clk)
+        ((A_N == 1'b0) && (B_N == 1'b0) && (C == 1'b0) && (D == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  // Functional equivalence (NOR of all four inputs)
-  a_func: assert property (Y === ~(|{A_N,B_N,C,D})));
+    // Y must be low whenever any functional input is high.
+    check_any_high_drives_low: assert property (
+        @(posedge clk)
+        ((A_N == 1'b1) || (B_N == 1'b1) || (C == 1'b1) || (D == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  // Bidirectional implications (redundant but pinpointing)
-  a_hi_only_if_all_zero: assert property (Y |-> {A_N,B_N,C,D}==4'b0000);
-  a_all_zero_implies_hi: assert property (({A_N,B_N,C,D}==4'b0000) |-> Y);
+    // A high Y requires all functional inputs to be low.
+    check_y_high_implies_all_low: assert property (
+        @(posedge clk)
+        (Y == 1'b1) |-> ((A_N == 1'b0) && (B_N == 1'b0) && (C == 1'b0) && (D == 1'b0))
+    );
 
-  // No X/Z on inputs and output when powered
-  a_no_x_in : assert property (!$isunknown({A_N,B_N,C,D}));
-  a_no_x_out: assert property (!$isunknown(Y));
+    // A low Y requires at least one functional input to be high.
+    check_y_low_implies_any_high: assert property (
+        @(posedge clk)
+        (Y == 1'b0) |-> ((A_N == 1'b1) || (B_N == 1'b1) || (C == 1'b1) || (D == 1'b1))
+    );
 
-  // Coverage: observe Y toggles and all 16 input combinations
-  c_y_rose: cover property ($rose(Y));
-  c_y_fell: cover property ($fell(Y));
-  genvar i;
-  generate
-    for (i=0; i<16; i++) begin: g_cov
-      cover property ({A_N,B_N,C,D} == i[3:0]);
-    end
-  endgenerate
+    // A_N high alone is sufficient to force Y low.
+    check_a_high_forces_low: assert property (
+        @(posedge clk)
+        (A_N == 1'b1) |-> (Y == 1'b0)
+    );
+
+    // B_N high alone is sufficient to force Y low.
+    check_b_high_forces_low: assert property (
+        @(posedge clk)
+        (B_N == 1'b1) |-> (Y == 1'b0)
+    );
+
+    // C high alone is sufficient to force Y low.
+    check_c_high_forces_low: assert property (
+        @(posedge clk)
+        (C == 1'b1) |-> (Y == 1'b0)
+    );
+
+    // D high alone is sufficient to force Y low.
+    check_d_high_forces_low: assert property (
+        @(posedge clk)
+        (D == 1'b1) |-> (Y == 1'b0)
+    );
+
 endmodule
-
-// Bind into DUT
-bind sky130_fd_sc_hdll__nand4bb sky130_fd_sc_hdll__nand4bb_sva u_sva (.*);

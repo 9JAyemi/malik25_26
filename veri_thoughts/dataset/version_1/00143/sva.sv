@@ -1,53 +1,44 @@
-// SVA for four_bit_adder
-// Assumes a sampling clock 'clk' in the bind scope.
-// Bind statement at bottom; change .clk(clk) as needed.
-
 module four_bit_adder_sva (
-  input logic        clk,
-  input logic [3:0]  A,
-  input logic [3:0]  B,
-  input logic        Cin,
-  input logic [3:0]  Sum,
-  input logic        Cout
+    input logic        clk,
+    input logic [3:0]  A,
+    input logic [3:0]  B,
+    input logic        Cin,
+    input logic [3:0]  Sum,
+    input logic        Cout
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // track availability of $past
-  logic past_valid;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    function automatic logic carry_bit(input logic x, input logic y, input logic z);
+        carry_bit = (x & y) | (x & z) | (y & z);
+    endfunction
 
-  // No X/Z on outputs when inputs are known
-  a_no_x: assert property ( !$isunknown({A,B,Cin}) |-> !$isunknown({Sum,Cout}) );
+    // Combined output must equal the 5-bit sum of A, B, and Cin.
+    check_full_result: assert property (
+        @(posedge clk) {Cout, Sum} == ({1'b0, A} + {1'b0, B} + Cin)
+    );
 
-  // Functional correctness (5-bit result must equal A+B+Cin)
-  a_add_ok: assert property ( disable iff ($isunknown({A,B,Cin,Sum,Cout}))
-                              {Cout,Sum} == A + B + Cin );
+    // Sum[0] must implement the least-significant full-adder sum bit.
+    check_sum_bit0: assert property (
+        @(posedge clk) Sum[0] == (A[0] ^ B[0] ^ Cin)
+    );
 
-  // Purely combinational: if inputs hold, outputs hold
-  a_hold_ok: assert property ( disable iff (!past_valid || $isunknown({A,B,Cin,Sum,Cout}))
-                               $stable({A,B,Cin}) |=> $stable({Sum,Cout}) );
+    // Sum[1] must use the carry generated from bit 0.
+    check_sum_bit1: assert property (
+        @(posedge clk) Sum[1] == (A[1] ^ B[1] ^ carry_bit(A[0], B[0], Cin))
+    );
 
-  // Increment behavior: with A,B stable, Cin 0->1 increments 5-bit result by 1
-  a_cin_inc: assert property ( disable iff (!past_valid || $isunknown({A,B,Cin,Sum,Cout}))
-                               $stable({A,B}) && !$past(Cin) && Cin
-                               |-> {Cout,Sum} == $past({Cout,Sum}) + 5'd1 );
+    // Sum[2] must use the carry propagated through bits 0 and 1.
+    check_sum_bit2: assert property (
+        @(posedge clk) Sum[2] == (A[2] ^ B[2] ^ carry_bit(A[1], B[1], carry_bit(A[0], B[0], Cin)))
+    );
 
-  // Basic functional coverage
-  c_cin0:        cover property (Cin==1'b0);
-  c_cin1:        cover property (Cin==1'b1);
-  c_carry0:      cover property (Cout==1'b0);
-  c_carry1:      cover property (Cout==1'b1);
+    // Sum[3] must use the carry propagated through bits 0 to 2.
+    check_sum_bit3: assert property (
+        @(posedge clk) Sum[3] == (A[3] ^ B[3] ^ carry_bit(A[2], B[2], carry_bit(A[1], B[1], carry_bit(A[0], B[0], Cin))))
+    );
 
-  // Corner cases
-  c_zero:        cover property (A==4'h0 && B==4'h0 && Cin==1'b0 && Sum==4'h0 && Cout==1'b0);
-  c_one:         cover property (A==4'h0 && B==4'h0 && Cin==1'b1 && Sum==4'h1 && Cout==1'b0);
-  c_max_ovf:     cover property (A==4'hF && B==4'hF && Cin==1'b1 && Sum==4'hF && Cout==1'b1);
-
-  // Commutativity across samples (swap A/B, keep Cin; result unchanged)
-  c_commute:     cover property ( disable iff (!past_valid || $isunknown({A,B,Cin,Sum,Cout}))
-                                  Cin==$past(Cin) && A==$past(B) && B==$past(A) &&
-                                  {Cout,Sum}==$past({Cout,Sum}) );
+    // Cout must be the final carry out of the most-significant bit.
+    check_cout: assert property (
+        @(posedge clk) Cout == carry_bit(A[3], B[3], carry_bit(A[2], B[2], carry_bit(A[1], B[1], carry_bit(A[0], B[0], Cin))))
+    );
 
 endmodule
-
-bind four_bit_adder four_bit_adder_sva sva_i (.clk(clk), .*);

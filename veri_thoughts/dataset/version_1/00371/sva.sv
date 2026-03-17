@@ -1,63 +1,50 @@
-// SVA for module current
-// Bindable, concise, and checks key functionality and coverage
-
-module current_sva #(parameter int imax = 10, parameter int r = 100)
-(
-  input  logic        ctrl,
-  input  logic [7:0]  vref,
-  input  logic        isrc,
-  input  logic        isnk
+module current_sva #(
+    parameter int unsigned r = 100
+) (
+    input logic       ctrl,
+    input logic [7:0] vref,
+    input logic       isrc,
+    input logic       isnk
 );
 
-  // Combinational sampling event
-  event comb_clk; always @* -> comb_clk;
-  default clocking cb @(comb_clk); endclocking
-  default disable iff ($isunknown({ctrl, vref}));
+    // isrc matches the selected source expression.
+    check_isrc_function: assert property (
+        @($global_clock) isrc == (ctrl ? ((vref / r) & 1) : 1'b0)
+    );
 
-  // Sanity on parameters
-  initial begin
-    assert (r > 0) else $fatal(1, "r must be > 0");
-    assert (imax >= 0) else $fatal(1, "imax must be >= 0");
-  end
+    // isnk matches the selected sink expression.
+    check_isnk_function: assert property (
+        @($global_clock) isnk == (ctrl ? 1'b0 : ((vref / r) & 1))
+    );
 
-  // Helper: LSB of quotient (matches 1-bit output truncation in RTL)
-  let q0 = (vref / r)[0];
+    // Source mode forces the sink output low.
+    check_source_mode_disables_sink: assert property (
+        @($global_clock) (ctrl == 1'b1) |-> (isnk == 1'b0)
+    );
 
-  // Exact functional equivalence to RTL
-  ap_isrc_def: assert property (isrc == (ctrl & q0));
-  ap_isnk_def: assert property (isnk == ((~ctrl) & q0));
+    // Sink mode forces the source output low.
+    check_sink_mode_disables_source: assert property (
+        @($global_clock) (ctrl == 1'b0) |-> (isrc == 1'b0)
+    );
 
-  // Basic invariants
-  ap_mut_excl:  assert property (!(isrc & isnk));
-  ap_or_match:  assert property ((isrc | isnk) == q0);
+    // An even truncated division result leaves both outputs low.
+    check_even_division_lsb_outputs_low: assert property (
+        @($global_clock) (((vref / r) & 1) == 1'b0) |-> ((isrc == 1'b0) && (isnk == 1'b0))
+    );
 
-  // Outputs known whenever inputs are known
-  ap_no_x:      assert property (!$isunknown({isrc, isnk}));
+    // In source mode, an odd truncated division result raises only isrc.
+    check_odd_division_source_mode: assert property (
+        @($global_clock) ((ctrl == 1'b1) && (((vref / r) & 1) == 1'b1)) |-> ((isrc == 1'b1) && (isnk == 1'b0))
+    );
 
-  // Spec/constraint check: computed current must not exceed imax
-  ap_imax:      assert property (((vref / r) <= imax));
+    // In sink mode, an odd truncated division result raises only isnk.
+    check_odd_division_sink_mode: assert property (
+        @($global_clock) ((ctrl == 1'b0) && (((vref / r) & 1) == 1'b1)) |-> ((isrc == 1'b0) && (isnk == 1'b1))
+    );
 
-  // Coverage
-  cp_ctrl_rise: cover property ($rose(ctrl));
-  cp_ctrl_fall: cover property ($fell(ctrl));
-
-  // Cover all ctrl x q0 combinations
-  cp_c1: cover property ( ctrl &&  q0);
-  cp_c2: cover property ( ctrl && !q0);
-  cp_c3: cover property (!ctrl &&  q0);
-  cp_c4: cover property (!ctrl && !q0);
-
-  // Boundary/interesting vref values
-  cp_v0:   cover property (vref == 8'h00);
-  cp_vr1:  cover property (vref == (r-1));
-  cp_vr:   cover property (vref == r[7:0]);
-  cp_vmax: cover property (vref == 8'hFF);
-
-  // Observe output activity
-  cp_isrc_r: cover property ($rose(isrc));
-  cp_isnk_r: cover property ($rose(isnk));
+    // The two outputs are never high at the same time.
+    check_outputs_mutually_exclusive: assert property (
+        @($global_clock) !((isrc == 1'b1) && (isnk == 1'b1))
+    );
 
 endmodule
-
-// Bind into DUT, inheriting parameter values
-bind current current_sva #(.imax(imax), .r(r)) current_sva_i (.*);

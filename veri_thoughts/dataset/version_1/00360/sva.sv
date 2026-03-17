@@ -1,36 +1,39 @@
-// SVA for BLOCK1A
-module BLOCK1A_sva (input PIN2, GIN1, GIN2, PHI, GOUT);
+module BLOCK1A_sva (
+    input logic PIN2,
+    input logic GIN1,
+    input logic GIN2,
+    input logic PHI,
+    input logic GOUT
+);
 
-  default clocking cb @(posedge PHI); endclocking
+    // GOUT registers the implemented Boolean function on each rising PHI edge.
+    check_gout_update_function: assert property (
+        @(posedge PHI)
+        1'b1 |=> (GOUT == ~($past(GIN2) & ($past(PIN2) | $past(GIN1))))
+    );
 
-  // Functional correctness (registered, 1-cycle latency)
-  property p_func;
-    $past(1'b1) && !$isunknown($past({PIN2,GIN1,GIN2})) |->
-      GOUT == ~( $past(GIN2) & ($past(PIN2) | $past(GIN1)) );
-  endproperty
-  assert property (p_func);
+    // If GIN2 is low at a clock edge, the next registered GOUT is high.
+    check_gin2_low_forces_gout_high: assert property (
+        @(posedge PHI)
+        (!GIN2) |=> (GOUT == 1'b1)
+    );
 
-  // No X on sampled inputs/outputs at clock edge
-  assert property (@cb !$isunknown({PIN2,GIN1,GIN2}));
-  assert property (@cb !$isunknown(GOUT));
+    // If GIN2 and PIN2 are high at a clock edge, the next registered GOUT is low.
+    check_gin2_and_pin2_force_gout_low: assert property (
+        @(posedge PHI)
+        (GIN2 && PIN2) |=> (GOUT == 1'b0)
+    );
 
-  // Basic functional covers
-  cover property (@cb GOUT == 1'b0);
-  cover property (@cb GOUT == 1'b1);
-  cover property (@cb $rose(GOUT));
-  cover property (@cb $fell(GOUT));
+    // If GIN2 and GIN1 are high at a clock edge, the next registered GOUT is low.
+    check_gin2_and_gin1_force_gout_low: assert property (
+        @(posedge PHI)
+        (GIN2 && GIN1) |=> (GOUT == 1'b0)
+    );
 
-  // Exercise all input combinations at the sampling edge
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b000);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b001);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b010);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b011);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b100);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b101);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b110);
-  cover property (@cb {PIN2,GIN1,GIN2} == 3'b111);
+    // If only GIN2 is high at a clock edge, the next registered GOUT is high.
+    check_only_gin2_high_sets_gout_high: assert property (
+        @(posedge PHI)
+        (GIN2 && !PIN2 && !GIN1) |=> (GOUT == 1'b1)
+    );
 
 endmodule
-
-// Bind into DUT
-bind BLOCK1A BLOCK1A_sva u_BLOCK1A_sva (.*);

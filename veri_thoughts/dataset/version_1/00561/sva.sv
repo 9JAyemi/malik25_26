@@ -1,44 +1,33 @@
-// SVA for SimpleCalculator
 module SimpleCalculator_sva (
-  input  logic [3:0] a,
-  input  logic [3:0] b,
-  input  logic       op,
-  input  logic [3:0] result
+    input logic [3:0] a,
+    input logic [3:0] b,
+    input logic       op,
+    input logic [3:0] result
 );
 
-  // Functional equivalence (combinational correctness)
-  // Evaluate after updates (##0) on any relevant change
-  assert property (@(a or b or op or result)
-                   1'b1 |-> ##0 (result == (op ? (a - b) : (a + b))))
-    else $error("Functional mismatch: result != (op ? a-b : a+b)");
+    // Addition mode drives the sum of a and b.
+    check_addition_result: assert property (
+        @($global_clock) (op == 1'b0) |-> (result == (a + b))
+    );
 
-  // No spurious output changes when inputs are stable
-  assert property (@(a or b or op or result)
-                   $stable({a,b,op}) |-> $stable(result))
-    else $error("Output changed without input change");
+    // Subtraction mode drives the difference of a and b.
+    check_subtraction_result: assert property (
+        @($global_clock) (op == 1'b1) |-> (result == (a - b))
+    );
 
-  // X/Z checks: inputs known, and if inputs known then output known
-  assert property (@(a or b or op or result)
-                   !$isunknown({a,b,op}))
-    else $error("Inputs contain X/Z");
-  assert property (@(a or b or op or result)
-                   (!$isunknown({a,b,op})) |-> !$isunknown(result))
-    else $error("Output X/Z with known inputs");
+    // Stable inputs keep the output stable.
+    check_stable_inputs_hold_result: assert property (
+        @($global_clock) (!$initstate && $stable({a, b, op})) |-> $stable(result)
+    );
 
-  // Coverage
-  // - Both ops seen
-  cover property (@(a or b or op) (op == 1'b0));
-  cover property (@(a or b or op) (op == 1'b1));
-  // - Addition overflow/no-overflow
-  cover property (@(a or b or op) (op==1'b0) &&  ({1'b0,a}+{1'b0,b})[4]);
-  cover property (@(a or b or op) (op==1'b0) && !({1'b0,a}+{1'b0,b})[4]);
-  // - Subtraction underflow/no-underflow
-  cover property (@(a or b or op) (op==1'b1) && (a <  b));
-  cover property (@(a or b or op) (op==1'b1) && (a >= b));
+    // A rising op with stable operands selects subtraction.
+    check_op_rise_selects_subtraction: assert property (
+        @($global_clock) (!$initstate && $rose(op) && $stable({a, b})) |-> (result == (a - b))
+    );
+
+    // A falling op with stable operands selects addition.
+    check_op_fall_selects_addition: assert property (
+        @($global_clock) (!$initstate && $fell(op) && $stable({a, b})) |-> (result == (a + b))
+    );
 
 endmodule
-
-// Bind to DUT
-bind SimpleCalculator SimpleCalculator_sva u_simplecalculator_sva (
-  .a(a), .b(b), .op(op), .result(result)
-);

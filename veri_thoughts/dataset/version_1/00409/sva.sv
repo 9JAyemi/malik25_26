@@ -1,36 +1,55 @@
-// SVA for module: timer
-// Bind style: module uses a typed port to access internals.
-// Usage example (tool-dependent):
-//   bind timer timer_sva #(.TIMEOUT(TIMEOUT)) u_timer_sva (dut);
-// or inline these assertions inside the DUT with names adjusted.
+module timer_assertions
+  #(parameter TIMEOUT = 100)
+   (
+    input logic        clk,
+    input logic        rst,
+    input logic        up_req,
+    input logic        up_grant,
+    input logic        up_ack,
+    input logic        down_req,
+    input logic        down_grant,
+    input logic        down_ack,
+    input logic        timeout,
+    input logic [31:0] counter
+    );
 
-module timer_sva #(parameter int unsigned TIMEOUT = 100) (timer dut);
+    localparam [31:0] TIMEOUT_VALUE = TIMEOUT;
 
-  default clocking cb @(posedge dut.clk); endclocking
-  default disable iff (dut.rst);
+    // Upstream grant is a direct pass-through of downstream grant.
+    check_up_grant_passthrough: assert property (
+        @(posedge clk) disable iff (rst) up_grant == down_grant
+    );
 
-  // Combinational pass-throughs
-  a_grant_mirror: assert property (dut.up_grant == dut.down_grant);
-  a_ack_mirror:   assert property (dut.down_ack  == dut.up_ack);
+    // Downstream acknowledge is a direct pass-through of upstream acknowledge.
+    check_down_ack_passthrough: assert property (
+        @(posedge clk) disable iff (rst) down_ack == up_ack
+    );
 
-  // Functional definitions
-  a_timeout_def:  assert property (dut.timeout  == (dut.counter == TIMEOUT));
-  a_downreq_def:  assert property (dut.down_req == (dut.up_req & ~dut.timeout));
+    // Timeout is asserted exactly when the counter reaches TIMEOUT.
+    check_timeout_definition: assert property (
+        @(posedge clk) disable iff (rst) timeout == (counter == TIMEOUT_VALUE)
+    );
 
-  // Counter next-state and bounds
-  a_cnt_inc:      assert property ( (dut.down_grant && !dut.timeout) |=> dut.counter == $past(dut.counter) + 1 );
-  a_cnt_reset:    assert property ( !(dut.down_grant && !dut.timeout) |=> dut.counter == '0 );
-  a_cnt_bound:    assert property ( dut.counter <= TIMEOUT );
+    // Downstream request is the upstream request masked by timeout.
+    check_down_req_definition: assert property (
+        @(posedge clk) disable iff (rst) down_req == (up_req & ~timeout)
+    );
 
-  // Timeout is a one-cycle pulse when TIMEOUT > 0
-  genvar _g;
-  if (TIMEOUT > 0) begin : G_TO_ONE_PULSE
-    a_to_one_pulse: assert property ( dut.timeout |=> !dut.timeout );
-  end
+    // Counter is zero on the first cycle after reset deasserts.
+    check_counter_zero_after_reset_release: assert property (
+        @(posedge clk) disable iff (rst) $fell(rst) |-> (counter == '0)
+    );
 
-  // Coverage
-  c_reach_timeout:         cover property ( (dut.down_grant && !dut.timeout)[*TIMEOUT] ##1 dut.timeout );
-  c_block_req_on_timeout:  cover property ( dut.up_req && dut.timeout && !dut.down_req );
-  c_basic_path:            cover property ( (dut.up_req && !dut.timeout) ##0 dut.down_req ##0 dut.down_grant ##0 dut.up_grant );
+    // Counter increments by one when grant is present and timeout is not active.
+    check_counter_increment: assert property (
+        @(posedge clk) disable iff (rst)
+        (down_grant & ~timeout) |=> (counter == ($past(counter) + 32'd1))
+    );
+
+    // Counter clears when the increment condition is not met.
+    check_counter_clear: assert property (
+        @(posedge clk) disable iff (rst)
+        ~(down_grant & ~timeout) |=> (counter == '0)
+    );
 
 endmodule

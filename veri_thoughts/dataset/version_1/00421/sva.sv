@@ -1,59 +1,52 @@
-// SVA for sky130_fd_sc_ls__a211oi
-// Function: Y = ~((A1 & A2) | B1 | C1)
+module sky130_fd_sc_ls__a211oi_sva (
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic C1
+);
 
-bind sky130_fd_sc_ls__a211oi sky130_fd_sc_ls__a211oi_sva();
+    // Y matches the implemented A211OI logic.
+    check_function_equivalence: assert property (
+        @(posedge clk) disable iff (1'b0)
+        Y == ~((A1 & A2) | B1 | C1)
+    );
 
-module sky130_fd_sc_ls__a211oi_sva;
+    // B1 high forces the NOR output low.
+    check_b1_forces_y_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        B1 |-> !Y
+    );
 
-  // Functional equivalence (4-state accurate)
-  assert property (@(A1 or A2 or B1 or C1 or Y)
-    Y === ~((A1 & A2) | B1 | C1));
+    // C1 high forces the NOR output low.
+    check_c1_forces_y_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        C1 |-> !Y
+    );
 
-  // Internal gate consistency
-  assert property (@(A1 or A2)                     and0_out   === (A1 & A2));
-  assert property (@(A1 or A2 or B1 or C1)         nor0_out_Y === ~(and0_out | B1 | C1));
-  assert property (@(nor0_out_Y or Y)              Y          === nor0_out_Y);
+    // A1 and A2 high together force the NOR output low.
+    check_a1_a2_force_y_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (A1 && A2) |-> !Y
+    );
 
-  // Controlling values drive low
-  assert property (@(B1 or A1 or A2 or C1) (B1 === 1'b1)                     |-> (Y === 1'b0));
-  assert property (@(C1 or A1 or A2 or B1) (C1 === 1'b1)                     |-> (Y === 1'b0));
-  assert property (@(A1 or A2 or B1 or C1) ((A1 === 1'b1) && (A2 === 1'b1)) |-> (Y === 1'b0));
+    // Y high means all NOR inputs are inactive.
+    check_y_high_requires_all_nor_inputs_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        Y |-> (!B1 && !C1 && !(A1 && A2))
+    );
 
-  // Y==1 necessary/sufficient conditions
-  assert property (@(A1 or A2 or B1 or C1 or Y)
-    (Y === 1'b1) |-> (B1 === 1'b0 && C1 === 1'b0 && !(A1 === 1'b1 && A2 === 1'b1)));
-  assert property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b0 && C1 === 1'b0 && (A1 !== 1'bx) && (A2 !== 1'bx) && !(A1 === 1'b1 && A2 === 1'b1))
-      |-> (Y === 1'b1));
+    // If all NOR inputs are low, Y must be high.
+    check_all_nor_inputs_low_gives_y_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (!B1 && !C1 && !(A1 && A2)) |-> Y
+    );
 
-  // No X on Y when inputs are all known
-  assert property (@(A1 or A2 or B1 or C1 or Y)
-    (!$isunknown({A1,A2,B1,C1})) |-> !$isunknown(Y));
-
-  // Power/ground rails constant
-  assert property (@(VPWR or VGND or VPB or VNB)
-    (VPWR === 1'b1 && VPB === 1'b1 && VGND === 1'b0 && VNB === 1'b0));
-
-  // Coverage: output toggles
-  cover property (@(A1 or A2 or B1 or C1 or Y) $rose(Y));
-  cover property (@(A1 or A2 or B1 or C1 or Y) $fell(Y));
-
-  // Coverage: key functional scenarios
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b1 && C1 === 1'b0 && A1 !== 1'bx && A2 !== 1'bx && Y === 1'b0));
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (C1 === 1'b1 && B1 === 1'b0 && A1 !== 1'bx && A2 !== 1'bx && Y === 1'b0));
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b1 && A2 === 1'b1 && Y === 1'b0));
-
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b0 && A2 === 1'b0 && Y === 1'b1));
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b1 && A2 === 1'b0 && Y === 1'b1));
-  cover property (@(A1 or A2 or B1 or C1 or Y)
-    (B1 === 1'b0 && C1 === 1'b0 && A1 === 1'b0 && A2 === 1'b1 && Y === 1'b1));
-
-  // Optional: observe X propagation on Y
-  cover property (@(A1 or A2 or B1 or C1 or Y) $isunknown(Y));
+    // Stable inputs keep the combinational output stable.
+    check_stable_inputs_keep_y_stable: assert property (
+        @(posedge clk) disable iff (1'b0)
+        $stable({A1, A2, B1, C1}) |-> $stable(Y)
+    );
 
 endmodule

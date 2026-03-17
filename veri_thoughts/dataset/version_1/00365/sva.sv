@@ -1,42 +1,30 @@
-// SVA for up_down_counter
 module up_down_counter_sva (
-  input logic       CLK, UP, DOWN, LD,
-  input logic [2:0] DIN,
-  input logic [2:0] Q
+    input logic CLK,
+    input logic UP,
+    input logic DOWN,
+    input logic LD,
+    input logic [2:0] DIN,
+    input logic [2:0] Q
 );
 
-  default clocking cb @(posedge CLK); endclocking
-  // Ignore checks when any relevant signal is X/Z (esp. time 0, no reset present)
-  default disable iff ($isunknown({UP,DOWN,LD,DIN,Q}));
+    // LD loads DIN on the next clock and overrides count controls.
+    check_load_updates_q: assert property (
+        @(posedge CLK) LD |=> (Q == $past(DIN))
+    );
 
-  // Single concise next-state check capturing full priority and functionality
-  property p_next_state;
-    1 |=> Q == (LD        ? $past(DIN) :
-                UP        ? $past(Q) + 3'd1 :
-                DOWN      ? $past(Q) - 3'd1 :
-                             $past(Q));
-  endproperty
-  assert property (p_next_state);
+    // When not loading, UP increments Q on the next clock and has priority over DOWN.
+    check_up_increments_q: assert property (
+        @(posedge CLK) (!LD && UP) |=> (Q == ($past(Q) + 3'd1))
+    );
 
-  // Explicit idle-hold (redundant with p_next_state but clarifies intent)
-  assert property (!LD && !UP && !DOWN |=> $stable(Q));
+    // DOWN decrements Q on the next clock only when LD and UP are both low.
+    check_down_decrements_q: assert property (
+        @(posedge CLK) (!LD && !UP && DOWN) |=> (Q == ($past(Q) - 3'd1))
+    );
 
-  // Functional coverage
-  cover property (LD                       ##1 Q == $past(DIN));
-  cover property (!LD && UP                ##1 Q == $past(Q) + 3'd1);
-  cover property (!LD && !UP && DOWN       ##1 Q == $past(Q) - 3'd1);
-  cover property (!LD && !UP && !DOWN      ##1 Q == $past(Q));
-
-  // Priority scenarios coverage
-  cover property (LD && UP);                 // load wins over up
-  cover property (LD && DOWN);               // load wins over down
-  cover property (!LD && UP && DOWN ##1 Q == $past(Q) + 3'd1); // up wins over down
-
-  // Wrap-around coverage (mod-8 behavior)
-  cover property (!LD && UP        && $past(Q) == 3'd7 ##1 Q == 3'd0);
-  cover property (!LD && !UP && DOWN && $past(Q) == 3'd0 ##1 Q == 3'd7);
+    // With no active control inputs, Q holds its value.
+    check_hold_when_idle: assert property (
+        @(posedge CLK) (!LD && !UP && !DOWN) |=> (Q == $past(Q))
+    );
 
 endmodule
-
-// Bind to DUT
-bind up_down_counter up_down_counter_sva sva_inst (.*);

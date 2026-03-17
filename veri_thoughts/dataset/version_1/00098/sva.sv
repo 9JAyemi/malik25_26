@@ -1,31 +1,32 @@
-// SVA for dff: functional correctness, no-glitching, and basic coverage
-module dff_sva (input logic D, CLK, Q);
+module dff_sva (
+    input logic D,
+    input logic CLK,
+    input logic Q
+);
 
-  default clocking cb @(posedge CLK); endclocking
+    // Q reflects D sampled on the previous rising clock edge.
+    check_q_matches_previous_d: assert property (
+        @(posedge CLK) disable iff (1'b0) (!$initstate) |-> (Q == $past(D))
+    );
 
-  bit started;
-  initial started = 0;
-  always @(posedge CLK) started <= 1;
+    // A sampled high D is captured into Q on the next rising edge.
+    check_high_d_captured: assert property (
+        @(posedge CLK) disable iff (1'b0) D |=> Q
+    );
 
-  // Functional: on each clock, Q holds the previous-cycle D (when that D was known)
-  assert property (started && !$isunknown($past(D)) |-> (Q == $past(D)))
-    else $error("dff: Q != past(D)");
+    // A sampled low D is captured into Q on the next rising edge.
+    check_low_d_captured: assert property (
+        @(posedge CLK) disable iff (1'b0) !D |=> !Q
+    );
 
-  // Q may only change coincident with a clock rising edge (no glitches)
-  assert property (@(posedge Q) $rose(CLK))
-    else $error("dff: Q rose without CLK rise");
-  assert property (@(negedge Q) $rose(CLK))
-    else $error("dff: Q fell without CLK rise");
+    // If D is stable across clock edges, Q stays stable on the following edge.
+    check_stable_d_keeps_q_stable: assert property (
+        @(posedge CLK) disable iff (1'b0) (!$initstate && $stable(D)) |=> $stable(Q)
+    );
 
-  // Flag unknown data at sampling edge
-  assert property (started |-> !$isunknown(D))
-    else $error("dff: D is X/Z at CLK edge");
-
-  // Coverage: observe both Q transitions and a valid capture
-  cover property (@(posedge Q) 1);
-  cover property (@(negedge Q) 1);
-  cover property (started && !$isunknown(D) ##1 (Q == $past(D)));
+    // If D changes across clock edges, Q changes on the following edge.
+    check_changed_d_changes_q: assert property (
+        @(posedge CLK) disable iff (1'b0) (!$initstate && !$stable(D)) |=> !$stable(Q)
+    );
 
 endmodule
-
-bind dff dff_sva sva_inst (.D(D), .CLK(CLK), .Q(Q));

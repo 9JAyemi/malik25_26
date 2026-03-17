@@ -1,40 +1,44 @@
-// SVA for up_down_counter
 module up_down_counter_sva (
-  input logic clk,
-  input logic reset,
-  input logic control,
-  input logic [3:0] count
+    input logic       clk,
+    input logic       reset,
+    input logic       control,
+    input logic [3:0] count
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Helpers (mod-16 arithmetic)
-  function automatic [3:0] inc4(input logic [3:0] a); inc4 = a + 4'd1; endfunction
-  function automatic [3:0] dec4(input logic [3:0] a); dec4 = a - 4'd1; endfunction
+    // Count is zero on the first cycle after reset is released.
+    check_post_reset_zero: assert property (
+        @(posedge clk) disable iff (reset)
+        $past(reset) |-> (count == 4'b0000)
+    );
 
-  // Sanity/knownness
-  assert property (!$isunknown({reset, control}));
-  assert property (!reset |-> !$isunknown(count)));
+    // Each active cycle updates count by one in the selected direction.
+    check_next_state_update: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (count == ($past(control) ? ($past(count) + 4'd1) : ($past(count) - 4'd1)))
+    );
 
-  // Synchronous reset
-  assert property (reset |-> count == 4'h0);
+    // control high causes an increment on the next clock.
+    check_increment: assert property (
+        @(posedge clk) disable iff (reset)
+        control |=> (count == ($past(count) + 4'd1))
+    );
 
-  // Next-state correctness (single concise check)
-  assert property (disable iff (reset)
-                   1'b1 |=> count == (control ? inc4($past(count))
-                                              : dec4($past(count))));
+    // control low causes a decrement on the next clock.
+    check_decrement: assert property (
+        @(posedge clk) disable iff (reset)
+        !control |=> (count == ($past(count) - 4'd1))
+    );
 
-  // Must change every active cycle
-  assert property (disable iff (reset) 1'b1 |=> count != $past(count));
+    // Incrementing from 4'hF wraps back to zero.
+    check_increment_wrap: assert property (
+        @(posedge clk) disable iff (reset)
+        control && (count == 4'hF) |=> (count == 4'h0)
+    );
 
-  // Explicit wrap checks
-  assert property (disable iff (reset) (control && $past(count)==4'hF) |=> count==4'h0);
-  assert property (disable iff (reset) (!control && $past(count)==4'h0) |=> count==4'hF);
+    // Decrementing from zero wraps to 4'hF.
+    check_decrement_wrap: assert property (
+        @(posedge clk) disable iff (reset)
+        !control && (count == 4'h0) |=> (count == 4'hF)
+    );
 
-  // Coverage
-  cover property (reset);
-  cover property (disable iff (reset) control ##1 !control);                 // dir change
-  cover property (disable iff (reset) (control && $past(count)==4'hF) |=> count==4'h0); // up-wrap
-  cover property (disable iff (reset) (!control && $past(count)==4'h0) |=> count==4'hF); // down-wrap
 endmodule
-
-bind up_down_counter up_down_counter_sva sva_i (.*);

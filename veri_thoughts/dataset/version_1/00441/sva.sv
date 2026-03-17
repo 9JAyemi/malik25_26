@@ -1,70 +1,38 @@
-// SVA checker + bind for binary_multiplier
-bind binary_multiplier binary_multiplier_sva i_binary_multiplier_sva (.a(a), .b(b), .result(result), .temp(temp));
-
 module binary_multiplier_sva (
-  input logic [7:0]   a,
-  input logic [7:0]   b,
-  input logic [15:0]  result,
-  input logic [15:0]  temp
+    input logic clk,
+    input logic [7:0] a,
+    input logic [7:0] b,
+    input logic [15:0] result
 );
 
-  // Core functional checks and X-prop (combinational)
-  always_comb begin
-    if (!$isunknown({a,b})) begin
-      assert (result == a*b)
-        else $error("binary_multiplier: result != a*b (a=%0d b=%0d res=%0d exp=%0d)", a, b, result, a*b);
-      assert (!$isunknown(result))
-        else $error("binary_multiplier: result X/Z with known inputs");
-    end
-    assert (result === temp)
-      else $error("binary_multiplier: result != temp");
-    if (a==0 || b==0)  assert (result==0)
-      else $error("binary_multiplier: zero-multiplicand property failed");
-    if (a==8'd1)       assert (result==b)
-      else $error("binary_multiplier: identity a*1 failed");
-    if (b==8'd1)       assert (result==a)
-      else $error("binary_multiplier: identity 1*b failed");
-    assert (result == b*a)
-      else $error("binary_multiplier: commutativity failed");
+    // Result must equal the current product of the inputs.
+    check_result_matches_product: assert property (
+        @(posedge clk) result == ($unsigned(a) * $unsigned(b))
+    );
 
-    // Lightweight scenario coverage
-    cover (a==0 && b==0);
-    cover (a==0 && b!=0);
-    cover (a!=0 && b==0);
-    cover (a==8'd1);
-    cover (b==8'd1);
-    cover (a==8'hFF && b==8'hFF);
-    cover (result[15:8] != 0); // overflow into upper byte
-  end
+    // A zero operand must force the product to zero.
+    check_zero_operand_forces_zero_result: assert property (
+        @(posedge clk) ((a == 8'd0) || (b == 8'd0)) |-> (result == 16'd0)
+    );
 
-  // No output change without input change (combinational sanity)
-  always @(result) begin
-    assert ($changed(a) || $changed(b))
-      else $error("binary_multiplier: result changed without input change");
-  end
+    // Multiplying by one on a must pass b through to the result.
+    check_a_one_passthroughs_b: assert property (
+        @(posedge clk) (a == 8'd1) |-> (result == {8'd0, b})
+    );
 
-  // Functional coverage (sample on input changes)
-  covergroup mult_cg;
-    option.per_instance = 1;
-    a_cp: coverpoint a {
-      bins zero = {8'd0};
-      bins one  = {8'd1};
-      bins max  = {8'hFF};
-      bins pow2[] = {8'd1,8'd2,8'd4,8'd8,8'd16,8'd32,8'd64,8'd128};
-    }
-    b_cp: coverpoint b {
-      bins zero = {8'd0};
-      bins one  = {8'd1};
-      bins max  = {8'hFF};
-      bins pow2[] = {8'd1,8'd2,8'd4,8'd8,8'd16,8'd32,8'd64,8'd128};
-    }
-    ovf_cp: coverpoint result[15:8] {
-      bins no_ovf = {8'h00};
-      bins ovf    = {[8'h01:8'hFF]};
-    }
-    axb_cross: cross a_cp, b_cp;
-  endgroup
-  mult_cg cg = new();
-  always @(a or b) cg.sample();
+    // Multiplying by one on b must pass a through to the result.
+    check_b_one_passthroughs_a: assert property (
+        @(posedge clk) (b == 8'd1) |-> (result == {8'd0, a})
+    );
+
+    // If both inputs are stable, the result must also remain stable.
+    check_result_stable_when_inputs_stable: assert property (
+        @(posedge clk) ($stable(a) && $stable(b)) |-> $stable(result)
+    );
+
+    // The product LSB must equal the AND of the input LSBs.
+    check_lsb_matches_input_lsbs: assert property (
+        @(posedge clk) result[0] == (a[0] & b[0])
+    );
 
 endmodule

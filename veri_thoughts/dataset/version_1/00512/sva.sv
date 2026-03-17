@@ -1,64 +1,71 @@
-// SVA checker for OA22X1. Bind this to the DUT.
-// Focuses on correctness, X-propagation, power, and concise coverage.
-module OA22X1_chk (
-  input logic IN1, IN2, IN3, IN4,
-  input logic Q,
-  input logic VDD, VSS,
-  input logic and_out, or_out
+module OA22X1_sva (
+    input logic IN1,
+    input logic IN2,
+    input logic IN3,
+    input logic IN4,
+    input logic Q,
+    input logic VDD,
+    input logic VSS
 );
-  // Sample on any input edge
-  default clocking cb
-    @(posedge IN1 or negedge IN1
-    or posedge IN2 or negedge IN2
-    or posedge IN3 or negedge IN3
-    or posedge IN4 or negedge IN4);
-  endclocking
 
-  // Power-good
-  wire power_ok = (VDD === 1'b1) && (VSS === 1'b0);
-  assume property (power_ok);
+    // Q matches the implemented conditional combinational function.
+    check_output_function: assert property (
+        @($global_clock)
+        Q === (
+            (IN1 & ~IN2) ? IN3 :
+            ((~IN1 & IN2) ? IN4 :
+            ((IN1 & IN2) ? (IN3 & IN4) :
+                           (IN3 | IN4)))
+        )
+    );
 
-  // Partition of select conditions must be exactly one-hot when known
-  let c1 =  ( IN1 && !IN2);
-  let c2 = (!IN1 &&  IN2);
-  let c3 =  ( IN1 &&  IN2);
-  let c4 = (!IN1 && !IN2);
-  assert property (disable iff (!power_ok)
-                   (!$isunknown({IN1,IN2})) |-> $onehot({c1,c2,c3,c4}));
+    // IN1=1 and IN2=0 selects IN3.
+    check_select_in3: assert property (
+        @($global_clock)
+        ((IN1 === 1'b1) && (IN2 === 1'b0)) |-> (Q === IN3)
+    );
 
-  // Internal nets correctness (when inputs known)
-  assert property (disable iff (!power_ok)
-                   (!$isunknown({IN3,IN4})) |-> (and_out === (IN3 & IN4)));
-  assert property (disable iff (!power_ok)
-                   (!$isunknown({IN3,IN4})) |-> (or_out  === (IN3 | IN4)));
+    // IN1=0 and IN2=1 selects IN4.
+    check_select_in4: assert property (
+        @($global_clock)
+        ((IN1 === 1'b0) && (IN2 === 1'b1)) |-> (Q === IN4)
+    );
 
-  // Functional equivalence (when all inputs known)
-  assert property (disable iff (!power_ok)
-                   (!$isunknown({IN1,IN2,IN3,IN4})) |->
-                   (Q === (( IN1 && !IN2) ? IN3 :
-                          ((!IN1 &&  IN2) ? IN4 :
-                          (( IN1 &&  IN2) ? (IN3 & IN4) :
-                                            (IN3 | IN4))))));
+    // IN1=1 and IN2=1 selects IN3 & IN4.
+    check_and_mode: assert property (
+        @($global_clock)
+        ((IN1 === 1'b1) && (IN2 === 1'b1)) |-> (Q === (IN3 & IN4))
+    );
 
-  // No-X on Q when inputs known and power good
-  assert property (disable iff (!power_ok)
-                   (!$isunknown({IN1,IN2,IN3,IN4})) |-> !$isunknown(Q));
+    // IN1=0 and IN2=0 selects IN3 | IN4.
+    check_or_mode: assert property (
+        @($global_clock)
+        ((IN1 === 1'b0) && (IN2 === 1'b0)) |-> (Q === (IN3 | IN4))
+    );
 
-  // Concise functional coverage: exercise each select case
-  cover property (power_ok && c1);
-  cover property (power_ok && c2);
-  cover property (power_ok && c3);
-  cover property (power_ok && c4);
+    // Both data inputs low force Q low.
+    check_both_data_low_force_zero: assert property (
+        @($global_clock)
+        ((IN3 === 1'b0) && (IN4 === 1'b0)) |-> (Q === 1'b0)
+    );
 
-  // Propagation covers: when a path is selected, Q follows the driven input(s)
-  cover property (power_ok && c1 && $changed(IN3) && (Q === IN3));
-  cover property (power_ok && c2 && $changed(IN4) && (Q === IN4));
-  cover property (power_ok && c3 && $changed({IN3,IN4})); // AND path exercised
-  cover property (power_ok && c4 && $changed({IN3,IN4})); // OR path exercised
+    // Both data inputs high force Q high.
+    check_both_data_high_force_one: assert property (
+        @($global_clock)
+        ((IN3 === 1'b1) && (IN4 === 1'b1)) |-> (Q === 1'b1)
+    );
+
+    // Stable functional inputs keep Q stable.
+    check_output_stable_when_inputs_stable: assert property (
+        @($global_clock)
+        ($stable(IN1) && $stable(IN2) && $stable(IN3) && $stable(IN4)) |-> $stable(Q)
+    );
+
+    // Supply pin changes do not affect Q when functional inputs are unchanged.
+    check_supply_independence: assert property (
+        @($global_clock)
+        ($stable(IN1) && $stable(IN2) && $stable(IN3) && $stable(IN4) &&
+         (!$stable(VDD) || !$stable(VSS))) |-> $stable(Q)
+    );
+
 endmodule
-
-// Bind into DUT (captures internal wires and_out/or_out)
-bind OA22X1 OA22X1_chk u_OA22X1_chk (
-  .IN1(IN1), .IN2(IN2), .IN3(IN3), .IN4(IN4), .Q(Q), .VDD(VDD), .VSS(VSS),
-  .and_out(and_out), .or_out(or_out)
-);

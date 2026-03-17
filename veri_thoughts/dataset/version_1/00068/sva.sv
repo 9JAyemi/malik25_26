@@ -1,40 +1,65 @@
-// SVA checker for adder4bit_carry (combinational)
-// Bind into the DUT for automatic checking
 module adder4bit_carry_sva (
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic       cin,
-  input  logic [3:0] S,
-  input  logic       cout
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic cin,
+    input logic [3:0] S,
+    input logic cout
 );
 
-  // X/Z sanity: if inputs are clean, outputs must be clean
-  always_comb begin
-    assert (!$isunknown({A,B,cin})) else $error("adder4bit_carry: X/Z on inputs A/B/cin");
-    if (!$isunknown({A,B,cin})) begin
-      assert (!$isunknown({S,cout})) else $error("adder4bit_carry: X/Z on outputs S/cout with clean inputs");
-    end
-  end
+    // Combined output must match the 5-bit sum of A, B, and cin.
+    check_full_sum_relation: assert property (
+        @(posedge clk) {cout, S} == ({1'b0, A} + {1'b0, B} + {4'b0000, cin})
+    );
 
-  // Functional equivalence (zero-extended addition)
-  always_comb begin
-    assert (#0 {cout,S} == ({1'b0,A} + {1'b0,B} + {1'b0,cin}))
-      else $error("adder4bit_carry mismatch: A=%0h B=%0h cin=%0b -> S=%0h cout=%0b", A, B, cin, S, cout);
-  end
+    // The least significant sum bit follows full-adder XOR behavior.
+    check_lsb_sum_bit: assert property (
+        @(posedge clk) S[0] == (A[0] ^ B[0] ^ cin)
+    );
 
-  // Concise coverage to exercise key corners
-  always_comb begin
-    cover ({cout,S} == 5'd0);              // 0+0+0
-    cover (cin == 1'b0);                   // cin low seen
-    cover (cin == 1'b1);                   // cin high seen
-    cover (cout == 1'b0 && S == 4'hF);     // boundary no-carry max (15)
-    cover (cout == 1'b1 && S == 4'h0);     // wrap with carry (sum=16)
-    cover ({cout,S} == 5'd31);             // top end (sum=31)
-  end
+    // The next sum bit uses bit 0 carry as a full-adder would.
+    check_bit1_sum_bit: assert property (
+        @(posedge clk) S[1] == (A[1] ^ B[1] ^ ((A[0] & B[0]) | (A[0] & cin) | (B[0] & cin)))
+    );
+
+    // Carry-out is asserted when the arithmetic result is at least 16.
+    check_carry_out_threshold: assert property (
+        @(posedge clk) cout == (({1'b0, A} + {1'b0, B} + {4'b0000, cin}) >= 5'd16)
+    );
+
+    // Zero inputs must produce a zero sum and no carry-out.
+    check_zero_addition: assert property (
+        @(posedge clk) (A == 4'h0 && B == 4'h0 && cin == 1'b0) |-> (S == 4'h0 && cout == 1'b0)
+    );
+
+    // A passes through when B and cin are zero.
+    check_a_passthrough: assert property (
+        @(posedge clk) (B == 4'h0 && cin == 1'b0) |-> (S == A && cout == 1'b0)
+    );
+
+    // B passes through when A and cin are zero.
+    check_b_passthrough: assert property (
+        @(posedge clk) (A == 4'h0 && cin == 1'b0) |-> (S == B && cout == 1'b0)
+    );
+
+    // Carry-in increments A when B is zero.
+    check_cin_increments_a: assert property (
+        @(posedge clk) (B == 4'h0 && cin == 1'b1) |-> ({cout, S} == ({1'b0, A} + 5'd1))
+    );
+
+    // Carry-in increments B when A is zero.
+    check_cin_increments_b: assert property (
+        @(posedge clk) (A == 4'h0 && cin == 1'b1) |-> ({cout, S} == ({1'b0, B} + 5'd1))
+    );
+
+    // Adding bitwise complements without carry-in yields all ones and no carry.
+    check_complement_without_carry: assert property (
+        @(posedge clk) (B == ~A && cin == 1'b0) |-> (S == 4'hF && cout == 1'b0)
+    );
+
+    // Adding bitwise complements with carry-in yields zero and carry-out.
+    check_complement_with_carry: assert property (
+        @(posedge clk) (B == ~A && cin == 1'b1) |-> (S == 4'h0 && cout == 1'b1)
+    );
 
 endmodule
-
-// Bind the checker to the DUT
-bind adder4bit_carry adder4bit_carry_sva u_adder4bit_carry_sva (
-  .A(A), .B(B), .cin(cin), .S(S), .cout(cout)
-);

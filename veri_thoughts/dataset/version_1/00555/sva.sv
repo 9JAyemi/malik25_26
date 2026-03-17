@@ -1,80 +1,50 @@
-// SVA for ripple_carry_adder and full_adder
-
-module rca_sva (
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic       Ci,
-  input  logic [3:0] S,
-  input  logic       Co,
-  input  logic [3:0] C
+module ripple_carry_adder_sva (
+    input logic       clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic       Ci,
+    input logic [3:0] S,
+    input logic       Co
 );
-  function automatic logic carry3 (input logic a, b, ci);
-    return (a & b) | (a & ci) | (b & ci);
-  endfunction
 
-  // Functional correctness
-  a_sum: assert property (@(*)
-    {Co,S} == ({1'b0,A} + {1'b0,B} + Ci)
-  );
+    // The 5-bit output matches the 5-bit arithmetic sum.
+    check_total_sum: assert property (
+        @(posedge clk) {Co, S} == ({1'b0, A} + {1'b0, B} + Ci)
+    );
 
-  // Internal carry chain correctness
-  a_c1: assert property (@(*)
-    C[1] == carry3(A[0], B[0], Ci)
-  );
-  a_c2: assert property (@(*)
-    C[2] == carry3(A[1], B[1], C[1])
-  );
-  a_c3: assert property (@(*)
-    C[3] == carry3(A[2], B[2], C[2])
-  );
-  a_co: assert property (@(*)
-    Co   == carry3(A[3], B[3], C[3])
-  );
+    // The least-significant sum bit is the XOR of A[0], B[0], and Ci.
+    check_lsb_sum: assert property (
+        @(posedge clk) S[0] == (A[0] ^ B[0] ^ Ci)
+    );
 
-  // X-propagation: clean outputs when inputs are known
-  a_known: assert property (@(*)
-    !($isunknown({A,B,Ci})) |-> !($isunknown({S,Co,C[3:1]}))
-  );
+    // Adding zero with no carry-in returns A with no carry-out.
+    check_add_zero_to_a: assert property (
+        @(posedge clk) (B == 4'h0 && Ci == 1'b0) |-> (S == A && Co == 1'b0)
+    );
 
-  // Targeted scenario coverage
-  cover_zero:    cover property (@(*) (A==4'h0) && (B==4'h0) && !Ci && (S==4'h0) && !Co);
-  cover_ripple:  cover property (@(*) (A==4'hF) && (B==4'h0) &&  Ci && (S==4'h0) &&  Co); // full propagate
-  cover_max:     cover property (@(*) (A==4'hF) && (B==4'hF) &&  Ci && (S==4'hF) &&  Co); // max+carry
+    // Adding zero with no carry-in returns B with no carry-out.
+    check_add_zero_to_b: assert property (
+        @(posedge clk) (A == 4'h0 && Ci == 1'b0) |-> (S == B && Co == 1'b0)
+    );
 
-  // Bit-level toggling coverage
-  genvar i;
-  generate
-    for (i=0; i<4; i++) begin : g_s_cov
-      cover_s1: cover property (@(*) S[i]);
-      cover_s0: cover property (@(*) !S[i]);
-    end
-  endgenerate
-  genvar j;
-  generate
-    for (j=1; j<4; j++) begin : g_c_cov
-      cover_c1: cover property (@(*) C[j]);
-      cover_c0: cover property (@(*) !C[j]);
-    end
-  endgenerate
-  cover_co1: cover property (@(*) Co);
-  cover_co0: cover property (@(*) !Co);
+    // A carry-in by itself increments zero to one without overflow.
+    check_carry_in_only: assert property (
+        @(posedge clk) (A == 4'h0 && B == 4'h0 && Ci == 1'b1) |-> (S == 4'h1 && Co == 1'b0)
+    );
+
+    // A carry-in propagates through all four stages when A is all ones.
+    check_full_carry_propagation: assert property (
+        @(posedge clk) (A == 4'hF && B == 4'h0 && Ci == 1'b1) |-> (S == 4'h0 && Co == 1'b1)
+    );
+
+    // Carry-out stays low when the arithmetic sum fits in 4 bits.
+    check_no_overflow_when_sum_fits: assert property (
+        @(posedge clk) (({1'b0, A} + {1'b0, B} + Ci) <= 5'd15) |-> (Co == 1'b0)
+    );
+
+    // Carry-out goes high when the arithmetic sum exceeds 4 bits.
+    check_overflow_when_sum_exceeds: assert property (
+        @(posedge clk) (({1'b0, A} + {1'b0, B} + Ci) >= 5'd16) |-> (Co == 1'b1)
+    );
+
 endmodule
-
-
-module fa_sva (
-  input logic A, B, Ci,
-  input logic S, Co
-);
-  a_fa:    assert property (@(*) {Co,S} == ({1'b0,A} + {1'b0,B} + {1'b0,Ci}));
-  a_known: assert property (@(*) !($isunknown({A,B,Ci})) |-> !($isunknown({S,Co})));
-
-  cover_s1:  cover property (@(*) S);
-  cover_s0:  cover property (@(*) !S);
-  cover_co1: cover property (@(*) Co);
-  cover_co0: cover property (@(*) !Co);
-endmodule
-
-
-// Bind assertions into DUTs
-bind ripple_carry_adder rca_sva u_rca_sva (.* , .C(C));
-bind full_adder        fa_sva  u_fa_sva  (.*);

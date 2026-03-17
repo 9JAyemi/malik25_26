@@ -1,33 +1,48 @@
-// SVA checker bound into top_module
-module top_module_sva
-  (input  logic [7:0]  in_hi,
-   input  logic [7:0]  in_lo,
-   input  logic [16:0] out,
-   input  logic [15:0] half_word,
-   input  logic        parity_bit);
+module top_module_sva (
+    input logic        clk,
+    input logic [7:0]  in_hi,
+    input logic [7:0]  in_lo,
+    input logic [16:0] out
+);
 
-  // X/Z checks
-  always_comb begin
-    assert (!$isunknown({in_hi,in_lo})) else $error("X/Z on inputs");
-    assert (!$isunknown(out))           else $error("X/Z on out");
-  end
+    // Upper output byte mirrors in_hi.
+    check_hi_byte_mapping: assert property (
+        @(posedge clk) out[16:9] == in_hi
+    );
 
-  // Functional correctness
-  always_comb begin
-    assert (half_word == {in_hi, in_lo})      else $error("half_word != {in_hi,in_lo}");
-    assert (parity_bit == ^half_word)         else $error("parity_bit != ^half_word");
-    assert (out == {half_word, parity_bit})   else $error("out != {half_word,parity_bit}");
-  end
+    // Lower output byte mirrors in_lo.
+    check_lo_byte_mapping: assert property (
+        @(posedge clk) out[8:1] == in_lo
+    );
 
-  // Coverage (key patterns and both parity classes)
-  always_comb begin
-    cover (^({in_hi,in_lo}) == 1'b0);         // even parity
-    cover (^({in_hi,in_lo}) == 1'b1);         // odd parity
-    cover ({in_hi,in_lo} == 16'h0000);
-    cover ({in_hi,in_lo} == 16'hFFFF);
-    cover ({in_hi,in_lo} == 16'hAAAA);
-    cover ({in_hi,in_lo} == 16'h5555);
-  end
+    // The upper 16 output bits are the concatenated input bytes.
+    check_half_word_concat: assert property (
+        @(posedge clk) out[16:1] == {in_hi, in_lo}
+    );
+
+    // The parity bit matches the reduction XOR of both input bytes.
+    check_parity_from_inputs: assert property (
+        @(posedge clk) out[0] == ^({in_hi, in_lo})
+    );
+
+    // The full output is the concatenated half-word with its parity bit.
+    check_full_output_encoding: assert property (
+        @(posedge clk) out == {in_hi, in_lo, ^({in_hi, in_lo})}
+    );
+
+    // The parity bit equals the parity of the upper 16 output bits.
+    check_parity_consistency: assert property (
+        @(posedge clk) out[0] == ^(out[16:1])
+    );
+
+    // The 17-bit output has even overall parity.
+    check_even_output_parity: assert property (
+        @(posedge clk) (^out) == 1'b0
+    );
+
+    // If both inputs are stable, the output remains stable.
+    check_stable_inputs_stable_output: assert property (
+        @(posedge clk) $stable({in_hi, in_lo}) |-> $stable(out)
+    );
+
 endmodule
-
-bind top_module top_module_sva sva_i (.*);

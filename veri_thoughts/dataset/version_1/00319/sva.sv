@@ -1,64 +1,91 @@
-// SVA checker for three_bit_adder
 module three_bit_adder_sva (
-  input A, B, Ci, S, Co,
-  input n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic Ci,
+    input logic S,
+    input logic Co,
+    input logic n1,
+    input logic n2,
+    input logic n3,
+    input logic n4,
+    input logic n5,
+    input logic n6,
+    input logic n7,
+    input logic n8,
+    input logic n9,
+    input logic n10,
+    input logic n11
 );
-  // Input-space and result coverage
-  always_comb begin
-    cover ({A,B,Ci} == 3'b000);
-    cover ({A,B,Ci} == 3'b001);
-    cover ({A,B,Ci} == 3'b010);
-    cover ({A,B,Ci} == 3'b011);
-    cover ({A,B,Ci} == 3'b100);
-    cover ({A,B,Ci} == 3'b101);
-    cover ({A,B,Ci} == 3'b110);
-    cover ({A,B,Ci} == 3'b111);
 
-    cover ({Co,S} == 2'b00);
-    cover ({Co,S} == 2'b01);
-    cover ({Co,S} == 2'b10);
-    cover ({Co,S} == 2'b11);
-  end
+    // n1 is the XOR of A and B.
+    check_n1_xor_ab: assert property (
+        @(posedge clk) n1 == (A ^ B)
+    );
 
-  // Combinational checks (guard against X/Z on inputs)
-  always_comb begin
-    if (!$isunknown({A,B,Ci})) begin
-      // Outputs and key internal nets must be known when inputs are known
-      assert (!$isunknown({S,Co,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11}));
+    // S is the XOR of n1 and Ci.
+    check_sum_from_n1_and_ci: assert property (
+        @(posedge clk) S == (n1 ^ Ci)
+    );
 
-      // Functional correctness (three equivalent forms)
-      assert (S  === (A ^ B ^ Ci));
-      assert (Co === ((A & B) | (A & Ci) | (B & Ci)));
-      assert ({Co,S} === ({1'b0,A} + {1'b0,B} + {1'b0,Ci}));
+    // n2 is the AND of A and B.
+    check_n2_and_ab: assert property (
+        @(posedge clk) n2 == (A & B)
+    );
 
-      // Structural consistency with RTL
-      assert (n1 === (A ^ B));
-      assert (n2 === (A & B));
-      assert (n3 === (n1 & Ci));
-      assert (S  === (n1 ^ Ci));
-      assert (Co === (n2 | n3));
+    // n3 is the AND of n1 and Ci.
+    check_n3_and_n1_ci: assert property (
+        @(posedge clk) n3 == (n1 & Ci)
+    );
 
-      // Redundant internal network equivalences
-      assert (n4  === (n2 & n3));
-      assert (n7  === (n2 & n3));
-      assert (n11 === (n2 & n3));
-      assert (n8  === (n1 & Ci));
-      assert (n3  === n8);
+    // Co is the OR of n2 and n3.
+    check_carry_from_n2_or_n3: assert property (
+        @(posedge clk) Co == (n2 | n3)
+    );
 
-      assert (n5  === (n4 | n3));
-      assert (n5  === n3);
+    // The outputs match 1-bit addition of A, B, and Ci.
+    check_full_adder_numeric_result: assert property (
+        @(posedge clk) {Co, S} == ({1'b0, A} + {1'b0, B} + {1'b0, Ci})
+    );
 
-      assert (n9  === (n7 | n8));
-      assert (n9  === n3);
+    // n4 is the AND of n2 and n3.
+    check_n4_and_n2_n3: assert property (
+        @(posedge clk) n4 == (n2 & n3)
+    );
 
-      assert (n6  === ~n5);
-      assert (n6  === ~n3);
+    // n5 is the OR of n4 and n3.
+    check_n5_or_n4_n3: assert property (
+        @(posedge clk) n5 == (n4 | n3)
+    );
 
-      assert (n10 === ~n9);
-      assert (n10 === ~n3);
-    end
-  end
+    // n6 is the inversion of n5.
+    check_n6_inverts_n5: assert property (
+        @(posedge clk) n6 == (~n5)
+    );
+
+    // n7 duplicates the AND of n2 and n3.
+    check_n7_and_n2_n3: assert property (
+        @(posedge clk) n7 == (n2 & n3)
+    );
+
+    // n8 duplicates the AND of n1 and Ci.
+    check_n8_and_n1_ci: assert property (
+        @(posedge clk) n8 == (n1 & Ci)
+    );
+
+    // n9 is the OR of n7 and n8.
+    check_n9_or_n7_n8: assert property (
+        @(posedge clk) n9 == (n7 | n8)
+    );
+
+    // n10 is the inversion of n9.
+    check_n10_inverts_n9: assert property (
+        @(posedge clk) n10 == (~n9)
+    );
+
+    // n11 duplicates the AND of n2 and n3.
+    check_n11_and_n2_n3: assert property (
+        @(posedge clk) n11 == (n2 & n3)
+    );
+
 endmodule
-
-// Bind the checker into every instance of the DUT
-bind three_bit_adder three_bit_adder_sva sva (.*);

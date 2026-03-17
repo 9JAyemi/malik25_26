@@ -1,69 +1,55 @@
-// SVA for karnaugh_map: F must equal B ^ C ^ D; independent of A
 module karnaugh_map_sva (
-  input logic A, B, C, D,
-  input logic F
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D,
+    input logic F
 );
 
-  // Functional equivalence: sample after combinational update (##0), ignore X/Z on inputs
-  property p_func_eq;
-    @(posedge A or negedge A or posedge B or negedge B or posedge C or negedge C or posedge D or negedge D)
-      !$isunknown({A,B,C,D}) |-> ##0 (F === (B ^ C ^ D));
-  endproperty
-  assert property (p_func_eq) else $error("F != B^C^D");
+    // F matches the implemented truth table for all sampled inputs.
+    check_function_matches_truth_table: assert property (
+        @(posedge clk) F == (B ^ C ^ D)
+    );
 
-  // A must not affect F when B,C,D stable
-  property p_A_independent;
-    @(posedge A or negedge A)
-      !$isunknown({A,B,C,D}) && $stable({B,C,D}) |-> ##0 $stable(F);
-  endproperty
-  assert property (p_A_independent) else $error("F changed on A-only toggle");
+    // When BCD is 000, F must be low.
+    check_bcd_000_output_low: assert property (
+        @(posedge clk) ({B, C, D} == 3'b000) |-> (F == 1'b0)
+    );
 
-  // Single-bit toggle behavior on B,C,D causes F to toggle (with others stable)
-  property p_B_flip;
-    @(posedge B or negedge B)
-      !$isunknown({A,B,C,D}) && $stable({C,D}) |-> ##0 $changed(F);
-  endproperty
-  assert property (p_B_flip) else $error("F did not toggle on B-only edge");
+    // When BCD is 001, F must be high.
+    check_bcd_001_output_high: assert property (
+        @(posedge clk) ({B, C, D} == 3'b001) |-> (F == 1'b1)
+    );
 
-  property p_C_flip;
-    @(posedge C or negedge C)
-      !$isunknown({A,B,C,D}) && $stable({B,D}) |-> ##0 $changed(F);
-  endproperty
-  assert property (p_C_flip) else $error("F did not toggle on C-only edge");
+    // When BCD is 010, F must be high.
+    check_bcd_010_output_high: assert property (
+        @(posedge clk) ({B, C, D} == 3'b010) |-> (F == 1'b1)
+    );
 
-  property p_D_flip;
-    @(posedge D or negedge D)
-      !$isunknown({A,B,C,D}) && $stable({B,C}) |-> ##0 $changed(F);
-  endproperty
-  assert property (p_D_flip) else $error("F did not toggle on D-only edge");
+    // When BCD is 011, F must be low.
+    check_bcd_011_output_low: assert property (
+        @(posedge clk) ({B, C, D} == 3'b011) |-> (F == 1'b0)
+    );
 
-  // X-propagation guard: with clean inputs, F must be known
-  property p_no_x_out;
-    @(posedge A or negedge A or posedge B or negedge B or posedge C or negedge C or posedge D or negedge D)
-      !$isunknown({A,B,C,D}) |-> ##0 !$isunknown(F);
-  endproperty
-  assert property (p_no_x_out) else $error("F is X/Z with known inputs");
+    // When BCD is 100, F must be high.
+    check_bcd_100_output_high: assert property (
+        @(posedge clk) ({B, C, D} == 3'b100) |-> (F == 1'b1)
+    );
 
-  // Coverage: hit both F polarities and key toggle scenarios
-  cover property (@(posedge F) 1);
-  cover property (@(negedge F) 1);
-  cover property (@(posedge A or negedge A) $stable({B,C,D}) ##0 $stable(F));
-  cover property (@(posedge B or negedge B) $stable({C,D}) ##0 $changed(F));
-  cover property (@(posedge C or negedge C) $stable({B,D}) ##0 $changed(F));
-  cover property (@(posedge D or negedge D) $stable({B,C}) ##0 $changed(F));
+    // When BCD is 101, F must be low.
+    check_bcd_101_output_low: assert property (
+        @(posedge clk) ({B, C, D} == 3'b101) |-> (F == 1'b0)
+    );
 
-  // Full minterm coverage (all 16 input combinations with correct F)
-  genvar i;
-  generate
-    for (i = 0; i < 16; i++) begin : COV_ALL_INPUTS
-      cover property (
-        @(posedge A or negedge A or posedge B or negedge B or posedge C or negedge C or posedge D or negedge D)
-          {A,B,C,D} == i[3:0] ##0 (F === (i[2]^i[1]^i[0]))
-      );
-    end
-  endgenerate
+    // When BCD is 110, F must be low.
+    check_bcd_110_output_low: assert property (
+        @(posedge clk) ({B, C, D} == 3'b110) |-> (F == 1'b0)
+    );
+
+    // When BCD is 111, F must be high.
+    check_bcd_111_output_high: assert property (
+        @(posedge clk) ({B, C, D} == 3'b111) |-> (F == 1'b1)
+    );
 
 endmodule
-
-// Bind to DUT
-bind karnaugh_map karnaugh_map_sva sva_kmap (.A(A), .B(B), .C(C), .D(D), .F(F));

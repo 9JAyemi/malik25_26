@@ -1,79 +1,71 @@
-// SVA checker for state_machine
-module sm_sva
-  #(parameter logic [2:0] IDLE    = 3'b000,
-                          SEND    = 3'b001,
-                          WAIT1   = 3'b010,
-                          UPDATE1 = 3'b011,
-                          WAIT2   = 3'b100,
-                          UPDATE2 = 3'b101)
-(
-  input  logic        clk,
-  input  logic        rst_,
-  input  logic [2:0]  state_r
+module state_machine_sva (
+    input logic clk,
+    input logic rst_,
+    input logic [2:0] state_r
 );
 
-  function automatic bit legal_state (logic [2:0] s);
-    case (s)
-      IDLE, SEND, WAIT1, UPDATE1, WAIT2, UPDATE2: return 1'b1;
-      default: return 1'b0;
-    endcase
-  endfunction
+    localparam logic [2:0] IDLE    = 3'b000;
+    localparam logic [2:0] SEND    = 3'b001;
+    localparam logic [2:0] WAIT1   = 3'b010;
+    localparam logic [2:0] UPDATE1 = 3'b011;
+    localparam logic [2:0] WAIT2   = 3'b100;
+    localparam logic [2:0] UPDATE2 = 3'b101;
 
-  // Sanity
-  assert property (@(posedge clk) !$isunknown(rst_));
-  assert property (@(posedge clk) disable iff (!rst_) !$isunknown(state_r));
-  assert property (@(posedge clk) disable iff (!rst_) legal_state(state_r));
+    // Reset drives the machine to IDLE.
+    check_reset_idle: assert property (
+        @(posedge clk)
+        !rst_ |-> (state_r == IDLE)
+    );
 
-  // Reset behavior
-  assert property (@(posedge clk) (!rst_) |-> (state_r == IDLE));
-  assert property (@(posedge clk) $fell(rst_) |=> (state_r == IDLE));
-  assert property (@(posedge clk) $rose(rst_) |=> (state_r == IDLE) ##1 (state_r == SEND));
+    // IDLE advances to SEND on the next clock.
+    check_idle_to_send: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == IDLE) |=> (state_r == SEND)
+    );
 
-  // One-step transition helper
-  property p_step (logic [2:0] from, logic [2:0] to);
-    @(posedge clk) disable iff (!rst_) (state_r == from) |=> (state_r == to);
-  endproperty
+    // SEND advances to WAIT1 on the next clock.
+    check_send_to_wait1: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == SEND) |=> (state_r == WAIT1)
+    );
 
-  // Legal transitions
-  assert property (p_step(IDLE,    SEND));
-  assert property (p_step(SEND,    WAIT1));
-  assert property (p_step(WAIT1,   UPDATE1));
-  assert property (p_step(UPDATE1, WAIT2));
-  assert property (p_step(WAIT2,   UPDATE2));
-  assert property (p_step(UPDATE2, IDLE));
+    // WAIT1 advances to UPDATE1 on the next clock.
+    check_wait1_to_update1: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == WAIT1) |=> (state_r == UPDATE1)
+    );
 
-  // Recovery from illegal encodings (should be vacuous)
-  assert property (@(posedge clk) disable iff (!rst_)
-                   (!legal_state(state_r)) |=> (state_r == IDLE));
+    // UPDATE1 advances to WAIT2 on the next clock.
+    check_update1_to_wait2: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == UPDATE1) |=> (state_r == WAIT2)
+    );
 
-  // End-to-end 6-step cycle from IDLE
-  assert property (@(posedge clk) disable iff (!rst_)
-                   (state_r == IDLE)
-                   |-> ##1 (state_r == SEND)
-                   ##1 (state_r == WAIT1)
-                   ##1 (state_r == UPDATE1)
-                   ##1 (state_r == WAIT2)
-                   ##1 (state_r == UPDATE2)
-                   ##1 (state_r == IDLE));
+    // WAIT2 advances to UPDATE2 on the next clock.
+    check_wait2_to_update2: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == WAIT2) |=> (state_r == UPDATE2)
+    );
 
-  // Coverage
-  cover property (@(posedge clk) disable iff (!rst_)
-                  (state_r == IDLE)
-                  ##1 (state_r == SEND)
-                  ##1 (state_r == WAIT1)
-                  ##1 (state_r == UPDATE1)
-                  ##1 (state_r == WAIT2)
-                  ##1 (state_r == UPDATE2)
-                  ##1 (state_r == IDLE));
+    // UPDATE2 wraps back to IDLE on the next clock.
+    check_update2_to_idle: assert property (
+        @(posedge clk) disable iff (!rst_)
+        (state_r == UPDATE2) |=> (state_r == IDLE)
+    );
 
-  cover property (@(posedge clk) disable iff (!rst_) state_r == IDLE);
-  cover property (@(posedge clk) disable iff (!rst_) state_r == SEND);
-  cover property (@(posedge clk) disable iff (!rst_) state_r == WAIT1);
-  cover property (@(posedge clk) disable iff (!rst_) state_r == UPDATE1);
-  cover property (@(posedge clk) disable iff (!rst_) state_r == WAIT2);
-  cover property (@(posedge clk) disable iff (!rst_) state_r == UPDATE2);
+    // Any invalid state encoding returns to IDLE on the next clock.
+    check_invalid_state_to_idle: assert property (
+        @(posedge clk) disable iff (!rst_)
+        !((state_r == IDLE) || (state_r == SEND) || (state_r == WAIT1) ||
+          (state_r == UPDATE1) || (state_r == WAIT2) || (state_r == UPDATE2))
+        |=> (state_r == IDLE)
+    );
+
+    // After any non-reset cycle, the next state is always a legal encoding.
+    check_next_state_is_legal: assert property (
+        @(posedge clk) disable iff (!rst_)
+        1'b1 |=> ((state_r == IDLE) || (state_r == SEND) || (state_r == WAIT1) ||
+                  (state_r == UPDATE1) || (state_r == WAIT2) || (state_r == UPDATE2))
+    );
 
 endmodule
-
-// Bind into the DUT
-bind state_machine sm_sva u_sm_sva (.*);

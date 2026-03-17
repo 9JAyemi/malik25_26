@@ -1,40 +1,52 @@
-// SVA for clock_gate modules
+module clock_gate_sva (
+    input logic CLK,
+    input logic EN,
+    input logic TE,
+    input logic ENCLK
+);
 
-module clock_gate_sva (input logic CLK, EN, TE, ENCLK);
+    // EN low forces ENCLK high on rising-edge samples.
+    check_en_low_rise_forces_high: assert property (
+        @(posedge CLK) (EN == 1'b0) |-> (ENCLK == 1'b1)
+    );
 
-  // Functional equivalence and knownness (checks on any relevant edge)
-  assert property (@(posedge CLK or negedge CLK or
-                     posedge EN  or negedge EN  or
-                     posedge TE  or negedge TE  or
-                     posedge ENCLK or negedge ENCLK)
-                   !$isunknown({CLK,EN,TE}) |-> (ENCLK === ((~EN) | (EN & TE & CLK)) && !$isunknown(ENCLK)))
-    else $error("clock_gate: ENCLK != (~EN)|(EN&TE&CLK) or X detected");
+    // EN low forces ENCLK high on falling-edge samples.
+    check_en_low_fall_forces_high: assert property (
+        @(negedge CLK) (EN == 1'b0) |-> (ENCLK == 1'b1)
+    );
 
-  // Pass-through: when EN&&TE stable, CLK edges propagate to ENCLK
-  assert property (@(posedge CLK or negedge CLK)
-                   EN && TE && $stable(EN) && $stable(TE) && $changed(CLK)
-                   |-> $changed(ENCLK) && (ENCLK == CLK));
+    // EN high with TE low forces ENCLK low on rising-edge samples.
+    check_te_low_rise_forces_low: assert property (
+        @(posedge CLK) ((EN == 1'b1) && (TE == 1'b0)) |-> (ENCLK == 1'b0)
+    );
 
-  // Gated hold: output stable vs CLK edges when disabled modes
-  assert property (@(posedge CLK or negedge CLK)
-                   !EN && $stable(EN) && $changed(CLK) |-> $stable(ENCLK) && ENCLK);
+    // EN high with TE low forces ENCLK low on falling-edge samples.
+    check_te_low_fall_forces_low: assert property (
+        @(negedge CLK) ((EN == 1'b1) && (TE == 1'b0)) |-> (ENCLK == 1'b0)
+    );
 
-  assert property (@(posedge CLK or negedge CLK)
-                   EN && !TE && $stable(EN) && $stable(TE) && $changed(CLK)
-                   |-> $stable(ENCLK) && !ENCLK);
+    // EN and TE high make ENCLK follow CLK on rising-edge samples.
+    check_clk_passthrough_rise: assert property (
+        @(posedge CLK) ((EN == 1'b1) && (TE == 1'b1)) |-> (ENCLK == CLK)
+    );
 
-  // Minimal functional coverage
-  cover property (@(posedge CLK) !EN);
-  cover property (@(posedge CLK) EN && !TE);
-  cover property (@(posedge CLK) EN && TE && $rose(CLK));
-  cover property (@(negedge CLK) EN && TE && $fell(CLK));
-  cover property (@(posedge CLK) $rose(EN) && TE);   // enter pass-through via EN
-  cover property (@(posedge CLK) EN && $rose(TE));   // enter pass-through via TE
-  cover property (@(posedge CLK) $fell(EN));         // exit to high-hold
-  cover property (@(posedge CLK) EN && $fell(TE));   // exit to low-hold
+    // EN and TE high make ENCLK follow CLK on falling-edge samples.
+    check_clk_passthrough_fall: assert property (
+        @(negedge CLK) ((EN == 1'b1) && (TE == 1'b1)) |-> (ENCLK == CLK)
+    );
 
 endmodule
 
-// Bind to both DUTs
-bind clock_gate_1 clock_gate_sva cg1_sva (.*);
-bind clock_gate_2 clock_gate_sva cg2_sva (.*);
+bind clock_gate_1 clock_gate_sva clock_gate_1_sva_bind (
+    .CLK(CLK),
+    .EN(EN),
+    .TE(TE),
+    .ENCLK(ENCLK)
+);
+
+bind clock_gate_2 clock_gate_sva clock_gate_2_sva_bind (
+    .CLK(CLK),
+    .EN(EN),
+    .TE(TE),
+    .ENCLK(ENCLK)
+);

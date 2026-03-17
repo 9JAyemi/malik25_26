@@ -1,61 +1,51 @@
-// SVA for priority_encoder and final_output_generator
-// Concise, high-quality checks with targeted coverage
-
-module sva_priority_encoder(
-  input logic [3:0] in1,
-  input logic [3:0] in2,
-  input logic [3:0] priority_output
+module priority_encoder_sva (
+    input logic clk,
+    input logic [3:0] in1,
+    input logic [3:0] in2,
+    input logic [3:0] priority_output
 );
-  default clocking cb @($global_clock); endclocking
 
-  let p = (in1 > in2) ? in1 : in2;
+    // priority_output matches the ternary max selection.
+    check_priority_matches_ternary: assert property (
+        @(posedge clk) priority_output == ((in1 > in2) ? in1 : in2)
+    );
 
-  // Functional correctness
-  a_pe_func:  assert property (priority_output == p)
-    else $error("priority_output mismatch");
-
-  // No X/Z propagation when inputs are clean
-  a_pe_no_x:  assert property (!$isunknown({in1,in2}) |-> !$isunknown(priority_output))
-    else $error("priority_output has X/Z with clean inputs");
-
-  // Coverage: all compare outcomes
-  c_pe_gt:    cover property (in1 > in2);
-  c_pe_lt:    cover property (in1 < in2);
-  c_pe_eq:    cover property (in1 == in2);
 endmodule
 
-
-module sva_final_output_generator(
-  input logic [3:0] in1,
-  input logic [3:0] in2,
-  input logic [3:0] priority_output,
-  input logic [3:0] final_output
+module final_output_generator_sva (
+    input logic clk,
+    input logic [3:0] in1,
+    input logic [3:0] in2,
+    input logic [3:0] final_output
 );
-  default clocking cb @($global_clock); endclocking
 
-  let p = (in1 > in2) ? in1 : in2;
-  let f = (p==4'b0001) ? in1
-        : (p==4'b0010) ? in2
-        : (p==4'b0100) ? {in1[3:1], in2[0]}
-        : (p==4'b1000) ? {in2[3:1], in1[0]}
-        :                 4'b0000;
+    // final_output passes through in1 when the selected value is 4'b0001.
+    check_final_output_case_0001: assert property (
+        @(posedge clk) (((in1 > in2) ? in1 : in2) == 4'b0001) |-> (final_output == in1)
+    );
 
-  // End-to-end functional correctness of final_output behavior
-  a_fog_func: assert property (final_output == f)
-    else $error("final_output mismatch");
+    // final_output passes through in2 when the selected value is 4'b0010.
+    check_final_output_case_0010: assert property (
+        @(posedge clk) (((in1 > in2) ? in1 : in2) == 4'b0010) |-> (final_output == in2)
+    );
 
-  // No X/Z propagation when inputs are clean
-  a_fog_no_x: assert property (!$isunknown({in1,in2}) |-> !$isunknown({priority_output,final_output}))
-    else $error("priority_output/final_output has X/Z with clean inputs");
+    // final_output combines in1[3:1] with in2[0] when the selected value is 4'b0100.
+    check_final_output_case_0100: assert property (
+        @(posedge clk) (((in1 > in2) ? in1 : in2) == 4'b0100) |-> (final_output == {in1[3:1], in2[0]})
+    );
 
-  // Coverage: hit each case item and default
-  c_fog_case1:    cover property (p==4'b0001);
-  c_fog_case2:    cover property (p==4'b0010);
-  c_fog_case4:    cover property (p==4'b0100);
-  c_fog_case8:    cover property (p==4'b1000);
-  c_fog_default:  cover property (!(p inside {4'b0001,4'b0010,4'b0100,4'b1000}));
+    // final_output combines in2[3:1] with in1[0] when the selected value is 4'b1000.
+    check_final_output_case_1000: assert property (
+        @(posedge clk) (((in1 > in2) ? in1 : in2) == 4'b1000) |-> (final_output == {in2[3:1], in1[0]})
+    );
+
+    // final_output is zero for all other selected values.
+    check_final_output_default_zero: assert property (
+        @(posedge clk)
+        (((in1 > in2) ? in1 : in2) != 4'b0001 &&
+         ((in1 > in2) ? in1 : in2) != 4'b0010 &&
+         ((in1 > in2) ? in1 : in2) != 4'b0100 &&
+         ((in1 > in2) ? in1 : in2) != 4'b1000) |-> (final_output == 4'b0000)
+    );
+
 endmodule
-
-// Bind assertions to DUTs
-bind priority_encoder        sva_priority_encoder        pe_sva  (.*);
-bind final_output_generator  sva_final_output_generator  fog_sva (.*);

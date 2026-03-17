@@ -1,38 +1,46 @@
-// SVA for my_module
-module my_module_sva (my_module dut);
+module my_module_sva (
+    input logic clk,
+    input logic A1,
+    input logic A2,
+    input logic A3,
+    input logic A4,
+    input logic B1,
+    input logic X
+);
 
-  // Create a combinational sampling event for clockless DUT
-  event comb_ev; 
-  always @* -> comb_ev;
-  default clocking cb @(comb_ev); endclocking
+    // X must match the complete combinational function.
+    check_full_function: assert property (
+        @(posedge clk) X == ((A1 ? A2 : (A3 ^ A4)) ^ B1)
+    );
 
-  // Sanity: outputs known when inputs are known
-  a_known: assert property (!$isunknown({dut.A1,dut.A2,dut.A3,dut.A4,dut.B1}) |-> !$isunknown({dut.X_A,dut.X_B,dut.X}));
+    // When A1 selects A2 and B1 is low, X matches A2.
+    check_a2_selected_passthrough: assert property (
+        @(posedge clk) (A1 && !B1) |-> (X == A2)
+    );
 
-  // Stage 1 function
-  a_stage1: assert property (dut.X_A === (dut.A1 ? dut.A2 : (dut.A3 ^ dut.A4)));
+    // When A1 selects A2 and B1 is high, X is the inverse of A2.
+    check_a2_selected_inverted: assert property (
+        @(posedge clk) (A1 && B1) |-> (X == ~A2)
+    );
 
-  // Stage 2 function
-  a_stage2: assert property (dut.X_B === (dut.X_A ^ dut.B1));
+    // When A1 selects the XOR path and B1 is low, X matches A3 ^ A4.
+    check_xor_selected_passthrough: assert property (
+        @(posedge clk) (!A1 && !B1) |-> (X == (A3 ^ A4))
+    );
 
-  // Output equals stage 2
-  a_out_eq: assert property (dut.X === dut.X_B);
+    // When A1 selects the XOR path and B1 is high, X is the inverse of A3 ^ A4.
+    check_xor_selected_inverted: assert property (
+        @(posedge clk) (!A1 && B1) |-> (X == ~(A3 ^ A4))
+    );
 
-  // End-to-end function
-  a_e2e: assert property (dut.X === ((dut.A1 ? dut.A2 : (dut.A3 ^ dut.A4)) ^ dut.B1));
+    // With B1 low, X passes the selected value unchanged.
+    check_b1_low_passthrough: assert property (
+        @(posedge clk) (!B1) |-> (X == (A1 ? A2 : (A3 ^ A4)))
+    );
 
-  // Coverage: exercise all control paths and XOR outcomes
-  c_path_00: cover property (!dut.A1 && !dut.B1);
-  c_path_01: cover property (!dut.A1 &&  dut.B1);
-  c_path_10: cover property ( dut.A1 && !dut.B1);
-  c_path_11: cover property ( dut.A1 &&  dut.B1);
-  c_xor_0:  cover property (!dut.A1 && ((dut.A3 ^ dut.A4) == 1'b0));
-  c_xor_1:  cover property (!dut.A1 && ((dut.A3 ^ dut.A4) == 1'b1));
-
-  // Coverage: B1 toggle inverts X when X_A is stable
-  c_b1_tog_inv_x: cover property ($stable(dut.X_A) && !$isunknown({dut.X_A,dut.B1,dut.X}) &&
-                                  (dut.B1 != $past(dut.B1)) && (dut.X != $past(dut.X)));
+    // With B1 high, X is the inverse of the selected value.
+    check_b1_high_inverts_selected_value: assert property (
+        @(posedge clk) B1 |-> (X == ~((A1 ? A2 : (A3 ^ A4))))
+    );
 
 endmodule
-
-bind my_module my_module_sva sva_u();

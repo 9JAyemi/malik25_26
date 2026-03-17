@@ -1,40 +1,39 @@
-// SVA for shift_register_4bit
-module shift_register_4bit_sva (
-  input clk,
-  input rst,
-  input load,
-  input shift,
-  input [3:0] data_in,
-  input [3:0] data_out
+module shift_register_4bit_sva(
+    input logic clk,
+    input logic rst,
+    input logic load,
+    input logic [3:0] data_in,
+    input logic shift,
+    input logic [3:0] data_out
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Reset drives zero
-  a_reset_zero: assert property (!rst |-> data_out == 4'b0);
+    // Reset forces the register output low.
+    check_reset_clears_data_out: assert property (
+        @(posedge clk) !rst |-> (data_out == 4'b0000)
+    );
 
-  // No X on output when active
-  a_no_x_active: assert property (rst |-> !$isunknown(data_out));
+    // Load alone captures data_in on the next clock.
+    check_load_captures_data_in: assert property (
+        @(posedge clk) disable iff (!rst)
+        (load && !shift) |=> (data_out == $past(data_in))
+    );
 
-  // Load has priority (even if shift is also asserted)
-  a_load_prio: assert property (rst && load |=> data_out == $past(data_in));
+    // Load has priority when load and shift are both asserted.
+    check_load_priority_over_shift: assert property (
+        @(posedge clk) disable iff (!rst)
+        (load && shift) |=> (data_out == $past(data_in))
+    );
 
-  // Shift-left with zero-insert when no load
-  a_shift_left: assert property (rst && !load && shift
-                                 |=> data_out == {$past(data_out[2:0]), 1'b0});
+    // Shift alone moves the register left and inserts zero.
+    check_shift_left_with_zero_fill: assert property (
+        @(posedge clk) disable iff (!rst)
+        (!load && shift) |=> (data_out == {$past(data_out[2:0]), 1'b0})
+    );
 
-  // Hold value when neither load nor shift
-  a_hold: assert property (rst && !load && !shift |=> data_out == $past(data_out));
+    // With no load or shift, the register holds its value.
+    check_idle_holds_value: assert property (
+        @(posedge clk) disable iff (!rst)
+        (!load && !shift) |=> (data_out == $past(data_out))
+    );
 
-  // Functional coverage
-  c_reset_cycle:     cover property ($fell(rst) ##1 $rose(rst));
-  c_load:            cover property (rst && load);
-  c_shift:           cover property (rst && !load && shift);
-  c_hold:            cover property (rst && !load && !shift);
-  c_load_and_shift:  cover property (rst && load && shift);
-  // From a non-zero load, four shifts flush to zero
-  c_flush_to_zero:   cover property (rst && load && (data_in != 4'b0)
-                                     ##1 (rst && !load && shift)[*4]
-                                     ##1 data_out == 4'b0);
 endmodule
-
-bind shift_register_4bit shift_register_4bit_sva sva (.*);

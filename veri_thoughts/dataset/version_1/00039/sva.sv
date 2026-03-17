@@ -1,45 +1,56 @@
-// SVA for Deco_Round_Mult
 module Deco_Round_Mult_sva (
-  input logic [1:0] round_mode,
-  input logic or_info,
-  input logic xor_info,
-  input logic ctrl
+    input logic       clk,
+    input logic [1:0] round_mode,
+    input logic       or_info,
+    input logic       xor_info,
+    input logic       ctrl
 );
 
-  // Knownness: if inputs are known, output must be known
-  assert property (@(round_mode or or_info or xor_info or ctrl)
-                   !$isunknown({round_mode,or_info,xor_info}) |-> !$isunknown(ctrl))
-    else $error("ctrl is X/Z with known inputs");
+    // 0101 decodes ctrl low.
+    check_case_0101_ctrl_low: assert property (
+        @(posedge clk)
+        ({xor_info, or_info, round_mode} == 4'b0101) |-> (ctrl == 1'b0)
+    );
 
-  // Functional equivalence (when inputs are known)
-  assert property (@(round_mode or or_info or xor_info or ctrl)
-                   !$isunknown({round_mode,or_info,xor_info})
-                   |-> (ctrl === (or_info &&
-                                   ((round_mode==2'b01 && xor_info) ||
-                                    (round_mode==2'b10 && !xor_info)))))
-    else $error("ctrl decode mismatch");
+    // 1101 decodes ctrl high.
+    check_case_1101_ctrl_high: assert property (
+        @(posedge clk)
+        ({xor_info, or_info, round_mode} == 4'b1101) |-> (ctrl == 1'b1)
+    );
 
-  // Sanity: if or_info is 0, ctrl must be 0 (regardless of round_mode/xor_info if known)
-  assert property (@(round_mode or or_info or xor_info or ctrl)
-                   !$isunknown(or_info) && (or_info==1'b0) |-> (ctrl===1'b0))
-    else $error("ctrl not 0 when or_info=0");
+    // 0110 decodes ctrl high.
+    check_case_0110_ctrl_high: assert property (
+        @(posedge clk)
+        ({xor_info, or_info, round_mode} == 4'b0110) |-> (ctrl == 1'b1)
+    );
 
-  // Coverage: exercise all meaningful decode combinations
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b01) && !xor_info && (ctrl==1'b0));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b01) &&  xor_info && (ctrl==1'b1));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b10) && !xor_info && (ctrl==1'b1));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b10) &&  xor_info && (ctrl==1'b0));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b00) && (ctrl==1'b0));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  or_info && (round_mode==2'b11) && (ctrl==1'b0));
-  cover property (@(round_mode or or_info or xor_info or ctrl)
-                  !or_info && (ctrl==1'b0));
+    // 1110 decodes ctrl low.
+    check_case_1110_ctrl_low: assert property (
+        @(posedge clk)
+        ({xor_info, or_info, round_mode} == 4'b1110) |-> (ctrl == 1'b0)
+    );
+
+    // All unspecified input combinations drive ctrl low.
+    check_default_ctrl_low: assert property (
+        @(posedge clk)
+        (({xor_info, or_info, round_mode} != 4'b0101) &&
+         ({xor_info, or_info, round_mode} != 4'b1101) &&
+         ({xor_info, or_info, round_mode} != 4'b0110) &&
+         ({xor_info, or_info, round_mode} != 4'b1110)) |-> (ctrl == 1'b0)
+    );
+
+    // ctrl can only be high for the two explicit high-output cases.
+    check_ctrl_high_only_on_explicit_high_cases: assert property (
+        @(posedge clk)
+        ctrl |-> (({xor_info, or_info, round_mode} == 4'b1101) ||
+                  ({xor_info, or_info, round_mode} == 4'b0110))
+    );
+
+    // ctrl exactly matches the case decode.
+    check_ctrl_matches_case_decode: assert property (
+        @(posedge clk)
+        ctrl == ((({xor_info, or_info, round_mode} == 4'b1101) ||
+                  ({xor_info, or_info, round_mode} == 4'b0110)) ? 1'b1 : 1'b0)
+    );
 
 endmodule
-
-bind Deco_Round_Mult Deco_Round_Mult_sva sva_i (.*);

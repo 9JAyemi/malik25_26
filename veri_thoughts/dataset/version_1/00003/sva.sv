@@ -1,62 +1,51 @@
-// SVA checker for sky130_fd_sc_hd__o21bai
-// Function: Y = B1_N | (~A1 & ~A2) = ~(~B1_N & (A1 | A2))
-// Includes structural checks, functional equivalence, X-prop, and full input-space coverage.
-
 module sky130_fd_sc_hd__o21bai_sva (
-  input logic Y,
-  input logic A1,
-  input logic A2,
-  input logic B1_N,
-  // internal nets from DUT (for structural checks)
-  input logic b,
-  input logic or0_out,
-  input logic nand0_out_Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1_N
 );
 
-  // Sample on any edge of relevant signals
-  default clocking cb @(
-    posedge A1 or negedge A1 or
-    posedge A2 or negedge A2 or
-    posedge B1_N or negedge B1_N or
-    posedge Y or negedge Y or
-    posedge b or negedge b or
-    posedge or0_out or negedge or0_out or
-    posedge nand0_out_Y or negedge nand0_out_Y
-  ); endclocking
+    // Sample combinational behavior on an external clock; the RTL has no reset.
 
-  // Structural net checks
-  assert property (b === ~B1_N);
-  assert property (or0_out === (A1 | A2));
-  assert property (nand0_out_Y === ~(b & or0_out));
-  assert property (Y === nand0_out_Y);
+    // Y matches the implemented O21BAI gate equation.
+    check_output_matches_gate_equation: assert property (
+        @(posedge clk) disable iff (1'b0) Y == ~((~B1_N) & (A1 | A2))
+    );
 
-  // Functional equivalence (simplified boolean form)
-  assert property (Y === (B1_N | (~A1 & ~A2)));
+    // B1_N high forces the output high.
+    check_b1n_high_forces_y_high: assert property (
+        @(posedge clk) disable iff (1'b0) B1_N |-> Y
+    );
 
-  // Behavioral corner cases
-  assert property ((B1_N === 1'b1) |-> (Y === 1'b1)); // B1_N dominates high
-  assert property (((B1_N === 1'b0) && (A1 === 1'b1 || A2 === 1'b1)) |-> (Y === 1'b0));
-  assert property (((A1 === 1'b0) && (A2 === 1'b0)) |-> (Y === B1_N));
+    // Both A inputs low force the output high.
+    check_a_inputs_low_force_y_high: assert property (
+        @(posedge clk) disable iff (1'b0) (!A1 && !A2) |-> Y
+    );
 
-  // No X/Z on Y when inputs are known
-  assert property ((!$isunknown({A1,A2,B1_N})) |-> (!$isunknown(Y)));
+    // A1 high with active-low B input forces the output low.
+    check_a1_high_and_b1n_low_force_y_low: assert property (
+        @(posedge clk) disable iff (1'b0) (!B1_N && A1) |-> !Y
+    );
 
-  // Full input-space functional coverage (8 combos)
-  cover property (A1===1'b0 && A2===1'b0 && B1_N===1'b0 && Y===1'b1);
-  cover property (A1===1'b0 && A2===1'b0 && B1_N===1'b1 && Y===1'b1);
-  cover property (A1===1'b0 && A2===1'b1 && B1_N===1'b0 && Y===1'b0);
-  cover property (A1===1'b0 && A2===1'b1 && B1_N===1'b1 && Y===1'b1);
-  cover property (A1===1'b1 && A2===1'b0 && B1_N===1'b0 && Y===1'b0);
-  cover property (A1===1'b1 && A2===1'b0 && B1_N===1'b1 && Y===1'b1);
-  cover property (A1===1'b1 && A2===1'b1 && B1_N===1'b0 && Y===1'b0);
-  cover property (A1===1'b1 && A2===1'b1 && B1_N===1'b1 && Y===1'b1);
+    // A2 high with active-low B input forces the output low.
+    check_a2_high_and_b1n_low_force_y_low: assert property (
+        @(posedge clk) disable iff (1'b0) (!B1_N && A2) |-> !Y
+    );
 
-  // Output toggle coverage
-  cover property ($rose(Y));
-  cover property ($fell(Y));
+    // A low output requires B1_N to be low.
+    check_y_low_requires_b1n_low: assert property (
+        @(posedge clk) disable iff (1'b0) !Y |-> !B1_N
+    );
+
+    // A low output requires at least one A input high.
+    check_y_low_requires_a_input_high: assert property (
+        @(posedge clk) disable iff (1'b0) !Y |-> (A1 | A2)
+    );
+
+    // With B1_N low, a high output requires both A inputs low.
+    check_y_high_with_b1n_low_requires_a_inputs_low: assert property (
+        @(posedge clk) disable iff (1'b0) (Y && !B1_N) |-> (!A1 && !A2)
+    );
 
 endmodule
-
-// Bind into the DUT to access both ports and internal nets by name
-bind sky130_fd_sc_hd__o21bai sky130_fd_sc_hd__o21bai_sva
-  o21bai_sva_i (.*);

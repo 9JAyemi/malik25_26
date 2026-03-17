@@ -1,39 +1,60 @@
-// SVA checker for mux4to1_enable
-// Bind this to the DUT and provide a clock/reset from your environment.
-
 module mux4to1_enable_sva (
-  input logic         clk,
-  input logic         rst_n,
-  input logic  [3:0]  in,
-  input logic         en,
-  input logic         out
+    input logic [3:0] in,
+    input logic en,
+    input logic out
 );
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n);
 
-  // Functional correctness (the nested ternary reduces to en ? in[0] : in[3])
-  assert property (out == (en ? in[0] : in[3]))
-    else $error("mux4to1_enable: out != (en?in[0]:in[3]) en=%0b in=%0b out=%0b", en, in, out);
+    // Out matches the implemented mux behavior.
+    check_out_matches_implemented_mux: assert property (
+        @($global_clock) out == (en ? in[0] : in[3])
+    );
 
-  // X-propagation sanity: no unknowns on control/output; selected data must be known
-  assert property (!$isunknown(en)) else $error("mux4to1_enable: en is X/Z");
-  assert property (!$isunknown(out)) else $error("mux4to1_enable: out is X/Z");
-  assert property (en  |-> !$isunknown(in[0])) else $error("mux4to1_enable: in[0] X/Z when selected");
-  assert property (!en |-> !$isunknown(in[3])) else $error("mux4to1_enable: in[3] X/Z when selected");
+    // When enable is high, out selects in[0].
+    check_enable_high_selects_in0: assert property (
+        @($global_clock) en |-> (out == in[0])
+    );
 
-  // Independence checks: in[1] and in[2] do not affect out (exposes dead selects)
-  assert property ($changed(in[1]) && $stable(en) && $stable(in[0]) && $stable(in[3]) |-> $stable(out))
-    else $error("mux4to1_enable: out changed due to in[1]");
-  assert property ($changed(in[2]) && $stable(en) && $stable(in[0]) && $stable(in[3]) |-> $stable(out))
-    else $error("mux4to1_enable: out changed due to in[2]");
+    // When enable is low, out selects in[3].
+    check_enable_low_selects_in3: assert property (
+        @($global_clock) !en |-> (out == in[3])
+    );
 
-  // Coverage: exercise both selections and observe redundancy of in[1]/in[2]
-  cover property (en && out == in[0]);
-  cover property (!en && out == in[3]);
-  cover property ($changed(in[1]) && $stable(out));
-  cover property ($changed(in[2]) && $stable(out));
-  cover property ($changed(out));
+    // A rising enable switches selection to in[0].
+    check_enable_rise_selects_in0: assert property (
+        @($global_clock) (!$initstate && $rose(en)) |-> (out == in[0])
+    );
+
+    // A falling enable switches selection to in[3].
+    check_enable_fall_selects_in3: assert property (
+        @($global_clock) (!$initstate && $fell(en)) |-> (out == in[3])
+    );
+
+    // Changing in[1] alone does not affect out.
+    check_in1_is_unused: assert property (
+        @($global_clock)
+        (!$initstate && $stable(en) && $stable(in[0]) && $changed(in[1]) && $stable(in[2]) && $stable(in[3]))
+        |-> $stable(out)
+    );
+
+    // Changing in[2] alone does not affect out.
+    check_in2_is_unused: assert property (
+        @($global_clock)
+        (!$initstate && $stable(en) && $stable(in[0]) && $stable(in[1]) && $changed(in[2]) && $stable(in[3]))
+        |-> $stable(out)
+    );
+
+    // With enable high, changing in[3] alone does not affect out.
+    check_in3_unused_when_enabled: assert property (
+        @($global_clock)
+        (!$initstate && en && $stable(en) && $stable(in[0]) && $stable(in[1]) && $stable(in[2]) && $changed(in[3]))
+        |-> $stable(out)
+    );
+
+    // With enable low, changing in[0] alone does not affect out.
+    check_in0_unused_when_disabled: assert property (
+        @($global_clock)
+        (!$initstate && !en && $stable(en) && $changed(in[0]) && $stable(in[1]) && $stable(in[2]) && $stable(in[3]))
+        |-> $stable(out)
+    );
+
 endmodule
-
-// Bind example (connect clk/rst from your TB/env)
-// bind mux4to1_enable mux4to1_enable_sva u_mux4to1_enable_sva (.* , .clk(tb_clk), .rst_n(tb_rst_n));

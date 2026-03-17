@@ -1,65 +1,38 @@
-// SVA for shift_register
-// Focused, high-quality checks + concise coverage
-
-`ifndef SHIFT_REGISTER_SVA
-`define SHIFT_REGISTER_SVA
-
-module shift_register_sva(
-  input logic clk,
-  input logic load,
-  input logic serial_in,
-  input logic [2:0] out
+module shift_register_sva (
+    input logic       clk,
+    input logic       load,
+    input logic       serial_in,
+    input logic [2:0] out
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Load writes the zero-extended serial input on the next clock.
+    check_load_writes_zero_extended_serial: assert property (
+        @(posedge clk) disable iff ($initstate)
+        load |=> (out == {2'b00, $past(serial_in)})
+    );
 
-  // history valid qualifiers for $past depth
-  bit pv1, pv2, pv3;
-  initial begin pv1=0; pv2=0; pv3=0; end
-  always_ff @(posedge clk) begin
-    pv1 <= 1'b1;
-    pv2 <= pv1;
-    pv3 <= pv2;
-  end
+    // Load clears the upper two bits on the next clock.
+    check_load_clears_upper_bits: assert property (
+        @(posedge clk) disable iff ($initstate)
+        load |=> (out[2:1] == 2'b00)
+    );
 
-  // Sanity: no X/Z on key signals
-  assert property (!$isunknown({load, serial_in}))) else $error("X/Z on inputs");
-  assert property (!$isunknown(out)) else $error("X/Z on out");
+    // Shift mode moves prior out[1:0] up and brings in serial_in.
+    check_shift_writes_shifted_value: assert property (
+        @(posedge clk) disable iff ($initstate)
+        !load |=> (out == {$past(out[1:0]), $past(serial_in)})
+    );
 
-  // Functional correctness
-  // On load: out <= zero-extended serial_in
-  assert property (disable iff (!pv1) load |=> out == {2'b00, $past(serial_in)})
-    else $error("Load behavior mismatch");
+    // Shift mode copies the previous low bits into the upper positions.
+    check_shift_moves_previous_bits: assert property (
+        @(posedge clk) disable iff ($initstate)
+        !load |=> (out[2:1] == $past(out[1:0]))
+    );
 
-  // On shift: out <= {out[1:0], serial_in}
-  assert property (disable iff (!pv1) !load |=> out == {$past(out[1:0]), $past(serial_in)})
-    else $error("Shift behavior mismatch");
-
-  // After three consecutive shifts, out equals last three serial_in samples
-  assert property (disable iff (!pv3) (!load ##1 !load ##1 !load)
-                   |=> out == {$past(serial_in,3), $past(serial_in,2), $past(serial_in,1)})
-    else $error("3-shift streaming mismatch");
-
-  // Load then one shift: MSB forced 0, lower bits are serial_in history
-  assert property (disable iff (!pv2) (load ##1 !load)
-                   |=> out == {1'b0, $past(serial_in,2), $past(serial_in,1)})
-    else $error("Load->shift compose mismatch");
-
-  // Minimal but meaningful coverage
-  cover property (load);
-  cover property (!load);
-  cover property (!load ##1 !load ##1 !load);     // 3 consecutive shifts
-  cover property (load ##1 !load ##1 !load);       // load then shift twice
-  cover property (out == 3'b000);
-  cover property (out == 3'b111);
+    // Shift mode captures the serial input into the LSB.
+    check_shift_captures_serial_in_lsb: assert property (
+        @(posedge clk) disable iff ($initstate)
+        !load |=> (out[0] == $past(serial_in))
+    );
 
 endmodule
-
-bind shift_register shift_register_sva sva_i (
-  .clk(clk),
-  .load(load),
-  .serial_in(serial_in),
-  .out(out)
-);
-
-`endif

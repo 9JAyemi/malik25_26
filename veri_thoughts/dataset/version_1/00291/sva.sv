@@ -1,40 +1,49 @@
-// SVA for ripple_adder_mux (binds into the DUT scope to see internals)
-module ripple_adder_mux_sva;
-  // Sample on any combinational change
-  default clocking cb @(*); endclocking
+module top_module_sva (
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic cin,
+    input logic select,
+    input logic [3:0] out
+);
 
-  // Known input guard
-  property p_known_inputs; !$isunknown({A,B,cin,select}); endproperty
+    // Output must always match the muxed adder-or-constant function.
+    check_mux_function: assert property (
+        @($global_clock) out == (select ? (A + B + cin) : 4'hF)
+    );
 
-  // Adder correctness (full 5-bit result)
-  assert property (p_known_inputs |-> {cout,sum} == A + B + cin)
-    else $error("Adder mismatch: {cout,sum} != A+B+cin");
+    // When select is low, the output must be the constant value.
+    check_select_low_constant: assert property (
+        @($global_clock) !select |-> (out == 4'hF)
+    );
 
-  // Mux correctness vs internal sum/constant
-  assert property (p_known_inputs &&  select |-> out == sum)
-    else $error("Mux sel=1: out != sum");
-  assert property (p_known_inputs && !select |-> out == constant_value)
-    else $error("Mux sel=0: out != constant_value");
+    // When select is high, the output must be the 4-bit adder result.
+    check_select_high_sum: assert property (
+        @($global_clock) select |-> (out == (A + B + cin))
+    );
 
-  // Functional spec check vs recomputed adder (black-box check)
-  assert property (p_known_inputs |-> out == (select ? (A+B+cin)[3:0] : 4'hF))
-    else $error("Spec mismatch: out != mux(select, 4'hF, (A+B+cin)[3:0])");
+    // A rising select must make the output reflect the adder result.
+    check_select_rise_updates_sum: assert property (
+        @($global_clock) $rose(select) |-> (out == (A + B + cin))
+    );
 
-  // No X/Z on outputs when inputs are known
-  assert property (p_known_inputs |-> !$isunknown({sum,cout,out}))
-    else $error("X/Z on outputs with known inputs");
+    // A falling select must make the output return to the constant value.
+    check_select_fall_updates_constant: assert property (
+        @($global_clock) $fell(select) |-> (out == 4'hF)
+    );
 
-  // Sanity: constant is as intended
-  assert property (constant_value == 4'hF)
-    else $error("constant_value != 4'hF");
+    // If all inputs are stable, the output must remain stable.
+    check_stable_inputs_stable_output: assert property (
+        @($global_clock) $stable({A, B, cin, select}) |-> $stable(out)
+    );
 
-  // Coverage (key scenarios)
-  cover property (select==0 && out==4'hF);                // mux to constant
-  cover property (select==1 && (A+B+cin)==5'd0);          // zero sum
-  cover property (select==1 && (A+B+cin)[4]==1'b1);       // carry out
-  cover property (select==1 && (A+B+cin)[3:0]==4'hF &&
-                                  (A+B+cin)[4]==1'b0);    // sum=0xF, no carry
-  cover property (select==1 && A==4'hF && B==4'hF && cin);// worst-case add
+    // With B and cin at zero, selecting the adder must pass A through.
+    check_zero_b_passthrough_a: assert property (
+        @($global_clock) select && (B == 4'h0) && !cin |-> (out == A)
+    );
+
+    // With A and cin at zero, selecting the adder must pass B through.
+    check_zero_a_passthrough_b: assert property (
+        @($global_clock) select && (A == 4'h0) && !cin |-> (out == B)
+    );
+
 endmodule
-
-bind ripple_adder_mux ripple_adder_mux_sva sva_ripple_adder_mux();

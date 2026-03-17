@@ -1,52 +1,39 @@
-// SVA for dff_rs
-// Checks synchronous priority and next-state behavior; provides concise coverage.
-
 module dff_rs_sva (
-  input logic clk,
-  input logic rst,
-  input logic set,
-  input logic d,
-  input logic q
+    input logic clk,
+    input logic rst,
+    input logic set,
+    input logic d,
+    input logic q
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Reset forces q low on the following cycle.
+    check_reset_clears_q: assert property (
+        @(posedge clk) rst |=> (q == 1'b0)
+    );
 
-  // Functional next-state: after the clock edge, q must equal mux(rst,set,d)
-  property p_next_state;
-    ##0 q == (rst ? 1'b0 : (set ? 1'b1 : d));
-  endproperty
-  assert property (p_next_state)
-    else $error("dff_rs: next-state mismatch (rst=%0b,set=%0b,d=%0b,q=%0b)", rst,set,d,q);
+    // Reset has priority over set when both are asserted.
+    check_reset_priority_over_set: assert property (
+        @(posedge clk) (rst && set) |=> (q == 1'b0)
+    );
 
-  // Explicit priority check when rst and set are both 1: reset dominates -> q=0
-  assert property ( (rst && set) |-> ##0 (q==1'b0) )
-    else $error("dff_rs: reset must dominate set");
+    // Set drives q high when reset is not asserted.
+    check_set_drives_q_high: assert property (
+        @(posedge clk) disable iff (rst) set |=> (q == 1'b1)
+    );
 
-  // If controls/data are known at the edge, q must be known after the update
-  assert property ( (!$isunknown({rst,set,d})) |-> ##0 (!$isunknown(q)) )
-    else $error("dff_rs: q unknown despite known inputs");
+    // Set overrides d when d is low.
+    check_set_priority_over_d: assert property (
+        @(posedge clk) disable iff (rst) (set && !d) |=> (q == 1'b1)
+    );
 
-  // Basic branch coverage
-  cover property ( rst );                           // reset branch exercised
-  cover property ( !rst && set );                   // set branch exercised
-  cover property ( !rst && !set && (d==1'b0) );     // data-0 branch exercised
-  cover property ( !rst && !set && (d==1'b1) );     // data-1 branch exercised
-  cover property ( rst && set ##0 (q==1'b0) );      // simultaneous rst&set -> q=0
+    // With no reset or set, d=1 is captured into q.
+    check_capture_d_high: assert property (
+        @(posedge clk) disable iff (rst) (!set && d) |=> (q == 1'b1)
+    );
 
-  // Output toggle coverage (observed between consecutive posedges)
-  cover property ( $rose(q) );
-  cover property ( $fell(q) );
-
-  // Data-path tracking covers: q follows d on consecutive data cycles
-  cover property ( (!rst && !set && d==1'b0)
-                   ##1 (!rst && !set && d==1'b1)
-                   ##0 (q==1'b1) );
-
-  cover property ( (!rst && !set && d==1'b1)
-                   ##1 (!rst && !set && d==1'b0)
-                   ##0 (q==1'b0) );
+    // With no reset or set, d=0 is captured into q.
+    check_capture_d_low: assert property (
+        @(posedge clk) disable iff (rst) (!set && !d) |=> (q == 1'b0)
+    );
 
 endmodule
-
-// Bind into DUT
-bind dff_rs dff_rs_sva u_dff_rs_sva (.clk(clk), .rst(rst), .set(set), .d(d), .q(q));

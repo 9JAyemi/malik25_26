@@ -1,45 +1,59 @@
-// SVA for and_delayed
 module and_delayed_sva (
-  input  logic clk,
-  input  logic a,
-  input  logic b,
-  input  logic out,
-  input  logic delayed_a,
-  input  logic delayed_b
+    input logic a,
+    input logic b,
+    input logic clk,
+    input logic out,
+    input logic delayed_a,
+    input logic delayed_b
 );
 
-  default clocking cb @ (posedge clk); endclocking
+    // Clock: clk.
+    // Reset: none.
+    // Sequential behavior: a and b are registered, then out registers their AND.
 
-  logic past_valid;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    // delayed_a captures a on the next clock.
+    check_delayed_a_high_capture: assert property (
+        @(posedge clk) a |=> delayed_a
+    );
 
-  // Stage registers must capture a/b exactly one cycle later
-  assert property (past_valid && !$isunknown($past(a)) |-> delayed_a == $past(a))
-    else $error("delayed_a != $past(a)");
-  assert property (past_valid && !$isunknown($past(b)) |-> delayed_b == $past(b))
-    else $error("delayed_b != $past(b)");
+    // delayed_a captures a low value on the next clock.
+    check_delayed_a_low_capture: assert property (
+        @(posedge clk) !a |=> !delayed_a
+    );
 
-  // Output must be 1-cycle delayed AND of inputs
-  assert property (past_valid && !$isunknown($past({a,b})) |-> out == ($past(a) & $past(b)))
-    else $error("out != $past(a)&$past(b)");
+    // delayed_b captures b on the next clock.
+    check_delayed_b_high_capture: assert property (
+        @(posedge clk) b |=> delayed_b
+    );
 
-  // Equivalent check via delayed stage values (NB-assignment semantics)
-  assert property (past_valid && !$isunknown($past({delayed_a,delayed_b})) |-> out == ($past(delayed_a) & $past(delayed_b)))
-    else $error("out != $past(delayed_a)&$past(delayed_b)");
+    // delayed_b captures a low value on the next clock.
+    check_delayed_b_low_capture: assert property (
+        @(posedge clk) !b |=> !delayed_b
+    );
 
-  // No-X on out when past inputs were known
-  assert property (past_valid && !$isunknown($past({a,b})) |-> !$isunknown(out))
-    else $error("out is X/Z while past inputs were known");
+    // out goes high one clock after both delayed inputs are high.
+    check_out_high_from_delayed_and: assert property (
+        @(posedge clk) (delayed_a && delayed_b) |=> out
+    );
 
-  // Functional coverage
-  cover property (past_valid && $past({a,b}) == 2'b11 && out); // AND=1 case
-  cover property (past_valid && $past({a,b}) == 2'b10 && !out);
-  cover property (past_valid && $past({a,b}) == 2'b01 && !out);
-  cover property (past_valid && $past({a,b}) == 2'b00 && !out);
+    // out goes low one clock after either delayed input is low.
+    check_out_low_from_delayed_zero: assert property (
+        @(posedge clk) (!delayed_a || !delayed_b) |=> !out
+    );
 
-  cover property (past_valid && $rose(out));
-  cover property (past_valid && $fell(out));
+    // High inputs produce a high out after two clocks.
+    check_out_high_two_cycles_after_inputs_high: assert property (
+        @(posedge clk) (a && b) |-> ##2 out
+    );
+
+    // A low a forces out low after two clocks.
+    check_out_low_two_cycles_after_a_low: assert property (
+        @(posedge clk) !a |-> ##2 !out
+    );
+
+    // A low b forces out low after two clocks.
+    check_out_low_two_cycles_after_b_low: assert property (
+        @(posedge clk) !b |-> ##2 !out
+    );
 
 endmodule
-
-bind and_delayed and_delayed_sva sva_i (.*);

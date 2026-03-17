@@ -1,34 +1,38 @@
-// SVA for clock_gate_module
-module clock_gate_module_sva (input CLK, EN, TE, reset, ENCLK);
+module clock_gate_module_sva (
+    input logic CLK,
+    input logic EN,
+    input logic TE,
+    input logic reset,
+    input logic ENCLK
+);
 
-  default clocking cb @(posedge CLK); endclocking
+    // A sampled reset must leave ENCLK low on the following clock.
+    check_reset_clears_next_cycle: assert property (
+        @(posedge CLK) reset |=> (ENCLK == 1'b0)
+    );
 
-  // Basic sanity/knowns (outside of reset)
-  assert property (disable iff (reset) !$isunknown({EN,TE,ENCLK}));
+    // From a high state, full enable must toggle ENCLK low by the next sample.
+    check_toggle_high_to_low_when_enabled: assert property (
+        @(posedge CLK) disable iff (reset)
+        (EN && TE && ENCLK) |=> (ENCLK == 1'b0)
+    );
 
-  // Async reset response and dominance
-  assert property (@(posedge reset) ENCLK == 1'b0);
-  assert property (reset |-> ENCLK == 1'b0);
+    // From a low state, missing either enable keeps ENCLK low.
+    check_low_holds_without_full_enable: assert property (
+        @(posedge CLK) disable iff (reset)
+        ((!EN || !TE) && !ENCLK) |=> (ENCLK == 1'b0)
+    );
 
-  // After reset deasserts, hold 0 until first qualified enable
-  assert property ($fell(reset) |-> (ENCLK == 1'b0 until_with (EN && TE)));
+    // Without full enable, ENCLK cannot rise by the next sampled clock.
+    check_no_rise_without_full_enable: assert property (
+        @(posedge CLK) disable iff (reset)
+        (!EN || !TE) |=> !$rose(ENCLK)
+    );
 
-  // Functional behavior: toggle when EN && TE, hold otherwise
-  assert property (disable iff (reset) (EN && TE) |=> ENCLK == !$past(ENCLK));
-  assert property (disable iff (reset) (! (EN && TE)) |=> ENCLK ==  $past(ENCLK));
-
-  // Any observed change must have been commanded by prior EN && TE
-  assert property (disable iff (reset) (ENCLK != $past(ENCLK)) |-> $past(EN && TE));
-
-  // Coverage
-  cover  property (disable iff (reset) (EN && TE));                // at least one toggle opportunity
-  cover  property (disable iff (reset) (EN && TE)[*3]);            // burst of 3 toggles
-  cover  property (disable iff (reset) (! (EN && TE))[*3]);        // hold for 3 cycles
-  cover  property ($rose(reset) ##1 !reset ##1 (EN && TE));        // toggle after a reset sequence
-  cover  property (disable iff (reset) $rose(ENCLK));
-  cover  property (disable iff (reset) $fell(ENCLK));
+    // A sampled rise must come from a prior low state with both enables high.
+    check_rise_has_valid_cause: assert property (
+        @(posedge CLK) disable iff (reset)
+        $rose(ENCLK) |-> (!$past(reset) && $past(EN) && $past(TE) && !$past(ENCLK))
+    );
 
 endmodule
-
-// Bind into DUT
-bind clock_gate_module clock_gate_module_sva sva_i (.*);

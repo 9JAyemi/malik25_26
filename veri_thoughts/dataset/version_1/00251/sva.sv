@@ -1,35 +1,30 @@
-// SVA for binary_counter
 module binary_counter_sva (
-  input logic        clk,
-  input logic        reset,
-  input logic [3:0]  count
+    input logic       clk,
+    input logic       reset,
+    input logic [3:0] count
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // A sampled reset must leave the counter at zero by the next clock.
+    check_reset_clears_count: assert property (
+        @(posedge clk) reset |=> (count == 4'b0000)
+    );
 
-  // Async reset clears immediately
-  assert property (@(posedge reset) ##0 (count == 4'd0));
+    // Between non-reset samples, count can only advance by one or be cleared to zero.
+    check_count_transition_is_increment_or_zero: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> ((count == ($past(count) + 4'd1)) || (count == 4'b0000))
+    );
 
-  // While reset is asserted at a clk edge, count is 0
-  assert property (reset |-> (count == 4'd0));
+    // A sampled maximum count must wrap to zero on the next sample.
+    check_wraps_after_max: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (($past(count) != 4'hF) || (count == 4'h0))
+    );
 
-  // No X/Z on key signals at clk edge
-  assert property (!$isunknown({reset, count}));
-
-  // Increment by 1 each cycle when not in reset (mod-16)
-  assert property (disable iff (reset)
-                   (!$isunknown($past(count))) |-> (count == $past(count) + 4'd1));
-
-  // Explicit wrap check F -> 0
-  assert property (disable iff (reset)
-                   ($past(count) == 4'hF) |-> (count == 4'd0));
-
-  // Coverage: full 16-count wrap (0 -> 0 in exactly 16 cycles) without reset
-  cover property (disable iff (reset) (count == 4'd0) ##16 (count == 4'd0));
-
-  // Coverage: reset release leads to 1 on next clk
-  cover property ($past(reset) && !reset && (count == 4'd1));
+    // From a sampled zero, the next nonzero value can only be one.
+    check_zero_advances_to_one: assert property (
+        @(posedge clk) disable iff (reset)
+        1'b1 |=> (($past(count) != 4'h0) || (count == 4'h0) || (count == 4'h1))
+    );
 
 endmodule
-
-bind binary_counter binary_counter_sva sva_i(.clk(clk), .reset(reset), .count(count));

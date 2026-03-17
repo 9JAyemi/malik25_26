@@ -1,111 +1,62 @@
-// SVA for adder_4bit and full_adder
-// Focus: correctness, X-propagation, and concise yet meaningful coverage.
-
-module adder_4bit_sva(
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic       reset,
-  input  logic [3:0] S,
-  input  logic [3:0] carry,
-  input  logic [3:0] sum
+module adder_4bit_sva (
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic       reset,
+    input logic [3:0] S
 );
 
-  // Combinational correctness and X checks
-  always_comb begin
-    automatic logic [4:0] expected = A + B + reset;
+    // The output matches 4-bit addition of A, B, and the bit-0 carry-in.
+    check_sum_matches_addition: assert property (
+        @($global_clock) S == (A + B + reset)
+    );
 
-    assert (S == expected[3:0])
-      else $error("adder_4bit S mismatch: A=%0h B=%0h cin=%0b S=%0h exp=%0h",
-                  A, B, reset, S, expected[3:0]);
+    // Sum bit 0 is the XOR of A[0], B[0], and reset.
+    check_bit0_sum: assert property (
+        @($global_clock) S[0] == (A[0] ^ B[0] ^ reset)
+    );
 
-    assert (carry[3] == expected[4])
-      else $error("adder_4bit final carry mismatch: A=%0h B=%0h cin=%0b c3=%0b exp_c3=%0b",
-                  A, B, reset, carry[3], expected[4]);
+    // Sum bit 1 uses the carry generated from bit 0.
+    check_bit1_sum: assert property (
+        @($global_clock)
+        S[1] == (A[1] ^ B[1] ^
+                 ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset)))
+    );
 
-    // Bitwise ripple, propagate/generate checks
-    automatic logic prev_c = reset;
-    for (int i = 0; i < 4; i++) begin
-      automatic logic P = A[i] ^ B[i];
-      automatic logic G = A[i] & B[i];
+    // Sum bit 2 uses the carry generated from bits 0 and 1.
+    check_bit2_sum: assert property (
+        @($global_clock)
+        S[2] == (A[2] ^ B[2] ^
+                 ((A[1] & B[1]) |
+                  (A[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset))) |
+                  (B[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset)))))
+    );
 
-      assert (sum[i] == (P ^ prev_c))
-        else $error("sum[%0d] mismatch: Ai=%0b Bi=%0b Cin=%0b sum=%0b exp=%0b",
-                    i, A[i], B[i], prev_c, sum[i], (P ^ prev_c));
+    // Sum bit 3 uses the carry generated from bits 0 through 2.
+    check_bit3_sum: assert property (
+        @($global_clock)
+        S[3] == (A[3] ^ B[3] ^
+                 ((A[2] & B[2]) |
+                  (A[2] & ((A[1] & B[1]) |
+                           (A[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset))) |
+                           (B[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset))))) |
+                  (B[2] & ((A[1] & B[1]) |
+                           (A[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset))) |
+                           (B[1] & ((A[0] & B[0]) | (A[0] & reset) | (B[0] & reset)))))))
+    );
 
-      assert (carry[i] == (G | (P & prev_c)))
-        else $error("carry[%0d] mismatch: Ai=%0b Bi=%0b Cin=%0b cout=%0b exp=%0b",
-                    i, A[i], B[i], prev_c, carry[i], (G | (P & prev_c)));
+    // With no carry-in and B at zero, S passes A through.
+    check_a_passthrough_when_b_zero: assert property (
+        @($global_clock) ((B == 4'h0) && (reset == 1'b0)) |-> (S == A)
+    );
 
-      prev_c = carry[i];
-    end
+    // With no carry-in and A at zero, S passes B through.
+    check_b_passthrough_when_a_zero: assert property (
+        @($global_clock) ((A == 4'h0) && (reset == 1'b0)) |-> (S == B)
+    );
 
-    if (!$isunknown({A,B,reset})) begin
-      assert (!$isunknown({S,carry,sum}))
-        else $error("X/Z on outputs with known inputs: A=%0h B=%0h cin=%0b S=%0h carry=%0h sum=%0h",
-                    A, B, reset, S, carry, sum);
-    end
-  end
-
-  // Concise functional coverage
-  // - All S values (0..15)
-  // - cin (reset) toggling
-  // - overflow (final carry) observed
-  covergroup cg_adder @(posedge $sampled_event);
-    coverpoint reset { bins zero = {0}; bins one = {1}; }
-    coverpoint S     { bins all[] = {[0:15]}; }
-    coverpoint carry3 = carry[3] { bins zero = {0}; bins one = {1}; }
-    cross reset, carry3;
-  endgroup
-  cg_adder cga = new;
-
-  // Simple event to sample on any input change (tool-friendly)
-  event $sampled_event;
-  always_comb -> $sampled_event;
-  always_comb cga.sample();
-
-endmodule
-
-
-module full_adder_sva(
-  input  logic a,
-  input  logic b,
-  input  logic cin,
-  input  logic sum,
-  input  logic cout
-);
-
-  // Combinational correctness and X checks
-  always_comb begin
-    assert (sum  == (a ^ b ^ cin))
-      else $error("FA sum mismatch: a=%0b b=%0b cin=%0b sum=%0b exp=%0b",
-                  a, b, cin, sum, (a ^ b ^ cin));
-
-    assert (cout == ((a & b) | (a & cin) | (b & cin)))
-      else $error("FA cout mismatch: a=%0b b=%0b cin=%0b cout=%0b exp=%0b",
-                  a, b, cin, cout, ((a & b) | (a & cin) | (b & cin)));
-
-    if (!$isunknown({a,b,cin})) begin
-      assert (!$isunknown({sum,cout}))
-        else $error("FA X/Z on outputs with known inputs: a=%0b b=%0b cin=%0b sum=%0b cout=%0b",
-                    a, b, cin, sum, cout);
-    end
-  end
-
-  // Full truth-table coverage in one compact covergroup
-  covergroup cg_fa @(posedge $sampled_event);
-    coverpoint {a,b,cin}  { bins all[] = {[0:7]}; }
-    coverpoint {sum,cout} { bins all[] = {[0:3]}; }
-    cross {a,b,cin}, {sum,cout};
-  endgroup
-  cg_fa cgf = new;
-
-  event $sampled_event;
-  always_comb -> $sampled_event;
-  always_comb cgf.sample();
+    // With both operands at zero, only the input carry appears on bit 0.
+    check_zero_operands_follow_input_carry: assert property (
+        @($global_clock) ((A == 4'h0) && (B == 4'h0)) |-> (S == {3'b000, reset})
+    );
 
 endmodule
-
-
-// Bind SVA to DUTs (grants access to internal sum/carry in adder_4bit)
-bind adder_4bit  adder_4bit_sva u_adder_4bit_sva(.A(A), .B(B), .reset(reset), .S(S), .carry(carry), .sum(sum));
-bind full_adder  full_adder_sva u_full_adder_sva(.a(a), .b(b), .cin(cin), .sum(sum), .cout(cout));

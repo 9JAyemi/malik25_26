@@ -1,96 +1,78 @@
-// SVA for bcd_counter, priority_encoder, multiplier, and top_module
-// Focused, high-quality checks and compact coverage
+module top_module_sva (
+    input logic clk,
+    input logic reset,
+    input logic [3:0] ena,
+    input logic [7:0] q
+);
 
-// ----------------------------------------
-// bcd_counter assertions
-module bcd_counter_sva (input clk, input reset, input [3:0] q);
-  default clocking cb @(posedge clk); endclocking
+    // Synchronous reset clears both outputs on the next clock.
+    reset_clears_outputs: assert property (
+        @(posedge clk) reset |=> (q == 8'h00) && (ena == 4'h0)
+    );
 
-  // Reset behavior and next-state relation
-  assert property ( $past(reset) |-> (q == 4'd0) );
-  assert property ( disable iff (reset)
-                    ($past(q) inside {[4'd0:4'd8]}) |-> (q == $past(q)+4'd1) );
-  assert property ( disable iff (reset)
-                    ($past(q) == 4'd9) |-> (q == 4'd0) );
-  assert property ( disable iff (reset)
-                    !($past(q) inside {[4'd0:4'd9]}) |-> (q == 4'd0) );
+    // The multiplier output always has a zero low nibble.
+    check_q_low_nibble_zero: assert property (
+        @(posedge clk) disable iff (reset) q[3:0] == 4'h0
+    );
 
-  // Safety: BCD range only
-  assert property ( q inside {[4'd0:4'd9]} );
+    // The enable output matches the encoder function of q[7:4].
+    check_ena_matches_encoder: assert property (
+        @(posedge clk) disable iff (reset) ena == {2'b00, (|q[7:6]), (|q[5:4])}
+    );
 
-  // Coverage: digits and wrap
-  genvar i;
-  generate for (i=0; i<=9; i++) begin : CVAL
-    cover property ( q == i[3:0] );
-  end endgenerate
-  cover property ( disable iff (reset) ($past(q)==4'd9) && (q==4'd0) );
+    // BCD 0 advances to 1.
+    check_count_0_to_1: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h00) |=> (q == 8'h10)
+    );
+
+    // BCD 1 advances to 2.
+    check_count_1_to_2: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h10) |=> (q == 8'h20)
+    );
+
+    // BCD 2 advances to 3.
+    check_count_2_to_3: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h20) |=> (q == 8'h30)
+    );
+
+    // BCD 3 advances to 4.
+    check_count_3_to_4: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h30) |=> (q == 8'h40)
+    );
+
+    // BCD 4 advances to 5.
+    check_count_4_to_5: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h40) |=> (q == 8'h50)
+    );
+
+    // BCD 5 advances to 6.
+    check_count_5_to_6: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h50) |=> (q == 8'h60)
+    );
+
+    // BCD 6 advances to 7.
+    check_count_6_to_7: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h60) |=> (q == 8'h70)
+    );
+
+    // BCD 7 advances to 8.
+    check_count_7_to_8: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h70) |=> (q == 8'h80)
+    );
+
+    // BCD 8 advances to 9.
+    check_count_8_to_9: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h80) |=> (q == 8'h90)
+    );
+
+    // BCD 9 wraps back to 0.
+    check_count_9_to_0: assert property (
+        @(posedge clk) disable iff (reset) (q == 8'h90) |=> (q == 8'h00)
+    );
+
+    // An invalid counter digit recovers to zero.
+    check_invalid_digit_recovers_to_zero: assert property (
+        @(posedge clk) disable iff (reset) (q[3:0] == 4'h0) && (q[7:4] > 4'd9) |=> (q == 8'h00)
+    );
+
 endmodule
-
-bind bcd_counter bcd_counter_sva i_bcd_counter_sva (.clk(clk), .reset(reset), .q(q));
-
-// ----------------------------------------
-// priority_encoder assertions (clockless, combinational equivalence)
-module priority_encoder_sva (input [3:0] in, input [1:0] out);
-  // Functional equivalence must always hold on any change
-  assert property ( @(in or out)
-                    out[1] == (|in[3:2]) && out[0] == (|in[1:0]) );
-
-  // Coverage: all output combinations observable
-  cover property ( @(in or out) (in==4'b0000) && (out==2'b00) );
-  cover property ( @(in or out) (|in[3:2]) && ~(|in[1:0]) && (out==2'b10) );
-  cover property ( @(in or out) ~(|in[3:2]) && (|in[1:0]) && (out==2'b01) );
-  cover property ( @(in or out) (|in[3:2]) && (|in[1:0]) && (out==2'b11) );
-endmodule
-
-bind priority_encoder priority_encoder_sva i_priority_encoder_sva (.in(in), .out(out));
-
-// ----------------------------------------
-// multiplier assertions (clockless, combinational equivalence)
-module multiplier_sva (input [3:0] in, input [7:0] out);
-  assert property ( @(in or out) out == {in, 4'b0000} );
-
-  // Coverage: a few representative inputs
-  cover property ( @(in or out) (in==4'd0)  && (out==8'h00) );
-  cover property ( @(in or out) (in==4'd9)  && (out==8'h90) );
-  cover property ( @(in or out) (in==4'd15) && (out==8'hF0) );
-endmodule
-
-bind multiplier multiplier_sva i_multiplier_sva (.in(in), .out(out));
-
-// ----------------------------------------
-// top_module assertions (end-to-end)
-module top_module_sva (input clk, input reset, input [3:0] ena, input [7:0] q);
-  default clocking cb @(posedge clk); endclocking
-
-  // Post-reset state
-  assert property ( $past(reset) |-> (q==8'h00 && ena[1:0]==2'b00 && ena[3:2]==2'b00) );
-
-  // Multiplier relation: lower nibble zero; upper nibble BCD [0:9]
-  assert property ( q[3:0] == 4'b0000 );
-  assert property ( q[7:4] inside {[4'd0:4'd9]} );
-
-  // Counter next-state mapping via q[7:4]
-  assert property ( disable iff (reset)
-                    ($past(q[7:4]) inside {[4'd0:4'd8]}) |-> (q[7:4] == $past(q[7:4])+4'd1) );
-  assert property ( disable iff (reset)
-                    ($past(q[7:4]) == 4'd9) |-> (q[7:4] == 4'd0) );
-
-  // Encoder relation via q[7:4]
-  assert property ( ena[3:2] == 2'b00 );
-  assert property ( ena[1] == (|q[7:6]) );
-  assert property ( ena[0] == (|q[5:4]) );
-
-  // Coverage: key states and transitions
-  cover property ( q == 8'h00 );  // 0
-  cover property ( q == 8'h50 );  // 5
-  cover property ( q == 8'h90 );  // 9
-  cover property ( disable iff (reset) ($past(q)==8'h90) && (q==8'h00) ); // wrap 9->0
-
-  // Coverage: all ena combinations reachable
-  cover property ( ena == 4'b0000 ); // digit 0
-  cover property ( ena == 4'b0001 ); // digits 1..3
-  cover property ( ena == 4'b0010 ); // digits 4 or 8
-  cover property ( ena == 4'b0011 ); // digits 5..7 or 9
-endmodule
-
-bind top_module top_module_sva i_top_module_sva (.clk(clk), .reset(reset), .ena(ena), .q(q));

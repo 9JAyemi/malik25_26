@@ -1,53 +1,51 @@
-// SVA checker for BLOCK1
-// Focused, concise, high-quality assertions and coverage
-
-`ifndef SYNTHESIS
 module BLOCK1_sva (
-  input logic PIN1, PIN2, GIN1, GIN2, PHI,
-  input logic POUT, GOUT
+    input logic PIN1,
+    input logic PIN2,
+    input logic GIN1,
+    input logic GIN2,
+    input logic PHI,
+    input logic POUT,
+    input logic GOUT
 );
-  default clocking cb @(posedge PHI); endclocking
 
-  // Functional correctness (only when relevant inputs are known)
-  a_pout_func: assert property ( !$isunknown({PIN1,PIN2})
-                                 |-> (POUT == ~(PIN1 | PIN2)) );
+    // POUT must implement the NOR of PIN1 and PIN2.
+    check_pout_equation: assert property (
+        @(posedge PHI) POUT == ~(PIN1 | PIN2)
+    );
 
-  a_gout_func: assert property ( !$isunknown({GIN2,PIN2,GIN1})
-                                 |-> (GOUT == ~(GIN2 & (PIN2 | GIN1))) );
+    // GOUT must implement the inverted AND of GIN2 with (PIN2 | GIN1).
+    check_gout_equation: assert property (
+        @(posedge PHI) GOUT == ~(GIN2 & (PIN2 | GIN1))
+    );
 
-  // If inputs are all known, outputs must be known
-  a_known_out_when_known_in: assert property (
-    !$isunknown({PIN1,PIN2,GIN1,GIN2}) |-> !$isunknown({POUT,GOUT})
-  );
+    // If either PIN input is high, POUT must be low.
+    check_pout_low_when_any_pin_high: assert property (
+        @(posedge PHI) ((PIN1 == 1'b1) || (PIN2 == 1'b1)) |-> (POUT == 1'b0)
+    );
 
-  // PHI must not influence outputs (when inputs are held stable)
-  a_no_phi_dependence: assert property (
-    $stable({PIN1,PIN2,GIN1,GIN2}) |-> $stable({POUT,GOUT})
-  );
+    // If both PIN inputs are low, POUT must be high.
+    check_pout_high_when_both_pins_low: assert property (
+        @(posedge PHI) ((PIN1 == 1'b0) && (PIN2 == 1'b0)) |-> (POUT == 1'b1)
+    );
 
-  // Minimal functional coverage
-  // POUT input space (PIN1,PIN2)
-  cover property ( {PIN1,PIN2} == 2'b00 );
-  cover property ( {PIN1,PIN2} == 2'b01 );
-  cover property ( {PIN1,PIN2} == 2'b10 );
-  cover property ( {PIN1,PIN2} == 2'b11 );
+    // If GIN2 is low, GOUT must be high.
+    check_gout_high_when_gin2_low: assert property (
+        @(posedge PHI) (GIN2 == 1'b0) |-> (GOUT == 1'b1)
+    );
 
-  // GOUT input space (GIN2,PIN2,GIN1)
-  cover property ( {GIN2,PIN2,GIN1} == 3'b000 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b001 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b010 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b011 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b100 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b101 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b110 );
-  cover property ( {GIN2,PIN2,GIN1} == 3'b111 );
+    // If both PIN2 and GIN1 are low, GOUT must be high.
+    check_gout_high_when_or_term_low: assert property (
+        @(posedge PHI) ((PIN2 == 1'b0) && (GIN1 == 1'b0)) |-> (GOUT == 1'b1)
+    );
 
-  // Output toggle coverage
-  cover property ( $rose(POUT) );  cover property ( $fell(POUT) );
-  cover property ( $rose(GOUT) );  cover property ( $fell(GOUT) );
+    // If GIN2 and PIN2 are high, GOUT must be low.
+    check_gout_low_when_gin2_and_pin2_high: assert property (
+        @(posedge PHI) ((GIN2 == 1'b1) && (PIN2 == 1'b1)) |-> (GOUT == 1'b0)
+    );
+
+    // If GIN2 and GIN1 are high, GOUT must be low.
+    check_gout_low_when_gin2_and_gin1_high: assert property (
+        @(posedge PHI) ((GIN2 == 1'b1) && (GIN1 == 1'b1)) |-> (GOUT == 1'b0)
+    );
 
 endmodule
-
-// Bind into all instances of BLOCK1
-bind BLOCK1 BLOCK1_sva i_BLOCK1_sva (.*);
-`endif

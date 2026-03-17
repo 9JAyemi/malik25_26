@@ -1,48 +1,45 @@
-// SVA for sky130_fd_sc_hd__and4
-module sky130_fd_sc_hd__and4_sva (
-  input logic A, B, C, D,
-  input logic X,
-  input logic and0_out_X
+module sky130_fd_sc_hd__and4_assertions (
+    input logic clk,
+    input logic X,
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D
 );
 
-  // Buffer correctness (internal connectivity)
-  property p_buf_eq; @(*) 1'b1 |-> ##0 (X === and0_out_X); endproperty
-  assert property (p_buf_eq);
+    // X equals the AND of all four inputs.
+    check_output_matches_and: assert property (
+        @(posedge clk) X == (A & B & C & D)
+    );
 
-  // Functional correctness when inputs are known
-  property p_func_known; @(*) (!$isunknown({A,B,C,D})) |-> ##0 (X === (A & B & C & D)); endproperty
-  assert property (p_func_known);
+    // All four high inputs drive X high.
+    check_all_high_drives_output_high: assert property (
+        @(posedge clk) ((A == 1'b1) && (B == 1'b1) && (C == 1'b1) && (D == 1'b1)) |-> (X == 1'b1)
+    );
 
-  // Any input 0 forces X=0 (even with X/Z on other inputs)
-  property p_any_zero_forces_zero; @(*)
-    ((A===1'b0) || (B===1'b0) || (C===1'b0) || (D===1'b0)) |-> ##0 (X===1'b0);
-  endproperty
-  assert property (p_any_zero_forces_zero);
+    // A low forces X low.
+    check_a_low_forces_output_low: assert property (
+        @(posedge clk) (A == 1'b0) |-> (X == 1'b0)
+    );
 
-  // All inputs 1 forces X=1
-  property p_all_ones_forces_one; @(*) (A===1 && B===1 && C===1 && D===1) |-> ##0 (X===1); endproperty
-  assert property (p_all_ones_forces_one);
+    // B low forces X low.
+    check_b_low_forces_output_low: assert property (
+        @(posedge clk) (B == 1'b0) |-> (X == 1'b0)
+    );
 
-  // If X is 1, all inputs must be 1
-  property p_x_high_implies_inputs_high; @(*) (X===1) |-> ##0 (A===1 && B===1 && C===1 && D===1); endproperty
-  assert property (p_x_high_implies_inputs_high);
+    // C low forces X low.
+    check_c_low_forces_output_low: assert property (
+        @(posedge clk) (C == 1'b0) |-> (X == 1'b0)
+    );
 
-  // Full input-space coverage (all 16 combinations)
-  genvar i;
-  generate
-    for (i=0; i<16; i++) begin : cov_in_patterns
-      localparam int unsigned VI = i;
-      cover property (@(*) ##0 ({A,B,C,D} === VI[3:0]));
-    end
-  endgenerate
+    // D low forces X low.
+    check_d_low_forces_output_low: assert property (
+        @(posedge clk) (D == 1'b0) |-> (X == 1'b0)
+    );
 
-  // Cover output high and low
-  cover property (@(*) ##0 (X===1'b1));
-  cover property (@(*) ##0 (X===1'b0));
+    // A high X requires all four inputs high.
+    check_output_high_requires_all_inputs_high: assert property (
+        @(posedge clk) (X == 1'b1) |-> ((A == 1'b1) && (B == 1'b1) && (C == 1'b1) && (D == 1'b1))
+    );
 
 endmodule
-
-// Bind SVA to the DUT (accesses internal and0_out_X)
-bind sky130_fd_sc_hd__and4 sky130_fd_sc_hd__and4_sva u_and4_sva (
-  .A(A), .B(B), .C(C), .D(D), .X(X), .and0_out_X(and0_out_X)
-);

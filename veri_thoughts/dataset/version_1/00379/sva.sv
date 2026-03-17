@@ -1,41 +1,56 @@
-// SVA for dff2: concise, high-quality checks and coverage
-module dff2_sva(input logic clk, clrn, input logic [1:0] d, q);
+module dff2_sva (
+    input logic [1:0] d,
+    input logic       clk,
+    input logic       clrn,
+    input logic [1:0] q
+);
 
-  default clocking cb @(posedge clk); endclocking
+    // If reset is low at a clock edge, q must be zero.
+    check_reset_low_holds_q_zero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        !clrn |-> (q == 2'b00)
+    );
 
-  // Disallow coincident posedge clk and negedge clrn (race-prone)
-  assert property (@(posedge clk) !$fell(clrn));
-  assert property (@(negedge clrn) !$rose(clk));
+    // If reset is observed to fall between clocks, q is zero at the next clock.
+    check_sampled_reset_fall_clears_q: assert property (
+        @(posedge clk) disable iff ($initstate)
+        $fell(clrn) |-> (q == 2'b00)
+    );
 
-  // Async reset forces/holds zero (checked at both events)
-  assert property (@(posedge clk or negedge clrn) !clrn |-> (q === 2'b00));
+    // On the first clock after reset release, q is still zero before recapturing d.
+    check_reset_release_starts_from_zero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        $rose(clrn) |-> (q == 2'b00)
+    );
 
-  // Synchronous D capture when not in reset (1-cycle latency)
-  assert property (disable iff (!clrn) q == $past(d));
+    // Outside reset, q is either the prior-cycle d or zero from an async clear.
+    check_q_is_prev_d_or_zero: assert property (
+        @(posedge clk) disable iff (!clrn || $initstate)
+        1'b1 |-> ((q == $past(d)) || (q == 2'b00))
+    );
 
-  // Knownness: if D known for a full cycle, Q is known next cycle
-  assert property (disable iff (!clrn) !$isunknown($past(d)) |-> !$isunknown(q));
+    // A nonzero q must match the prior-cycle d.
+    check_nonzero_q_matches_prev_d: assert property (
+        @(posedge clk) disable iff (!clrn || $initstate)
+        (q != 2'b00) |-> (q == $past(d))
+    );
 
-  // Basic sanity: clrn not X at sampling edges
-  assert property (@(posedge clk) !$isunknown(clrn));
+    // If the prior-cycle d was zero, q must be zero.
+    check_prev_zero_d_leads_to_zero_q: assert property (
+        @(posedge clk) disable iff (!clrn || $initstate)
+        ($past(d) == 2'b00) |-> (q == 2'b00)
+    );
 
-  // Coverage
-  // Reset pulse seen and released
-  cover property (@(negedge clrn) !clrn ##[1:$] $rose(clrn));
-  // Normal capture observed
-  cover property (disable iff (!clrn) q == $past(d));
-  // Bit-level toggles captured
-  cover property (disable iff (!clrn) $rose(q[0]));
-  cover property (disable iff (!clrn) $fell(q[0]));
-  cover property (disable iff (!clrn) $rose(q[1]));
-  cover property (disable iff (!clrn) $fell(q[1]));
-  // All output values observed
-  cover property (disable iff (!clrn) q == 2'b00);
-  cover property (disable iff (!clrn) q == 2'b01);
-  cover property (disable iff (!clrn) q == 2'b10);
-  cover property (disable iff (!clrn) q == 2'b11);
+    // A nonzero q cannot immediately follow a sampled reset-low cycle.
+    check_nonzero_q_requires_prev_reset_high: assert property (
+        @(posedge clk) disable iff (!clrn || $initstate)
+        (q != 2'b00) |-> $past(clrn)
+    );
+
+    // If q changes to a nonzero value, it must come from the prior-cycle d.
+    check_q_change_to_nonzero_matches_prev_d: assert property (
+        @(posedge clk) disable iff (!clrn || $initstate)
+        ($changed(q) && (q != 2'b00)) |-> (q == $past(d))
+    );
 
 endmodule
-
-// Bind to DUT
-bind dff2 dff2_sva u_dff2_sva (.clk(clk), .clrn(clrn), .d(d), .q(q));

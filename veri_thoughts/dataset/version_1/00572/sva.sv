@@ -1,66 +1,117 @@
-// SVA for input_pipeline
-// Bind this to the DUT to check reset, hold, shift, and end-to-end latency.
-
-module input_pipeline_sva #(parameter WIDTH=1) (
-  input clk,
-  input reset,
-  input clk_ena,
-  input [WIDTH-1:0] in_stream,
-  input [WIDTH-1:0] pipeline_reg_0,
-  input [WIDTH-1:0] pipeline_reg_1,
-  input [WIDTH-1:0] pipeline_reg_2,
-  input [WIDTH-1:0] pipeline_reg_3,
-  input [WIDTH-1:0] pipeline_reg_4,
-  input [WIDTH-1:0] pipeline_reg_5,
-  input [WIDTH-1:0] pipeline_reg_6,
-  input [WIDTH-1:0] pipeline_reg_7,
-  input [WIDTH-1:0] pipeline_reg_8,
-  input [WIDTH-1:0] pipeline_reg_9,
-  input [WIDTH-1:0] pipeline_reg_10,
-  input [WIDTH-1:0] pipeline_reg_11
+module input_pipeline_sva #(
+    parameter WIDTH = 1
+) (
+    input logic clk,
+    input logic clk_ena,
+    input logic [WIDTH-1:0] in_stream,
+    input logic [WIDTH-1:0] pipeline_reg_0,
+    input logic [WIDTH-1:0] pipeline_reg_1,
+    input logic [WIDTH-1:0] pipeline_reg_2,
+    input logic [WIDTH-1:0] pipeline_reg_3,
+    input logic [WIDTH-1:0] pipeline_reg_4,
+    input logic [WIDTH-1:0] pipeline_reg_5,
+    input logic [WIDTH-1:0] pipeline_reg_6,
+    input logic [WIDTH-1:0] pipeline_reg_7,
+    input logic [WIDTH-1:0] pipeline_reg_8,
+    input logic [WIDTH-1:0] pipeline_reg_9,
+    input logic [WIDTH-1:0] pipeline_reg_10,
+    input logic [WIDTH-1:0] pipeline_reg_11,
+    input logic reset
 );
 
-  localparam int STAGES = 12;
-  localparam int TOT    = WIDTH*STAGES;
+    // Reset clears all pipeline stages by the next clock.
+    check_reset_clears_pipeline: assert property (
+        @(posedge clk)
+        (!$initstate && $past(reset)) |-> (
+            {pipeline_reg_11, pipeline_reg_10, pipeline_reg_9, pipeline_reg_8,
+             pipeline_reg_7, pipeline_reg_6, pipeline_reg_5, pipeline_reg_4,
+             pipeline_reg_3, pipeline_reg_2, pipeline_reg_1, pipeline_reg_0} == '0
+        )
+    );
 
-  // Pack the pipeline for concise checks
-  wire [TOT-1:0] stage_cat = {
-    pipeline_reg_11, pipeline_reg_10, pipeline_reg_9,  pipeline_reg_8,
-    pipeline_reg_7,  pipeline_reg_6,  pipeline_reg_5,  pipeline_reg_4,
-    pipeline_reg_3,  pipeline_reg_2,  pipeline_reg_1,  pipeline_reg_0
-  };
+    // Stage 0 captures the input stream on enabled cycles.
+    check_stage0_captures_input: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_0 == $past(in_stream))
+    );
 
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (reset)
+    // Stage 1 shifts the prior stage 0 value on enabled cycles.
+    check_stage1_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_1 == $past(pipeline_reg_0))
+    );
 
-  // Control must be known
-  assert property (!$isunknown(clk_ena))
-    else $error("clk_ena is X/Z at posedge clk");
+    // Stage 2 shifts the prior stage 1 value on enabled cycles.
+    check_stage2_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_2 == $past(pipeline_reg_1))
+    );
 
-  // Hold behavior: when disabled, all stages hold their values
-  assert property ( !$past(reset) && !$past(clk_ena) |-> stage_cat == $past(stage_cat) )
-    else $error("Pipeline changed while clk_ena was low");
+    // Stage 3 shifts the prior stage 2 value on enabled cycles.
+    check_stage3_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_3 == $past(pipeline_reg_2))
+    );
 
-  // Shift behavior: when enabled, pipeline shifts and stage0 captures previous in_stream
-  assert property ( !$past(reset) && $past(clk_ena)
-                    |-> stage_cat == { $past(stage_cat[TOT-1-WIDTH:0]), $past(in_stream) } )
-    else $error("Pipeline shift/capture mismatch when clk_ena was high");
+    // Stage 4 shifts the prior stage 3 value on enabled cycles.
+    check_stage4_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_4 == $past(pipeline_reg_3))
+    );
 
-  // End-to-end latency: 12 consecutive enables move input to stage 11
-  sequence en12; clk_ena[*STAGES]; endsequence
-  assert property ( en12 |=> pipeline_reg_11 == $past(in_stream, STAGES) )
-    else $error("End-to-end latency mismatch after 12 enables");
+    // Stage 5 shifts the prior stage 4 value on enabled cycles.
+    check_stage5_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_5 == $past(pipeline_reg_4))
+    );
 
-  // Asynchronous reset drives all stages to zero immediately
-  assert property (@(posedge reset) ##0 (stage_cat == '0))
-    else $error("Asynchronous reset did not clear pipeline to zero");
+    // Stage 6 shifts the prior stage 5 value on enabled cycles.
+    check_stage6_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_6 == $past(pipeline_reg_5))
+    );
 
-  // Coverage
-  cover property (@(posedge reset) ##0 (stage_cat == '0));          // reset observed
-  cover property (clk_ena);                                         // enable seen
-  cover property (!clk_ena);                                        // stall seen
-  cover property (en12 |=> pipeline_reg_11 == $past(in_stream, STAGES)); // full latency hit
+    // Stage 7 shifts the prior stage 6 value on enabled cycles.
+    check_stage7_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_7 == $past(pipeline_reg_6))
+    );
+
+    // Stage 8 shifts the prior stage 7 value on enabled cycles.
+    check_stage8_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_8 == $past(pipeline_reg_7))
+    );
+
+    // Stage 9 shifts the prior stage 8 value on enabled cycles.
+    check_stage9_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_9 == $past(pipeline_reg_8))
+    );
+
+    // Stage 10 shifts the prior stage 9 value on enabled cycles.
+    check_stage10_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_10 == $past(pipeline_reg_9))
+    );
+
+    // Stage 11 shifts the prior stage 10 value on enabled cycles.
+    check_stage11_shifts_forward: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && clk_ena)) |-> (pipeline_reg_11 == $past(pipeline_reg_10))
+    );
+
+    // All stages hold their values when the clock enable is low.
+    check_pipeline_holds_when_disabled: assert property (
+        @(posedge clk) disable iff (reset)
+        (!$initstate && $past(!reset && !clk_ena)) |-> (
+            {pipeline_reg_11, pipeline_reg_10, pipeline_reg_9, pipeline_reg_8,
+             pipeline_reg_7, pipeline_reg_6, pipeline_reg_5, pipeline_reg_4,
+             pipeline_reg_3, pipeline_reg_2, pipeline_reg_1, pipeline_reg_0} ==
+            $past({pipeline_reg_11, pipeline_reg_10, pipeline_reg_9, pipeline_reg_8,
+                   pipeline_reg_7, pipeline_reg_6, pipeline_reg_5, pipeline_reg_4,
+                   pipeline_reg_3, pipeline_reg_2, pipeline_reg_1, pipeline_reg_0})
+        )
+    );
 
 endmodule
-
-bind input_pipeline input_pipeline_sva #(.WIDTH(WIDTH)) u_input_pipeline_sva (.*);

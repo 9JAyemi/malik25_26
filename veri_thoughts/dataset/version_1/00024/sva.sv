@@ -1,65 +1,97 @@
-// SVA: bindable checkers for the given DUTs (concise, high-quality)
+module top_module_sva (
+    input logic [7:0] in1,
+    input logic [7:0] in2,
+    input logic [2:0] pos_diff
+);
 
-module priority_encoder_sva (input [7:0] in, input [2:0] pos);
-  // Map checks for valid one-hot[6:0]
-  genvar i;
-  generate
-    for (i=0; i<7; i++) begin : enc_map
-      always_comb begin
-        if (!$isunknown({in,pos}) && in == (8'b1 << i)) assert (pos == i[2:0]);
-        cover (in == (8'b1 << i) && pos == i[2:0]);
-      end
-    end
-  endgenerate
+    function automatic logic [2:0] encode_pos(input logic [7:0] in);
+        begin
+            case (in)
+                8'b0000_0001: encode_pos = 3'b000;
+                8'b0000_0010: encode_pos = 3'b001;
+                8'b0000_0100: encode_pos = 3'b010;
+                8'b0000_1000: encode_pos = 3'b011;
+                8'b0001_0000: encode_pos = 3'b100;
+                8'b0010_0000: encode_pos = 3'b101;
+                8'b0100_0000: encode_pos = 3'b110;
+                default:      encode_pos = 3'b111;
+            endcase
+        end
+    endfunction
 
-  // Default path (all other patterns) -> 3'b111
-  wire valid_onehot7 = $onehot(in[6:0]) && !in[7];
-  always_comb begin
-    if (!$isunknown({in,pos}) && !valid_onehot7) assert (pos == 3'b111);
-    cover (!valid_onehot7 && pos == 3'b111);
-    // Representative default covers
-    cover (in == 8'b0000_0000 && pos == 3'b111);
-    cover (in == 8'b1000_0000 && pos == 3'b111);
-    cover ($countones(in) > 1 && pos == 3'b111);
-  end
+    function automatic logic [2:0] expected_diff(
+        input logic [7:0] a,
+        input logic [7:0] b
+    );
+        begin
+            expected_diff = encode_pos(a) - encode_pos(b);
+        end
+    endfunction
+
+    // Output matches the encoded-position difference for all inputs.
+    check_pos_diff_matches_encoded_difference: assert property (
+        @($global_clock) pos_diff == expected_diff(in1, in2)
+    );
+
+    // With in2 at position 0, bit 0 on in1 produces difference 0.
+    check_in1_bit0_maps_to_zero: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0000_0001) |-> (pos_diff == 3'b000)
+    );
+
+    // With in2 at position 0, bit 1 on in1 produces difference 1.
+    check_in1_bit1_maps_to_one: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0000_0010) |-> (pos_diff == 3'b001)
+    );
+
+    // With in2 at position 0, bit 2 on in1 produces difference 2.
+    check_in1_bit2_maps_to_two: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0000_0100) |-> (pos_diff == 3'b010)
+    );
+
+    // With in2 at position 0, bit 3 on in1 produces difference 3.
+    check_in1_bit3_maps_to_three: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0000_1000) |-> (pos_diff == 3'b011)
+    );
+
+    // With in2 at position 0, bit 4 on in1 produces difference 4.
+    check_in1_bit4_maps_to_four: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0001_0000) |-> (pos_diff == 3'b100)
+    );
+
+    // With in2 at position 0, bit 5 on in1 produces difference 5.
+    check_in1_bit5_maps_to_five: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0010_0000) |-> (pos_diff == 3'b101)
+    );
+
+    // With in2 at position 0, bit 6 on in1 produces difference 6.
+    check_in1_bit6_maps_to_six: assert property (
+        @($global_clock) (in2 == 8'b0000_0001 && in1 == 8'b0100_0000) |-> (pos_diff == 3'b110)
+    );
+
+    // With in2 at position 0, all other in1 values map to 7.
+    check_in1_default_maps_to_seven: assert property (
+        @($global_clock)
+        (in2 == 8'b0000_0001 &&
+         !(in1 == 8'b0000_0001 ||
+           in1 == 8'b0000_0010 ||
+           in1 == 8'b0000_0100 ||
+           in1 == 8'b0000_1000 ||
+           in1 == 8'b0001_0000 ||
+           in1 == 8'b0010_0000 ||
+           in1 == 8'b0100_0000)) |-> (pos_diff == 3'b111)
+    );
+
+    // With in1 at position 0, all other in2 values subtract as encoded 7.
+    check_in2_default_maps_to_one: assert property (
+        @($global_clock)
+        (in1 == 8'b0000_0001 &&
+         !(in2 == 8'b0000_0001 ||
+           in2 == 8'b0000_0010 ||
+           in2 == 8'b0000_0100 ||
+           in2 == 8'b0000_1000 ||
+           in2 == 8'b0001_0000 ||
+           in2 == 8'b0010_0000 ||
+           in2 == 8'b0100_0000)) |-> (pos_diff == 3'b001)
+    );
+
 endmodule
-
-module adder_sva (input [2:0] a, input [2:0] b, input [2:0] sum);
-  always_comb begin
-    if (!$isunknown({a,b,sum})) assert (sum === ((a - b) & 3'b111));
-    // Key scenarios
-    cover (a == b && sum == 3'b000);
-    cover (a == 3'b000 && b == 3'b001 && sum == 3'b111); // wrap underflow
-    cover (a == 3'b111 && b == 3'b001 && sum == 3'b110);
-  end
-endmodule
-
-module top_module_sva (input [7:0] in1, input [7:0] in2, input [2:0] pos_diff);
-  function automatic [2:0] enc7 (input [7:0] x);
-    case (x)
-      8'b0000_0001: enc7 = 3'b000;
-      8'b0000_0010: enc7 = 3'b001;
-      8'b0000_0100: enc7 = 3'b010;
-      8'b0000_1000: enc7 = 3'b011;
-      8'b0001_0000: enc7 = 3'b100;
-      8'b0010_0000: enc7 = 3'b101;
-      8'b0100_0000: enc7 = 3'b110;
-      default:       enc7 = 3'b111;
-    endcase
-  endfunction
-
-  always_comb begin
-    if (!$isunknown({in1,in2,pos_diff})) assert (pos_diff === ((enc7(in1) - enc7(in2)) & 3'b111));
-    // Top-level scenarios
-    cover (in1==8'b0000_0001 && in2==8'b0000_0001 && pos_diff==3'b000); // equal -> 0
-    cover (in1==8'b0000_0001 && in2==8'b0000_0010 && pos_diff==3'b111); // wrap
-    cover (in1==8'b0100_0000 && in2==8'b0000_0001 && pos_diff==3'b101);
-    cover (in1==8'b1000_0000 && in2==8'b0000_0000 && pos_diff==3'b000); // both invalid -> 7-7
-    cover (in1==8'b1000_0000 && in2==8'b0000_0001 && pos_diff==((3'b111-3'b001)&3'b111)); // invalid-valid
-  end
-endmodule
-
-// Binds
-bind priority_encoder priority_encoder_sva(.in(in), .pos(pos));
-bind adder            adder_sva(.a(a), .b(b), .sum(sum));
-bind top_module       top_module_sva(.in1(in1), .in2(in2), .pos_diff(pos_diff));

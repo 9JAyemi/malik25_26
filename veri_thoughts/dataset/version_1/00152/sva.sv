@@ -1,71 +1,77 @@
-// SVA for comparator — bind into DUT to check/cover pipeline, capture, compare, and outputs
-
 module comparator_sva (
-  input logic        clk,
-  input logic [7:0]  A, B,
-  input logic        EQ, GT,
-  input logic [7:0]  A_reg, B_reg,
-  input logic [2:0]  stage
+    input logic [7:0] A,
+    input logic [7:0] B,
+    input logic EQ,
+    input logic GT,
+    input logic clk,
+    input logic [7:0] A_reg,
+    input logic [7:0] B_reg,
+    input logic [2:0] stage
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Stage 0 captures the current inputs.
+    check_stage0_captures_inputs: assert property (
+        @(posedge clk)
+        (stage === 3'd0) |=> (stage === 3'd1 && A_reg === $past(A) && B_reg === $past(B))
+    );
 
-  // $past guard
-  logic past_valid;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    // Stage 0 does not change the outputs.
+    check_stage0_holds_outputs: assert property (
+        @(posedge clk)
+        (stage === 3'd0) |=> (EQ === $past(EQ) && GT === $past(GT))
+    );
 
-  // State validity and progression
-  assert property (cb, ! $isunknown(stage) |-> stage inside {3'd0,3'd1,3'd2});
-  assert property (cb, disable iff ($isunknown(stage)) (stage==3'd0) |=> stage==3'd1);
-  assert property (cb, disable iff ($isunknown(stage)) (stage==3'd1) |=> stage==3'd2);
-  assert property (cb, disable iff ($isunknown(stage)) (stage==3'd2) |=> stage==3'd0);
+    // Stage 1 advances and keeps the captured operands stable.
+    check_stage1_advances_and_holds_operands: assert property (
+        @(posedge clk)
+        (stage === 3'd1) |=> (stage === 3'd2 && A_reg === $past(A_reg) && B_reg === $past(B_reg))
+    );
 
-  // Register capture correctness (stage0 captures inputs for use in stage1)
-  assert property (cb, disable iff (!past_valid || $isunknown(stage))
-                   (stage==3'd0) |=> (stage==3'd1 && A_reg==$past(A) && B_reg==$past(B)));
+    // Equal captured operands set EQ and clear GT.
+    check_stage1_equal_result: assert property (
+        @(posedge clk)
+        (stage === 3'd1 && ((A_reg == B_reg) === 1'b1))
+        |=> (stage === 3'd2 && EQ === 1'b1 && GT === 1'b0)
+    );
 
-  // A_reg/B_reg may only change when stage was 0
-  assert property (cb, disable iff (!past_valid)
-                   (A_reg != $past(A_reg)) |-> $past(stage==3'd0));
-  assert property (cb, disable iff (!past_valid)
-                   (B_reg != $past(B_reg)) |-> $past(stage==3'd0));
+    // Greater captured operands clear EQ and set GT.
+    check_stage1_greater_result: assert property (
+        @(posedge clk)
+        (stage === 3'd1 && ((A_reg == B_reg) !== 1'b1) && ((A_reg > B_reg) === 1'b1))
+        |=> (stage === 3'd2 && EQ === 1'b0 && GT === 1'b1)
+    );
 
-  // Outputs mapping: results appear one cycle after stage1 (during stage2 sample)
-  assert property (cb, disable iff ($isunknown(stage))
-                   (stage==3'd1) |=> ((A_reg==B_reg) -> ( EQ && !GT)) &&
-                                      ((A_reg> B_reg) -> (!EQ &&  GT)) &&
-                                      ((A_reg< B_reg) -> (!EQ && !GT)));
+    // The stage 1 else path clears both outputs.
+    check_stage1_else_result: assert property (
+        @(posedge clk)
+        (stage === 3'd1 && ((A_reg == B_reg) !== 1'b1) && ((A_reg > B_reg) !== 1'b1))
+        |=> (stage === 3'd2 && EQ === 1'b0 && GT === 1'b0)
+    );
 
-  // Outputs are 0 in stage0 and stage1; any nonzero only during stage2
-  assert property (cb, disable iff ($isunknown(stage))
-                   (stage inside {3'd0,3'd1}) |-> (!EQ && !GT));
-  assert property (cb, disable iff ($isunknown(stage))
-                   (EQ || GT) |-> stage==3'd2);
+    // Stage 2 clears the outputs and returns to stage 0.
+    check_stage2_clears_outputs_and_wraps: assert property (
+        @(posedge clk)
+        (stage === 3'd2) |=> (stage === 3'd0 && EQ === 1'b0 && GT === 1'b0 &&
+                              A_reg === $past(A_reg) && B_reg === $past(B_reg))
+    );
 
-  // Outputs cleared after stage2
-  assert property (cb, disable iff ($isunknown(stage)) (stage==3'd2) |=> (!EQ && !GT));
-
-  // Output mutual exclusion and no X when stage known
-  assert property (cb, !(EQ && GT));
-  assert property (cb, ! $isunknown(stage) |-> ! $isunknown({EQ,GT}));
-
-  // Output changes only due to stage1 or stage2 assignments
-  assert property (cb, disable iff (!past_valid)
-                   ((EQ!=$past(EQ)) || (GT!=$past(GT))) |-> $past(stage inside {3'd1,3'd2}));
-
-  // One-cycle pulses on EQ/GT when they rise
-  assert property (cb, disable iff (!past_valid) $rose(EQ) |-> $past(stage==3'd1) ##1 !EQ);
-  assert property (cb, disable iff (!past_valid) $rose(GT) |-> $past(stage==3'd1) ##1 !GT);
-
-  // Coverage
-  cover property (cb (stage==3'd0) ##1 (stage==3'd1) ##1 (stage==3'd2) ##1 (stage==3'd0));
-  cover property (cb (stage==3'd1 && A_reg==B_reg) ##1 (stage==3'd2 &&  EQ && !GT));
-  cover property (cb (stage==3'd1 && A_reg> B_reg) ##1 (stage==3'd2 && !EQ &&  GT));
-  cover property (cb (stage==3'd1 && A_reg< B_reg) ##1 (stage==3'd2 && !EQ && !GT));
-  cover property (cb $rose(EQ));
-  cover property (cb $rose(GT));
+    // Unhandled stage values leave all state unchanged.
+    check_invalid_stage_holds_state: assert property (
+        @(posedge clk)
+        (stage !== 3'd0 && stage !== 3'd1 && stage !== 3'd2)
+        |=> (stage === $past(stage) && A_reg === $past(A_reg) && B_reg === $past(B_reg) &&
+             EQ === $past(EQ) && GT === $past(GT))
+    );
 
 endmodule
 
-// Bind into DUT (connects to internals A_reg/B_reg/stage)
-bind comparator comparator_sva u_comparator_sva (.*);
+bind comparator comparator_sva comparator_sva_inst (
+    .A(A),
+    .B(B),
+    .EQ(EQ),
+    .GT(GT),
+    .clk(clk),
+    .A_reg(A_reg),
+    .B_reg(B_reg),
+    .stage(stage)
+);

@@ -1,46 +1,77 @@
-// SVA for data_converter (bind-ready, clockless/combinational)
-
 module data_converter_sva (
-  input  logic [3:0] data_in,
-  input  logic [1:0] data_out
+    input logic       clk,
+    input logic [3:0] data_in,
+    input logic [1:0] data_out
 );
 
-  function automatic logic [1:0] enc (input logic [3:0] di);
-    enc = (di <= 4)  ? 2'b00 :
-          (di <= 8)  ? 2'b01 :
-          (di <= 12) ? 2'b10 : 2'b11;
-  endfunction
+    // Output must match the RTL threshold expression.
+    check_output_equation: assert property (
+        @(posedge clk)
+        data_out == (
+            (data_in <= 4'd4)  ? 2'b00 :
+            (data_in <= 4'd8)  ? 2'b01 :
+            (data_in <= 4'd12) ? 2'b10 : 2'b11
+        )
+    );
 
-  // Correct mapping for known inputs (##0 avoids delta races)
-  property p_map_correct;
-    @(data_in or data_out)
-      (!$isunknown(data_in)) |-> ##0 (data_out == enc(data_in));
-  endproperty
-  assert property (p_map_correct)
-    else $error("data_out mismatch: in=%0d out=%b exp=%b", data_in, data_out, enc(data_in));
+    // Inputs 0 through 4 must map to 2'b00.
+    check_range_0_to_4: assert property (
+        @(posedge clk)
+        (data_in <= 4'd4) |-> (data_out == 2'b00)
+    );
 
-  // For known input, output must be known (no X/Z)
-  property p_known_out_when_known_in;
-    @(data_in or data_out)
-      (!$isunknown(data_in)) |-> ##0 (!$isunknown(data_out));
-  endproperty
-  assert property (p_known_out_when_known_in)
-    else $error("X/Z on data_out for known data_in");
+    // Inputs 5 through 8 must map to 2'b01.
+    check_range_5_to_8: assert property (
+        @(posedge clk)
+        ((data_in >= 4'd5) && (data_in <= 4'd8)) |-> (data_out == 2'b01)
+    );
 
-  // Functional coverage: ranges
-  cover property (@(data_in) (!$isunknown(data_in)) && (data_in inside {[0:4]})   && (data_out==2'b00));
-  cover property (@(data_in) (!$isunknown(data_in)) && (data_in inside {[5:8]})   && (data_out==2'b01));
-  cover property (@(data_in) (!$isunknown(data_in)) && (data_in inside {[9:12]})  && (data_out==2'b10));
-  cover property (@(data_in) (!$isunknown(data_in)) && (data_in inside {[13:15]}) && (data_out==2'b11));
+    // Inputs 9 through 12 must map to 2'b10.
+    check_range_9_to_12: assert property (
+        @(posedge clk)
+        ((data_in >= 4'd9) && (data_in <= 4'd12)) |-> (data_out == 2'b10)
+    );
 
-  // Boundary coverage
-  cover property (@(data_in) (data_in==4)  && (data_out==2'b00));
-  cover property (@(data_in) (data_in==5)  && (data_out==2'b01));
-  cover property (@(data_in) (data_in==8)  && (data_out==2'b01));
-  cover property (@(data_in) (data_in==9)  && (data_out==2'b10));
-  cover property (@(data_in) (data_in==12) && (data_out==2'b10));
-  cover property (@(data_in) (data_in==13) && (data_out==2'b11));
+    // Inputs 13 through 15 must map to 2'b11.
+    check_range_13_to_15: assert property (
+        @(posedge clk)
+        (data_in >= 4'd13) |-> (data_out == 2'b11)
+    );
+
+    // The lower threshold value 4 must produce 2'b00.
+    check_threshold_at_4: assert property (
+        @(posedge clk)
+        (data_in == 4'd4) |-> (data_out == 2'b00)
+    );
+
+    // The next value after 4 must produce 2'b01.
+    check_threshold_at_5: assert property (
+        @(posedge clk)
+        (data_in == 4'd5) |-> (data_out == 2'b01)
+    );
+
+    // The upper value of the second range must produce 2'b01.
+    check_threshold_at_8: assert property (
+        @(posedge clk)
+        (data_in == 4'd8) |-> (data_out == 2'b01)
+    );
+
+    // The next value after 8 must produce 2'b10.
+    check_threshold_at_9: assert property (
+        @(posedge clk)
+        (data_in == 4'd9) |-> (data_out == 2'b10)
+    );
+
+    // The upper value of the third range must produce 2'b10.
+    check_threshold_at_12: assert property (
+        @(posedge clk)
+        (data_in == 4'd12) |-> (data_out == 2'b10)
+    );
+
+    // The next value after 12 must produce 2'b11.
+    check_threshold_at_13: assert property (
+        @(posedge clk)
+        (data_in == 4'd13) |-> (data_out == 2'b11)
+    );
 
 endmodule
-
-bind data_converter data_converter_sva u_data_converter_sva (.data_in(data_in), .data_out(data_out));

@@ -1,77 +1,85 @@
-// SVA for nor2/nor3. Bind these to the DUT.
-// Focus: functional correctness, no-X when inputs known, no spurious toggles, and basic coverage.
+module nor2_sva(
+    input logic clk,
+    input logic a,
+    input logic b,
+    input logic out
+);
 
-module nor2_sva (input logic a, b, out);
-  // Functional equivalence (combinational, delta-cycle accurate when inputs are known)
-  ap_nor2_func:
-    assert property (@(a or b or out) disable iff ($isunknown({a,b}))
-                     out == ~(a | b));
+    // No RTL clock/reset; clk samples the combinational NOR output.
+    // Output matches the implemented two-input NOR function.
+    check_nor2_function: assert property (
+        @(posedge clk) out == ~(a | b)
+    );
 
-  // If inputs are known, output must be known
-  ap_nor2_known_out:
-    assert property (@(a or b or out) !$isunknown({a,b}) |-> !$isunknown(out));
+    // A high input forces the output low.
+    check_nor2_a_high_forces_low: assert property (
+        @(posedge clk) a |-> !out
+    );
 
-  // Output changes only when some input changes
-  ap_nor2_no_spurious_out:
-    assert property (@(a or b or out) disable iff ($isunknown({a,b,out}))
-                     $changed(out) |-> $changed({a,b}));
+    // B high input forces the output low.
+    check_nor2_b_high_forces_low: assert property (
+        @(posedge clk) b |-> !out
+    );
 
-  // Coverage: all input combinations and both output edges
-  cp_nor2_00: cover property (@(a or b) !a && !b &&  out);
-  cp_nor2_01: cover property (@(a or b)  a && !b && !out);
-  cp_nor2_10: cover property (@(a or b) !a &&  b && !out);
-  cp_nor2_11: cover property (@(a or b)  a &&  b && !out);
+    // Both inputs low produce a high output.
+    check_nor2_both_low_gives_high: assert property (
+        @(posedge clk) (!a && !b) |-> out
+    );
 
-  cp_nor2_out_rise: cover property (@(out) $rose(out));
-  cp_nor2_out_fall: cover property (@(out) $fell(out));
+    // A high output requires both inputs low.
+    check_nor2_high_output_requires_low_inputs: assert property (
+        @(posedge clk) out |-> (!a && !b)
+    );
+
 endmodule
 
-bind nor2 nor2_sva nor2_sva_i (.a(a), .b(b), .out(out));
+module nor3_sva(
+    input logic clk,
+    input logic a,
+    input logic b,
+    input logic c,
+    input logic out
+);
 
+    // No RTL clock/reset; clk samples the combinational output.
+    // Output matches the implemented logic ((a | b) & ~c).
+    check_nor3_function: assert property (
+        @(posedge clk) out == ((a | b) & ~c)
+    );
 
-module nor3_sva (input logic a, b, c, out,
-                 input logic temp_out, u1_out);
-  // Internal temp_out must be NOR(a,b) when inputs known
-  ap_nor3_temp_func:
-    assert property (@(a or b or temp_out) disable iff ($isunknown({a,b}))
-                     temp_out == ~(a | b));
+    // C high forces the output low.
+    check_nor3_c_high_forces_low: assert property (
+        @(posedge clk) c |-> !out
+    );
 
-  // temp_out driven consistently by both sources (no contention/mismatch)
-  ap_nor3_temp_alias:
-    assert property (@(temp_out or u1_out) disable iff ($isunknown({temp_out,u1_out}))
-                     temp_out == u1_out);
+    // With A and B both low, the output is low.
+    check_nor3_ab_low_forces_low: assert property (
+        @(posedge clk) (!a && !b) |-> !out
+    );
 
-  // Top-level functional equivalence: out = ~(a|b) & ~c when inputs known
-  ap_nor3_func:
-    assert property (@(a or b or c or out) disable iff ($isunknown({a,b,c}))
-                     out == (~(a | b)) & ~c);
+    // A high with C low makes the output high.
+    check_nor3_a_high_c_low_gives_high: assert property (
+        @(posedge clk) (a && !c) |-> out
+    );
 
-  // If inputs known, internal and output must be known
-  ap_nor3_known_temp:
-    assert property (@(a or b or temp_out) !$isunknown({a,b}) |-> !$isunknown(temp_out));
-  ap_nor3_known_out:
-    assert property (@(a or b or c or out) !$isunknown({a,b,c}) |-> !$isunknown(out));
+    // B high with C low makes the output high.
+    check_nor3_b_high_c_low_gives_high: assert property (
+        @(posedge clk) (b && !c) |-> out
+    );
 
-  // Output changes only when some input changes
-  ap_nor3_no_spurious_out:
-    assert property (@(a or b or c or out) disable iff ($isunknown({a,b,c,out}))
-                     $changed(out) |-> $changed({a,b,c}));
+    // A high output requires C low.
+    check_nor3_high_output_requires_c_low: assert property (
+        @(posedge clk) out |-> !c
+    );
 
-  // Coverage: all input combinations (8 states) and edge activity
-  cp_nor3_000: cover property (@(a or b or c) !a && !b && !c &&  out);
-  cp_nor3_001: cover property (@(a or b or c) !a && !b &&  c && !out);
-  cp_nor3_010: cover property (@(a or b or c) !a &&  b && !c && !out);
-  cp_nor3_011: cover property (@(a or b or c) !a &&  b &&  c && !out);
-  cp_nor3_100: cover property (@(a or b or c)  a && !b && !c && !out);
-  cp_nor3_101: cover property (@(a or b or c)  a && !b &&  c && !out);
-  cp_nor3_110: cover property (@(a or b or c)  a &&  b && !c && !out);
-  cp_nor3_111: cover property (@(a or b or c)  a &&  b &&  c && !out);
+    // A high output requires at least one of A or B high.
+    check_nor3_high_output_requires_ab_high: assert property (
+        @(posedge clk) out |-> (a || b)
+    );
 
-  cp_nor3_temp_rise: cover property (@(temp_out) $rose(temp_out));
-  cp_nor3_temp_fall: cover property (@(temp_out) $fell(temp_out));
-  cp_nor3_out_rise:  cover property (@(out)      $rose(out));
-  cp_nor3_out_fall:  cover property (@(out)      $fell(out));
+    // With C low and output low, both A and B must be low.
+    check_nor3_c_low_low_output_requires_ab_low: assert property (
+        @(posedge clk) (!c && !out) |-> (!a && !b)
+    );
+
 endmodule
-
-bind nor3 nor3_sva nor3_sva_i (.a(a), .b(b), .c(c), .out(out),
-                                .temp_out(temp_out), .u1_out(u1.out));

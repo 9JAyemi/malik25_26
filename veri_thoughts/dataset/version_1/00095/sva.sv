@@ -1,41 +1,37 @@
-// SVA for counter: 2-bit up counter with synchronous reset and wrap at 3->0
-module counter_sva(input logic clk, reset, input logic [1:0] count);
-  default clocking cb @(posedge clk); endclocking
+module counter_sva (
+    input logic clk,
+    input logic reset,
+    input logic [1:0] count
+);
 
-  logic past_valid;
-  initial past_valid = 0;
-  always @(posedge clk) past_valid <= 1;
+    // After a reset cycle, count must be zero.
+    check_reset_clears_count: assert property (
+        @(posedge clk) disable iff ($initstate)
+        $past(reset) |-> (count == 2'b00)
+    );
 
-  // Sanity
-  assert property (!$isunknown({reset, count}));
+    // From 0, the counter increments to 1 when not coming out of reset.
+    check_count_0_to_1: assert property (
+        @(posedge clk) disable iff ($initstate || $past(reset))
+        ($past(count) == 2'b00) |-> (count == 2'b01)
+    );
 
-  // Synchronous reset forces zero (every cycle asserted)
-  assert property (reset |-> count == 2'b00);
-  assert property (past_valid && reset && $past(reset) |-> count == 2'b00);
+    // From 1, the counter increments to 2 when not coming out of reset.
+    check_count_1_to_2: assert property (
+        @(posedge clk) disable iff ($initstate || $past(reset))
+        ($past(count) == 2'b01) |-> (count == 2'b10)
+    );
 
-  // Next-state behavior when not in/reset (prev and curr cycles both not reset)
-  assert property (past_valid && !reset && !$past(reset) && ($past(count) != 2'b11)
-                   |-> count == $past(count) + 2'b01);
-  assert property (past_valid && !reset && !$past(reset) && ($past(count) == 2'b11)
-                   |-> count == 2'b00);
+    // From 2, the counter increments to 3 when not coming out of reset.
+    check_count_2_to_3: assert property (
+        @(posedge clk) disable iff ($initstate || $past(reset))
+        ($past(count) == 2'b10) |-> (count == 2'b11)
+    );
 
-  // Reset release behavior (last cycle reset=1, now 0) -> increment from 0 to 1
-  assert property (past_valid && $fell(reset) |-> count == 2'b01);
+    // From 3, the counter wraps back to 0 when not coming out of reset.
+    check_count_3_to_0: assert property (
+        @(posedge clk) disable iff ($initstate || $past(reset))
+        ($past(count) == 2'b11) |-> (count == 2'b00)
+    );
 
-  // Periodicity: after 4 reset-free cycles, value repeats
-  assert property (past_valid &&
-                   !reset && !$past(reset,1) && !$past(reset,2) && !$past(reset,3) && !$past(reset,4)
-                   |-> count == $past(count,4));
-
-  // Functional coverage
-  cover property (count == 2'b00);
-  cover property (count == 2'b01);
-  cover property (count == 2'b10);
-  cover property (count == 2'b11);
-  cover property (disable iff (reset))
-                 (count==2'b00 ##1 count==2'b01 ##1 count==2'b10 ##1 count==2'b11 ##1 count==2'b00);
-  cover property ($fell(reset));
 endmodule
-
-// Bind into DUT
-bind counter counter_sva counter_sva_i(.clk(clk), .reset(reset), .count(count));

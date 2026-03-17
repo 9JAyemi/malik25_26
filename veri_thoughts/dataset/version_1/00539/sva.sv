@@ -1,41 +1,47 @@
-// SVA for mult_by_3
-// Bind this module to the DUT: bind mult_by_3 mult_by_3_sva sva(.x(x), .y(y));
-
 module mult_by_3_sva (
-  input logic [3:0] x,
-  input logic [5:0] y
+    input logic clk,
+    input logic [3:0] x,
+    input logic [5:0] y
 );
 
-  // Sample on any change; use ##0 to evaluate after combinational settling
-  // No X/Z on interface
-  assert property (@(x or y) 1 |-> ##0 (!$isunknown(x) && !$isunknown(y)))
-    else $error("X/Z detected: x=%b y=%b", x, y);
+    // y must always equal the RTL expression.
+    check_y_matches_rtl_expression: assert property (
+        @(posedge clk) y == ((x << 1) + x)
+    );
 
-  // Functional correctness: y == 3*x with proper zero-extension
-  assert property (@(x or y) 1 |-> ##0 (y == ({2'b0,x} + ({2'b0,x} << 1))))
-    else $error("y != 3*x: x=%0d y=%0d exp=%0d", x, y, {2'b0,x}+({2'b0,x}<<1));
+    // The least-significant output bit must match the least-significant input bit.
+    check_lsb_preserved: assert property (
+        @(posedge clk) y[0] == x[0]
+    );
 
-  // Range and simple arithmetic invariants
-  assert property (@(x or y) 1 |-> ##0 (y <= 6'd45))
-    else $error("Range violation: y=%0d (>45) for x=%0d", y, x);
+    // Zero input must produce zero output.
+    check_x_zero: assert property (
+        @(posedge clk) (x == 4'd0) |-> (y == 6'd0)
+    );
 
-  assert property (@(x or y) 1 |-> ##0 (y[0] == x[0]))
-    else $error("LSB mismatch: x[0]=%0b y[0]=%0b", x[0], y[0]);
+    // Input value one must produce three.
+    check_x_one: assert property (
+        @(posedge clk) (x == 4'd1) |-> (y == 6'd3)
+    );
 
-  assert property (@(x or y) 1 |-> ##0 ((y % 3) == 0))
-    else $error("Non-multiple-of-3 output: x=%0d y=%0d", x, y);
+    // Input value two must produce six.
+    check_x_two: assert property (
+        @(posedge clk) (x == 4'd2) |-> (y == 6'd6)
+    );
 
-  // Coverage: hit all input values and their correct mapped outputs
-  genvar i;
-  for (i = 0; i < 16; i++) begin : C_ALL_X
-    cover property (@(x) ##0 (x == i[3:0] && y == (i*3)[5:0]));
-  end
+    // Input value three must produce nine.
+    check_x_three: assert property (
+        @(posedge clk) (x == 4'd3) |-> (y == 6'd9)
+    );
 
-  // Corner coverage
-  cover property (@(x) ##0 (x == 4'd0 && y == 6'd0));
-  cover property (@(x) ##0 (x == 4'd15 && y == 6'd45));
+    // Input value four must produce twelve.
+    check_x_four: assert property (
+        @(posedge clk) (x == 4'd4) |-> (y == 6'd12)
+    );
+
+    // Input value five must produce fifteen.
+    check_x_five: assert property (
+        @(posedge clk) (x == 4'd5) |-> (y == 6'd15)
+    );
 
 endmodule
-
-// Example bind (place in a package or a separate bind file as appropriate):
-// bind mult_by_3 mult_by_3_sva sva(.x(x), .y(y));

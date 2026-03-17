@@ -1,32 +1,36 @@
-// SVA for mux2x4: bindable checker with concise, high-quality properties
-
-module mux2x4_sva (
-  input logic [1:0] data0, data1, data2, data3,
-  input logic [1:0] selectInput,
-  input logic [1:0] out
+module mux2x4_assertions (
+    input logic clk,
+    input logic [1:0] data0,
+    input logic [1:0] data1,
+    input logic [1:0] data2,
+    input logic [1:0] data3,
+    input logic [1:0] selectInput,
+    input logic [1:0] out
 );
 
-  function automatic logic [1:0] f_mux
-    (input logic [1:0] s, d0, d1, d2, d3);
-    case (s)
-      2'b00: f_mux = d0;
-      2'b01: f_mux = d1;
-      2'b10: f_mux = d2;
-      2'b11: f_mux = d3;
-      default: f_mux = 2'b00;
-    endcase
-  endfunction
+    // When selectInput is 00, out must equal data0.
+    check_select_00: assert property (
+        @(posedge clk) (selectInput === 2'b00) |-> (out === data0)
+    );
 
-  // Golden equivalence vs. the RTL case/default behavior (4-state aware)
-  ap_equiv: assert property (@(*)) out === f_mux(selectInput, data0, data1, data2, data3);
+    // When selectInput is 01, out must equal data1.
+    check_select_01: assert property (
+        @(posedge clk) (selectInput === 2'b01) |-> (out === data1)
+    );
 
-  // Functional coverage: all selects and the default path
-  cp_s0:      cover property (@(*)) (selectInput == 2'b00 && out === data0);
-  cp_s1:      cover property (@(*)) (selectInput == 2'b01 && out === data1);
-  cp_s2:      cover property (@(*)) (selectInput == 2'b10 && out === data2);
-  cp_s3:      cover property (@(*)) (selectInput == 2'b11 && out === data3);
-  cp_default: cover property (@(*)) (!(selectInput inside {2'b00,2'b01,2'b10,2'b11}) && out === 2'b00);
+    // When selectInput is 10, out must equal data2.
+    check_select_10: assert property (
+        @(posedge clk) (selectInput === 2'b10) |-> (out === data2)
+    );
+
+    // When selectInput is 11, out must equal data3.
+    check_select_11: assert property (
+        @(posedge clk) (selectInput === 2'b11) |-> (out === data3)
+    );
+
+    // When selectInput contains X or Z, out must take the default value 00.
+    check_default_on_unknown_select: assert property (
+        @(posedge clk) $isunknown(selectInput) |-> (out === 2'b00)
+    );
 
 endmodule
-
-bind mux2x4 mux2x4_sva sva_mux2x4 (.*);

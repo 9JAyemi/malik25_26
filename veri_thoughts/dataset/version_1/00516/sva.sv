@@ -1,54 +1,25 @@
-// SVA for module counter
-// Bind these assertions to the DUT
-
-module counter_sva (
-  input logic        clk,
-  input logic        reset,   // active-low async
-  input logic [3:0]  count
+module counter_assertions (
+    input logic       clk,
+    input logic       reset,
+    input logic [3:0] count
 );
 
-  // 1) Asynchronous reset must clear immediately at negedge (after NBA)
-  property p_async_reset_clears;
-    @(negedge reset) 1 |-> ##0 (count == 4'h0 && !$isunknown(count));
-  endproperty
-  assert property (p_async_reset_clears);
+    // A sampled reset cycle forces count to zero by the next clock.
+    check_count_zero_after_sampled_reset: assert property (
+        @(posedge clk) disable iff ($initstate)
+        $past(!reset) |-> (count == 4'd0)
+    );
 
-  // 2) While reset is held low, count must stay 0 on every clk
-  property p_hold_zero_during_reset;
-    @(posedge clk) !reset |-> (count == 4'h0 && !$isunknown(count));
-  endproperty
-  assert property (p_hold_zero_during_reset);
+    // On consecutive active samples, count either increments or is zero after an async reset pulse.
+    check_count_progresses_or_resets: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        $past(reset) |-> ((count == ($past(count) + 4'd1)) || (count == 4'd0))
+    );
 
-  // 3) When reset is high for two consecutive clocks, counter increments by 1 (mod 16)
-  property p_inc_when_enabled;
-    @(posedge clk) ($past(reset) && reset) |-> (count == $past(count) + 4'd1);
-  endproperty
-  assert property (p_inc_when_enabled);
-
-  // 4) Explicit wrap-around check F -> 0 on next clock when enabled
-  property p_wrap_around;
-    @(posedge clk) ($past(reset) && reset && $past(count) == 4'hF) |-> (count == 4'h0);
-  endproperty
-  assert property (p_wrap_around);
-
-  // 5) No X/Z on count when operating (reset high)
-  property p_no_x_when_operating;
-    @(posedge clk) reset |-> !$isunknown(count);
-  endproperty
-  assert property (p_no_x_when_operating);
-
-  // -------- Coverage --------
-  // See an async reset pulse
-  cover property (@(negedge reset) 1);
-  cover property (@(posedge clk) $rose(reset));
-
-  // See at least one enabled increment
-  cover property (@(posedge clk) ($past(reset) && reset) && (count == $past(count) + 4'd1));
-
-  // See wrap-around F -> 0 while enabled
-  cover property (@(posedge clk) ($past(reset) && reset && $past(count) == 4'hF) && (count == 4'h0));
+    // On consecutive active samples, 4'hF wraps back to 4'h0.
+    check_wrap_from_max_when_running: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        ($past(reset) && ($past(count) == 4'hF)) |-> (count == 4'd0)
+    );
 
 endmodule
-
-// Bind into DUT
-bind counter counter_sva u_counter_sva (.clk(clk), .reset(reset), .count(count));

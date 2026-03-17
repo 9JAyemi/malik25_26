@@ -1,67 +1,76 @@
-// SVA for xor_adder
 module xor_adder_sva (
-  input clk,
-  input [1:0] a,
-  input [1:0] b,
-  input [1:0] sum,
-  input [1:0] stage1_sum,
-  input [1:0] stage2_sum
+    input logic       clk,
+    input logic [1:0] a,
+    input logic [1:0] b,
+    input logic [1:0] sum,
+    input logic [1:0] stage1_sum,
+    input logic [1:0] stage2_sum
 );
 
-  bit past1, past2, past3;
-  always @(posedge clk) begin
-    past1 <= 1'b1;
-    past2 <= past1;
-    past3 <= past2;
-  end
+property p_stage1_captures_input_xor;
+    logic [1:0] exp_stage1;
+    @(posedge clk)
+        (exp_stage1 = (a ^ b), 1'b1)
+        |=> (stage1_sum == exp_stage1);
+endproperty
 
-  // Pipeline correctness (cycle-accurate)
-  // stage1_sum[n] = a[n-1] ^ b[n-1]
-  assert property (@(posedge clk)
-    past1 && !$isunknown($past({a,b})) |-> (stage1_sum === $past(a ^ b))
-  );
+// stage1_sum loads a ^ b on the next clock.
+check_stage1_captures_input_xor: assert property (p_stage1_captures_input_xor);
 
-  // stage2_sum[n] = stage1_sum[n-1] ^ sum[n-1]
-  assert property (@(posedge clk)
-    past1 && !$isunknown($past({stage1_sum,sum})) |-> (stage2_sum === ($past(stage1_sum) ^ $past(sum)))
-  );
+property p_stage2_captures_stage1_xor_sum;
+    logic [1:0] exp_stage2;
+    @(posedge clk)
+        (exp_stage2 = (stage1_sum ^ sum), 1'b1)
+        |=> (stage2_sum == exp_stage2);
+endproperty
 
-  // sum[n] = stage2_sum[n-1]
-  assert property (@(posedge clk)
-    past1 && !$isunknown($past(stage2_sum)) |-> (sum === $past(stage2_sum))
-  );
+// stage2_sum loads stage1_sum ^ sum on the next clock.
+check_stage2_captures_stage1_xor_sum: assert property (p_stage2_captures_stage1_xor_sum);
 
-  // Derived relations for redundancy/strength
-  // stage2_sum[n] = a[n-2] ^ b[n-2] ^ sum[n-1]
-  assert property (@(posedge clk)
-    past2 && !$isunknown($past(a ^ b,2)) && !$isunknown($past(sum,1))
-      |-> (stage2_sum === ($past(a ^ b,2) ^ $past(sum,1)))
-  );
+property p_sum_captures_stage2;
+    logic [1:0] exp_sum;
+    @(posedge clk)
+        (exp_sum = stage2_sum, 1'b1)
+        |=> (sum == exp_sum);
+endproperty
 
-  // sum[n] = sum[n-2] ^ (a[n-3] ^ b[n-3])
-  assert property (@(posedge clk)
-    past3 && !$isunknown($past(sum,2)) && !$isunknown($past(a ^ b,3))
-      |-> (sum === ($past(sum,2) ^ $past(a ^ b,3)))
-  );
+// sum loads stage2_sum on the next clock.
+check_sum_captures_stage2: assert property (p_sum_captures_stage2);
 
-  // Change-correlation checks
-  assert property (@(posedge clk)
-    past1 && $changed(sum) |-> $changed($past(stage2_sum))
-  );
+property p_stage2_matches_delayed_inputs_and_sum;
+    logic [1:0] xor_ab;
+    logic [1:0] exp_stage2;
+    @(posedge clk)
+        (xor_ab = (a ^ b), 1'b1) ##1
+        (exp_stage2 = (xor_ab ^ sum), 1'b1)
+        |=> (stage2_sum == exp_stage2);
+endproperty
 
-  // Functional coverage
-  cover property (@(posedge clk) stage1_sum == 2'b00);
-  cover property (@(posedge clk) stage1_sum == 2'b01);
-  cover property (@(posedge clk) stage1_sum == 2'b10);
-  cover property (@(posedge clk) stage1_sum == 2'b11);
+// stage2_sum matches the earlier input XOR combined with the prior sum.
+check_stage2_matches_delayed_inputs_and_sum: assert property (p_stage2_matches_delayed_inputs_and_sum);
 
-  cover property (@(posedge clk) past1 && stage2_sum === ($past(stage1_sum) ^ $past(sum)));
-  cover property (@(posedge clk) past3 && sum === ($past(sum,2) ^ $past(a ^ b,3)));
+property p_sum_matches_stage1_and_sum_two_cycles_later;
+    logic [1:0] exp_sum;
+    @(posedge clk)
+        (exp_sum = (stage1_sum ^ sum), 1'b1) ##1
+        1'b1
+        |=> (sum == exp_sum);
+endproperty
 
-  cover property (@(posedge clk) $changed(stage1_sum));
-  cover property (@(posedge clk) $changed(stage2_sum));
-  cover property (@(posedge clk) $changed(sum));
+// sum two clocks later equals the captured stage1_sum ^ sum value.
+check_sum_matches_stage1_and_sum_two_cycles_later: assert property (p_sum_matches_stage1_and_sum_two_cycles_later);
+
+property p_sum_matches_delayed_inputs_and_sum;
+    logic [1:0] xor_ab;
+    logic [1:0] exp_sum;
+    @(posedge clk)
+        (xor_ab = (a ^ b), 1'b1) ##1
+        (exp_sum = (xor_ab ^ sum), 1'b1) ##1
+        1'b1
+        |=> (sum == exp_sum);
+endproperty
+
+// sum three clocks later matches the earlier input XOR and next-cycle sum.
+check_sum_matches_delayed_inputs_and_sum: assert property (p_sum_matches_delayed_inputs_and_sum);
 
 endmodule
-
-bind xor_adder xor_adder_sva sva_xor_adder (.*);

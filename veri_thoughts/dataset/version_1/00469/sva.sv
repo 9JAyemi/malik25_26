@@ -1,30 +1,43 @@
-// SVA for johnson_counter
 module johnson_counter_sva (
-  input  logic        clk,
-  input  logic [3:0]  Q,
-  input  logic [3:0]  shift_reg
+    input logic       clk,
+    input logic [3:0] Q,
+    input logic [3:0] shift_reg
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Shift/rotate behavior
-  ap_rotate: assert property ( !$isunknown($past(shift_reg))
-                               |-> shift_reg == {$past(shift_reg[2:0]), $past(shift_reg[3])} );
+    // shift_reg rotates by one bit on every clock.
+    check_shift_reg_rotation: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg)) |-> shift_reg == {$past(shift_reg[2:0]), $past(shift_reg[3])}
+    );
 
-  // Q mapping (from prior shift_reg)
-  ap_q_from_past_sr: assert property ( !$isunknown($past(shift_reg))
-                                       |-> Q == {3'b000, ($past(shift_reg[0]) ^ $past(shift_reg[3]))} );
+    // Q[0] is the XOR of the prior shift_reg[0] and shift_reg[3].
+    check_q_lsb_from_prior_shift: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg)) |-> Q[0] == ($past(shift_reg[0]) ^ $past(shift_reg[3]))
+    );
 
-  // Q invariant w.r.t. current shift_reg (after one update)
-  ap_q_invariant: assert property ( !$isunknown(shift_reg)
-                                    |-> Q == {3'b000, (shift_reg[1] ^ shift_reg[0])} );
+    // The upper bits of Q are always zero after Q is first updated.
+    check_q_upper_bits_zero: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg)) |-> Q[3:1] == 3'b000
+    );
 
-  // No glitches between clock edges (registered signals)
-  ap_stable_between_edges: assert property (@(negedge clk) $stable(Q) && $stable(shift_reg));
+    // The current Q[0] matches the current rotated shift_reg bits.
+    check_q_lsb_matches_current_shift: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg)) |-> Q[0] == (shift_reg[1] ^ shift_reg[0])
+    );
 
-  // Coverage
-  cp_q0_0_then_1: cover property (Q[0]==0 ##1 Q[0]==1);
-  cp_q0_1_then_0: cover property (Q[0]==1 ##1 Q[0]==0);
-  cp_sr_changes:  cover property ($changed(shift_reg));
+    // A 4-bit rotation returns shift_reg to the same value after four clocks.
+    check_shift_reg_period_four: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg, 4)) |-> shift_reg == $past(shift_reg, 4)
+    );
+
+    // Q repeats every four clocks once four updated Q values exist.
+    check_q_period_four: assert property (
+        @(posedge clk)
+        !$isunknown($past(shift_reg, 5)) |-> Q == $past(Q, 4)
+    );
+
 endmodule
-
-bind johnson_counter johnson_counter_sva u_sva (.*);

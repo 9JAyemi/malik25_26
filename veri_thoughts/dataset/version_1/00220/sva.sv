@@ -1,40 +1,38 @@
-// SVA for synchronizer_ff_15
 module synchronizer_ff_15_sva (
-  input logic         s_axi_aclk,
-  input logic  [0:0]  in0,
-  input logic         out,
-  input logic         rd_rst_asreg_reg
+    input logic out,
+    input logic rd_rst_asreg_reg,
+    input logic [0:0] in0,
+    input logic s_axi_aclk
 );
 
-  bit past_valid;
-  initial past_valid = 1'b0;
-  always @(posedge s_axi_aclk) past_valid <= 1'b1;
+    // The flag is the combinational mismatch between in0 and out.
+    check_flag_definition: assert property (
+        @(posedge s_axi_aclk) rd_rst_asreg_reg === (in0[0] != out)
+    );
 
-  default clocking cb @(posedge s_axi_aclk); endclocking
-  default disable iff (!past_valid);
+    // A high mismatch flag clears the registered output on the next clock.
+    check_mismatch_clears_out: assert property (
+        @(posedge s_axi_aclk) rd_rst_asreg_reg |=> (out == 1'b0)
+    );
 
-  // No Xs on sampled interface signals
-  assert property (!$isunknown({in0[0], out, rd_rst_asreg_reg}));
+    // With no mismatch, the registered output captures the current input.
+    check_match_captures_input: assert property (
+        @(posedge s_axi_aclk) !rd_rst_asreg_reg |=> (out === $past(in0[0]))
+    );
 
-  // Combinational reset definition matches spec: rd_rst_asreg_reg == (in0 != prev out)
-  assert property (rd_rst_asreg_reg == (in0[0] != $past(out)));
+    // Once out is low, this logic keeps it low on the next cycle.
+    check_zero_state_sticky: assert property (
+        @(posedge s_axi_aclk) (out == 1'b0) |=> (out == 1'b0)
+    );
 
-  // Same-cycle (post-NBA) behavior: next out = (in0 != prev out) ? 0 : in0
-  assert property (1'b1 |-> ##0 (out == ((in0[0] != $past(out)) ? 1'b0 : in0[0])));
+    // A high output stays high when the input is also high.
+    check_high_holds_with_high_input: assert property (
+        @(posedge s_axi_aclk) (out == 1'b1 && in0[0] == 1'b1) |=> (out == 1'b1)
+    );
 
-  // If reset branch taken at edge, out must be driven low in the same cycle
-  assert property (rd_rst_asreg_reg |-> ##0 (out == 1'b0));
-
-  // Coverage: see both branches and both stable input values
-  cover property (in0[0] != $past(out));             // mismatch -> reset path exercised
-  cover property (in0[0] == $past(out) && in0[0]);   // match with 1
-  cover property (in0[0] == $past(out) && !in0[0]);  // match with 0
+    // A high output clears when the input goes low.
+    check_high_clears_with_low_input: assert property (
+        @(posedge s_axi_aclk) (out == 1'b1 && in0[0] == 1'b0) |=> (out == 1'b0)
+    );
 
 endmodule
-
-bind synchronizer_ff_15 synchronizer_ff_15_sva sva_i (
-  .s_axi_aclk(s_axi_aclk),
-  .in0(in0),
-  .out(out),
-  .rd_rst_asreg_reg(rd_rst_asreg_reg)
-);

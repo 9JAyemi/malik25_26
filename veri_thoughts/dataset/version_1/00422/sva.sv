@@ -1,50 +1,45 @@
-// SVA checker for logic_unit. Bind this to your DUT and provide a sampling clock/reset.
-
 module logic_unit_sva (
-  input logic        clk,
-  input logic        rst_n,
-  input logic [31:0] opA,
-  input logic [31:0] opB,
-  input logic [1:0]  op,
-  input logic [31:0] result
+    input logic        clk,
+    input logic [31:0] opB,
+    input logic [31:0] opA,
+    input logic [1:0]  op,
+    input logic [31:0] result
 );
-  default clocking cb @(posedge clk); endclocking
-  default disable iff (!rst_n);
 
-  // Basic sanity: op is never X/Z
-  assert property (!$isunknown(op));
+    // AND mode drives result with opA & opB.
+    check_and_operation: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (op == 2'b00) |-> (result == (opA & opB))
+    );
 
-  // Functional correctness when all inputs are known
-  assert property (
-    !$isunknown({opA,opB,op}) |->
-      result == ((op==2'b00) ? (opA & opB) :
-                 (op==2'b01) ? (opA | opB) :
-                 (op==2'b10) ? (opA ^ opB) :
-                               ~(opA | opB))
-  );
+    // OR mode drives result with opA | opB.
+    check_or_operation: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (op == 2'b01) |-> (result == (opA | opB))
+    );
 
-  // Optional safety: result never X/Z when inputs known
-  assert property (
-    !$isunknown({opA,opB,op}) |-> !$isunknown(result)
-  );
+    // XOR mode drives result with opA ^ opB.
+    check_xor_operation: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (op == 2'b10) |-> (result == (opA ^ opB))
+    );
 
-  // Opcode coverage
-  cover property (op == 2'b00);
-  cover property (op == 2'b01);
-  cover property (op == 2'b10);
-  cover property (op == 2'b11);
+    // NOR mode drives result with ~(opA | opB).
+    check_nor_operation: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (op == 2'b11) |-> (result == ~(opA | opB))
+    );
 
-  // Corner-case functional coverage
-  cover property (op==2'b10 && opA==opB && result==32'h0000_0000);         // XOR equal -> 0
-  cover property (op==2'b10 && opA==~opB && result==32'hFFFF_FFFF);         // XOR complement -> all 1s
-  cover property (op==2'b00 && (opA==32'h0 || opB==32'h0) && result==32'h0);// AND with zero -> 0
-  cover property (op==2'b01 && (opA==32'hFFFF_FFFF || opB==32'hFFFF_FFFF) &&
-                  result==32'hFFFF_FFFF);                                   // OR with all 1s -> all 1s
-  cover property (op==2'b11 && (opA|opB)==32'h0 && result==32'hFFFF_FFFF);  // NOR of zeros -> all 1s
-  cover property (op==2'b11 && (opA|opB)!=32'h0 && result==32'h0000_0000);  // NOR when any 1 -> 0
+    // Unchanged inputs and opcode keep the output unchanged.
+    check_stable_inputs_stable_result: assert property (
+        @(posedge clk) disable iff (1'b0)
+        ($stable(opA) && $stable(opB) && $stable(op)) |-> $stable(result)
+    );
+
+    // Any output change must be caused by an input or opcode change.
+    check_result_change_has_cause: assert property (
+        @(posedge clk) disable iff (1'b0)
+        $changed(result) |-> ($changed(opA) || $changed(opB) || $changed(op))
+    );
 
 endmodule
-
-// Example bind (adjust clk/rst_n to your TB signals)
-// bind logic_unit logic_unit_sva u_logic_unit_sva ( .clk(clk), .rst_n(rst_n),
-//                                                   .opA(opA), .opB(opB), .op(op), .result(result) );

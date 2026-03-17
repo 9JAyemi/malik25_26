@@ -1,41 +1,33 @@
-// SVA for xor3. Bind this to the DUT.
-// Focuses on correctness, X/Z cleanliness, glitch-freedom, and compact coverage.
 module xor3_sva (
-  input logic a, b, c,
-  input logic y,
-  input logic ab_xor,
-  input logic abc_xor
+    input logic a,
+    input logic b,
+    input logic c,
+    input logic y
 );
 
-  // Functional correctness (settled same-timestep)
-  assert property (@(a or b or c) 1'b1 |-> ##0 (y == (a ^ b ^ c)));
+    // y must equal the XOR of all three inputs.
+    check_output_matches_three_input_xor: assert property (
+        @($global_clock) y == (a ^ b ^ c)
+    );
 
-  // Internal wiring consistency (after settle)
-  assert property (@(a or b or c) 1'b1 |-> ##0 (ab_xor == (a ^ b)));
-  assert property (@(a or b or c) 1'b1 |-> ##0 (abc_xor == (ab_xor ^ c)));
-  assert property (@(a or b or c) 1'b1 |-> ##0 (y == abc_xor));
+    // When all inputs are low, y must be low.
+    check_all_zero_drives_low: assert property (
+        @($global_clock) (!a && !b && !c) |-> !y
+    );
 
-  // No X/Z on any observable signal after settle
-  assert property (@(a or b or c or y) 1'b1 |-> ##0 (!$isunknown({a,b,c,y,ab_xor,abc_xor})));
+    // When exactly one input is high, y must be high.
+    check_one_hot_drives_high: assert property (
+        @($global_clock) ((a && !b && !c) || (!a && b && !c) || (!a && !b && c)) |-> y
+    );
 
-  // Glitch-free: y must not change unless at least one input changed
-  assert property (@(y) $changed(y) |-> !$stable({a,b,c}));
+    // When exactly two inputs are high, y must be low.
+    check_two_hot_drives_low: assert property (
+        @($global_clock) ((a && b && !c) || (a && !b && c) || (!a && b && c)) |-> !y
+    );
 
-  // Coverage: all 8 input combos with expected y
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b0000));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b0011));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b0101));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b0110));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b1001));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b1010));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b1100));
-  cover property (@(a or b or c) ##0 ({a,b,c,y} == 4'b1111));
-
-  // Coverage: single-input toggle causes y to toggle (after settle)
-  cover property (@(a or b or c) $changed(a) && $stable(b) && $stable(c) ##0 $changed(y));
-  cover property (@(a or b or c) $changed(b) && $stable(a) && $stable(c) ##0 $changed(y));
-  cover property (@(a or b or c) $changed(c) && $stable(a) && $stable(b) ##0 $changed(y));
+    // When all inputs are high, y must be high.
+    check_all_one_drives_high: assert property (
+        @($global_clock) (a && b && c) |-> y
+    );
 
 endmodule
-
-bind xor3 xor3_sva sva (.*);

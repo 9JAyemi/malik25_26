@@ -1,66 +1,50 @@
-// SVA for ClockDivider
-// Bindable checker focusing on correctness, concision, and coverage.
-
-module ClockDivider_sva #(parameter int unsigned Hz = 27000000)
-(
-  input  logic        clock,
-  input  logic        reset,
-  input  logic        fastMode,
-  input  logic [24:0] counter,
-  input  logic        oneHertz_enable
+module ClockDivider_sva #(parameter Hz = 27000000) (
+    input logic        clock,
+    input logic        reset,
+    input logic        fastMode,
+    input logic        oneHertz_enable,
+    input logic [24:0] counter
 );
 
-  localparam int unsigned W   = 25;
-  localparam int unsigned MAX = (1<<W)-1;
+    // A reset cycle clears the counter and deasserts the pulse by the next clock.
+    check_reset_clears_state: assert property (
+        @(posedge clock) reset |=> (counter == 25'd0 && oneHertz_enable == 1'b0)
+    );
 
-  // Parameter sanity
-  initial begin
-    assert (Hz > 0) else $error("ClockDivider: Hz must be > 0");
-    assert (Hz <= MAX) else $error("ClockDivider: Hz (%0d) must fit in %0d bits", Hz, W);
-  end
+    // In fast mode, reaching count 3 produces a pulse and reloads the counter.
+    check_fastmode_terminal_pulse: assert property (
+        @(posedge clock) disable iff (reset)
+        (fastMode && (counter == 25'd3)) |=> (counter == 25'd0 && oneHertz_enable == 1'b1)
+    );
 
-  // Clocking
-  default clocking cb @(posedge clock); endclocking
+    // In normal mode, reaching count Hz produces a pulse and reloads the counter.
+    check_normal_terminal_pulse: assert property (
+        @(posedge clock) disable iff (reset)
+        (!fastMode && (counter == Hz)) |=> (counter == 25'd0 && oneHertz_enable == 1'b1)
+    );
 
-  // Avoid $past at time 0
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always @(posedge clock) past_valid <= 1'b1;
+    // In fast mode, non-terminal counts increment and keep the pulse low.
+    check_fastmode_increment: assert property (
+        @(posedge clock) disable iff (reset)
+        (fastMode && (counter != 25'd3)) |=> (counter == ($past(counter) + 25'd1) && oneHertz_enable == 1'b0)
+    );
 
-  // Thresholds and mode select (using value sampled on the decision cycle)
-  localparam logic [W-1:0] TH_FAST  = 25'd3;
-  localparam logic [W-1:0] TH_NORM  = logic[W-1:0]'(Hz);
-  let TERM_P = $past(fastMode) ? TH_FAST : TH_NORM;
+    // In normal mode, non-terminal counts increment and keep the pulse low.
+    check_normal_increment: assert property (
+        @(posedge clock) disable iff (reset)
+        (!fastMode && (counter != Hz)) |=> (counter == ($past(counter) + 25'd1) && oneHertz_enable == 1'b0)
+    );
 
-  // Reset behavior (synchronous)
-  assert property (@(posedge clock) reset |=> (counter == '0 && !oneHertz_enable));
+    // Whenever the pulse is high, the counter state is zero.
+    check_enable_implies_zero_counter: assert property (
+        @(posedge clock) disable iff (reset)
+        oneHertz_enable |-> (counter == 25'd0)
+    );
 
-  // Disable other properties during reset and before past is valid
-  default disable iff (reset || !past_valid);
-
-  // Pulse occurs iff prior cycle met the threshold for the sampled mode
-  assert property (oneHertz_enable |->  $past(counter == TERM_P));
-  assert property (($past(counter == TERM_P)) |-> (oneHertz_enable && counter == '0));
-
-  // Exactly one-cycle-wide pulse
-  assert property (oneHertz_enable |=> !oneHertz_enable);
-
-  // Normal advance when prior cycle did NOT hit the threshold
-  assert property ((!$past(counter == TERM_P)) |-> (!oneHertz_enable && counter == $past(counter) + 25'd1));
-
-  // Basic functional coverage
-  cover property (@(posedge clock) !reset ##[1:$] oneHertz_enable);                              // see at least one pulse after reset release
-  cover property (disable iff (reset || !past_valid) (oneHertz_enable &&  $past(fastMode)));     // fast mode pulse
-  cover property (disable iff (reset || !past_valid) (oneHertz_enable && !$past(fastMode)));     // normal mode pulse
+    // A pulse lasts one cycle and counting restarts from zero on the next cycle.
+    check_pulse_single_cycle_and_restart: assert property (
+        @(posedge clock) disable iff (reset)
+        oneHertz_enable |=> (counter == 25'd1 && oneHertz_enable == 1'b0)
+    );
 
 endmodule
-
-// Bind into DUT
-bind ClockDivider ClockDivider_sva #(.Hz(Hz)) ClockDivider_sva_i
-(
-  .clock(clock),
-  .reset(reset),
-  .fastMode(fastMode),
-  .counter(counter),
-  .oneHertz_enable(oneHertz_enable)
-);

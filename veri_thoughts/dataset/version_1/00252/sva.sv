@@ -1,49 +1,40 @@
-// SVA checker + bind for pipelined_xor_gate
-module pipelined_xor_gate_sva
-(
-  input logic clk,
-  input logic a, b,
-  input logic out,
-  input logic a_reg, b_reg
+module pipelined_xor_gate_sva (
+    input logic clk,
+    input logic a,
+    input logic b,
+    input logic out,
+    input logic a_reg,
+    input logic b_reg
 );
 
-  // Track $past validity
-  logic past1, past2;
-  always_ff @(posedge clk) begin
-    past1 <= 1'b1;
-    past2 <= past1;
-  end
+    // a_reg captures input a on each rising clock edge.
+    check_a_reg_captures_a: assert property (
+        @(posedge clk) 1'b1 |=> (a_reg == $past(a))
+    );
 
-  default clocking cb @(posedge clk); endclocking
+    // b_reg captures input b on each rising clock edge.
+    check_b_reg_captures_b: assert property (
+        @(posedge clk) 1'b1 |=> (b_reg == $past(b))
+    );
 
-  // Pipeline registers capture inputs (when previous inputs are known)
-  property p_regs_capture;
-    disable iff (!past1)
-      !$isunknown($past({a,b})) |-> {a_reg,b_reg} == $past({a,b});
-  endproperty
-  assert property (p_regs_capture);
+    // out updates from the previous cycle's pipeline register values.
+    check_out_uses_prior_pipeline_regs: assert property (
+        @(posedge clk) 1'b1 |=> (out == ($past(a_reg) ^ $past(b_reg)))
+    );
 
-  // Out equals prior a_reg ^ b_reg (1-cycle relation)
-  property p_out_from_regs;
-    disable iff (!past1)
-      !$isunknown($past({a_reg,b_reg})) |-> out == $past(a_reg ^ b_reg);
-  endproperty
-  assert property (p_out_from_regs);
+    // out equals a XOR b after the two-cycle pipeline latency.
+    check_out_matches_inputs_after_two_cycles: assert property (
+        @(posedge clk) 1'b1 |=> ##1 (out == ($past(a, 2) ^ $past(b, 2)))
+    );
 
-  // End-to-end: out equals inputs from 2 cycles ago
-  property p_out_from_inputs;
-    disable iff (!past2)
-      !$isunknown($past({a,b},2)) |-> out == ($past(a,2) ^ $past(b,2));
-  endproperty
-  assert property (p_out_from_inputs);
+    // Equal inputs produce a low output after the pipeline latency.
+    check_equal_inputs_drive_low_after_two_cycles: assert property (
+        @(posedge clk) (a == b) |=> ##1 (out == 1'b0)
+    );
 
-  // Functional coverage: all 4 input combinations propagate through pipeline
-  cover property ( (a==0 && b==0) |=> out==0 );
-  cover property ( (a==0 && b==1) |=> out==1 );
-  cover property ( (a==1 && b==0) |=> out==1 );
-  cover property ( (a==1 && b==1) |=> out==0 );
+    // Different inputs produce a high output after the pipeline latency.
+    check_different_inputs_drive_high_after_two_cycles: assert property (
+        @(posedge clk) (a != b) |=> ##1 (out == 1'b1)
+    );
 
 endmodule
-
-bind pipelined_xor_gate pipelined_xor_gate_sva
-  (.clk(clk), .a(a), .b(b), .out(out), .a_reg(a_reg), .b_reg(b_reg));

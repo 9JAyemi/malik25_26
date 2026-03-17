@@ -1,33 +1,28 @@
-// SVA for clock_gate — concise, high-quality checks and coverage
-
-module clock_gate_sva (
-  input logic clk,
-  input logic en,
-  input logic te,
-  input logic enclk
+module clock_gate_assertions (
+    input logic clk,
+    input logic en,
+    input logic te,
+    input logic enclk
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Functional spec per Verilog if semantics
-  assert property ( (en === 1'b1 && te === 1'b1) |-> (enclk == 1'b1) );
-  assert property ( (en !== 1'b1 || te !== 1'b1) |-> (enclk == 1'b0) );
+    // enclk must equal the previous cycle's en && te value.
+    check_enclk_matches_previous_inputs: assert property (
+        @(posedge clk) !$initstate |-> (enclk == ($past(en) && $past(te)))
+    );
 
-  // Output must be known on every clock
-  assert property ( !$isunknown(enclk) );
+    // If both en and te are high, enclk must be high on the next clock.
+    check_enclk_sets_after_en_and_te_high: assert property (
+        @(posedge clk) (en && te) |=> enclk
+    );
 
-  // No glitches: enclk can only change on clk posedge
-  assert property (@(posedge enclk) $rose(clk));
-  assert property (@(negedge enclk) $rose(clk));
+    // If en is low, enclk must be low on the next clock.
+    check_enclk_clears_after_en_low: assert property (
+        @(posedge clk) !en |=> !enclk
+    );
 
-  // Truth-table coverage at clock edge
-  cover property ( en===1'b0 && te===1'b0 && enclk==1'b0 );
-  cover property ( en===1'b0 && te===1'b1 && enclk==1'b0 );
-  cover property ( en===1'b1 && te===1'b0 && enclk==1'b0 );
-  cover property ( en===1'b1 && te===1'b1 && enclk==1'b1 );
+    // If te is low, enclk must be low on the next clock.
+    check_enclk_clears_after_te_low: assert property (
+        @(posedge clk) !te |=> !enclk
+    );
 
-  // Toggle coverage
-  cover property (@(posedge enclk) 1);
-  cover property (@(negedge enclk) 1);
 endmodule
-
-bind clock_gate clock_gate_sva u_clock_gate_sva (.clk(clk), .en(en), .te(te), .enclk(enclk));

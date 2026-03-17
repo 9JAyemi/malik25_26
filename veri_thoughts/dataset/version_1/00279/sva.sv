@@ -1,31 +1,38 @@
-// SVA for manchester
-module manchester_sva (manchester dut);
+module manchester_assertions (
+    input logic in,
+    input logic out,
+    input logic prev_in,
+    input logic out_reg
+);
 
-  default clocking @(posedge dut.in); endclocking
+    // Output continuously reflects the internal output register.
+    check_out_matches_out_reg: assert property (
+        @(posedge in) out === out_reg
+    );
 
-  // Functional behavior (mirrors RTL branch on in == prev_in)
-  property p_func_toggle;
-    (dut.in == $past(dut.prev_in,1,1'b0)) |-> dut.out == ~$past(dut.out,1,1'b0);
-  endproperty
-  property p_func_set;
-    (dut.in != $past(dut.prev_in,1,1'b0)) |-> dut.out == dut.in;
-  endproperty
-  assert property (p_func_toggle);
-  assert property (p_func_set);
+    // prev_in captures the high level present on each posedge of in.
+    check_prev_in_captures_high: assert property (
+        @(posedge in) 1'b1 |=> (prev_in === 1'b1)
+    );
 
-  // State/consistency checks
-  assert property (dut.prev_in == dut.in);         // prev_in updates to current in at posedge
-  assert property (dut.out == dut.out_reg);        // continuous assign integrity
+    // When prev_in was high, the toggle branch inverts out_reg.
+    check_toggle_branch_updates_out_reg: assert property (
+        @(posedge in) (prev_in === 1'b1) |=> (out_reg === ~$past(out_reg))
+    );
 
-  // No spurious out changes (out only changes on posedge of in)
-  assert property (@(posedge dut.out or negedge dut.out) $rose(dut.in));
+    // When prev_in was not high, the load branch drives out_reg high.
+    check_load_branch_updates_out_reg: assert property (
+        @(posedge in) (prev_in !== 1'b1) |=> (out_reg === 1'b1)
+    );
 
-  // Coverage
-  cover property (p_func_set);                     // else-branch taken
-  cover property (p_func_toggle);                  // toggle-branch taken
-  sequence toggled; (dut.out != $past(dut.out,1,1'b0)); endsequence
-  cover property (toggled ##1 toggled);            // two consecutive toggles
+    // When prev_in was high, the observable output toggles.
+    check_toggle_branch_updates_out: assert property (
+        @(posedge in) (prev_in === 1'b1) |=> (out === ~$past(out))
+    );
+
+    // When prev_in was not high, the observable output becomes high.
+    check_load_branch_updates_out: assert property (
+        @(posedge in) (prev_in !== 1'b1) |=> (out === 1'b1)
+    );
 
 endmodule
-
-bind manchester manchester_sva u_manchester_sva (.dut());

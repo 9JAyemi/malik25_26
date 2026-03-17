@@ -1,70 +1,55 @@
-// SVA for signal_combiner
-// Place in a separate file and compile with DUT; binding provided below.
-// Focuses on correctness, X-cleanliness, parity behavior, and concise coverage.
-
-`ifndef SYNTHESIS
 module signal_combiner_sva (
-  input logic [3:0] input_signals,
-  input logic       output_signal,
-  input logic [1:0] input_sum
+    input logic       clk,
+    input logic [3:0] input_signals,
+    input logic       output_signal
 );
 
-  default clocking cb @(*); endclocking
+    // Output matches the XOR tree implemented in the RTL.
+    check_output_matches_xor_tree: assert property (
+        @(posedge clk)
+        output_signal == ((input_signals[0] ^ input_signals[1]) ^ (input_signals[2] ^ input_signals[3]))
+    );
 
-  // X/Z-clean
-  a_no_x: assert property (!$isunknown({input_signals, input_sum, output_signal}));
+    // Output is the parity of all four input bits.
+    check_output_matches_reduction_xor: assert property (
+        @(posedge clk)
+        output_signal == ^input_signals
+    );
 
-  // Structural correctness
-  a_pair0:  assert property (input_sum[0] == (input_signals[0] ^ input_signals[1]));
-  a_pair1:  assert property (input_sum[1] == (input_signals[2] ^ input_signals[3]));
-  a_out_xy: assert property (output_signal == (input_sum[0] ^ input_sum[1]));
+    // If the lower pair XOR is 0, the output equals the upper pair XOR.
+    check_lower_pair_equal_passes_upper_pair: assert property (
+        @(posedge clk)
+        ((input_signals[0] ^ input_signals[1]) == 1'b0) |-> (output_signal == (input_signals[2] ^ input_signals[3]))
+    );
 
-  // Functional parity equivalence
-  a_parity: assert property (output_signal == ^input_signals);
+    // If the lower pair XOR is 1, the output is the inverse of the upper pair XOR.
+    check_lower_pair_diff_flips_upper_pair: assert property (
+        @(posedge clk)
+        ((input_signals[0] ^ input_signals[1]) == 1'b1) |-> (output_signal == ~(input_signals[2] ^ input_signals[3]))
+    );
 
-  // Dynamic behavior: output toggles iff an odd number of inputs toggle
-  a_change_parity: assert property (
-    $changed(output_signal) ==
-    ^{$changed(input_signals[0]), $changed(input_signals[1]),
-      $changed(input_signals[2]), $changed(input_signals[3])}
-  );
+    // If the upper pair XOR is 0, the output equals the lower pair XOR.
+    check_upper_pair_equal_passes_lower_pair: assert property (
+        @(posedge clk)
+        ((input_signals[2] ^ input_signals[3]) == 1'b0) |-> (output_signal == (input_signals[0] ^ input_signals[1]))
+    );
 
-  // Coverage: observe output values
-  c_out0: cover property (output_signal == 1'b0);
-  c_out1: cover property (output_signal == 1'b1);
+    // If the upper pair XOR is 1, the output is the inverse of the lower pair XOR.
+    check_upper_pair_diff_flips_lower_pair: assert property (
+        @(posedge clk)
+        ((input_signals[2] ^ input_signals[3]) == 1'b1) |-> (output_signal == ~(input_signals[0] ^ input_signals[1]))
+    );
 
-  // Coverage: all input combinations (full 4-bit space)
-  genvar v;
-  generate
-    for (v = 0; v < 16; v++) begin : C_ALL_INPUTS
-      c_all: cover property (input_signals == v[3:0]);
-    end
-  endgenerate
+    // Equal pair parities force the output low.
+    check_matching_pair_parities_drive_zero: assert property (
+        @(posedge clk)
+        ((input_signals[0] ^ input_signals[1]) == (input_signals[2] ^ input_signals[3])) |-> (output_signal == 1'b0)
+    );
 
-  // Coverage: number of simultaneous input toggles in a time-step
-  c_1chg: cover property (
-    ($changed(input_signals[0]) + $changed(input_signals[1]) +
-     $changed(input_signals[2]) + $changed(input_signals[3])) == 1
-  );
-  c_2chg: cover property (
-    ($changed(input_signals[0]) + $changed(input_signals[1]) +
-     $changed(input_signals[2]) + $changed(input_signals[3])) == 2
-  );
-  c_3chg: cover property (
-    ($changed(input_signals[0]) + $changed(input_signals[1]) +
-     $changed(input_signals[2]) + $changed(input_signals[3])) == 3
-  );
-  c_4chg: cover property (
-    ($changed(input_signals[0]) + $changed(input_signals[1]) +
-     $changed(input_signals[2]) + $changed(input_signals[3])) == 4
-  );
+    // Different pair parities force the output high.
+    check_different_pair_parities_drive_one: assert property (
+        @(posedge clk)
+        ((input_signals[0] ^ input_signals[1]) != (input_signals[2] ^ input_signals[3])) |-> (output_signal == 1'b1)
+    );
 
 endmodule
-
-// Bind into the DUT to access internal input_sum
-bind signal_combiner signal_combiner_sva SVA (
-  .input_signals(input_signals),
-  .output_signal(output_signal),
-  .input_sum    (input_sum)
-);
-`endif

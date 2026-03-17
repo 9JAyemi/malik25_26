@@ -1,36 +1,38 @@
-// SVA for sky130_fd_sc_lp__ha (half-adder)
-// Bind into the DUT; checks functional correctness, X handling, and basic coverage.
-
 module sky130_fd_sc_lp__ha_sva (
-  input logic A,
-  input logic B,
-  input logic SUM,
-  input logic COUT
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic COUT,
+    input logic SUM
 );
 
-  // Functional correctness when inputs are known; also ensures outputs are known
-  a_function: assert property (@(*)
-    !$isunknown({A,B}) |-> (!$isunknown({COUT,SUM}) &&
-                            {COUT,SUM} == ({1'b0,A} + {1'b0,B}))
-  );
+    // COUT must implement the AND of A and B.
+    check_cout_matches_and: assert property (
+        @(posedge clk) COUT === (A & B)
+    );
 
-  // Safety invariants (hold unconditionally)
-  a_not_both1:        assert property (@(*) !(COUT && SUM));      // impossible sum=carry=1
-  a_cout_means_ab11:  assert property (@(*) COUT |-> (A && B));    // carry implies A=B=1
-  a_sum_parity:       assert property (@(*) !$isunknown({A,B}) |-> (SUM == (A ^ B)));
+    // SUM must implement the XOR of A and B.
+    check_sum_matches_xor: assert property (
+        @(posedge clk) SUM === (A ^ B)
+    );
 
-  // Functional coverage: all input/output combinations
-  c_00: cover property (@(*) (!A && !B && !COUT && !SUM));
-  c_01: cover property (@(*) ( A && !B && !COUT &&  SUM));
-  c_10: cover property (@(*) (!A &&  B && !COUT &&  SUM));
-  c_11: cover property (@(*) ( A &&  B &&  COUT && !SUM));
+    // When both inputs are 0, both outputs must be 0.
+    check_zero_plus_zero: assert property (
+        @(posedge clk)
+        ((A === 1'b0) && (B === 1'b0)) |-> ((COUT === 1'b0) && (SUM === 1'b0))
+    );
 
-  // Toggle coverage on any input edge
-  c_sum_rise:  cover property (@(posedge A or negedge A or posedge B or negedge B) $rose(SUM));
-  c_sum_fall:  cover property (@(posedge A or negedge A or posedge B or negedge B) $fell(SUM));
-  c_cout_rise: cover property (@(posedge A or negedge A or posedge B or negedge B) $rose(COUT));
-  c_cout_fall: cover property (@(posedge A or negedge A or posedge B or negedge B) $fell(COUT));
+    // When exactly one input is 1, SUM must be 1 and COUT must be 0.
+    check_one_hot_input_sum_only: assert property (
+        @(posedge clk)
+        (((A === 1'b0) && (B === 1'b1)) || ((A === 1'b1) && (B === 1'b0)))
+        |-> ((COUT === 1'b0) && (SUM === 1'b1))
+    );
+
+    // When both inputs are 1, COUT must be 1 and SUM must be 0.
+    check_one_plus_one_carry_only: assert property (
+        @(posedge clk)
+        ((A === 1'b1) && (B === 1'b1)) |-> ((COUT === 1'b1) && (SUM === 1'b0))
+    );
 
 endmodule
-
-bind sky130_fd_sc_lp__ha sky130_fd_sc_lp__ha_sva ha_sva_i (.*);

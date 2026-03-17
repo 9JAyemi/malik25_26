@@ -303,7 +303,7 @@ def create_batch_request(rtl_code, module_name, custom_id):
         "method": "POST",
         "url": "/v1/responses",
         "body": {
-            "model": "gpt-5",
+            "model": "gpt-5.4",
             "input": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt}

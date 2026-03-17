@@ -1,48 +1,48 @@
-// SVA for NV_NVDLA_RT_cacc2glb
-// Bind into DUT to access internal pipeline regs.
+module NV_NVDLA_RT_cacc2glb_sva (
+    input logic        nvdla_core_clk,
+    input logic        nvdla_core_rstn,
+    input logic [1:0]  cacc2glb_done_intr_src_pd,
+    input logic [1:0]  cacc2glb_done_intr_dst_pd
+);
 
-module NV_NVDLA_RT_cacc2glb_sva;
+    // Reset forces the destination bus low.
+    check_reset_clears_dst: assert property (
+        @(posedge nvdla_core_clk)
+        !nvdla_core_rstn |-> (cacc2glb_done_intr_dst_pd == 2'b00)
+    );
 
-  default clocking cb @(posedge nvdla_core_clk); endclocking
-  default disable iff (!nvdla_core_rstn);
+    // The first clock after reset release still holds the cleared value.
+    check_first_cycle_after_reset_release_zero: assert property (
+        @(posedge nvdla_core_clk) disable iff (!nvdla_core_rstn)
+        !$past(nvdla_core_rstn) |-> (cacc2glb_done_intr_dst_pd == 2'b00)
+    );
 
-  // Reset behavior
-  a_reset_clears: assert property (@cb !nvdla_core_rstn |-> 
-    (cacc2glb_done_intr_pd_d1==2'b0 && cacc2glb_done_intr_pd_d2==2'b0 && cacc2glb_done_intr_dst_pd==2'b0));
+    // The second clock after reset release reflects the prior cycle source.
+    check_second_cycle_after_reset_release_matches_src_d1: assert property (
+        @(posedge nvdla_core_clk) disable iff (!nvdla_core_rstn)
+        $past(nvdla_core_rstn) && !$past(nvdla_core_rstn, 2)
+        |-> (cacc2glb_done_intr_dst_pd == $past(cacc2glb_done_intr_src_pd))
+    );
 
-  // Stage relations
-  a_d1_follows_src_same_cycle: assert property (@cb
-    cacc2glb_done_intr_pd_d1 == cacc2glb_done_intr_src_pd);
+    // After two active clocks out of reset, destination is source delayed by two cycles.
+    check_steady_state_two_cycle_delay: assert property (
+        @(posedge nvdla_core_clk) disable iff (!nvdla_core_rstn)
+        $past(nvdla_core_rstn) && $past(nvdla_core_rstn, 2)
+        |-> (cacc2glb_done_intr_dst_pd == $past(cacc2glb_done_intr_src_pd, 2))
+    );
 
-  a_d2_follows_d1_one_cycle: assert property (@cb
-    $past(nvdla_core_rstn) |-> (cacc2glb_done_intr_pd_d2 == $past(cacc2glb_done_intr_pd_d1)));
+    // Bit 0 follows the same two-cycle delay in steady state.
+    check_steady_state_bit0_two_cycle_delay: assert property (
+        @(posedge nvdla_core_clk) disable iff (!nvdla_core_rstn)
+        $past(nvdla_core_rstn) && $past(nvdla_core_rstn, 2)
+        |-> (cacc2glb_done_intr_dst_pd[0] == $past(cacc2glb_done_intr_src_pd[0], 2))
+    );
 
-  a_dst_equals_d2: assert property (@cb
-    cacc2glb_done_intr_dst_pd == cacc2glb_done_intr_pd_d2);
-
-  // End-to-end latency (1-cycle)
-  a_end_to_end_1cyc: assert property (@cb
-    $past(nvdla_core_rstn) |-> (cacc2glb_done_intr_dst_pd == $past(cacc2glb_done_intr_src_pd)));
-
-  // No X on output when out of reset
-  a_no_x_out: assert property (@cb
-    !$isunknown(cacc2glb_done_intr_dst_pd));
-
-  // Coverage: edge propagation per bit
-  c_bit0_rise: cover property (@cb
-    $rose(cacc2glb_done_intr_src_pd[0]) ##1 cacc2glb_done_intr_dst_pd[0]);
-  c_bit0_fall: cover property (@cb
-    $fell(cacc2glb_done_intr_src_pd[0]) ##1 !cacc2glb_done_intr_dst_pd[0]);
-
-  c_bit1_rise: cover property (@cb
-    $rose(cacc2glb_done_intr_src_pd[1]) ##1 cacc2glb_done_intr_dst_pd[1]);
-  c_bit1_fall: cover property (@cb
-    $fell(cacc2glb_done_intr_src_pd[1]) ##1 !cacc2glb_done_intr_dst_pd[1]);
-
-  // Coverage: any vector change propagates after 1 cycle
-  c_vec_change: cover property (@cb
-    $changed(cacc2glb_done_intr_src_pd) ##1 (cacc2glb_done_intr_dst_pd == $past(cacc2glb_done_intr_src_pd)));
+    // Bit 1 follows the same two-cycle delay in steady state.
+    check_steady_state_bit1_two_cycle_delay: assert property (
+        @(posedge nvdla_core_clk) disable iff (!nvdla_core_rstn)
+        $past(nvdla_core_rstn) && $past(nvdla_core_rstn, 2)
+        |-> (cacc2glb_done_intr_dst_pd[1] == $past(cacc2glb_done_intr_src_pd[1], 2))
+    );
 
 endmodule
-
-bind NV_NVDLA_RT_cacc2glb NV_NVDLA_RT_cacc2glb_sva u_NV_NVDLA_RT_cacc2glb_sva();

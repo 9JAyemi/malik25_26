@@ -1,45 +1,37 @@
-// SVA for edge_detector: concise, high-quality checks and coverage
-module edge_detector_sva #(parameter int W=8) (
-  input logic                 clk,
-  input logic [W-1:0]         in,
-  input logic [W-1:0]         anyedge,
-  input logic [W-1:0]         prev_in,
-  input logic [2:0]           count
+module edge_detector_sva (
+    input logic clk,
+    input logic [7:0] in,
+    input logic [7:0] anyedge
 );
 
-  default clocking cb @(posedge clk); endclocking
-  // Disable checks while any relevant signal is X (covers init/no-reset phase)
-  default disable iff ($isunknown({in, anyedge, prev_in, count}));
+    // Upper bits shift forward by one position each cycle.
+    check_anyedge_shift_upper: assert property (
+        @(posedge clk) disable iff ($initstate)
+        anyedge[7:1] == $past(anyedge[6:0])
+    );
 
-  let changed = (in != $past(in));
+    // An input change shifts a 1 into the register on the next cycle.
+    check_change_shifts_in_one: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (in != $past(in)) |=> (anyedge == {$past(anyedge[6:0]), 1'b1})
+    );
 
-  // prev_in must capture prior in
-  ap_prev_in_mirror: assert property (prev_in == $past(in));
+    // A stable input shifts a 0 into the register on the next cycle.
+    check_stable_shifts_in_zero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (in == $past(in)) |=> (anyedge == {$past(anyedge[6:0]), 1'b0})
+    );
 
-  // anyedge is a shift register with LSB = "any edge" flag
-  ap_shift_and_insert: assert property (
-    anyedge == {$past(anyedge[W-2:0]), changed}
-  );
+    // An input change sets the next-cycle LSB.
+    check_change_sets_lsb: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (in != $past(in)) |=> (anyedge[0] == 1'b1)
+    );
 
-  // Count must increment modulo-8 every cycle
-  ap_count_increments: assert property (count == $past(count) + 3'd1);
-
-  // Sanity: "any edge" equals reduction of bitwise XOR
-  ap_changed_equiv: assert property (changed == (|(in ^ $past(in))));
-
-  // Coverage: observe both edge and no-edge, back-to-back edges, quiet then edge
-  cp_edge:         cover property (changed);
-  cp_no_edge:      cover property (!changed);
-  cp_2_edges:      cover property (changed ##1 changed);
-  cp_quiet_then_e: cover property (!changed[*3] ##1 changed);
+    // A stable input clears the next-cycle LSB.
+    check_stable_clears_lsb: assert property (
+        @(posedge clk) disable iff ($initstate)
+        (in == $past(in)) |=> (anyedge[0] == 1'b0)
+    );
 
 endmodule
-
-// Bind SVA to DUT
-bind edge_detector edge_detector_sva #(.W(8)) edge_detector_sva_b (
-  .clk(clk),
-  .in(in),
-  .anyedge(anyedge),
-  .prev_in(prev_in),
-  .count(count)
-);

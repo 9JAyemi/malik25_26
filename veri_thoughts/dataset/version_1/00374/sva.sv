@@ -1,65 +1,61 @@
-// SVA for top_module and mux2to1
-// Concise, combinational (clockless) checks with functional and X-prop coverage
+module top_module_assertions (
+    input logic clk,
+    input logic [3:0] a,
+    input logic [3:0] b,
+    input logic [3:0] c,
+    input logic [3:0] d,
+    input logic [1:0] sel,
+    input logic [3:0] out_mux
+);
 
-`ifndef SYNTHESIS
+    // The output must match the full 4-to-1 mux selection function.
+    check_combined_mux_function: assert property (
+        @(posedge clk) out_mux == (sel[1] ? (sel[0] ? d : c) : (sel[0] ? b : a))
+    );
 
-// Generic SVA for any mux2to1 instance
-module mux2to1_sva;
-  default clocking cb @(*); endclocking
+    // sel=00 routes input a to the output.
+    check_sel_00_routes_a: assert property (
+        @(posedge clk) (sel == 2'b00) |-> (out_mux == a)
+    );
 
-  // Functional correctness
-  a_func: assert property (out === (sel ? b : a));
+    // sel=01 routes input b to the output.
+    check_sel_01_routes_b: assert property (
+        @(posedge clk) (sel == 2'b01) |-> (out_mux == b)
+    );
 
-  // X-propagation semantics of ?: 
-  a_x_equal: assert property ($isunknown(sel) && (a===b) |-> out===a);
-  a_x_diff:  assert property ($isunknown(sel) && (a!==b) |-> $isunknown(out));
+    // sel=10 routes input c to the output.
+    check_sel_10_routes_c: assert property (
+        @(posedge clk) (sel == 2'b10) |-> (out_mux == c)
+    );
 
-  // Basic coverage
-  c_sel0: cover property (sel===1'b0 && out===a);
-  c_sel1: cover property (sel===1'b1 && out===b);
+    // sel=11 routes input d to the output.
+    check_sel_11_routes_d: assert property (
+        @(posedge clk) (sel == 2'b11) |-> (out_mux == d)
+    );
 
-  // Pass-through change coverage
-  c_passthru_a: cover property (sel===1'b0 && $changed(a) ##0 $changed(out));
-  c_passthru_b: cover property (sel===1'b1 && $changed(b) ##0 $changed(out));
+    // If all inputs and select are stable, the output must remain stable.
+    check_inputs_stable_keep_output_stable: assert property (
+        @(posedge clk) $stable({a, b, c, d, sel}) |-> $stable(out_mux)
+    );
+
+    // With sel held at 00, only changes on a can affect the output.
+    check_sel_00_a_stable_keeps_output_stable: assert property (
+        @(posedge clk) (sel == 2'b00 && $past(sel) == 2'b00 && $stable(a)) |-> $stable(out_mux)
+    );
+
+    // With sel held at 01, only changes on b can affect the output.
+    check_sel_01_b_stable_keeps_output_stable: assert property (
+        @(posedge clk) (sel == 2'b01 && $past(sel) == 2'b01 && $stable(b)) |-> $stable(out_mux)
+    );
+
+    // With sel held at 10, only changes on c can affect the output.
+    check_sel_10_c_stable_keeps_output_stable: assert property (
+        @(posedge clk) (sel == 2'b10 && $past(sel) == 2'b10 && $stable(c)) |-> $stable(out_mux)
+    );
+
+    // With sel held at 11, only changes on d can affect the output.
+    check_sel_11_d_stable_keeps_output_stable: assert property (
+        @(posedge clk) (sel == 2'b11 && $past(sel) == 2'b11 && $stable(d)) |-> $stable(out_mux)
+    );
+
 endmodule
-
-bind mux2to1 mux2to1_sva mux2to1_sva_i();
-
-
-// Top-level SVA
-module top_module_sva;
-  default clocking cb @(*); endclocking
-
-  // Final stage consistency with intermediate muxes
-  a_top_stage: assert property (out_mux === (sel[1] ? mux2_out : mux1_out));
-
-  // End-to-end mapping (4 paths)
-  a_map00: assert property (sel===2'b00 |-> out_mux===a);
-  a_map01: assert property (sel===2'b01 |-> out_mux===b);
-  a_map10: assert property (sel===2'b10 |-> out_mux===c);
-  a_map11: assert property (sel===2'b11 |-> out_mux===d);
-
-  // X-propagation on top select bit
-  a_top_x_equal: assert property ($isunknown(sel[1]) && (mux1_out===mux2_out) |-> out_mux===mux1_out);
-  a_top_x_diff:  assert property ($isunknown(sel[1]) && (mux1_out!==mux2_out) |-> $isunknown(out_mux));
-
-  // Coverage: hit all select combinations
-  c_sel00: cover property (sel===2'b00 && out_mux===a);
-  c_sel01: cover property (sel===2'b01 && out_mux===b);
-  c_sel10: cover property (sel===2'b10 && out_mux===c);
-  c_sel11: cover property (sel===2'b11 && out_mux===d);
-
-  // Coverage: data change propagates while selection fixed
-  c_path_a: cover property (sel===2'b00 && $changed(a) ##0 $changed(out_mux));
-  c_path_b: cover property (sel===2'b01 && $changed(b) ##0 $changed(out_mux));
-  c_path_c: cover property (sel===2'b10 && $changed(c) ##0 $changed(out_mux));
-  c_path_d: cover property (sel===2'b11 && $changed(d) ##0 $changed(out_mux));
-
-  // Coverage: exercise unknowns on select bits
-  c_x0: cover property ($isunknown(sel[0]));
-  c_x1: cover property ($isunknown(sel[1]));
-endmodule
-
-bind top_module top_module_sva top_module_sva_i();
-
-`endif

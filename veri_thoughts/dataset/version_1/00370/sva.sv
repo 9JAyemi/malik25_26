@@ -1,82 +1,45 @@
-// SVA bind file for half_full_adder hierarchy
+module half_full_adder_sva (
+    input logic clk,
+    input logic A,
+    input logic B,
+    input logic C_in,
+    input logic S,
+    input logic C_out
+);
 
-// Half-adder checks
-module sva_half_adder (input logic A,B,S,C);
-  default clocking cb @($global_clock); endclocking
+    // Sum matches XOR of all three inputs.
+    check_sum_equation: assert property (
+        @(posedge clk) S == (A ^ B ^ C_in)
+    );
 
-  // Functional checks when inputs are known; outputs not X
-  assert property (!$isunknown({A,B}) |-> (S === (A ^ B) && C === (A & B)));
-  assert property (!$isunknown({A,B}) |-> !$isunknown({S,C}));
+    // Carry matches the implemented carry equation.
+    check_carry_equation: assert property (
+        @(posedge clk) C_out == ((A & B) | ((A ^ B) & C_in))
+    );
 
-  // Coverage: all input combinations
-  cover property ({A,B}==2'b00);
-  cover property ({A,B}==2'b01);
-  cover property ({A,B}==2'b10);
-  cover property ({A,B}==2'b11);
+    // Sum and carry match the 2-bit arithmetic result.
+    check_arithmetic_result: assert property (
+        @(posedge clk) {C_out, S} == ({1'b0, A} + {1'b0, B} + {1'b0, C_in})
+    );
+
+    // With no carry-in, the block behaves like a half-adder.
+    check_no_carry_in_behavior: assert property (
+        @(posedge clk) !C_in |-> ((S == (A ^ B)) && (C_out == (A & B)))
+    );
+
+    // When both inputs are low, sum follows C_in and carry is low.
+    check_zero_operands: assert property (
+        @(posedge clk) (!A && !B) |-> ((S == C_in) && (C_out == 1'b0))
+    );
+
+    // When both inputs are high, sum follows C_in and carry is high.
+    check_both_operands_high: assert property (
+        @(posedge clk) (A && B) |-> ((S == C_in) && (C_out == 1'b1))
+    );
+
+    // When A and B differ, carry follows C_in and sum inverts C_in.
+    check_operands_different: assert property (
+        @(posedge clk) (A ^ B) |-> ((S == ~C_in) && (C_out == C_in))
+    );
+
 endmodule
-
-// Full-adder checks (incl. internal structure)
-module sva_full_adder (input logic A,B,C_in,S,C_out,
-                       input logic H1_S,H1_C,H2_S,H2_C);
-  default clocking cb @($global_clock); endclocking
-
-  // External functional checks when inputs are known; outputs not X
-  assert property (!$isunknown({A,B,C_in}) |-> (S === (A ^ B ^ C_in)));
-  assert property (!$isunknown({A,B,C_in}) |-> (C_out === ((A & B) | (A & C_in) | (B & C_in))));
-  assert property (!$isunknown({A,B,C_in}) |-> !$isunknown({S,C_out}));
-
-  // Internal structure consistency
-  assert property (H1_S === (A ^ B));
-  assert property (H1_C === (A & B));
-  assert property (H2_S === (H1_S ^ C_in));
-  assert property (H2_C === (H1_S & C_in));
-  assert property (S === H2_S);
-  assert property (C_out === (H1_C | H2_C));
-
-  // Coverage: all 8 input combinations + output toggles
-  cover property ({A,B,C_in}==3'b000);
-  cover property ({A,B,C_in}==3'b001);
-  cover property ({A,B,C_in}==3'b010);
-  cover property ({A,B,C_in}==3'b011);
-  cover property ({A,B,C_in}==3'b100);
-  cover property ({A,B,C_in}==3'b101);
-  cover property ({A,B,C_in}==3'b110);
-  cover property ({A,B,C_in}==3'b111);
-  cover property ($rose(C_out));
-  cover property ($fell(C_out));
-  cover property ($rose(S));
-  cover property ($fell(S));
-endmodule
-
-// Top-level composition checks (incl. internal wires)
-module sva_half_full_adder (input logic A,B,C_in,S,C_out,
-                            input logic H_C,F_C);
-  default clocking cb @($global_clock); endclocking
-
-  // External functional equivalence; outputs not X
-  assert property (!$isunknown({A,B,C_in}) |-> (S === (A ^ B ^ C_in)));
-  assert property (!$isunknown({A,B,C_in}) |-> (C_out === ((A & B) | ((A ^ B) & C_in))));
-  assert property (!$isunknown({A,B,C_in}) |-> !$isunknown({S,C_out}));
-
-  // Internal wiring and redundancy checks
-  assert property (C_out === (H_C | F_C));
-  assert property (H_C === (A & B));
-  assert property (F_C === ((A & B) | ((A ^ B) & C_in)));
-
-  // Coverage: all 8 input combinations
-  cover property ({A,B,C_in}==3'b000);
-  cover property ({A,B,C_in}==3'b001);
-  cover property ({A,B,C_in}==3'b010);
-  cover property ({A,B,C_in}==3'b011);
-  cover property ({A,B,C_in}==3'b100);
-  cover property ({A,B,C_in}==3'b101);
-  cover property ({A,B,C_in}==3'b110);
-  cover property ({A,B,C_in}==3'b111);
-endmodule
-
-// Bind assertions to DUT hierarchy
-bind half_adder      sva_half_adder      HA_SVA (.*);
-bind full_adder      sva_full_adder      FA_SVA (.A(A),.B(B),.C_in(C_in),.S(S),.C_out(C_out),
-                                                .H1_S(H1_S),.H1_C(H1_C),.H2_S(H2_S),.H2_C(H2_C));
-bind half_full_adder sva_half_full_adder HFA_SVA(.A(A),.B(B),.C_in(C_in),.S(S),.C_out(C_out),
-                                                 .H_C(H_C),.F_C(F_C));

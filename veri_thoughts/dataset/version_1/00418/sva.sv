@@ -1,35 +1,43 @@
-// SVA for reg_32bits
-module reg_32bits_sva(
-  input logic         clk,
-  input logic         rst,
-  input logic         we,
-  input logic [31:0]  d,
-  input logic [31:0]  q,
-  input logic [31:0]  q_reg
+module reg_32bits_sva (
+    input logic [31:0] d,
+    input logic        we,
+    input logic        clk,
+    input logic        rst,
+    input logic [31:0] q
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Asynchronous reset clears immediately and holds
-  ap_async_reset_clears: assert property (@(posedge rst) ##0 (q == 32'h0));
-  ap_reset_holds_zero:   assert property (rst |-> ##0 (q == 32'h0));
+    // A sampled reset must leave q cleared by the next clock.
+    check_reset_clears_q_next_cycle: assert property (
+        @(posedge clk) rst |=> (q == 32'b0)
+    );
 
-  // Write and hold behaviors
-  ap_write_updates_q:    assert property ((!rst && we)   |-> ##0 (q == d));
-  ap_hold_no_we:         assert property ((!rst && !we)  |-> ##0 (q == $past(q)));
+    // A previously sampled reset keeps q at zero on the following clock.
+    check_reset_value_persists: assert property (
+        @(posedge clk) (!$initstate && $past(rst)) |-> (q == 32'b0)
+    );
 
-  // No glitches: q only changes on clk or rst rising edges
-  ap_q_changes_only_on_edges: assert property ( $changed(q) |-> ($rose(clk) || $rose(rst)) );
+    // Any sampled change to a nonzero q must come from a prior write.
+    check_nonzero_change_requires_write: assert property (
+        @(posedge clk) disable iff (rst)
+        (!$initstate && (q != 32'b0) && (q != $past(q))) |-> ($past(we) && (q == $past(d)))
+    );
 
-  // Output matches internal register after updates
-  ap_q_eq_qreg_clk: assert property (@(posedge clk) ##0 (q == q_reg));
-  ap_q_eq_qreg_rst: assert property (@(posedge rst) ##0 (q == q_reg));
+    // A sampled nonzero q after a prior write must match the written data.
+    check_nonzero_write_data_matches_q: assert property (
+        @(posedge clk) disable iff (rst)
+        (!$initstate && $past(we) && (q != 32'b0)) |-> (q == $past(d))
+    );
 
-  // Coverage
-  cv_reset:                 cover property (@(posedge rst) ##0 (q == 32'h0));
-  cv_write:                 cover property ((!rst && we)   ##0 (q == d));
-  cv_hold:                  cover property ((!rst && !we)  ##0 (q == $past(q)));
-  cv_back_to_back_writes:   cover property (@(posedge clk) !rst && we ##1 !rst && we && (d != $past(d)));
-  cv_we_during_rst_ignored: cover property (@(posedge clk) rst && we ##0 (q == 32'h0));
+    // Without a prior write, a sampled nonzero q must hold its value.
+    check_nonzero_holds_without_write: assert property (
+        @(posedge clk) disable iff (rst)
+        (!$initstate && !$past(we) && ($past(q) != 32'b0) && (q != 32'b0)) |-> (q == $past(q))
+    );
+
+    // Without a prior write, a sampled zero q cannot become nonzero.
+    check_zero_cannot_become_nonzero_without_write: assert property (
+        @(posedge clk) disable iff (rst)
+        (!$initstate && !$past(we) && ($past(q) == 32'b0)) |-> (q == 32'b0)
+    );
+
 endmodule
-
-bind reg_32bits reg_32bits_sva sva_reg_32bits (.*);

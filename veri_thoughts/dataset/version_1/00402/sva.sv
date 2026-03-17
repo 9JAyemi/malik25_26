@@ -1,43 +1,45 @@
-// SVA for arithmetic_circuit
-// Bind-in module; accesses DUT signals directly
-module arithmetic_circuit_sva;
+module arithmetic_circuit_sva (
+    input logic clock,
+    input logic c_in,
+    input logic d_in,
+    input logic out1,
+    input logic temp
+);
 
-  // past_valid guard for $past()
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always @(posedge clock) past_valid <= 1'b1;
+    // temp captures the prior cycle c_in - d_in value.
+    check_temp_tracks_input_difference: assert property (
+        @(posedge clock) disable iff ($initstate)
+        temp == $past(c_in - d_in)
+    );
 
-  // Functional correctness (nonblocking flop semantics)
-  assert property (@(posedge clock) disable iff (!past_valid)
-                   temp == $past(c_in - d_in));
+    // out1 captures the prior cycle temp - d_in value.
+    check_out1_tracks_temp_difference: assert property (
+        @(posedge clock) disable iff ($initstate)
+        out1 == $past(temp - d_in)
+    );
 
-  assert property (@(posedge clock) disable iff (!past_valid)
-                   out1 == $past(temp - d_in));
+    // Equal c_in and d_in produce a zero temp on the next cycle.
+    check_temp_zero_when_inputs_equal: assert property (
+        @(posedge clock) disable iff ($initstate)
+        $past(c_in == d_in) |-> (temp == 1'b0)
+    );
 
-  // X-propagation safety (given known sources)
-  assert property (@(posedge clock) disable iff (!past_valid)
-                   !$isunknown({$past(c_in), $past(d_in)}) |-> !$isunknown(temp));
+    // Different c_in and d_in produce a one temp on the next cycle.
+    check_temp_one_when_inputs_differ: assert property (
+        @(posedge clock) disable iff ($initstate)
+        $past(c_in != d_in) |-> (temp == 1'b1)
+    );
 
-  assert property (@(posedge clock) disable iff (!past_valid)
-                   !$isunknown({$past(temp), $past(d_in)}) |-> !$isunknown(out1));
+    // Equal temp and d_in produce a zero out1 on the next cycle.
+    check_out1_zero_when_temp_matches_d: assert property (
+        @(posedge clock) disable iff ($initstate)
+        $past(temp == d_in) |-> (out1 == 1'b0)
+    );
 
-  // No glitches between rising edges
-  assert property (@(negedge clock) $stable(temp) && $stable(out1));
-
-  // Coverage: exercise all input combinations
-  cover property (@(posedge clock) c_in==0 && d_in==0);
-  cover property (@(posedge clock) c_in==0 && d_in==1);
-  cover property (@(posedge clock) c_in==1 && d_in==0);
-  cover property (@(posedge clock) c_in==1 && d_in==1);
-
-  // Coverage: observe both flop updates and out1 activity
-  cover property (@(posedge clock) disable iff (!past_valid)
-                  temp == $past(c_in - d_in));
-  cover property (@(posedge clock) disable iff (!past_valid)
-                  out1 == $past(temp - d_in));
-  cover property (@(posedge clock) $rose(out1));
-  cover property (@(posedge clock) $fell(out1));
+    // Different temp and d_in produce a one out1 on the next cycle.
+    check_out1_one_when_temp_differs_from_d: assert property (
+        @(posedge clock) disable iff ($initstate)
+        $past(temp != d_in) |-> (out1 == 1'b1)
+    );
 
 endmodule
-
-bind arithmetic_circuit arithmetic_circuit_sva;

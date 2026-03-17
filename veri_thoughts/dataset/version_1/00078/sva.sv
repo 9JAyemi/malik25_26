@@ -1,53 +1,46 @@
-// SVA checker for sky130_fd_sc_hd__and3b (bindable, port-only)
 module sky130_fd_sc_hd__and3b_sva (
-  input logic A_N,
-  input logic B,
-  input logic C,
-  input logic X
+    input logic clk,
+    input logic X,
+    input logic A_N,
+    input logic B,
+    input logic C
 );
-  logic expected;
-  assign expected = B & C & ~A_N;
 
-  // Functional equivalence (4-state)
-  assert property (@(A_N or B or C or X) X === expected);
+    // No reset in RTL; combinational behavior is sampled on clk.
+    
+    // X must equal the AND of B, C, and the inversion of A_N.
+    check_and3b_function: assert property (
+        @(posedge clk) X == ((~A_N) & B & C)
+    );
 
-  // Controlling values and key corner cases
-  assert property (@(A_N or B or C) (B == 1'b0) |-> (X == 1'b0));
-  assert property (@(A_N or B or C) (C == 1'b0) |-> (X == 1'b0));
-  assert property (@(A_N or B or C) (B && C && !A_N) |-> (X == 1'b1));
-  assert property (@(A_N or B or C) (B && C &&  A_N) |-> (X == 1'b0));
+    // A_N high forces the inverted input low, so X must be low.
+    check_a_n_high_blocks_output: assert property (
+        @(posedge clk) A_N |-> !X
+    );
 
-  // No X/Z on output when inputs are known
-  assert property (@(A_N or B or C) (!$isunknown({A_N,B,C})) |-> (!$isunknown(X)));
+    // B low forces the AND output low.
+    check_b_low_blocks_output: assert property (
+        @(posedge clk) !B |-> !X
+    );
 
-  // Toggle coverage
-  cover property (@(A_N or B or C or X) $rose(X));
-  cover property (@(A_N or B or C or X) $fell(X));
+    // C low forces the AND output low.
+    check_c_low_blocks_output: assert property (
+        @(posedge clk) !C |-> !X
+    );
 
-  // Input space coverage (all 8 combinations with known inputs)
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b000));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b001));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b010));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b011));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b100));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b101));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b110));
-  cover property (@(A_N or B or C) (!$isunknown({A_N,B,C}) && {A_N,B,C} == 3'b111));
+    // When A_N is low and both B and C are high, X must be high.
+    check_all_enables_drive_output_high: assert property (
+        @(posedge clk) (!A_N && B && C) |-> X
+    );
 
-  // Functional 1-coverage
-  cover property (@(A_N or B or C) (B && C && !A_N && X));
+    // X high implies A_N is low and both B and C are high.
+    check_x_high_requires_all_inputs: assert property (
+        @(posedge clk) X |-> (!A_N && B && C)
+    );
+
+    // With A_N low, X reduces to B AND C.
+    check_a_n_low_reduces_to_bc_and: assert property (
+        @(posedge clk) !A_N |-> (X == (B & C))
+    );
+
 endmodule
-
-bind sky130_fd_sc_hd__and3b sky130_fd_sc_hd__and3b_sva u_and3b_sva (.A_N(A_N), .B(B), .C(C), .X(X));
-
-
-// Optional: place inside the DUT to directly check internal nets
-// (uncomment inside sky130_fd_sc_hd__and3b if internal net checks are desired)
-/*
-  // not stage
-  assert property (@(A_N) not0_out === ~A_N);
-  // and stage
-  assert property (@(A_N or B or C) and0_out_X === (C & not0_out & B));
-  // buf stage
-  assert property (@(and0_out_X or X) X === and0_out_X);
-*/

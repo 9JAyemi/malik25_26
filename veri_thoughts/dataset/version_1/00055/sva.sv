@@ -1,58 +1,66 @@
-// SVA checker for gray_code_converter
 module gray_code_converter_sva (
-  input  logic [3:0] data_in,
-  input  logic [3:0] gray_out,
-  input  logic [3:0] stage1_out,
-  input  logic [3:0] stage2_out
+    input logic [3:0] data_in,
+    input logic [3:0] gray_out
 );
 
-  // No X/Z on outputs if inputs are clean
-  ap_no_x: assert property (!$isunknown(data_in) |-> (!$isunknown(stage1_out) && !$isunknown(stage2_out) && !$isunknown(gray_out)));
+    // Purely combinational RTL with no explicit clock or reset; sample on $global_clock.
 
-  // Stage 1 equations (guarded)
-  ap_s1: assert property (
-    !$isunknown(data_in) |-> (stage1_out == {data_in[3]^data_in[2], data_in[2]^data_in[1], data_in[1]^data_in[0], data_in[0]})
-  );
+    // Output bit 0 directly mirrors input bit 0.
+    check_gray_bit0_passthrough: assert property (
+        @($global_clock) gray_out[0] === data_in[0]
+    );
 
-  // Stage 2 equations (guarded)
-  ap_s2_b0: assert property (!$isunknown(stage1_out) |-> (stage2_out[0] == stage1_out[0]));
-  ap_s2_b1: assert property (!$isunknown(stage1_out) |-> (stage2_out[1] == (stage1_out[1] ^ stage1_out[0])));
-  ap_s2_b2: assert property (!$isunknown(stage1_out) |-> (stage2_out[2] == (stage1_out[2] ^ stage1_out[1])));
-  ap_s2_b3: assert property (!$isunknown(stage1_out) |-> (stage2_out[3] == (stage1_out[3] ^ stage1_out[2])));
+    // Output bit 1 directly mirrors input bit 1.
+    check_gray_bit1_passthrough: assert property (
+        @($global_clock) gray_out[1] === data_in[1]
+    );
 
-  // Output equals Stage 2 (guarded)
-  ap_out_eq_s2: assert property (!$isunknown(stage2_out) |-> (gray_out == stage2_out));
+    // Output bit 2 is the XOR of input bits 2 and 0.
+    check_gray_bit2_xor: assert property (
+        @($global_clock) gray_out[2] === (data_in[2] ^ data_in[0])
+    );
 
-  // Spec check: standard binary->Gray (gray = bin ^ (bin>>1))
-  logic [3:0] exp_gray;
-  assign exp_gray = {data_in[3], data_in[3]^data_in[2], data_in[2]^data_in[1], data_in[1]^data_in[0]};
-  ap_spec: assert property (!$isunknown(data_in) |-> (gray_out == exp_gray));
+    // Output bit 3 is the XOR of input bits 3 and 1.
+    check_gray_bit3_xor: assert property (
+        @($global_clock) gray_out[3] === (data_in[3] ^ data_in[1])
+    );
 
-  // Output only changes when input changes (no spurious toggles)
-  ap_change_dep: assert property ($changed(gray_out) |-> ##0 $changed(data_in));
+    // Full output matches the RTL's two-stage combinational expansion.
+    check_gray_full_mapping: assert property (
+        @($global_clock) gray_out === {data_in[3] ^ data_in[1], data_in[2] ^ data_in[0], data_in[1], data_in[0]}
+    );
 
-  // Coverage: hit all 16 input values
-  genvar i;
-  generate
-    for (i=0; i<16; i++) begin : cv_in_vals
-      cp_in_val: cover property (data_in == i[3:0]);
-    end
-  endgenerate
+    // Stable input must keep the output stable.
+    check_stable_input_stable_output: assert property (
+        @($global_clock) $stable(data_in) |-> $stable(gray_out)
+    );
 
-  // Coverage: each output bit toggles both ways
-  genvar b;
-  generate
-    for (b=0; b<4; b++) begin : cv_out_toggles
-      cp_out_01: cover property ($rose(gray_out[b]));
-      cp_out_10: cover property ($fell(gray_out[b]));
-    end
-  endgenerate
+    // A change only on input bit 0 cannot affect output bits 1 or 3.
+    check_bit0_change_independence: assert property (
+        @($global_clock)
+        ($changed(data_in[0]) && $stable(data_in[1]) && $stable(data_in[2]) && $stable(data_in[3]))
+        |-> ($stable(gray_out[1]) && $stable(gray_out[3]))
+    );
+
+    // A change only on input bit 1 cannot affect output bits 0 or 2.
+    check_bit1_change_independence: assert property (
+        @($global_clock)
+        ($changed(data_in[1]) && $stable(data_in[0]) && $stable(data_in[2]) && $stable(data_in[3]))
+        |-> ($stable(gray_out[0]) && $stable(gray_out[2]))
+    );
+
+    // A change only on input bit 2 cannot affect output bits 0, 1, or 3.
+    check_bit2_change_independence: assert property (
+        @($global_clock)
+        ($changed(data_in[2]) && $stable(data_in[0]) && $stable(data_in[1]) && $stable(data_in[3]))
+        |-> ($stable(gray_out[0]) && $stable(gray_out[1]) && $stable(gray_out[3]))
+    );
+
+    // A change only on input bit 3 cannot affect output bits 0, 1, or 2.
+    check_bit3_change_independence: assert property (
+        @($global_clock)
+        ($changed(data_in[3]) && $stable(data_in[0]) && $stable(data_in[1]) && $stable(data_in[2]))
+        |-> ($stable(gray_out[0]) && $stable(gray_out[1]) && $stable(gray_out[2]))
+    );
 
 endmodule
-
-// Bind into DUT (allows access to internal regs)
-bind gray_code_converter gray_code_converter_sva
-  (.data_in(data_in),
-   .gray_out(gray_out),
-   .stage1_out(stage1_out),
-   .stage2_out(stage2_out));

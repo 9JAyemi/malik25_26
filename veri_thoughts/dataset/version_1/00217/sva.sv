@@ -1,57 +1,65 @@
-// SVA for sky130_fd_sc_hd__o221ai: Y = ~((A1|A2) & (B1|B2) & C1)
-
 module sky130_fd_sc_hd__o221ai_sva (
-  input logic A1, A2, B1, B2, C1, Y
+    input logic clk,
+    input logic Y,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic B2,
+    input logic C1
 );
-  logic grpA, grpB;
-  assign grpA = (A1 | A2);
-  assign grpB = (B1 | B2);
 
-  // Sample on any relevant change; use ##0 to avoid race with combinational settle
-  `define O221AI_EVT (A1 or A2 or B1 or B2 or C1 or Y)
+    // Y must match the implemented O221AI logic function.
+    check_y_matches_o221ai_function: assert property (
+        @(posedge clk) disable iff (1'b0)
+        Y == ~(((A1 | A2) & (B1 | B2) & C1))
+    );
 
-  // Functional equivalence (4-state accurate)
-  property p_func;
-    @(`O221AI_EVT) 1'b1 |-> ##0 ( Y === ~(grpA & grpB & C1) );
-  endproperty
-  assert property (p_func);
+    // A low C1 forces the NAND output high.
+    check_y_high_when_c1_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (C1 == 1'b0) |-> (Y == 1'b1)
+    );
 
-  // Only way to get Y=0 is all three terms =1
-  property p_y0_only_when_all_true;
-    @(`O221AI_EVT) (Y===1'b0) |-> ##0 (C1===1'b1 && grpA===1'b1 && grpB===1'b1);
-  endproperty
-  assert property (p_y0_only_when_all_true);
+    // Both A inputs low force the A-side OR term low and Y high.
+    check_y_high_when_a_group_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        ((A1 == 1'b0) && (A2 == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  // Controlling-0s force Y=1 (X-safe)
-  property p_c1_zero_forces_one;
-    @(`O221AI_EVT) (C1===1'b0) |-> ##0 (Y===1'b1);
-  endproperty
-  assert property (p_c1_zero_forces_one);
+    // Both B inputs low force the B-side OR term low and Y high.
+    check_y_high_when_b_group_low: assert property (
+        @(posedge clk) disable iff (1'b0)
+        ((B1 == 1'b0) && (B2 == 1'b0)) |-> (Y == 1'b1)
+    );
 
-  property p_agrp_zero_forces_one;
-    @(`O221AI_EVT) ((A1===1'b0)&&(A2===1'b0)) |-> ##0 (Y===1'b1);
-  endproperty
-  assert property (p_agrp_zero_forces_one);
+    // All three NAND inputs high force Y low.
+    check_y_low_when_all_nand_inputs_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (((A1 | A2) == 1'b1) && ((B1 | B2) == 1'b1) && (C1 == 1'b1)) |-> (Y == 1'b0)
+    );
 
-  property p_bgrp_zero_forces_one;
-    @(`O221AI_EVT) ((B1===1'b0)&&(B2===1'b0)) |-> ##0 (Y===1'b1);
-  endproperty
-  assert property (p_bgrp_zero_forces_one);
+    // A low Y requires both OR terms and C1 to be high.
+    check_y_low_requires_all_nand_inputs_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (Y == 1'b0) |-> (((A1 | A2) == 1'b1) && ((B1 | B2) == 1'b1) && (C1 == 1'b1))
+    );
 
-  // If inputs are known 0/1, output must be known 0/1
-  property p_no_x_when_inputs_known;
-    @(`O221AI_EVT) (!$isunknown({A1,A2,B1,B2,C1})) |-> ##0 (!$isunknown(Y));
-  endproperty
-  assert property (p_no_x_when_inputs_known);
+    // With C1 and the B-side OR term high, Y is the inverse of the A-side OR term.
+    check_y_reflects_a_group_when_c1_and_b_group_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        ((C1 == 1'b1) && ((B1 | B2) == 1'b1)) |-> (Y == ~(A1 | A2))
+    );
 
-  // Coverage: both output values and each independent controlling path
-  cover property (@(`O221AI_EVT) ##0 (C1===1'b1 && grpA===1'b1 && grpB===1'b1 && Y===1'b0)); // Y=0 case
-  cover property (@(`O221AI_EVT) ##0 (C1===1'b0 && grpA===1'b1 && grpB===1'b1 && Y===1'b1)); // forced by C1=0
-  cover property (@(`O221AI_EVT) ##0 (C1===1'b1 && grpA===1'b0 && grpB===1'b1 && Y===1'b1)); // forced by A-group=0
-  cover property (@(`O221AI_EVT) ##0 (C1===1'b1 && grpA===1'b1 && grpB===1'b0 && Y===1'b1)); // forced by B-group=0
-  cover property (@(`O221AI_EVT) $rose(Y));
-  cover property (@(`O221AI_EVT) $fell(Y));
+    // With C1 and the A-side OR term high, Y is the inverse of the B-side OR term.
+    check_y_reflects_b_group_when_c1_and_a_group_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        ((C1 == 1'b1) && ((A1 | A2) == 1'b1)) |-> (Y == ~(B1 | B2))
+    );
+
+    // With both OR terms high, Y is the inverse of C1.
+    check_y_reflects_c1_when_both_or_terms_high: assert property (
+        @(posedge clk) disable iff (1'b0)
+        (((A1 | A2) == 1'b1) && ((B1 | B2) == 1'b1)) |-> (Y == ~C1)
+    );
+
 endmodule
-
-// Bind into the DUT
-bind sky130_fd_sc_hd__o221ai sky130_fd_sc_hd__o221ai_sva o221ai_sva_i (.*);

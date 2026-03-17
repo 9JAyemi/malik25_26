@@ -1,64 +1,70 @@
-// SVA for sp_mux_9to1_sel4_6_1
-// Bind-friendly, combinational, concise, full functional coverage
-
 module sp_mux_9to1_sel4_6_1_sva (
-  input  logic [5:0] din1,
-  input  logic [5:0] din2,
-  input  logic [5:0] din3,
-  input  logic [5:0] din4,
-  input  logic [5:0] din5,
-  input  logic [5:0] din6,
-  input  logic [5:0] din7,
-  input  logic [5:0] din8,
-  input  logic [5:0] din9,
-  input  logic [3:0] din10,
-  input  logic [5:0] dout
+    input logic [5:0] din1,
+    input logic [5:0] din2,
+    input logic [5:0] din3,
+    input logic [5:0] din4,
+    input logic [5:0] din5,
+    input logic [5:0] din6,
+    input logic [5:0] din7,
+    input logic [5:0] din8,
+    input logic [5:0] din9,
+    input logic [3:0] din10,
+    input logic [5:0] dout
 );
-  // Static sanity
-  initial assert ($bits(dout) == $bits(din1));
 
-  // Use input activity as the SVA clock
-  default clocking cb @(din1 or din2 or din3 or din4 or din5 or din6 or din7 or din8 or din9 or din10 or dout); endclocking
+    // Full select decode must match the implemented mux function.
+    check_full_mux_function: assert property (
+        @($global_clock)
+        dout == (din10[3] ? din9 :
+                 (din10[2] ? (din10[1] ? (din10[0] ? din8 : din7)
+                                       : (din10[0] ? din6 : din5))
+                           : (din10[1] ? (din10[0] ? din4 : din3)
+                                       : (din10[0] ? din2 : din1))))
+    );
 
-  logic [3:0] sel;
-  assign sel = din10;
+    // When the top select bit is high, dout must come from din9.
+    check_sel3_selects_din9: assert property (
+        @($global_clock) din10[3] |-> (dout == din9)
+    );
 
-  // Core functional assertions
-  // sel[3]==1 picks din9
-  assert property ( sel[3] |-> (dout == din9) );
+    // Select value 0 must route din1 to dout.
+    check_sel0_routes_din1: assert property (
+        @($global_clock) (din10 == 4'h0) |-> (dout == din1)
+    );
 
-  // sel[3]==0 selects among din1..din8 via sel[2:0]
-  assert property ( !sel[3] && !sel[2] && !sel[1] |-> (dout == (sel[0] ? din2 : din1)) );
-  assert property ( !sel[3] && !sel[2] &&  sel[1] |-> (dout == (sel[0] ? din4 : din3)) );
-  assert property ( !sel[3] &&  sel[2] && !sel[1] |-> (dout == (sel[0] ? din6 : din5)) );
-  assert property ( !sel[3] &&  sel[2] &&  sel[1] |-> (dout == (sel[0] ? din8 : din7)) );
+    // Select value 1 must route din2 to dout.
+    check_sel1_routes_din2: assert property (
+        @($global_clock) (din10 == 4'h1) |-> (dout == din2)
+    );
 
-  // Minimal X-safety on selected path
-  assert property ( (! $isunknown(sel) && sel[3] && ! $isunknown(din9)) |-> ! $isunknown(dout) );
-  assert property ( (! $isunknown(sel) && !sel[3] && !sel[2] && !sel[1] &&
-                     ! $isunknown(sel[0] ? din2 : din1)) |-> ! $isunknown(dout) );
-  assert property ( (! $isunknown(sel) && !sel[3] && !sel[2] &&  sel[1] &&
-                     ! $isunknown(sel[0] ? din4 : din3)) |-> ! $isunknown(dout) );
-  assert property ( (! $isunknown(sel) && !sel[3] &&  sel[2] && !sel[1] &&
-                     ! $isunknown(sel[0] ? din6 : din5)) |-> ! $isunknown(dout) );
-  assert property ( (! $isunknown(sel) && !sel[3] &&  sel[2] &&  sel[1] &&
-                     ! $isunknown(sel[0] ? din8 : din7)) |-> ! $isunknown(dout) );
+    // Select value 2 must route din3 to dout.
+    check_sel2_routes_din3: assert property (
+        @($global_clock) (din10 == 4'h2) |-> (dout == din3)
+    );
 
-  // Functional coverage: exercise all 9 selections
-  cover property ( sel[3] );                                   // din9 selected
-  cover property ( !sel[3] && !sel[2] && !sel[1] && !sel[0] ); // din1
-  cover property ( !sel[3] && !sel[2] && !sel[1] &&  sel[0] ); // din2
-  cover property ( !sel[3] && !sel[2] &&  sel[1] && !sel[0] ); // din3
-  cover property ( !sel[3] && !sel[2] &&  sel[1] &&  sel[0] ); // din4
-  cover property ( !sel[3] &&  sel[2] && !sel[1] && !sel[0] ); // din5
-  cover property ( !sel[3] &&  sel[2] && !sel[1] &&  sel[0] ); // din6
-  cover property ( !sel[3] &&  sel[2] &&  sel[1] && !sel[0] ); // din7
-  cover property ( !sel[3] &&  sel[2] &&  sel[1] &&  sel[0] ); // din8
+    // Select value 3 must route din4 to dout.
+    check_sel3_routes_din4: assert property (
+        @($global_clock) (din10 == 4'h3) |-> (dout == din4)
+    );
+
+    // Select value 4 must route din5 to dout.
+    check_sel4_routes_din5: assert property (
+        @($global_clock) (din10 == 4'h4) |-> (dout == din5)
+    );
+
+    // Select value 5 must route din6 to dout.
+    check_sel5_routes_din6: assert property (
+        @($global_clock) (din10 == 4'h5) |-> (dout == din6)
+    );
+
+    // Select value 6 must route din7 to dout.
+    check_sel6_routes_din7: assert property (
+        @($global_clock) (din10 == 4'h6) |-> (dout == din7)
+    );
+
+    // Select value 7 must route din8 to dout.
+    check_sel7_routes_din8: assert property (
+        @($global_clock) (din10 == 4'h7) |-> (dout == din8)
+    );
+
 endmodule
-
-// Bind into the DUT (instantiate once in your testbench or a package)
-bind sp_mux_9to1_sel4_6_1 sp_mux_9to1_sel4_6_1_sva i_sp_mux_9to1_sel4_6_1_sva (
-  .din1(din1), .din2(din2), .din3(din3), .din4(din4),
-  .din5(din5), .din6(din6), .din7(din7), .din8(din8),
-  .din9(din9), .din10(din10), .dout(dout)
-);

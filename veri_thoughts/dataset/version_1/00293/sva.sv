@@ -1,38 +1,38 @@
-// SVA for d_ff_reset: async active-low reset, posedge clocked DFF
-module d_ff_reset_sva #(parameter int unsigned RECOVERY_CYCLES = 1) (
-  input logic D,
-  input logic RESET_B,
-  input logic CLK,
-  input logic Q
+module d_ff_reset_sva (
+    input logic D,
+    input logic RESET_B,
+    input logic CLK,
+    input logic Q
 );
 
-  // Q goes low immediately on async reset assert; stays low while in reset
-  ap_async_reset_immediate: assert property ( $fell(RESET_B) |-> ##0 (Q==1'b0) );
-  ap_reset_holds_Q_low:    assert property ( !RESET_B |-> (Q==1'b0) );
+    // Active-low reset clears Q.
+    check_reset_forces_q_low: assert property (
+        @(posedge CLK)
+        !RESET_B |-> (Q == 1'b0)
+    );
 
-  // After reset deassert, Q must remain 0 until the next clock edge
-  ap_q_zero_until_clk_after_release: assert property ( $rose(RESET_B) |-> (Q==1'b0 until_with $rose(CLK)) );
+    // Q stays low on the first clock after reset was active.
+    check_release_edge_keeps_q_low: assert property (
+        @(posedge CLK) disable iff ($initstate || !RESET_B)
+        !$past(RESET_B) |-> (Q == 1'b0)
+    );
 
-  // On posedge CLK with reset deasserted, Q captures D (check in NBA/postponed with ##0)
-  ap_capture_on_clk: assert property ( @(posedge CLK) RESET_B |-> ##0 (Q == $past(D)) );
+    // A prior sampled low D produces a low Q.
+    check_low_d_captures_low: assert property (
+        @(posedge CLK) disable iff ($initstate || !RESET_B)
+        ($past(RESET_B) && ($past(D) == 1'b0)) |-> (Q == 1'b0)
+    );
 
-  // Data must be known when sampled; Q changes only on allowed events
-  ap_d_known_at_sample:         assert property ( @(posedge CLK) RESET_B |-> !$isunknown(D) );
-  ap_q_changes_only_on_events:  assert property ( $changed(Q) |-> ($rose(CLK) || $fell(RESET_B)) );
+    // A high Q must come from a prior sampled high D.
+    check_high_q_requires_prior_high_d: assert property (
+        @(posedge CLK) disable iff ($initstate || !RESET_B)
+        (Q == 1'b1) |-> ($past(RESET_B) && ($past(D) == 1'b1))
+    );
 
-  // Optional recovery: require RESET_B high for RECOVERY_CYCLES prior clocks before sampling
-  ap_recovery_cycles: assert property ( @(posedge CLK) disable iff (!RESET_B)
-                                       $past(RESET_B, RECOVERY_CYCLES) );
-
-  // Coverage
-  cv_reset_assert:   cover property ( $fell(RESET_B) );
-  cv_reset_deassert: cover property ( $rose(RESET_B) );
-  cv_capture_any:    cover property ( @(posedge CLK) RESET_B ##0 (Q==D) );
-  cv_q_rise:         cover property ( @(posedge CLK) RESET_B ##0 $rose(Q) );
-  cv_q_fall:         cover property ( @(posedge CLK) RESET_B ##0 $fell(Q) );
-  cv_cap_one:        cover property ( @(posedge CLK) RESET_B && (D==1) ##0 (Q==1) );
-  cv_cap_zero:       cover property ( @(posedge CLK) RESET_B && (D==0) ##0 (Q==0) );
+    // A rising Q must be caused by a prior sampled high D.
+    check_q_rise_requires_prior_high_d: assert property (
+        @(posedge CLK) disable iff ($initstate || !RESET_B)
+        $rose(Q) |-> ($past(RESET_B) && ($past(D) == 1'b1))
+    );
 
 endmodule
-
-bind d_ff_reset d_ff_reset_sva sva_i (.*);

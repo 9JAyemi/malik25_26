@@ -1,50 +1,57 @@
-// SVA for global_reset
-module global_reset_sva #(
-  parameter int WIDTH = 8
-)(
-  input  logic               clock_i,
-  input  logic               forced_reset_i,
-  input  logic               n_reset_o,
-  input  logic               n_limited_reset_o,
-  input  logic [WIDTH-1:0]   reset_counter
+module global_reset_sva (
+    input logic       clock_i,
+    input logic       forced_reset_i,
+    input logic       n_reset_o,
+    input logic       n_limited_reset_o,
+    input logic [7:0] reset_counter
 );
 
-  default clocking cb @(negedge clock_i); endclocking
+    // n_limited_reset_o decodes reset_counter <= 1.
+    check_limited_reset_decode: assert property (
+        @(negedge clock_i) n_limited_reset_o == (reset_counter <= 8'd1)
+    );
 
-  // Basic sanity
-  a_known:        assert property ( !$isunknown({forced_reset_i, n_reset_o, n_limited_reset_o, reset_counter}) );
-  a_init_val:     assert property ( $initstate |-> reset_counter == WIDTH'(8'd1) );
+    // n_reset_o decodes reset_counter <= 1 and forced_reset_i.
+    check_reset_decode: assert property (
+        @(negedge clock_i) n_reset_o == ((reset_counter <= 8'd1) & !forced_reset_i)
+    );
 
-  // Output logic equivalence
-  a_lim_eq:       assert property ( n_limited_reset_o == (reset_counter <= WIDTH'(8'd1)) );
-  a_full_eq:      assert property ( n_reset_o        == ((reset_counter <= WIDTH'(8'd1)) & !forced_reset_i) );
+    // n_reset_o is n_limited_reset_o masked by forced_reset_i.
+    check_reset_is_masked_limited_reset: assert property (
+        @(negedge clock_i) n_reset_o == (n_limited_reset_o & !forced_reset_i)
+    );
 
-  // Forced reset gating behavior
-  a_force_low:    assert property ( forced_reset_i  |-> (n_reset_o == 1'b0) );
-  a_force_match:  assert property ( !forced_reset_i |-> (n_reset_o == n_limited_reset_o) );
+    // forced_reset_i always drives n_reset_o low.
+    check_forced_reset_forces_n_reset_low: assert property (
+        @(negedge clock_i) forced_reset_i |-> !n_reset_o
+    );
 
-  // Counter behavior
-  a_inc_when_nz:  assert property ( (reset_counter != WIDTH'(8'd0)) |=> reset_counter == $past(reset_counter) + WIDTH'(8'd1) );
-  a_hold_at_zero: assert property ( (reset_counter == WIDTH'(8'd0)) |=> reset_counter == WIDTH'(8'd0) );
+    // A nonzero counter increments by one on each falling edge.
+    check_counter_increments_while_nonzero: assert property (
+        @(negedge clock_i) (reset_counter != 8'd0) |=> (reset_counter == ($past(reset_counter) + 8'd1))
+    );
 
-  // Outputs in terminal (stuck-at-zero) phase
-  a_zero_phase:   assert property ( (reset_counter == WIDTH'(8'd0)) |-> ( n_limited_reset_o && (n_reset_o == !forced_reset_i) ) );
+    // Once the counter reaches zero, it stays at zero.
+    check_counter_holds_at_zero: assert property (
+        @(negedge clock_i) (reset_counter == 8'd0) |=> (reset_counter == 8'd0)
+    );
 
-  // Coverage
-  c_boot_drop:    cover property ( reset_counter == WIDTH'(8'd1) ##1 (reset_counter == WIDTH'(8'd2) && !n_limited_reset_o) );
-  c_wrap:         cover property ( reset_counter == WIDTH'(8'hFF) ##1 reset_counter == WIDTH'(8'h00) );
-  c_force_hi_win: cover property ( (reset_counter <= WIDTH'(8'd1)) && forced_reset_i );
-  c_force_hi_run: cover property ( (reset_counter  > WIDTH'(8'd1)) && forced_reset_i );
-  c_force_toggle: cover property ( $rose(forced_reset_i) ); 
-  c_force_untgl:  cover property ( $fell(forced_reset_i) );
+    // The counter wraps from 8'hFF to 8'h00.
+    check_counter_wraps_to_zero: assert property (
+        @(negedge clock_i) (reset_counter == 8'hFF) |=> (reset_counter == 8'h00)
+    );
+
+    // Counts above 1 force both reset outputs low.
+    check_midcount_outputs_low: assert property (
+        @(negedge clock_i) (reset_counter > 8'd1) |-> (!n_limited_reset_o && !n_reset_o)
+    );
 
 endmodule
 
-// Bind into DUT
-bind global_reset global_reset_sva u_global_reset_sva (
-  .clock_i           (clock_i),
-  .forced_reset_i    (forced_reset_i),
-  .n_reset_o         (n_reset_o),
-  .n_limited_reset_o (n_limited_reset_o),
-  .reset_counter     (reset_counter)
+bind global_reset global_reset_sva global_reset_sva_i (
+    .clock_i(clock_i),
+    .forced_reset_i(forced_reset_i),
+    .n_reset_o(n_reset_o),
+    .n_limited_reset_o(n_limited_reset_o),
+    .reset_counter(reset_counter)
 );

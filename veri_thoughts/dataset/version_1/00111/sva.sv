@@ -1,42 +1,65 @@
-// SVA for sp_mux_4to1_sel2_7_1
 module sp_mux_4to1_sel2_7_1_sva (
-  input logic [6:0] din1,
-  input logic [6:0] din2,
-  input logic [6:0] din3,
-  input logic [6:0] din4,
-  input logic [1:0] din5,
-  input logic [6:0] dout
+    input logic [6:0] din1,
+    input logic [6:0] din2,
+    input logic [6:0] din3,
+    input logic [6:0] din4,
+    input logic [1:0] din5,
+    input logic [6:0] dout
 );
-  default clocking cb @(posedge $global_clock); endclocking
 
-  // Functional correctness (all 4 select cases)
-  assert property (din5 == 2'b00 |-> dout === din1);
-  assert property (din5 == 2'b01 |-> dout === din2);
-  assert property (din5 == 2'b10 |-> dout === din3);
-  assert property (din5 == 2'b11 |-> dout === din4);
+    // dout must implement the RTL's nested 4-to-1 mux function.
+    check_dout_matches_mux_function: assert property (
+        @($global_clock)
+        dout === ((din5[1] == 1'b0) ? ((din5[0] == 1'b0) ? din1 : din2)
+                                    : ((din5[0] == 1'b0) ? din3 : din4))
+    );
 
-  // No-X on output when select and selected input are known
-  assert property ((!$isunknown(din5) && (din5==2'b00) && !$isunknown(din1)) |-> dout === din1);
-  assert property ((!$isunknown(din5) && (din5==2'b01) && !$isunknown(din2)) |-> dout === din2);
-  assert property ((!$isunknown(din5) && (din5==2'b10) && !$isunknown(din3)) |-> dout === din3);
-  assert property ((!$isunknown(din5) && (din5==2'b11) && !$isunknown(din4)) |-> dout === din4);
+    // Select value 00 must route din1 to dout.
+    check_select_00_routes_din1: assert property (
+        @($global_clock)
+        (din5 == 2'b00) |-> (dout === din1)
+    );
 
-  // Basic functional coverage: each select value seen and propagated
-  cover property (din5 == 2'b00 && dout === din1);
-  cover property (din5 == 2'b01 && dout === din2);
-  cover property (din5 == 2'b10 && dout === din3);
-  cover property (din5 == 2'b11 && dout === din4);
+    // Select value 01 must route din2 to dout.
+    check_select_01_routes_din2: assert property (
+        @($global_clock)
+        (din5 == 2'b01) |-> (dout === din2)
+    );
 
-  // Transition coverage: select changes cause corresponding output update
-  cover property ($changed(din5) && !$isunknown(din5) ##0
-                  ((din5==2'b00 && dout===din1) ||
-                   (din5==2'b01 && dout===din2) ||
-                   (din5==2'b10 && dout===din3) ||
-                   (din5==2'b11 && dout===din4)));
+    // Select value 10 must route din3 to dout.
+    check_select_10_routes_din3: assert property (
+        @($global_clock)
+        (din5 == 2'b10) |-> (dout === din3)
+    );
 
-  // Bit-level select toggles
-  cover property ($rose(din5[0]));  cover property ($fell(din5[0]));
-  cover property ($rose(din5[1]));  cover property ($fell(din5[1]));
+    // Select value 11 must route din4 to dout.
+    check_select_11_routes_din4: assert property (
+        @($global_clock)
+        (din5 == 2'b11) |-> (dout === din4)
+    );
+
+    // With select 00 held and din1 stable, dout must stay stable.
+    check_select_00_ignores_unselected_inputs: assert property (
+        @($global_clock)
+        ($stable(din5) && (din5 == 2'b00) && $stable(din1)) |-> $stable(dout)
+    );
+
+    // With select 01 held and din2 stable, dout must stay stable.
+    check_select_01_ignores_unselected_inputs: assert property (
+        @($global_clock)
+        ($stable(din5) && (din5 == 2'b01) && $stable(din2)) |-> $stable(dout)
+    );
+
+    // With select 10 held and din3 stable, dout must stay stable.
+    check_select_10_ignores_unselected_inputs: assert property (
+        @($global_clock)
+        ($stable(din5) && (din5 == 2'b10) && $stable(din3)) |-> $stable(dout)
+    );
+
+    // With select 11 held and din4 stable, dout must stay stable.
+    check_select_11_ignores_unselected_inputs: assert property (
+        @($global_clock)
+        ($stable(din5) && (din5 == 2'b11) && $stable(din4)) |-> $stable(dout)
+    );
+
 endmodule
-
-bind sp_mux_4to1_sel2_7_1 sp_mux_4to1_sel2_7_1_sva sva_i (.*);

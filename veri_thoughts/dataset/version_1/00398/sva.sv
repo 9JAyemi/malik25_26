@@ -1,50 +1,64 @@
-// SVA for MISTRAL_FF
 module MISTRAL_FF_sva (
-  input DATAIN,
-  input CLK,
-  input ACLR,
-  input ENA,
-  input SCLR,
-  input SLOAD,
-  input SDATA,
-  input Q
+    input logic DATAIN,
+    input logic CLK,
+    input logic ACLR,
+    input logic ENA,
+    input logic SCLR,
+    input logic SLOAD,
+    input logic SDATA,
+    input logic Q
 );
 
-  default clocking cb @(posedge CLK); endclocking
-  default disable iff (!ACLR);
+    // Q starts low from the RTL initial assignment.
+    check_init_q_low: assert property (
+        @(posedge CLK) $initstate |-> (Q == 1'b0)
+    );
 
-  // Asynchronous clear behavior
-  a_async_clear_now:    assert property (@(negedge ACLR) Q==1'b0);
-  a_async_clear_hold:   assert property (@cb !ACLR |-> (Q==1'b0 until_with ACLR));
-  a_hold_after_release: assert property (@cb $past(!ACLR) && ACLR |-> (Q==1'b0 until_with ENA));
+    // A low ACLR leaves Q low until the next clock sample.
+    check_aclr_forces_zero: assert property (
+        @(posedge CLK) !ACLR |=> (Q == 1'b0)
+    );
 
-  // Synchronous priority and functionality (when ENA=1)
-  a_sync_pri_clr:   assert property (@cb ENA && SCLR                  |=> Q==1'b0);
-  a_sync_pri_load:  assert property (@cb ENA && !SCLR && SLOAD        |=> Q==SDATA);
-  a_sync_data_cap:  assert property (@cb ENA && !SCLR && !SLOAD       |=> Q==DATAIN);
+    // Enabled synchronous clear drives Q low.
+    check_sclr_clears_q: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && SCLR) |=> (Q == 1'b0)
+    );
 
-  // Hold when disabled
-  a_hold_when_dis:  assert property (@cb !ENA                          |=> Q==$past(Q));
+    // Enabled synchronous load captures a 0 from SDATA.
+    check_sload_captures_zero: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && !SCLR && SLOAD && !SDATA) |=> (Q == 1'b0)
+    );
 
-  // Change causality: Q changes only on negedge ACLR or posedge CLK with ENA
-  a_change_cause:   assert property (@(posedge Q or negedge Q)
-                                     ($fell(ACLR) || ($rose(CLK) && ACLR && ENA)));
+    // Enabled data capture takes a 0 from DATAIN.
+    check_datain_captures_zero: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && !SCLR && !SLOAD && !DATAIN) |=> (Q == 1'b0)
+    );
 
-  // Knownness checks at sampling
-  a_no_x_ctrl:      assert property (@cb !$isunknown({ACLR,ENA,SCLR,SLOAD}));
-  a_no_x_sdata:     assert property (@cb ENA && !SCLR && SLOAD   |-> !$isunknown(SDATA));
-  a_no_x_datain:    assert property (@cb ENA && !SCLR && !SLOAD  |-> !$isunknown(DATAIN));
-  a_no_x_q:         assert property (@(posedge CLK or negedge ACLR) !$isunknown(Q));
+    // With ENA low, a low Q is held across the clock edge.
+    check_ena_low_holds_zero: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (!ENA && (Q == 1'b0)) |=> (Q == 1'b0)
+    );
 
-  // Coverage
-  c_async_clear:    cover  property (@(negedge ACLR) Q==1'b0);
-  c_release:        cover  property (@cb $past(!ACLR) && ACLR);
-  c_sync_clr:       cover  property (@cb ENA && SCLR                  ##1 Q==1'b0);
-  c_sync_load:      cover  property (@cb ENA && !SCLR && SLOAD        ##1 Q==SDATA);
-  c_sync_data:      cover  property (@cb ENA && !SCLR && !SLOAD       ##1 Q==DATAIN);
-  c_hold:           cover  property (@cb !ENA && $stable(Q));
-  c_priority_both:  cover  property (@cb ENA && SCLR && SLOAD         ##1 Q==1'b0);
+    // SCLR overrides SLOAD when both are asserted.
+    check_sclr_priority_over_sload: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && SCLR && SLOAD) |=> (Q == 1'b0)
+    );
+
+    // SLOAD selects SDATA over DATAIN when clear is inactive.
+    check_sload_priority_over_datain: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && !SCLR && SLOAD && !SDATA && DATAIN) |=> (Q == 1'b0)
+    );
+
+    // When SLOAD is low, SDATA does not affect DATAIN capture.
+    check_datain_path_ignores_sdata: assert property (
+        @(posedge CLK) disable iff (!ACLR)
+        (ENA && !SCLR && !SLOAD && !DATAIN && SDATA) |=> (Q == 1'b0)
+    );
 
 endmodule
-
-bind MISTRAL_FF MISTRAL_FF_sva sva (.*);

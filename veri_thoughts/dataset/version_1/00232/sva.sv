@@ -1,53 +1,48 @@
-// SVA for RegisterAdd_1
 module RegisterAdd_1_sva (
-  input logic        clk,
-  input logic        rst,
-  input logic        load,
-  input logic [0:0]  D,
-  input logic [0:0]  Q,
-  input logic [0:0]  Q_reg,
-  input logic [0:0]  Q_next,
-  input logic [0:0]  D_reg
+    input logic clk,
+    input logic rst,
+    input logic load,
+    input logic [0:0] D,
+    input logic [0:0] Q
 );
-  // scalar aliases
-  wire d   = D[0];
-  wire q   = Q[0];
-  wire qrg = Q_reg[0];
-  wire qn  = Q_next[0];
-  wire dr  = D_reg[0];
 
-  default clocking cb @(posedge clk); endclocking
+    // clk is the sampling clock; rst is active high.
+    // Mixed logic: Q is sequential, and next-state is combinational.
 
-  // Async reset forces Q=0 (checked on clk and rst edges)
-  assert property (@(posedge clk or posedge rst) rst |-> (q == 1'b0));
+    // When load is high and D is 0, the next Q is 0.
+    check_load_zero_captures_zero: assert property (
+        @(posedge clk) disable iff (rst)
+        (load && (D == 1'b0)) |=> (Q == 1'b0)
+    );
 
-  // Output equals the internal register (continuous assign)
-  assert property (q == qrg);
+    // When load is high and D is 1, the next Q is 1.
+    check_load_one_captures_one: assert property (
+        @(posedge clk) disable iff (rst)
+        (load && (D == 1'b1)) |=> (Q == 1'b1)
+    );
 
-  // 1-cycle functional update: load has priority; else add (XOR) with wrap
-  assert property (disable iff (rst)
-    1'b1 |=> q == ($past(load) ? $past(d) : ($past(q) ^ $past(d)))
-  );
+    // When load is low, D is 0, and Q is 0, Q stays 0.
+    check_add_zero_holds_zero: assert property (
+        @(posedge clk) disable iff (rst)
+        (!load && (D == 1'b0) && (Q == 1'b0)) |=> (Q == 1'b0)
+    );
 
-  // Combinational block invariants (when drivers are known)
-  assert property ((!$isunknown({load,d,qrg})) |-> (dr == d));
-  assert property ((!$isunknown({load,d,qrg})) |-> (qn == (load ? d : (qrg ^ d))));
+    // When load is low, D is 0, and Q is 1, Q stays 1.
+    check_add_zero_holds_one: assert property (
+        @(posedge clk) disable iff (rst)
+        (!load && (D == 1'b0) && (Q == 1'b1)) |=> (Q == 1'b1)
+    );
 
-  // No X on key pins when not in reset
-  assert property (disable iff (rst) !$isunknown({load,d,q}));
+    // When load is low, D is 1, and Q is 0, Q becomes 1.
+    check_add_one_sets_one: assert property (
+        @(posedge clk) disable iff (rst)
+        (!load && (D == 1'b1) && (Q == 1'b0)) |=> (Q == 1'b1)
+    );
 
-  // Q only changes on clk rise or rst rise (no glitches)
-  assert property (@(posedge q or negedge q) ($rose(clk) || $rose(rst)));
+    // When load is low, D is 1, and Q is 1, Q becomes 0.
+    check_add_one_clears_zero: assert property (
+        @(posedge clk) disable iff (rst)
+        (!load && (D == 1'b1) && (Q == 1'b1)) |=> (Q == 1'b0)
+    );
 
-  // Coverage
-  cover property (@(posedge rst) 1'b1);
-  cover property (@(negedge rst) 1'b1);
-  cover property (disable iff (rst) (load && (d==1'b0)) |=> (q == $past(d)));
-  cover property (disable iff (rst) (load && (d==1'b1)) |=> (q == $past(d)));
-  cover property (disable iff (rst) (!load && d) ##1 (q != $past(q)));     // toggle via add
-  cover property (disable iff (rst) (!load && !d) ##1 (q == $past(q)));    // hold via add
-  cover property (disable iff (rst) ( q && !load && d) ##1 (q == 1'b0));   // 1+1 -> 0 wrap
-  cover property (disable iff (rst) (!q && !load && d) ##1 (q == 1'b1));   // 0+1 -> 1
 endmodule
-
-bind RegisterAdd_1 RegisterAdd_1_sva sva (.*);

@@ -1,44 +1,46 @@
-// SVA for constant_voltage_driver
-// Note: vout is 1-bit; checks use vref[0] as per assignment truncation.
-
 module constant_voltage_driver_sva (
-  input logic        control,
-  input logic [7:0]  vref,
-  input logic        vout
+    input logic clk,
+    input logic control,
+    input logic [7:0] vref,
+    input logic vout
 );
 
-  // Functional spec: after delta, vout == (control ? vref[0] : 1'b0)
-  assert property (@(control or vref or vout)
-    disable iff ($isunknown({control,vref}))
-    1'b1 |-> ##0 (vout == (control ? vref[0] : 1'b0))
-  ) else $error("vout must equal control ? vref[0] : 0");
+    // When control is low, the output must be low.
+    check_output_zero_when_control_low: assert property (
+        @(posedge clk) (control === 1'b0) |-> (vout === 1'b0)
+    );
 
-  // vout can only change if control or vref[0] changes
-  assert property (@(control or vref or vout)
-    $changed(vout) |-> ($changed(control) or $changed(vref[0]))
-  ) else $error("vout changed without control/vref[0] change");
+    // When control is high, the output must match the vref LSB.
+    check_output_tracks_vref_lsb_when_control_high: assert property (
+        @(posedge clk) (control === 1'b1) |-> (vout === vref[0])
+    );
 
-  // Upper bits of vref must not affect vout
-  assert property (@(vref)
-    ($changed(vref[7:1]) && $stable(vref[0]) && $stable(control)) |-> ##0 $stable(vout)
-  ) else $error("vout changed due to vref[7:1]");
+    // A high output requires control high and vref[0] high.
+    check_high_output_requires_enable_and_lsb: assert property (
+        @(posedge clk) (vout === 1'b1) |-> ((control === 1'b1) && (vref[0] === 1'b1))
+    );
 
-  // No X/Z on vout when inputs are known
-  assert property (@(control or vref or vout)
-    disable iff ($isunknown({control,vref}))
-    !$isunknown(vout)
-  ) else $error("vout unknown with known inputs");
+    // Changes in vref must not affect the output while control stays low.
+    check_vref_ignored_when_control_low: assert property (
+        @(posedge clk)
+        ($past(control) === 1'b0) && (control === 1'b0) &&
+        ($past(vref) !== vref) |-> $stable(vout)
+    );
 
-  // Coverage
-  cover property (@(control) $rose(control));
-  cover property (@(control) $fell(control));
-  cover property (@(vref[0]) control && $rose(vref[0]) ##0 $rose(vout));
-  cover property (@(vref[0]) control && $fell(vref[0]) ##0 $fell(vout));
-  cover property (@(vref) control && $changed(vref[7:1]) && $stable(vref[0]) ##0 $stable(vout));
-  cover property (@(vref[0]) !control && $changed(vref[0]) ##0 (vout==1'b0));
+    // Changes in vref[7:1] alone must not affect the output while enabled.
+    check_upper_vref_bits_do_not_affect_output: assert property (
+        @(posedge clk)
+        ($past(control) === 1'b1) && (control === 1'b1) &&
+        ($past(vref[0]) === vref[0]) &&
+        ($past(vref[7:1]) !== vref[7:1]) |-> $stable(vout)
+    );
+
+    // A change in vref[0] must change the output while enabled and upper bits stay the same.
+    check_lsb_change_updates_output_when_enabled: assert property (
+        @(posedge clk)
+        ($past(control) === 1'b1) && (control === 1'b1) &&
+        ($past(vref[7:1]) === vref[7:1]) &&
+        ($past(vref[0]) !== vref[0]) |-> (vout !== $past(vout))
+    );
 
 endmodule
-
-bind constant_voltage_driver constant_voltage_driver_sva sva_i (
-  .control(control), .vref(vref), .vout(vout)
-);

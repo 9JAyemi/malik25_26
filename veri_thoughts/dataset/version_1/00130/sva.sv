@@ -1,37 +1,32 @@
-// SVA checker for incrementer
-module incrementer_sva(input logic clk,
-                       input logic signed [31:0] in,
-                       input logic signed [31:0] out);
+module incrementer_assertions (
+    input logic clk,
+    input logic signed [31:0] in,
+    input logic signed [31:0] out
+);
 
-  // past_valid to guard $past usage (no reset provided)
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always_ff @(posedge clk) past_valid <= 1'b1;
+    // Out is the previous cycle's input incremented by one.
+    check_registered_increment: assert property (
+        @(posedge clk) 1'b1 |=> (out == ($past(in) + 32'sd1))
+    );
 
-  default clocking cb @(posedge clk); endclocking
+    // Zero increments to one on the next clock.
+    check_zero_to_one: assert property (
+        @(posedge clk) (in == 32'sd0) |=> (out == 32'sd1)
+    );
 
-  // Functional correctness: out == (prev in) + 1 (signed, with wrap)
-  // Compare in 33-bit signed space to capture overflow correctly.
-  property p_inc_correct;
-    past_valid && !$isunknown($past(in))
-      |-> {out[31],out} == $signed({$past(in)[31],$past(in)}) + 33'sd1;
-  endproperty
-  assert property (p_inc_correct);
+    // Minus one increments to zero on the next clock.
+    check_minus_one_to_zero: assert property (
+        @(posedge clk) (in == -32'sd1) |=> (out == 32'sd0)
+    );
 
-  // Out must be known when prev in was known
-  assert property (past_valid && !$isunknown($past(in)) |-> !$isunknown(out));
+    // Maximum positive value wraps to minimum negative on the next clock.
+    check_positive_overflow_wrap: assert property (
+        @(posedge clk) (in == 32'sh7fffffff) |=> (out == 32'sh80000000)
+    );
 
-  // Coverage: key scenarios
-  // Simple increment from 0 -> 1
-  cover property (past_valid && $past(in) == 32'sd0 && out == 32'sd1);
-  // -1 -> 0 boundary
-  cover property (past_valid && $past(in) == -32'sd1 && out == 32'sd0);
-  // Signed positive overflow: 0x7fffffff -> 0x80000000
-  cover property (past_valid && $past(in) == 32'sh7fffffff && out == 32'sh80000000);
-  // A generic negative value increments
-  cover property (past_valid && $past(in) == -32'sd2 && out == -32'sd1);
+    // Minimum negative value increments to the next signed value.
+    check_negative_min_to_next: assert property (
+        @(posedge clk) (in == 32'sh80000000) |=> (out == 32'sh80000001)
+    );
 
 endmodule
-
-// Bind into DUT
-bind incrementer incrementer_sva u_incrementer_sva(.clk(clk), .in(in), .out(out));

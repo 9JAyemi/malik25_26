@@ -1,75 +1,65 @@
-// Bindable SVA checker for sky130_fd_sc_ls__fahcon
-module sky130_fd_sc_ls__fahcon_sva(input logic A, B, CI, SUM, COUT_N);
-
-  // Functional correctness (only check when inputs are 0/1)
-  assert property (@(A or B or CI)
-    !$isunknown({A,B,CI}) |-> (SUM == (A ^ B ^ CI))
-  ) else $error("SUM != A^B^CI");
-
-  assert property (@(A or B or CI)
-    !$isunknown({A,B,CI}) |-> (COUT_N == ~((A & B) | (A & CI) | (B & CI)))
-  ) else $error("COUT_N != ~(A&B | A&CI | B&CI)");
-
-  // Outputs must not be X/Z when inputs are 0/1
-  assert property (@(A or B or CI)
-    !$isunknown({A,B,CI}) |-> !$isunknown({SUM,COUT_N})
-  ) else $error("Outputs X/Z with clean inputs");
-
-  // Coverage: exercise all input combinations
-  cover property (@(A or B or CI) (A==0 && B==0 && CI==0));
-  cover property (@(A or B or CI) (A==0 && B==0 && CI==1));
-  cover property (@(A or B or CI) (A==0 && B==1 && CI==0));
-  cover property (@(A or B or CI) (A==0 && B==1 && CI==1));
-  cover property (@(A or B or CI) (A==1 && B==0 && CI==0));
-  cover property (@(A or B or CI) (A==1 && B==0 && CI==1));
-  cover property (@(A or B or CI) (A==1 && B==1 && CI==0));
-  cover property (@(A or B or CI) (A==1 && B==1 && CI==1));
-
-  // Coverage: output toggles
-  cover property (@(posedge SUM) 1);
-  cover property (@(negedge SUM) 1);
-  cover property (@(posedge COUT_N) 1);
-  cover property (@(negedge COUT_N) 1);
-
-endmodule
-
-bind sky130_fd_sc_ls__fahcon sky130_fd_sc_ls__fahcon_sva u_fahcon_sva(.*);
-
-
-// Optional structural checker (binds to internal nets present in this gate-level DUT)
-module sky130_fd_sc_ls__fahcon_struct_sva(
-  input logic A, B, CI, SUM, COUT_N,
-  input logic xor0_out_SUM, a_b, a_ci, b_ci, or0_out_coutn
+module sky130_fd_sc_ls__fahcon_sva (
+    input logic clk,
+    input logic COUT_N,
+    input logic SUM,
+    input logic A,
+    input logic B,
+    input logic CI
 );
-  assert property (@(A or B or CI or xor0_out_SUM))
-    xor0_out_SUM == (A ^ B ^ CI)
-  else $error("xor0_out_SUM wrong");
 
-  assert property (@(A or B or a_b))
-    a_b == ~(A | B)
-  else $error("a_b wrong");
+    // SUM must be the XOR of the three inputs.
+    check_sum_xor_function: assert property (
+        @(posedge clk) SUM == (A ^ B ^ CI)
+    );
 
-  assert property (@(A or CI or a_ci))
-    a_ci == ~(A | CI)
-  else $error("a_ci wrong");
+    // COUT_N must match the implemented NOR/OR carry network.
+    check_coutn_gate_function: assert property (
+        @(posedge clk) COUT_N == ((~(A | B)) | (~(A | CI)) | (~(B | CI)))
+    );
 
-  assert property (@(B or CI or b_ci))
-    b_ci == ~(B | CI)
-  else $error("b_ci wrong");
+    // The outputs must encode the 2-bit result of A+B+CI.
+    check_full_adder_result: assert property (
+        @(posedge clk) ({1'b0, A} + {1'b0, B} + {1'b0, CI}) == {~COUT_N, SUM}
+    );
 
-  assert property (@(a_b or a_ci or b_ci or or0_out_coutn))
-    or0_out_coutn == (a_b | a_ci | b_ci)
-  else $error("or0_out_coutn wrong");
+    // 000 must produce SUM=0 and COUT_N=1.
+    check_all_zero_case: assert property (
+        @(posedge clk) (!A && !B && !CI) |-> ((SUM == 1'b0) && (COUT_N == 1'b1))
+    );
 
-  assert property (@(xor0_out_SUM or SUM))
-    SUM == xor0_out_SUM
-  else $error("SUM buffer mismatch");
+    // 001 must produce SUM=1 and COUT_N=1.
+    check_ci_only_case: assert property (
+        @(posedge clk) (!A && !B && CI) |-> ((SUM == 1'b1) && (COUT_N == 1'b1))
+    );
 
-  assert property (@(or0_out_coutn or COUT_N))
-    COUT_N == or0_out_coutn
-  else $error("COUT_N buffer mismatch");
+    // 010 must produce SUM=1 and COUT_N=1.
+    check_b_only_case: assert property (
+        @(posedge clk) (!A && B && !CI) |-> ((SUM == 1'b1) && (COUT_N == 1'b1))
+    );
+
+    // 011 must produce SUM=0 and COUT_N=0.
+    check_b_ci_case: assert property (
+        @(posedge clk) (!A && B && CI) |-> ((SUM == 1'b0) && (COUT_N == 1'b0))
+    );
+
+    // 100 must produce SUM=1 and COUT_N=1.
+    check_a_only_case: assert property (
+        @(posedge clk) (A && !B && !CI) |-> ((SUM == 1'b1) && (COUT_N == 1'b1))
+    );
+
+    // 101 must produce SUM=0 and COUT_N=0.
+    check_a_ci_case: assert property (
+        @(posedge clk) (A && !B && CI) |-> ((SUM == 1'b0) && (COUT_N == 1'b0))
+    );
+
+    // 110 must produce SUM=0 and COUT_N=0.
+    check_a_b_case: assert property (
+        @(posedge clk) (A && B && !CI) |-> ((SUM == 1'b0) && (COUT_N == 1'b0))
+    );
+
+    // 111 must produce SUM=1 and COUT_N=0.
+    check_all_one_case: assert property (
+        @(posedge clk) (A && B && CI) |-> ((SUM == 1'b1) && (COUT_N == 1'b0))
+    );
+
 endmodule
-
-bind sky130_fd_sc_ls__fahcon sky130_fd_sc_ls__fahcon_struct_sva u_fahcon_struct_sva
-  (.A(A), .B(B), .CI(CI), .SUM(SUM), .COUT_N(COUT_N),
-   .xor0_out_SUM(xor0_out_SUM), .a_b(a_b), .a_ci(a_ci), .b_ci(b_ci), .or0_out_coutn(or0_out_coutn));

@@ -1,60 +1,36 @@
-// SVA for and2b: X = ~A_N & B, with power/well checks and concise coverage
 module and2b_sva (
-  input  logic A_N,
-  input  logic B,
-  input  logic X,
-  input  logic VPB,
-  input  logic VPWR,
-  input  logic VGND,
-  input  logic VNB
+    input logic A_N,
+    input logic B,
+    input logic X,
+    input logic VPB,
+    input logic VPWR,
+    input logic VGND,
+    input logic VNB
 );
 
-  // Power/well must be valid and static
-  ap_pwr_static: assert property (@(VPWR or VGND or VPB or VNB)
-                                  VPWR === 1'b1 && VGND === 1'b0 &&
-                                  VPB  === 1'b1 && VNB  === 1'b0)
-    else $error("and2b: Power/well pins invalid or changed");
+    // X must implement the RTL equation.
+    check_boolean_function: assert property (
+        @($global_clock) X === (~A_N & B)
+    );
 
-  // Define power-good gating for functional checks/coverage
-  logic pwr_good;
-  assign pwr_good = (VPWR === 1'b1) && (VGND === 1'b0) &&
-                    (VPB  === 1'b1) && (VNB  === 1'b0);
+    // A_N high forces X low.
+    check_a_n_high_forces_x_low: assert property (
+        @($global_clock) (A_N === 1'b1) |-> (X === 1'b0)
+    );
 
-  default disable iff (!pwr_good)
+    // B low forces X low.
+    check_b_low_forces_x_low: assert property (
+        @($global_clock) (B === 1'b0) |-> (X === 1'b0)
+    );
 
-  // Functional equivalence (combinational, 4-state accurate)
-  // Fires on any combinational change
-  always_comb
-    ap_func_eq: assert (X === ((~A_N) & B))
-      else $error("and2b: X != (~A_N & B)  A_N=%b B=%b X=%b", A_N, B, X);
+    // A_N low and B high drive X high.
+    check_active_inputs_drive_x_high: assert property (
+        @($global_clock) ((A_N === 1'b0) && (B === 1'b1)) |-> (X === 1'b1)
+    );
 
-  // When both inputs are known under good power, output must be known
-  ap_known_out: assert property (@(A_N or B or X) !$isunknown({A_N,B}) |-> !$isunknown(X))
-    else $error("and2b: X unknown while inputs known  A_N=%b B=%b X=%b", A_N, B, X);
-
-  // Useful one-cycle implications (same-cycle) for key corners
-  ap_b0_forces_0:  assert property (@(A_N or B or X) (B  === 1'b0) |-> (X === 1'b0));
-  ap_an1_forces_0: assert property (@(A_N or B or X) (A_N=== 1'b1) |-> (X === 1'b0));
-  ap_hit_1:        assert property (@(A_N or B or X) (A_N=== 1'b0 && B===1'b1) |-> (X === 1'b1));
-
-  // Coverage: power-good observed
-  cp_pwr_good:     cover property (@(posedge pwr_good) pwr_good);
-
-  // Coverage: all input combos under good power
-  cp_in_00:        cover property (@(A_N or B) pwr_good && (A_N===1'b0) && (B===1'b0));
-  cp_in_01:        cover property (@(A_N or B) pwr_good && (A_N===1'b0) && (B===1'b1));
-  cp_in_10:        cover property (@(A_N or B) pwr_good && (A_N===1'b1) && (B===1'b0));
-  cp_in_11:        cover property (@(A_N or B) pwr_good && (A_N===1'b1) && (B===1'b1));
-
-  // Coverage: observe X=1 and X=0 under good power
-  cp_x1:           cover property (@(A_N or B or X) pwr_good && X===1'b1);
-  cp_x0:           cover property (@(A_N or B or X) pwr_good && X===1'b0);
-
-  // Coverage: specific zero-by-each-controlling-input scenarios
-  cp_x0_by_b0:     cover property (@(A_N or B or X) pwr_good && (B===1'b0) && (X===1'b0));
-  cp_x0_by_an1:    cover property (@(A_N or B or X) pwr_good && (A_N===1'b1) && (X===1'b0));
+    // X high implies the enabling input combination.
+    check_x_high_requires_inputs: assert property (
+        @($global_clock) (X === 1'b1) |-> ((A_N === 1'b0) && (B === 1'b1))
+    );
 
 endmodule
-
-// Bind to DUT
-bind and2b and2b_sva u_and2b_sva (.*);

@@ -1,65 +1,50 @@
-// SVA for four_bit_adder and full_adder (combinational; sample after ##0 to avoid delta glitches)
-
-module four_bit_adder_sva
-(
-  input  logic [3:0] A,
-  input  logic [3:0] B,
-  input  logic       Cin,
-  input  logic [3:0] S,
-  input  logic       Cout
+module four_bit_adder_assertions (
+    input logic clk,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic Cin,
+    input logic [3:0] S,
+    input logic Cout
 );
-  // Local combinational reference model
-  let c0 = (A[0]&B[0]) | (A[0]&Cin) | (B[0]&Cin);
-  let s0 = A[0]^B[0]^Cin;
-  let c1 = (A[1]&B[1]) | (A[1]&c0)  | (B[1]&c0);
-  let s1 = A[1]^B[1]^c0;
-  let c2 = (A[2]&B[2]) | (A[2]&c1)  | (B[2]&c1);
-  let s2 = A[2]^B[2]^c1;
-  let c3 = (A[3]&B[3]) | (A[3]&c2)  | (B[3]&c2);
-  let s3 = A[3]^B[3]^c2;
 
-  // Vector-accurate arithmetic
-  property p_sumvec; @(A or B or Cin) ##0 {Cout,S} == A + B + Cin; endproperty
-  assert property (p_sumvec);
+    // Output vector equals A plus B plus carry-in.
+    check_total_sum: assert property (
+        @(posedge clk) {Cout, S} == ({1'b0, A} + {1'b0, B} + Cin)
+    );
 
-  // Bitwise ripple correctness
-  property p_bitwise; @(A or B or Cin) ##0 (S == {s3,s2,s1,s0}) && (Cout == c3); endproperty
-  assert property (p_bitwise);
+    // Least significant sum bit matches the first full adder.
+    check_lsb_sum: assert property (
+        @(posedge clk) S[0] == (A[0] ^ B[0] ^ Cin)
+    );
 
-  // No X/Z on outputs when inputs are known
-  property p_no_x; @(A or B or Cin or S or Cout) (!$isunknown({A,B,Cin})) |-> ##0 !$isunknown({S,Cout}); endproperty
-  assert property (p_no_x);
+    // Bit 1 sum uses the carry from bit 0.
+    check_bit1_sum: assert property (
+        @(posedge clk) S[1] == (A[1] ^ B[1] ^ (({1'b0, A[0]} + {1'b0, B[0]} + Cin) >= 2'd2))
+    );
 
-  // Concise functional coverage
-  cover property (@(A or B or Cin) ##0 (Cout==0));                            // no carry out
-  cover property (@(A or B or Cin) ##0 (Cout==1));                            // carry out
-  cover property (@(A or B or Cin) ##0 ((A^B)==4'hF && Cin==1 && Cout==1));   // full propagate chain
-  cover property (@(A or B or Cin) ##0 ({Cout,S}==5'h00));                    // sum zero
-  cover property (@(A or B or Cin) ##0 ({Cout,S}==5'h1F));                    // max sum
+    // Bit 2 sum uses the carry from bits [1:0].
+    check_bit2_sum: assert property (
+        @(posedge clk) S[2] == (A[2] ^ B[2] ^ (({1'b0, A[1:0]} + {1'b0, B[1:0]} + Cin) >= 3'd4))
+    );
+
+    // Bit 3 sum uses the carry from bits [2:0].
+    check_msb_sum: assert property (
+        @(posedge clk) S[3] == (A[3] ^ B[3] ^ (({1'b0, A[2:0]} + {1'b0, B[2:0]} + Cin) >= 4'd8))
+    );
+
+    // Carry out is high exactly when the 4-bit addition overflows.
+    check_cout_overflow: assert property (
+        @(posedge clk) Cout == (({1'b0, A} + {1'b0, B} + Cin) >= 5'd16)
+    );
+
+    // Adding zero on B with no carry-in passes A through.
+    check_add_zero_b: assert property (
+        @(posedge clk) ((B == 4'b0000) && (Cin == 1'b0)) |-> ({Cout, S} == {1'b0, A})
+    );
+
+    // Adding zero on A with no carry-in passes B through.
+    check_add_zero_a: assert property (
+        @(posedge clk) ((A == 4'b0000) && (Cin == 1'b0)) |-> ({Cout, S} == {1'b0, B})
+    );
+
 endmodule
-
-module full_adder_sva
-(
-  input  logic A,
-  input  logic B,
-  input  logic Cin,
-  input  logic S,
-  input  logic C
-);
-  // Functional correctness
-  property p_fa_func; @(A or B or Cin) ##0 (S == (A^B^Cin)) && (C == ((A&B)|(A&Cin)|(B&Cin))); endproperty
-  assert property (p_fa_func);
-
-  // No X/Z on outputs when inputs are known
-  property p_fa_no_x; @(A or B or Cin or S or C) (!$isunknown({A,B,Cin})) |-> ##0 !$isunknown({S,C}); endproperty
-  assert property (p_fa_no_x);
-
-  // Coverage of key FA behaviors
-  cover property (@(A or B or Cin) ##0 ((A^B) && !Cin && (C==0) && (S==1))); // propagate, Cin=0
-  cover property (@(A or B or Cin) ##0 ((A^B) &&  Cin && (C==1) && (S==0))); // propagate, Cin=1
-  cover property (@(A or B or Cin) ##0 ((A&B) && (C==1)));                   // generate
-endmodule
-
-// Bind SVA to DUTs
-bind four_bit_adder four_bit_adder_sva u_four_bit_adder_sva(.A(A),.B(B),.Cin(Cin),.S(S),.Cout(Cout));
-bind full_adder     full_adder_sva     u_full_adder_sva    (.A(A),.B(B),.Cin(Cin),.S(S),.C(C));

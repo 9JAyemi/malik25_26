@@ -1,47 +1,49 @@
-// SVA for bitwise_or. Bind this to the DUT.
-// Focus: correctness when enabled, hold when disabled, no unintended updates,
-// and concise functional coverage of OR behavior.
-
-module bitwise_or_assert
-(
-  input logic        clk,
-  input logic        enable,
-  input logic [7:0]  A,
-  input logic [7:0]  B,
-  input logic [7:0]  result
+module bitwise_or_sva(
+    input logic [7:0] A,
+    input logic [7:0] B,
+    input logic enable,
+    input logic clk,
+    input logic [7:0] result
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Functional correctness on enable
-  assert property (enable && !$isunknown({A,B}) |-> result == (A | B));
+    // When enabled, result captures the sampled bitwise OR of A and B.
+    check_enabled_or_update: assert property (
+        @(posedge clk) enable |=> (result == $past(A | B))
+    );
 
-  // Hold behavior when disabled
-  assert property (!enable |-> result == $past(result));
+    // If A is zero when enabled, result captures B.
+    check_a_zero_passes_b: assert property (
+        @(posedge clk) (enable && (A == 8'h00)) |=> (result == $past(B))
+    );
 
-  // Result only changes on cycles with enable asserted
-  assert property ($changed(result) |-> enable);
+    // If B is zero when enabled, result captures A.
+    check_b_zero_passes_a: assert property (
+        @(posedge clk) (enable && (B == 8'h00)) |=> (result == $past(A))
+    );
 
-  // Basic sanity: if last result was known and we’re disabled, keep it known
-  assert property (!enable && !$isunknown($past(result)) |-> !$isunknown(result));
+    // If both inputs are equal when enabled, result captures that value.
+    check_equal_inputs_pass_through: assert property (
+        @(posedge clk) (enable && (A == B)) |=> (result == $past(A))
+    );
 
-  // ----------------
-  // Functional coverage
-  // ----------------
+    // If A and B have no overlapping 1 bits when enabled, OR matches XOR.
+    check_disjoint_inputs_match_xor: assert property (
+        @(posedge clk) (enable && ((A & B) == 8'h00)) |=> (result == ($past(A) ^ $past(B)))
+    );
 
-  // Hit all four bitwise OR input/output cases somewhere in the word on enabled cycles
-  cover property (enable && result==(A|B) && |(~(A|B)));       // exists bit: 0|0 -> 0
-  cover property (enable && result==(A|B) && |(A & ~B));        // exists bit: 1|0 -> 1
-  cover property (enable && result==(A|B) && |(~A & B));        // exists bit: 0|1 -> 1
-  cover property (enable && result==(A|B) && |(A & B));         // exists bit: 1|1 -> 1
+    // If all 1 bits of A are already present in B when enabled, result captures B.
+    check_a_subset_of_b: assert property (
+        @(posedge clk) (enable && ((A & B) == A)) |=> (result == $past(B))
+    );
 
-  // Extremes: all-zero and all-one OR results
-  cover property (enable && (A|B)==8'h00 && result==8'h00);
-  cover property (enable && (A|B)==8'hFF && result==8'hFF);
+    // If all 1 bits of B are already present in A when enabled, result captures A.
+    check_b_subset_of_a: assert property (
+        @(posedge clk) (enable && ((A & B) == B)) |=> (result == $past(A))
+    );
 
-  // Observe an actual update and a disabled hold streak
-  cover property (enable && $changed(result));
-  cover property (!enable ##1 !enable && $stable(result));
+    // If either input is all ones when enabled, result becomes all ones.
+    check_all_ones_dominates: assert property (
+        @(posedge clk) (enable && ((A == 8'hFF) || (B == 8'hFF))) |=> (result == 8'hFF)
+    );
 
 endmodule
-
-bind bitwise_or bitwise_or_assert sva (.*);

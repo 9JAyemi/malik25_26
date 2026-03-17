@@ -1,74 +1,101 @@
-// SVA checker for priority_mux
-// Uses immediate assertions/covers (no clock required). Bind into DUT.
-
 module priority_mux_sva (
-  input [3:0] A, B, C, D,
-  input [1:0] S,
-  input       Y, Z
+    input logic        clk,
+    input logic [3:0]  A,
+    input logic [3:0]  B,
+    input logic [3:0]  C,
+    input logic [3:0]  D,
+    input logic [1:0]  S,
+    input logic        Y,
+    input logic        Z
 );
-  // Treat 4-bit inputs as booleans (any bit set)
-  wire a = |A;
-  wire b = |B;
-  wire c = |C;
-  wire d = |D;
 
-  // Expected behavior per RTL
-  wire expY =
-      (S==2'b00 &&  a               ) ||
-      (S==2'b01 && !b && a          ) ||
-      (S==2'b10 && !c && a          ) ||
-      (S==2'b11 && !d && a          );
+    // Y and Z are never driven high together.
+    check_outputs_not_both_high: assert property (
+        @(posedge clk) !(Y && Z)
+    );
 
-  wire expZ =
-      (S==2'b00 && !a && b          ) ||
-      (S==2'b01 &&  b               ) ||
-      (S==2'b10 && !c && !a && b    ) ||
-      (S==2'b11 && !d && !a && b    );
+    // For S=00, any nonzero A selects Y=1 and Z=0.
+    check_sel00_a_priority: assert property (
+        @(posedge clk)
+        (S == 2'b00 && (A != 4'b0000)) |-> (Y == 1'b1 && Z == 1'b0)
+    );
 
-  // Basic sanity
-  always @* begin
-    assert (!$isunknown({S,a,b,c,d})) else $error("X/Z on inputs");
-    assert (!$isunknown({Y,Z}))       else $error("X/Z on outputs");
-    assert (!(Y & Z))                 else $error("Illegal Y&Z both 1");
-  end
+    // For S=00, B selects Y=0 and Z=1 when A is zero.
+    check_sel00_b_priority: assert property (
+        @(posedge clk)
+        (S == 2'b00 && (A == 4'b0000) && (B != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b1)
+    );
 
-  // Functional correctness
-  always @* begin
-    assert (Y == expY) else $error("Y mismatch");
-    assert (Z == expZ) else $error("Z mismatch");
-  end
+    // For S=00, outputs are 0 when both A and B are zero.
+    check_sel00_default_zero: assert property (
+        @(posedge clk)
+        (S == 2'b00 && (A == 4'b0000) && (B == 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
 
-  // Functional coverage (exercise all priority/branch outcomes)
-  always @* begin
-    // S=00: A> B> C/D/none (all yield 00 except A/B)
-    cover (S==2'b00 &&  a);
-    cover (S==2'b00 && !a &&  b);
-    cover (S==2'b00 && !a && !b &&  c);
-    cover (S==2'b00 && !a && !b && !c &&  d);
-    cover (S==2'b00 && !a && !b && !c && !d);
+    // For S=01, any nonzero B selects Y=0 and Z=1.
+    check_sel01_b_priority: assert property (
+        @(posedge clk)
+        (S == 2'b01 && (B != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b1)
+    );
 
-    // S=01: B> A> C/D/none
-    cover (S==2'b01 &&  b);
-    cover (S==2'b01 && !b &&  a);
-    cover (S==2'b01 && !b && !a &&  c);
-    cover (S==2'b01 && !b && !a &&  d);
-    cover (S==2'b01 && !b && !a && !c && !d);
+    // For S=01, A selects Y=1 and Z=0 when B is zero.
+    check_sel01_a_priority: assert property (
+        @(posedge clk)
+        (S == 2'b01 && (B == 4'b0000) && (A != 4'b0000)) |-> (Y == 1'b1 && Z == 1'b0)
+    );
 
-    // S=10: C> A> B> D/none
-    cover (S==2'b10 &&  c);
-    cover (S==2'b10 && !c &&  a);
-    cover (S==2'b10 && !c && !a &&  b);
-    cover (S==2'b10 && !c && !a && !b &&  d);
-    cover (S==2'b10 && !c && !a && !b && !d);
+    // For S=01, outputs are 0 when both B and A are zero.
+    check_sel01_default_zero: assert property (
+        @(posedge clk)
+        (S == 2'b01 && (B == 4'b0000) && (A == 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
 
-    // S=11: D> A> B> C/none
-    cover (S==2'b11 &&  d);
-    cover (S==2'b11 && !d &&  a);
-    cover (S==2'b11 && !d && !a &&  b);
-    cover (S==2'b11 && !d && !a && !b &&  c);
-    cover (S==2'b11 && !d && !a && !b && !c);
-  end
+    // For S=10, any nonzero C forces both outputs low.
+    check_sel10_c_priority: assert property (
+        @(posedge clk)
+        (S == 2'b10 && (C != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
+
+    // For S=10, A selects Y=1 and Z=0 when C is zero.
+    check_sel10_a_priority: assert property (
+        @(posedge clk)
+        (S == 2'b10 && (C == 4'b0000) && (A != 4'b0000)) |-> (Y == 1'b1 && Z == 1'b0)
+    );
+
+    // For S=10, B selects Y=0 and Z=1 when C and A are zero.
+    check_sel10_b_priority: assert property (
+        @(posedge clk)
+        (S == 2'b10 && (C == 4'b0000) && (A == 4'b0000) && (B != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b1)
+    );
+
+    // For S=10, outputs are 0 when C, A, and B are all zero.
+    check_sel10_default_zero: assert property (
+        @(posedge clk)
+        (S == 2'b10 && (C == 4'b0000) && (A == 4'b0000) && (B == 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
+
+    // For S=11, any nonzero D forces both outputs low.
+    check_sel11_d_priority: assert property (
+        @(posedge clk)
+        (S == 2'b11 && (D != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
+
+    // For S=11, A selects Y=1 and Z=0 when D is zero.
+    check_sel11_a_priority: assert property (
+        @(posedge clk)
+        (S == 2'b11 && (D == 4'b0000) && (A != 4'b0000)) |-> (Y == 1'b1 && Z == 1'b0)
+    );
+
+    // For S=11, B selects Y=0 and Z=1 when D and A are zero.
+    check_sel11_b_priority: assert property (
+        @(posedge clk)
+        (S == 2'b11 && (D == 4'b0000) && (A == 4'b0000) && (B != 4'b0000)) |-> (Y == 1'b0 && Z == 1'b1)
+    );
+
+    // For S=11, outputs are 0 when D, A, and B are all zero.
+    check_sel11_default_zero: assert property (
+        @(posedge clk)
+        (S == 2'b11 && (D == 4'b0000) && (A == 4'b0000) && (B == 4'b0000)) |-> (Y == 1'b0 && Z == 1'b0)
+    );
+
 endmodule
-
-// Bind into the DUT
-bind priority_mux priority_mux_sva sva_i (.*);

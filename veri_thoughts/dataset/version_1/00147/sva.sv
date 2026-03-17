@@ -1,63 +1,72 @@
-// SVA checker for bin_to_decimal
 module bin_to_decimal_sva (
-  input logic        clk,
-  input logic [15:0] B,
-  input logic [19:0] bcdout
+    input logic        clk,
+    input logic [15:0] B,
+    input logic [19:0] bcdout
 );
 
-  function automatic logic valid_bcd (input logic [19:0] b);
-    return (b[3:0]   <= 9) &&
-           (b[7:4]   <= 9) &&
-           (b[11:8]  <= 9) &&
-           (b[15:12] <= 9) &&
-           (b[19:16] <= 9);
-  endfunction
+function automatic int unsigned bcd_value(input logic [19:0] bcd);
+    begin
+        bcd_value = (bcd[19:16] * 10000) +
+                    (bcd[15:12] * 1000)  +
+                    (bcd[11:8]  * 100)   +
+                    (bcd[7:4]   * 10)    +
+                     bcd[3:0];
+    end
+endfunction
 
-  function automatic int unsigned bcd_to_int (input logic [19:0] b);
-    int unsigned v;
-    v  = b[3:0];
-    v += 10    * b[7:4];
-    v += 100   * b[11:8];
-    v += 1000  * b[15:12];
-    v += 10000 * b[19:16];
-    return v;
-  endfunction
+// Ones nibble is a legal BCD digit.
+check_ones_digit_valid: assert property (
+    @(posedge clk) bcdout[3:0] <= 4'd9
+);
 
-  // No X/Z on inputs/outputs
-  a_no_x_in:  assert property (@(posedge clk) !$isunknown(B));
-  a_no_x_out: assert property (@(posedge clk) !$isunknown(bcdout));
+// Tens nibble is a legal BCD digit.
+check_tens_digit_valid: assert property (
+    @(posedge clk) bcdout[7:4] <= 4'd9
+);
 
-  // BCD digit validity
-  a_valid_bcd: assert property (@(posedge clk) valid_bcd(bcdout));
+// Hundreds nibble is a legal BCD digit.
+check_hundreds_digit_valid: assert property (
+    @(posedge clk) bcdout[11:8] <= 4'd9
+);
 
-  // Functional correctness: BCD value equals binary input
-  a_func: assert property (@(posedge clk) (!$isunknown(B) && !$isunknown(bcdout)) |-> (bcd_to_int(bcdout) == B));
+// Thousands nibble is a legal BCD digit.
+check_thousands_digit_valid: assert property (
+    @(posedge clk) bcdout[15:12] <= 4'd9
+);
 
-  // Zero-latency combinational behavior (same-cycle after input change)
-  a_zero_lat: assert property (@(posedge clk) $changed(B) |-> ##0 (bcd_to_int(bcdout) == B));
+// Ten-thousands nibble is a legal BCD digit.
+check_ten_thousands_digit_valid: assert property (
+    @(posedge clk) bcdout[19:16] <= 4'd9
+);
 
-  // Stability: if input holds, output holds
-  a_stable: assert property (@(posedge clk) $stable(B) |-> $stable(bcdout));
+// Packed BCD digits represent the same numeric value as B.
+check_bcd_value_matches_input: assert property (
+    @(posedge clk) bcd_value(bcdout) == B
+);
 
-  // Corner-case coverage
-  c_0:      cover property (@(posedge clk) B==16'd0     && bcd_to_int(bcdout)==0);
-  c_9:      cover property (@(posedge clk) B==16'd9     && bcdout[3:0]==4'd9);
-  c_10:     cover property (@(posedge clk) B==16'd10    && bcdout[7:0]==8'h10);
-  c_15:     cover property (@(posedge clk) B==16'd15);
-  c_99:     cover property (@(posedge clk) B==16'd99    && bcdout[7:0]==8'h99);
-  c_100:    cover property (@(posedge clk) B==16'd100   && bcdout[11:0]==12'h100);
-  c_999:    cover property (@(posedge clk) B==16'd999   && bcdout[11:0]==12'h999);
-  c_9999:   cover property (@(posedge clk) B==16'd9999  && bcdout==20'h09999);
-  c_max:    cover property (@(posedge clk) B==16'd65535);
+// Single-digit inputs only use the ones nibble.
+check_single_digit_mapping: assert property (
+    @(posedge clk) (B <= 16'd9) |-> (bcdout == {16'd0, B[3:0]})
+);
 
-  // Ensure each digit can reach 9 sometime
-  c_ones9:   cover property (@(posedge clk) bcdout[3:0]==4'd9);
-  c_tens9:   cover property (@(posedge clk) bcdout[7:4]==4'd9);
-  c_hunds9:  cover property (@(posedge clk) bcdout[11:8]==4'd9);
-  c_thous9:  cover property (@(posedge clk) bcdout[15:12]==4'd9);
-  c_tthous9: cover property (@(posedge clk) bcdout[19:16]==4'd9);
+// Values below 100 keep the upper three BCD digits at zero.
+check_two_digit_upper_digits_zero: assert property (
+    @(posedge clk) (B < 16'd100) |-> (bcdout[19:8] == 12'd0)
+);
+
+// Values below 1000 keep the upper two BCD digits at zero.
+check_three_digit_upper_digits_zero: assert property (
+    @(posedge clk) (B < 16'd1000) |-> (bcdout[19:12] == 8'd0)
+);
+
+// Values below 10000 keep the ten-thousands digit at zero.
+check_four_digit_top_digit_zero: assert property (
+    @(posedge clk) (B < 16'd10000) |-> (bcdout[19:16] == 4'd0)
+);
+
+// Maximum input maps to 65535 in packed BCD.
+check_max_input_mapping: assert property (
+    @(posedge clk) (B == 16'd65535) |-> (bcdout == {4'd6, 4'd5, 4'd5, 4'd3, 4'd5})
+);
 
 endmodule
-
-// Bind into DUT (provide a sampling clock from TB)
-bind bin_to_decimal bin_to_decimal_sva u_bin_to_decimal_sva (.clk(clk), .B(B), .bcdout(bcdout));

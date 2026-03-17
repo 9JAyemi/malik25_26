@@ -1,49 +1,38 @@
-// SVA for shift_register_ring_counter
-module shift_register_ring_counter (input clk, input d, output reg q);
+module shift_register_ring_counter_sva (
+    input logic       clk,
+    input logic       d,
+    input logic       q,
+    input logic [2:0] shift_reg
+);
 
-  reg [2:0] shift_reg;
+    // q always reflects the MSB of the shift register.
+    check_q_tracks_shift_reg_msb: assert property (
+        @(posedge clk) q == shift_reg[2]
+    );
 
-  always @(posedge clk)
-    shift_reg <= {shift_reg[1:0], d};
+    // The shift register shifts left and appends d on each clock.
+    check_shift_reg_update: assert property (
+        @(posedge clk) 1'b1 |=> (shift_reg == {$past(shift_reg[1:0]), $past(d)})
+    );
 
-  always @*
-    q = shift_reg[2];
+    // Bit 0 captures d from the previous clock edge.
+    check_stage0_captures_d: assert property (
+        @(posedge clk) 1'b1 |=> (shift_reg[0] == $past(d))
+    );
 
-`ifndef SYNTHESIS
-  // Environment: no X/Z on input d
-  assume property (@(posedge clk) !$isunknown(d));
+    // Bit 1 captures the previous value of bit 0.
+    check_stage1_shifts_stage0: assert property (
+        @(posedge clk) 1'b1 |=> (shift_reg[1] == $past(shift_reg[0]))
+    );
 
-  // 1-cycle shift behavior
-  assert property (@(posedge clk)
-    !$isunknown({$past(shift_reg), $past(d)}) |-> shift_reg == {$past(shift_reg[1:0]), $past(d)}
-  );
+    // Bit 2 captures the previous value of bit 1.
+    check_stage2_shifts_stage1: assert property (
+        @(posedge clk) 1'b1 |=> (shift_reg[2] == $past(shift_reg[1]))
+    );
 
-  // q mirrors MSB of shift_reg
-  assert property (@(posedge clk)
-    !$isunknown(shift_reg[2]) |-> q == shift_reg[2]
-  );
-
-  // End-to-end: q equals d from 3 cycles ago
-  assert property (@(posedge clk)
-    !$isunknown($past(d,3)) |-> q == $past(d,3)
-  );
-
-  // After pipeline fill, no X/Z in state or output
-  assert property (@(posedge clk)
-    $past(1'b1,3) |-> !$isunknown({shift_reg, q})
-  );
-
-  // Functional coverage: both values propagate through the 3-stage pipeline
-  cover property (@(posedge clk) d==1 ##3 q==1);
-  cover property (@(posedge clk) d==0 ##3 q==0);
-
-  // Cover all 3-bit internal states
-  generate
-    genvar i;
-    for (i=0; i<8; i++) begin : C_STATES
-      cover property (@(posedge clk) shift_reg == i[2:0]);
-    end
-  endgenerate
-`endif
+    // q matches d from three sampled clock edges earlier.
+    check_q_matches_delayed_d: assert property (
+        @(posedge clk) 1'b1 |=> ##2 (q == $past(d,3))
+    );
 
 endmodule

@@ -1,43 +1,38 @@
-// SVA checker for sky130_fd_sc_hd__nor4b
 module sky130_fd_sc_hd__nor4b_sva (
-    input Y, A, B, C, D_N,
-    input VPWR, VGND, VPB, VNB
+    input logic Y,
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D_N,
+    input logic VPWR,
+    input logic VGND,
+    input logic VPB,
+    input logic VNB
 );
 
-  // Power-good and function
-  wire pwr_good = (VPWR===1'b1) && (VGND===1'b0) && (VPB===1'b1) && (VNB===1'b0);
-  wire [3:0] in = {A,B,C,D_N};
-  wire y_func = ~(A | B | C | D_N);
+    // Y matches the RTL NOR expression.
+    check_nor4b_function: assert property (
+        @($global_clock) Y == ~(A | B | C | D_N)
+    );
 
-  // Well ties
-  assert property (@(*) VPB === VPWR);
-  assert property (@(*) VNB === VGND);
+    // All four low inputs drive Y high.
+    check_all_low_drives_y_high: assert property (
+        @($global_clock) (!A && !B && !C && !D_N) |-> Y
+    );
 
-  // Functional correctness when powered and inputs known
-  always_comb begin
-    if (pwr_good && !$isunknown(in)) assert #0 (Y === y_func);
-  end
+    // Any high input drives Y low.
+    check_any_high_drives_y_low: assert property (
+        @($global_clock) (A || B || C || D_N) |-> !Y
+    );
 
-  // Safe 4-state implications (power-good)
-  assert property (@(*) pwr_good && (A===1 || B===1 || C===1 || D_N===1) |-> (Y===1'b0));
-  assert property (@(*) pwr_good && (A===0 && B===0 && C===0 && D_N===0) |-> (Y===1'b1));
-  assert property (@(*) pwr_good && (Y===1'b1) |-> (A===0 && B===0 && C===0 && D_N===0));
-  assert property (@(*) pwr_good && (Y===1'b0) |-> (A===1 || B===1 || C===1 || D_N===1));
+    // Y high means every input is low.
+    check_y_high_requires_all_low: assert property (
+        @($global_clock) Y |-> (!A && !B && !C && !D_N)
+    );
 
-  // Zero-delay response on known input changes
-  assert property (@(*) (pwr_good && !$isunknown(in) && $changed(in)) |-> ##0 (Y === y_func));
-
-  // Coverage
-  cover property (@(*) pwr_good);
-  cover property (@(*) pwr_good && (Y===1));
-  cover property (@(*) pwr_good && (Y===0));
-  cover property (@(*) pwr_good && (A===0 && B===0 && C===0 && D_N===0) && (Y===1));
-  cover property (@(*) pwr_good && (A===1 && B===0 && C===0 && D_N===0) && (Y===0));
-  cover property (@(*) pwr_good && (A===0 && B===1 && C===0 && D_N===0) && (Y===0));
-  cover property (@(*) pwr_good && (A===0 && B===0 && C===1 && D_N===0) && (Y===0));
-  cover property (@(*) pwr_good && (A===0 && B===0 && C===0 && D_N===1) && (Y===0));
+    // Y low means at least one input is high.
+    check_y_low_requires_any_high: assert property (
+        @($global_clock) !Y |-> (A || B || C || D_N)
+    );
 
 endmodule
-
-// Bind to all instances of the DUT
-bind sky130_fd_sc_hd__nor4b sky130_fd_sc_hd__nor4b_sva sva_i (.*);

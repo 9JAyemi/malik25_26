@@ -1,57 +1,33 @@
-// SVA for SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4
-// Function: On each posedge CLK, if EN=1 then ENCLK samples TE; else ENCLK=0.
-
-module SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4_sva
-(
-  input logic CLK,
-  input logic EN,
-  input logic TE,
-  input logic ENCLK
+module SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4_sva (
+    input logic CLK,
+    input logic EN,
+    input logic TE,
+    input logic ENCLK
 );
 
-  // establish safe use of $past
-  bit past_valid;
-  initial past_valid = 0;
-  always_ff @(posedge CLK) past_valid <= 1'b1;
+    // When enabled with TE high, the next sampled output must be high.
+    check_capture_high_when_enabled: assert property (
+        @(posedge CLK) (EN && TE) |=> ENCLK
+    );
 
-  default clocking cb @(posedge CLK); endclocking
+    // When enabled with TE low, the next sampled output must be low.
+    check_capture_low_when_enabled: assert property (
+        @(posedge CLK) (EN && !TE) |=> !ENCLK
+    );
 
-  // Functional mapping (forward)
-  assert property (disable iff (!past_valid)
-    EN |-> ##1 (ENCLK == $past(TE))
-  );
-  assert property (disable iff (!past_valid)
-    !EN |-> ##1 (ENCLK == 1'b0)
-  );
+    // When disabled, the next sampled output must be cleared low.
+    check_clear_when_disabled: assert property (
+        @(posedge CLK) (!EN) |=> !ENCLK
+    );
 
-  // Functional consistency (backward)
-  assert property (disable iff (!past_valid)
-    ENCLK |-> $past(EN && TE)
-  );
-  assert property (disable iff (!past_valid)
-    !ENCLK |-> $past(!EN || !TE)
-  );
+    // A high output must come from EN and TE both being high on the prior clock.
+    check_high_requires_prior_enable_and_te: assert property (
+        @(posedge CLK) !$initstate && ENCLK |-> ($past(EN) && $past(TE))
+    );
 
-  // No mid-cycle change (basic check at negedge)
-  assert property (@(negedge CLK) $stable(ENCLK));
-
-  // X-checks
-  assert property (disable iff (!past_valid) !$isunknown({EN,TE}));
-  assert property (disable iff (!past_valid) !$isunknown(ENCLK));
-
-  // Coverage
-  cover property (EN && TE);
-  cover property (EN && !TE);
-  cover property (!EN);
-
-  cover property ($rose(ENCLK));
-  cover property ($fell(ENCLK));
-
-  // Output follows TE while enabled (rise then fall cases)
-  cover property (EN && !TE ##1 EN && TE ##1 (ENCLK==1));
-  cover property (EN && TE ##1 EN && !TE ##1 (ENCLK==0));
+    // After the first clock, the output matches the prior cycle's registered function.
+    check_registered_output_function: assert property (
+        @(posedge CLK) !$initstate |-> (ENCLK == ($past(EN) ? $past(TE) : 1'b0))
+    );
 
 endmodule
-
-bind SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4 SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4_sva
-  i_SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4_sva(.CLK(CLK), .EN(EN), .TE(TE), .ENCLK(ENCLK));

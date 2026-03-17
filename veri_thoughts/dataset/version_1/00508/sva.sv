@@ -1,39 +1,45 @@
-// SVA checker for mux4to1
 module mux4to1_sva (
-  input logic [3:0] in,
-  input logic [1:0] sel,
-  input logic       out
+    input logic       clk,
+    input logic [3:0] in,
+    input logic [1:0] sel,
+    input logic       out
 );
 
-  // Functional equivalence (handles X/Z on sel -> default 0)
-  assert property (@(in or sel or out)
-    1'b1 |-> ##0 ( $isunknown(sel) ? (out === 1'b0) : (out === in[sel]) )
-  ) else $error("mux4to1 func mismatch: sel=%b in=%b out=%b", sel, in, out);
+    // sel=00 routes in[0] to out.
+    check_sel_00_routes_in0: assert property (
+        @(posedge clk) (sel === 2'b00) |-> (out === in[0])
+    );
 
-  // With stable sel, output changes only if selected input changes
-  assert property (@(in or sel or out)
-    !$isunknown(sel) && $stable(sel) && $changed(out) |-> $changed(in[sel])
-  ) else $error("mux4to1 spurious out change: sel=%b in=%b out=%b", sel, in, out);
+    // sel=01 routes in[1] to out.
+    check_sel_01_routes_in1: assert property (
+        @(posedge clk) (sel === 2'b01) |-> (out === in[1])
+    );
 
-  // With stable sel, selected input changes reflect immediately at out
-  assert property (@(in or sel or out)
-    !$isunknown(sel) && $stable(sel) && $changed(in[sel])
-      |-> ##0 ($changed(out) && out === in[sel])
-  ) else $error("mux4to1 transparency fail: sel=%b in=%b out=%b", sel, in, out);
+    // sel=10 routes in[2] to out.
+    check_sel_10_routes_in2: assert property (
+        @(posedge clk) (sel === 2'b10) |-> (out === in[2])
+    );
 
-  // Coverage: each select mapping observed
-  genvar i;
-  generate
-    for (i = 0; i < 4; i++) begin : C
-      cover property (@(in or sel or out) sel == i ##0 (out === in[i]));
-      cover property (@(in or sel or out) sel == i && $rose(in[i]) ##0 $rose(out));
-      cover property (@(in or sel or out) sel == i && $fell(in[i]) ##0 $fell(out));
-    end
-  endgenerate
-  // Coverage: default case on X/Z select drives 0
-  cover property (@(in or sel or out) $isunknown(sel) ##0 (out === 1'b0));
+    // sel=11 routes in[3] to out.
+    check_sel_11_routes_in3: assert property (
+        @(posedge clk) (sel === 2'b11) |-> (out === in[3])
+    );
+
+    // Any non-matching select value drives the default output of 0.
+    check_default_out_zero: assert property (
+        @(posedge clk)
+        !((sel === 2'b00) || (sel === 2'b01) || (sel === 2'b10) || (sel === 2'b11))
+        |-> (out === 1'b0)
+    );
+
+    // out always matches the mux case selection.
+    check_full_mux_behavior: assert property (
+        @(posedge clk)
+        out === ((sel === 2'b00) ? in[0] :
+                 (sel === 2'b01) ? in[1] :
+                 (sel === 2'b10) ? in[2] :
+                 (sel === 2'b11) ? in[3] :
+                                   1'b0)
+    );
 
 endmodule
-
-// Bind into the DUT
-bind mux4to1 mux4to1_sva u_mux4to1_sva (.in(in), .sel(sel), .out(out));

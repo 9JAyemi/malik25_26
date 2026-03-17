@@ -1,44 +1,42 @@
-// SVA for binary_counter
-module binary_counter_sva #(parameter WIDTH=4)
-(
-  input logic              clk,
-  input logic              rst,
-  input logic              en,
-  input logic [WIDTH-1:0]  out
+module binary_counter_sva(
+    input logic       clk,
+    input logic       rst,
+    input logic       en,
+    input logic [3:0] out
 );
 
-  bit started;
-  initial started = 1'b0;
-  always @(posedge clk) started <= 1'b1;
+    // Reset clears the counter on the next sampled cycle.
+    check_reset_clears_out: assert property (
+        @(posedge clk) rst |=> (out == 4'b0000)
+    );
 
-  default clocking cb @(posedge clk); endclocking
+    // Reset takes priority over enable and still clears the counter.
+    check_reset_priority_over_enable: assert property (
+        @(posedge clk) (rst && en) |=> (out == 4'b0000)
+    );
 
-  // Core next-state functional equivalence (covers reset, hold, increment, wrap)
-  assert property (disable iff (!started)
-    out == ( $past(rst) ? {WIDTH{1'b0}}
-           : ($past(en) ? $past(out) + 1'b1
-                        : $past(out) ) )
-  );
+    // When enabled outside reset, the counter increments by one.
+    check_increment_when_enabled: assert property (
+        @(posedge clk) disable iff (rst)
+        en |=> (out == ($past(out) + 4'd1))
+    );
 
-  // Optional sanity: output never X/Z once running
-  assert property (disable iff (!started) !$isunknown(out));
+    // When disabled outside reset, the counter holds its value.
+    check_hold_when_disabled: assert property (
+        @(posedge clk) disable iff (rst)
+        !en |=> (out == $past(out))
+    );
 
-  // Coverage: exercise all branches and wrap
-  cover property (disable iff (!started) $past(rst) && (out == {WIDTH{1'b0}}));                      // reset branch
-  cover property (disable iff (!started) !$past(rst) && !$past(en) && (out == $past(out)));          // hold branch
-  cover property (disable iff (!started) !$past(rst) && $past(en) &&
-                                   ($past(out) != {WIDTH{1'b1}}) && (out == $past(out) + 1'b1));     // increment (no wrap)
-  cover property (disable iff (!started) !$past(rst) && $past(en) &&
-                                   ($past(out) == {WIDTH{1'b1}}) && (out == {WIDTH{1'b0}}));         // wrap 15->0
-  cover property (disable iff (!started) $past(rst) && $past(en) && (out == {WIDTH{1'b0}}));         // rst wins over en
+    // Outside reset, the next state is either hold or increment.
+    check_only_hold_or_increment: assert property (
+        @(posedge clk) disable iff (rst)
+        1'b1 |=> ((out == $past(out)) || (out == ($past(out) + 4'd1)))
+    );
+
+    // Enabling the counter at 4'hF wraps it back to 4'h0.
+    check_wrap_from_max: assert property (
+        @(posedge clk) disable iff (rst)
+        (en && (out == 4'hF)) |=> (out == 4'h0)
+    );
 
 endmodule
-
-// Bind into DUT
-bind binary_counter binary_counter_sva #(.WIDTH(4)) i_binary_counter_sva
-(
-  .clk(clk),
-  .rst(rst),
-  .en(en),
-  .out(out)
-);

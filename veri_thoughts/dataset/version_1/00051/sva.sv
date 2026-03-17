@@ -1,86 +1,110 @@
-// SVA for altpcierd_icm_sideband
 module altpcierd_icm_sideband_sva (
-  input             clk,
-  input             rstn,
-
-  // inputs
-  input    [12:0]   cfg_busdev,
-  input    [31:0]   cfg_devcsr,
-  input    [31:0]   cfg_linkcsr,
-  input    [31:0]   cfg_prmcsr,
-  input    [23:0]   cfg_tcvcmap,
-  input    [15:0]   cfg_msicsr,
-  input    [4:0]    pex_msi_num,
-  input             app_int_sts,
-  input             app_int_sts_ack,
-  input    [2:0]    cpl_err,
-  input             cpl_pending,
-
-  // registered outputs
-  input    [12:0]   cfg_busdev_del,
-  input    [31:0]   cfg_devcsr_del,
-  input    [31:0]   cfg_linkcsr_del,
-  input    [31:0]   cfg_prmcsr_del,
-  input    [23:0]   cfg_tcvcmap_del,
-  input    [15:0]   cfg_msicsr_del,
-  input             app_int_sts_del,
-  input             app_int_sts_ack_del,
-  input    [4:0]    pex_msi_num_del,
-  input    [2:0]    cpl_err_del,
-  input             cpl_pending_del
+    input logic         clk,
+    input logic         rstn,
+    input logic [12:0]  cfg_busdev,
+    input logic [31:0]  cfg_devcsr,
+    input logic [31:0]  cfg_linkcsr,
+    input logic [15:0]  cfg_msicsr,
+    input logic [31:0]  cfg_prmcsr,
+    input logic [23:0]  cfg_tcvcmap,
+    input logic         app_int_sts,
+    input logic         app_int_sts_ack,
+    input logic [4:0]   pex_msi_num,
+    input logic [2:0]   cpl_err,
+    input logic         cpl_pending,
+    input logic [12:0]  cfg_busdev_del,
+    input logic [31:0]  cfg_devcsr_del,
+    input logic [31:0]  cfg_linkcsr_del,
+    input logic [15:0]  cfg_msicsr_del,
+    input logic [31:0]  cfg_prmcsr_del,
+    input logic [23:0]  cfg_tcvcmap_del,
+    input logic         app_int_sts_del,
+    input logic         app_int_sts_ack_del,
+    input logic [4:0]   pex_msi_num_del,
+    input logic [2:0]   cpl_err_del,
+    input logic         cpl_pending_del
 );
 
-  default clocking cb @ (posedge clk); endclocking
+    // A sampled reset low clears all delayed outputs by the next clock.
+    check_outputs_cleared_by_reset: assert property (
+        @(posedge clk)
+        !rstn |=> ({cfg_busdev_del,
+                    cfg_devcsr_del,
+                    cfg_linkcsr_del,
+                    cfg_msicsr_del,
+                    cfg_prmcsr_del,
+                    cfg_tcvcmap_del,
+                    app_int_sts_del,
+                    app_int_sts_ack_del,
+                    pex_msi_num_del,
+                    cpl_err_del,
+                    cpl_pending_del} == 160'h0)
+    );
 
-  // Reset values must be 0 while rstn==0 (checked every clk)
-  ap_reset_values: assert property (
-    !rstn |->
-      (cfg_busdev_del  === 13'h0) &&
-      (cfg_devcsr_del  === 32'h0) &&
-      (cfg_linkcsr_del === 32'h0) &&
-      (cfg_prmcsr_del  === 32'h0) &&
-      (cfg_tcvcmap_del === 24'h0) &&
-      (cfg_msicsr_del  === 16'h0) &&
-      (app_int_sts_del === 1'b0 ) &&
-      (app_int_sts_ack_del === 1'b0) &&
-      (pex_msi_num_del === 5'h0 ) &&
-      (cpl_err_del     === 3'h0 ) &&
-      (cpl_pending_del === 1'b0 )
-  );
+    // cfg_busdev_del is the registered copy of cfg_busdev.
+    check_cfg_busdev_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_busdev_del == $past(cfg_busdev))
+    );
 
-  // One-cycle pipeline (only when both current and previous cycles are out of reset)
-  ap_pipe_delay: assert property (
-    rstn && $past(rstn) |->
-      (cfg_busdev_del   === $past(cfg_busdev))   &&
-      (cfg_devcsr_del   === $past(cfg_devcsr))   &&
-      (cfg_linkcsr_del  === $past(cfg_linkcsr))  &&
-      (cfg_prmcsr_del   === $past(cfg_prmcsr))   &&
-      (cfg_tcvcmap_del  === $past(cfg_tcvcmap))  &&
-      (cfg_msicsr_del   === $past(cfg_msicsr))   &&
-      (app_int_sts_del  === $past(app_int_sts))  &&
-      (app_int_sts_ack_del === $past(app_int_sts_ack)) &&
-      (pex_msi_num_del  === $past(pex_msi_num))  &&
-      (cpl_err_del      === $past(cpl_err))      &&
-      (cpl_pending_del  === $past(cpl_pending))
-  );
+    // cfg_devcsr_del is the registered copy of cfg_devcsr.
+    check_cfg_devcsr_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_devcsr_del == $past(cfg_devcsr))
+    );
 
-  // Coverage: reset release seen
-  cp_reset_release: cover property ($rose(rstn));
+    // cfg_linkcsr_del is the registered copy of cfg_linkcsr.
+    check_cfg_linkcsr_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_linkcsr_del == $past(cfg_linkcsr))
+    );
 
-  // Coverage: each path exercised with a visible transfer after an input change
-  cp_cfg_busdev   : cover property (rstn && $past(rstn) && $changed(cfg_busdev)   |=> cfg_busdev_del   === $past(cfg_busdev));
-  cp_devcsr       : cover property (rstn && $past(rstn) && $changed(cfg_devcsr)   |=> cfg_devcsr_del   === $past(cfg_devcsr));
-  cp_linkcsr      : cover property (rstn && $past(rstn) && $changed(cfg_linkcsr)  |=> cfg_linkcsr_del  === $past(cfg_linkcsr));
-  cp_prmcsr       : cover property (rstn && $past(rstn) && $changed(cfg_prmcsr)   |=> cfg_prmcsr_del   === $past(cfg_prmcsr));
-  cp_tcvcmap      : cover property (rstn && $past(rstn) && $changed(cfg_tcvcmap)  |=> cfg_tcvcmap_del  === $past(cfg_tcvcmap));
-  cp_msicsr       : cover property (rstn && $past(rstn) && $changed(cfg_msicsr)   |=> cfg_msicsr_del   === $past(cfg_msicsr));
-  cp_app_int_sts  : cover property (rstn && $past(rstn) && $changed(app_int_sts)  |=> app_int_sts_del  === $past(app_int_sts));
-  cp_app_int_ack  : cover property (rstn && $past(rstn) && $changed(app_int_sts_ack) |=> app_int_sts_ack_del === $past(app_int_sts_ack));
-  cp_msi_num      : cover property (rstn && $past(rstn) && $changed(pex_msi_num)  |=> pex_msi_num_del  === $past(pex_msi_num));
-  cp_cpl_err      : cover property (rstn && $past(rstn) && $changed(cpl_err)      |=> cpl_err_del      === $past(cpl_err));
-  cp_cpl_pend     : cover property (rstn && $past(rstn) && $changed(cpl_pending)  |=> cpl_pending_del  === $past(cpl_pending));
+    // cfg_msicsr_del is the registered copy of cfg_msicsr.
+    check_cfg_msicsr_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_msicsr_del == $past(cfg_msicsr))
+    );
+
+    // cfg_prmcsr_del is the registered copy of cfg_prmcsr.
+    check_cfg_prmcsr_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_prmcsr_del == $past(cfg_prmcsr))
+    );
+
+    // cfg_tcvcmap_del is the registered copy of cfg_tcvcmap.
+    check_cfg_tcvcmap_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cfg_tcvcmap_del == $past(cfg_tcvcmap))
+    );
+
+    // app_int_sts_del is the registered copy of app_int_sts.
+    check_app_int_sts_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (app_int_sts_del == $past(app_int_sts))
+    );
+
+    // app_int_sts_ack_del is the registered copy of app_int_sts_ack.
+    check_app_int_sts_ack_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (app_int_sts_ack_del == $past(app_int_sts_ack))
+    );
+
+    // pex_msi_num_del is the registered copy of pex_msi_num.
+    check_pex_msi_num_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (pex_msi_num_del == $past(pex_msi_num))
+    );
+
+    // cpl_err_del is the registered copy of cpl_err.
+    check_cpl_err_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cpl_err_del == $past(cpl_err))
+    );
+
+    // cpl_pending_del is the registered copy of cpl_pending.
+    check_cpl_pending_delay: assert property (
+        @(posedge clk) disable iff (!rstn)
+        1'b1 |=> (cpl_pending_del == $past(cpl_pending))
+    );
 
 endmodule
-
-// Bind into the DUT
-bind altpcierd_icm_sideband altpcierd_icm_sideband_sva u_altpcierd_icm_sideband_sva (.*);

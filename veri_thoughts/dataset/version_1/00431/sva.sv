@@ -1,42 +1,38 @@
-// SVA for adder16: concise, high-quality checks and targeted coverage.
-// Bind these assertions to the DUT.
-
-module adder16_sva #(parameter W=16)
-(
-  input logic [W-1:0] A,
-  input logic [W-1:0] B,
-  input logic [W-1:0] Y
+module adder16_sva (
+    input logic        clk,
+    input logic [15:0] A,
+    input logic [15:0] B,
+    input logic [15:0] Y
 );
-  localparam logic [W-1:0] MASK = {W{1'b1}};
 
-  // Functional equivalence (4-state tolerant): Y matches A+B bit-for-bit (including X/Z)
-  assert property (Y === (A + B))
-    else $error("adder16: Y != A+B (4-state mismatch)");
+    // Y must always equal the 16-bit sum of A and B.
+    check_sum_matches_inputs: assert property (
+        @(posedge clk) Y == (A + B)
+    );
 
-  // Known-on-known: with fully known inputs, output must be fully known and correct
-  assert property (!$isunknown({A,B}) |-> (!$isunknown(Y) && (Y == (A + B))))
-    else $error("adder16: known inputs did not produce known/correct output");
+    // Adding zero on B must pass A through unchanged.
+    check_zero_on_b: assert property (
+        @(posedge clk) (B == 16'h0000) |-> (Y == A)
+    );
 
-  // Identity: adding zero returns the other operand (when inputs known)
-  assert property (!$isunknown({A,B}) && (A==0) |-> (Y==B))
-    else $error("adder16: A==0 but Y!=B");
+    // Adding zero on A must pass B through unchanged.
+    check_zero_on_a: assert property (
+        @(posedge clk) (A == 16'h0000) |-> (Y == B)
+    );
 
-  assert property (!$isunknown({A,B}) && (B==0) |-> (Y==A))
-    else $error("adder16: B==0 but Y!=A");
+    // Complementary inputs must sum to all ones.
+    check_complementary_inputs_all_ones: assert property (
+        @(posedge clk) (B == ~A) |-> (Y == 16'hFFFF)
+    );
 
-  // Algebraic inverses modulo 2^W (when values are known)
-  assert property (!$isunknown({A,B,Y}) |->
-                   (((Y - B) & MASK) == A && ((Y - A) & MASK) == B))
-    else $error("adder16: modulo-2^W inverse check failed");
+    // Adding one to all ones must wrap around to zero.
+    check_max_plus_one_wraps: assert property (
+        @(posedge clk) ((A == 16'hFFFF) && (B == 16'h0001)) |-> (Y == 16'h0000)
+    );
 
-  // Coverage: key corner cases and behaviors
-  cover property (!$isunknown({A,B}) && ({1'b0,A}+{1'b0,B})[W]);                // carry/overflow occurred
-  cover property (!$isunknown({A,B}) && !({1'b0,A}+{1'b0,B})[W]);               // no carry
-  cover property (A=={W{1'b0}} && B=={W{1'b0}} && Y=={W{1'b0}});                // 0+0 -> 0
-  cover property (A=={W{1'b1}} && B=={{(W-1){1'b0}},1'b1} && Y=={W{1'b0}});     // 0xFFFF + 1 -> wrap to 0
-  cover property (A=={W{1'b1}} && B=={W{1'b1}} && Y==({W{1'b1}} - 1));          // max+max -> 0xFFFE
-  cover property (A==({1'b1, {W-1{1'b0}}}) && B==({1'b1, {W-1{1'b0}}}));        // 0x8000 + 0x8000 (carry into MSB)
+    // The least-significant sum bit must match A[0] xor B[0].
+    check_lsb_sum_bit: assert property (
+        @(posedge clk) Y[0] == (A[0] ^ B[0])
+    );
+
 endmodule
-
-// Bind to all instances of adder16
-bind adder16 adder16_sva #(.W(16)) adder16_sva_i (.A(A), .B(B), .Y(Y));

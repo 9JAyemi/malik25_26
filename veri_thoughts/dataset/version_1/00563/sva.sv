@@ -1,52 +1,57 @@
-// SVA for comparator_block: concise, bindable, and comprehensive
-
 module comparator_block_sva #(
-  parameter int N = 8
+    parameter n = 8
 )(
-  input  logic [N-1:0] a,
-  input  logic [N-1:0] b,
-  input  logic         gt,
-  input  logic         lt,
-  input  logic         eq
+    input logic clk,
+    input logic [n-1:0] a,
+    input logic [n-1:0] b,
+    input logic gt,
+    input logic lt,
+    input logic eq
 );
 
-  // Parameter sanity
-  initial assert (N >= 1)
-    else $error("comparator_block_sva: N must be >= 1");
+    // gt matches the OR of zero-extended bit positions where a is 1 and b is 0.
+    check_gt_definition: assert property (
+        @(posedge clk) gt == (|(({1'b0, a}) & ~({1'b0, b})))
+    );
 
-  // Combinational checks guarded against X/Z on inputs
-  always_comb begin
-    if (!$isunknown({a,b})) begin
-      // No X/Z on outputs when inputs are known
-      assert (!$isunknown({gt,lt,eq}))
-        else $error("Outputs contain X/Z with known inputs");
+    // lt matches the OR of zero-extended bit positions where a is 0 and b is 1.
+    check_lt_definition: assert property (
+        @(posedge clk) lt == (|(~({1'b0, a}) & ({1'b0, b})))
+    );
 
-      // Functional correctness
-      assert (eq == (a == b))
-        else $error("eq mismatch: expected (a==b)");
-      assert (gt == |(a & ~b))
-        else $error("gt mismatch: expected |(a & ~b)");
-      assert (lt == |(~a & b))
-        else $error("lt mismatch: expected |(~a & b)");
+    // eq matches the AND of zero-extended bitwise equality results.
+    check_eq_definition: assert property (
+        @(posedge clk) eq == (&((({1'b0, a}) ~^ ({1'b0, b}))))
+    );
 
-      // Relationship among outputs: eq iff neither gt nor lt
-      assert (eq == ~(gt | lt))
-        else $error("eq must be the inverse of (gt|lt)");
+    // Equal inputs must drive eq high and both difference flags low.
+    check_equal_inputs_outputs: assert property (
+        @(posedge clk) (a == b) |-> (eq && !gt && !lt)
+    );
 
-      // Key scenario coverage
-      cover (a == b               &&  eq && !gt && !lt); // equality
-      cover ((a & ~b) != '0       &&  gt && !lt && !eq); // gt only
-      cover ((~a & b) != '0       &&  lt && !gt && !eq); // lt only
-      cover ((a & ~b) != '0 && (~a & b) != '0 && gt && lt && !eq); // both gt and lt
+    // Different inputs must clear eq and assert at least one difference flag.
+    check_different_inputs_outputs: assert property (
+        @(posedge clk) (a != b) |-> (!eq && (gt || lt))
+    );
 
-      // Boundary/value coverage
-      cover (a == '0              && b == '0              && eq);
-      cover (a == {N{1'b1}}       && b == '0              && gt && !lt);
-      cover (a == '0              && b == {N{1'b1}}       && lt && !gt);
-    end
-  end
+    // eq is asserted exactly when neither gt nor lt is asserted.
+    check_eq_matches_no_gt_lt: assert property (
+        @(posedge clk) eq == !(gt || lt)
+    );
+
+    // gt can only be high when a and b differ.
+    check_gt_indicates_difference: assert property (
+        @(posedge clk) gt |-> (a != b)
+    );
+
+    // lt can only be high when a and b differ.
+    check_lt_indicates_difference: assert property (
+        @(posedge clk) lt |-> (a != b)
+    );
+
+    // Stable inputs keep the combinational outputs stable.
+    check_stable_inputs_stable_outputs: assert property (
+        @(posedge clk) ($stable(a) && $stable(b)) |-> $stable({gt, lt, eq})
+    );
 
 endmodule
-
-// Bind to all instances of comparator_block; inherit the DUT parameter n
-bind comparator_block comparator_block_sva #(.N(n)) u_comparator_block_sva (.*);

@@ -1,56 +1,37 @@
-// SVA for calculator. Bind to the DUT.
-module calculator_sva (calculator dut);
+module calculator_sva (
+    input logic [7:0] a,
+    input logic [7:0] b,
+    input logic [1:0] op,
+    input logic       start,
+    input logic [7:0] result
+);
 
-  default clocking cb @(posedge dut.start); endclocking
+    // On each start after the first, result holds the previous addition.
+    check_previous_add_result: assert property (
+        @(posedge start)
+        (($past(start) === 1'b1) && ($past(op) == 2'b00))
+        |-> (result == (($past(a) + $past(b)) & 16'h00FF))
+    );
 
-  // 8-bit expected result (truncation/wrap is inherent via return type)
-  function automatic logic [7:0] exp(input logic [1:0] op, input logic [7:0] a, input logic [7:0] b);
-    unique case (op)
-      2'b00: exp = a + b;
-      2'b01: exp = a - b;
-      2'b10: exp = a * b;
-      2'b11: exp = a / b; // only checked when b!=0
-    endcase
-  endfunction
+    // On each start after the first, result holds the previous subtraction.
+    check_previous_sub_result: assert property (
+        @(posedge start)
+        (($past(start) === 1'b1) && ($past(op) == 2'b01))
+        |-> (result == (($past(a) - $past(b)) & 16'h00FF))
+    );
 
-  // Inputs must be known when operation starts
-  a_inputs_known: assert property (! $isunknown({dut.op, dut.a, dut.b})))
-    else $error("calculator: inputs X/Z at start");
+    // On each start after the first, result holds the low 8 bits of the previous product.
+    check_previous_mul_result: assert property (
+        @(posedge start)
+        (($past(start) === 1'b1) && ($past(op) == 2'b10))
+        |-> (result == (($past(a) * $past(b)) & 16'h00FF))
+    );
 
-  // No division by zero allowed
-  a_no_div0: assert property (dut.op != 2'b11 || dut.b != 8'd0)
-    else $error("calculator: divide by zero");
-
-  // Correct arithmetic result appears in same cycle (after NBA) as start edge
-  a_correct: assert property (
-                (! $isunknown({dut.op,dut.a,dut.b})) && !(dut.op==2'b11 && dut.b==8'd0)
-                |-> ##0 (dut.result == exp(dut.op,dut.a,dut.b))
-              )
-    else $error("calculator: wrong result");
-
-  // Result must be known on valid operations
-  a_result_known: assert property (
-                     (! $isunknown({dut.op,dut.a,dut.b})) && !(dut.op==2'b11 && dut.b==8'd0)
-                     |-> ##0 ! $isunknown(dut.result)
-                   )
-    else $error("calculator: result X/Z on valid op");
-
-  // Functional coverage
-  c_op_add:  cover property (dut.op==2'b00);
-  c_op_sub:  cover property (dut.op==2'b01);
-  c_op_mul:  cover property (dut.op==2'b10);
-  c_op_div:  cover property (dut.op==2'b11 && dut.b!=8'd0);
-
-  // Edge-case coverage
-  c_add_overflow: cover property (dut.op==2'b00 && ({1'b0,dut.a}+{1'b0,dut.b})[8]);
-  c_sub_underflow: cover property (dut.op==2'b01 && (dut.a < dut.b));
-  c_mul_overflow: cover property (dut.op==2'b10 && (dut.a * dut.b) > 8'hFF);
-  c_div_zero_attempt: cover property (dut.op==2'b11 && dut.b==8'd0);
-  c_extremes_add: cover property (dut.op==2'b00 && dut.a==8'hFF && dut.b==8'h01);
-  c_extremes_sub: cover property (dut.op==2'b01 && dut.a==8'h00 && dut.b==8'h01);
-  c_extremes_mul: cover property (dut.op==2'b10 && dut.a==8'hFF && dut.b==8'h02);
-  c_div_basic:    cover property (dut.op==2'b11 && dut.b==8'd1);
+    // On each start after the first, result holds the previous quotient when divisor was nonzero.
+    check_previous_div_result: assert property (
+        @(posedge start)
+        (($past(start) === 1'b1) && ($past(op) == 2'b11) && ($past(b) != 8'h00))
+        |-> (result == ($past(a) / $past(b)))
+    );
 
 endmodule
-
-bind calculator calculator_sva u_calculator_sva();

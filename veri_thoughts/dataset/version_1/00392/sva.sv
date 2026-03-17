@@ -1,48 +1,47 @@
-// SVA for sky130_fd_sc_hd__nor4b
 module sky130_fd_sc_hd__nor4b_sva (
-  input logic A, B, C, D_N,
-  input logic Y,
-  input logic not0_out, nor0_out_Y, // internal nets
-  input logic VPWR, VGND, VPB, VNB  // supplies
+    input logic clk,
+    input logic Y,
+    input logic A,
+    input logic B,
+    input logic C,
+    input logic D_N
 );
 
-  function automatic logic expY (logic A, B, C, D_N);
-    return (~A & ~B & ~C & D_N);
-  endfunction
+    // Y matches the NOR of A, B, C, and the inverted D_N input.
+    check_nor4b_function: assert property (
+        @(posedge clk) (Y === ~(A | B | C | ~D_N))
+    );
 
-  // Functional equivalence
-  property p_func;
-    @(A or B or C or D_N or Y) 1 |-> (Y === expY(A,B,C,D_N));
-  endproperty
-  assert property (p_func);
+    // Y is high when A, B, and C are low and D_N is high.
+    check_output_high_condition: assert property (
+        @(posedge clk)
+        ((A === 1'b0) && (B === 1'b0) && (C === 1'b0) && (D_N === 1'b1)) |-> (Y === 1'b1)
+    );
 
-  // Internal structure checks
-  assert property (@(D_N or not0_out) not0_out   === ~D_N);
-  assert property (@(A or B or C or not0_out or nor0_out_Y)
-                   nor0_out_Y === ~(A | B | C | not0_out));
-  assert property (@(nor0_out_Y or Y) Y === nor0_out_Y);
+    // Y can only be high when A, B, and C are low and D_N is high.
+    check_output_high_only_when_enabled: assert property (
+        @(posedge clk)
+        (Y === 1'b1) |-> ((A === 1'b0) && (B === 1'b0) && (C === 1'b0) && (D_N === 1'b1))
+    );
 
-  // No X on Y when inputs are known
-  assert property (@(A or B or C or D_N or Y)
-                   (!$isunknown({A,B,C,D_N})) |-> (!$isunknown(Y)));
+    // A high forces the NOR output low.
+    check_a_high_forces_low: assert property (
+        @(posedge clk) (A === 1'b1) |-> (Y === 1'b0)
+    );
 
-  // Y only changes if at least one input changed
-  assert property (@(posedge Y or negedge Y) $changed({A,B,C,D_N}));
+    // B high forces the NOR output low.
+    check_b_high_forces_low: assert property (
+        @(posedge clk) (B === 1'b1) |-> (Y === 1'b0)
+    );
 
-  // Power rail sanity (if accessible)
-  assert property (@(VPWR or VGND or VPB or VNB)
-                   (VPWR === 1'b1 && VPB === 1'b1 && VGND === 1'b0 && VNB === 1'b0));
+    // C high forces the NOR output low.
+    check_c_high_forces_low: assert property (
+        @(posedge clk) (C === 1'b1) |-> (Y === 1'b0)
+    );
 
-  // Truth-table coverage (all 16 input combinations observed with correct Y)
-  genvar gi;
-  generate
-    for (gi = 0; gi < 16; gi++) begin : g_cov
-      localparam logic [3:0] V = logic'(gi[3:0]);
-      cover property (@(A or B or C or D_N or Y)
-                      ({A,B,C,D_N} === V) && (Y === expY(A,B,C,D_N)));
-    end
-  endgenerate
+    // D_N low is inverted internally and forces the NOR output low.
+    check_dn_low_forces_low: assert property (
+        @(posedge clk) (D_N === 1'b0) |-> (Y === 1'b0)
+    );
 
 endmodule
-
-bind sky130_fd_sc_hd__nor4b sky130_fd_sc_hd__nor4b_sva sva_i (.*);

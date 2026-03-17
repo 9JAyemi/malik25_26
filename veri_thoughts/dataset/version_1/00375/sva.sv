@@ -1,68 +1,55 @@
-// SVA for sky130_fd_sc_hd__o211a: X = (A1 | A2) & B1 & C1
-// Concise, functionally complete, and 4-state aware. Uses ##0 to allow delta-cycle settle.
-
 module sky130_fd_sc_hd__o211a_sva (
-  input logic X,
-  input logic A1,
-  input logic A2,
-  input logic B1,
-  input logic C1
+    input logic clk,
+    input logic X,
+    input logic A1,
+    input logic A2,
+    input logic B1,
+    input logic C1
 );
 
-  // Combinational reference
-  logic ref;
-  assign ref = (A1 | A2) & B1 & C1;
+    // X matches the implemented O211 logic function.
+    check_function_exact: assert property (
+        @(posedge clk) X == (((A1 | A2) & B1) & C1)
+    );
 
-  // Functional equivalence (4-state exact), sampled on any relevant change, allow 1-delta settle
-  assert property (@(A1 or A2 or B1 or C1 or X) ##0 (X === ref))
-    else $error("o211a func mismatch: X=%b ref=%b A1=%b A2=%b B1=%b C1=%b", X, ref, A1, A2, B1, C1);
+    // Low B1 forces the AND output low.
+    check_b1_gates_output_low: assert property (
+        @(posedge clk) !B1 |-> !X
+    );
 
-  // Known-output guarantee when all inputs are known
-  assert property (@(A1 or A2 or B1 or C1) !$isunknown({A1,A2,B1,C1}) |-> ##0 !$isunknown(X))
-    else $error("o211a X is X/Z with known inputs");
+    // Low C1 forces the AND output low.
+    check_c1_gates_output_low: assert property (
+        @(posedge clk) !C1 |-> !X
+    );
 
-  // Output only changes when some input changes (no spontaneous X glitches)
-  assert property (@(X or A1 or A2 or B1 or C1) $changed(X) |-> $changed({A1,A2,B1,C1}))
-    else $error("o211a X changed without input cause");
+    // With both OR inputs low, the output must be low.
+    check_or_inputs_low_force_output_low: assert property (
+        @(posedge clk) !(A1 | A2) |-> !X
+    );
 
-  // Strong controlling-zero checks (AND stage)
-  assert property (@(B1 or C1 or A1 or A2 or X) (B1 === 1'b0) |-> ##0 (X === 1'b0))
-    else $error("o211a B1=0 did not force X=0");
-  assert property (@(B1 or C1 or A1 or A2 or X) (C1 === 1'b0) |-> ##0 (X === 1'b0))
-    else $error("o211a C1=0 did not force X=0");
+    // A1 can drive X high when both gating inputs are high.
+    check_a1_path_drives_high: assert property (
+        @(posedge clk) (A1 & B1 & C1) |-> X
+    );
 
-  // OR stage exposure when B1=C1=1 (holds even with unknown A1/A2, due to 4-state ===)
-  assert property (@(A1 or A2 or B1 or C1 or X) (B1 === 1'b1 && C1 === 1'b1) |-> ##0 (X === (A1 | A2)))
-    else $error("o211a B1=C1=1 did not make X==(A1|A2)");
+    // A2 can drive X high when both gating inputs are high.
+    check_a2_path_drives_high: assert property (
+        @(posedge clk) (A2 & B1 & C1) |-> X
+    );
 
-  // Minimal yet meaningful coverage
-  // Toggles
-  cover property (@(posedge A1));
-  cover property (@(negedge A1));
-  cover property (@(posedge A2));
-  cover property (@(negedge A2));
-  cover property (@(posedge B1));
-  cover property (@(negedge B1));
-  cover property (@(posedge C1));
-  cover property (@(negedge C1));
-  cover property (@(posedge X));
-  cover property (@(negedge X));
+    // High X requires B1 to be high.
+    check_output_high_implies_b1: assert property (
+        @(posedge clk) X |-> B1
+    );
 
-  // Key functional minterms
-  cover property (@(A1 or A2 or B1 or C1 or X) ##0 (B1===1 && C1===1 && A1===1 && A2===0 && X===1));
-  cover property (@(A1 or A2 or B1 or C1 or X) ##0 (B1===1 && C1===1 && A1===0 && A2===1 && X===1));
-  cover property (@(A1 or A2 or B1 or C1 or X) ##0 (B1===1 && C1===1 && A1===1 && A2===1 && X===1));
-  cover property (@(A1 or A2 or B1 or C1 or X) ##0 (B1===1 && C1===1 && A1===0 && A2===0 && X===0));
-  cover property (@(B1 or C1 or X) ##0 (B1===0 && X===0));
-  cover property (@(B1 or C1 or X) ##0 (C1===0 && X===0));
+    // High X requires C1 to be high.
+    check_output_high_implies_c1: assert property (
+        @(posedge clk) X |-> C1
+    );
+
+    // High X requires at least one OR input to be high.
+    check_output_high_implies_or_term: assert property (
+        @(posedge clk) X |-> (A1 | A2)
+    );
 
 endmodule
-
-// Bind into the DUT
-bind sky130_fd_sc_hd__o211a sky130_fd_sc_hd__o211a_sva u_o211a_sva (
-  .X (X),
-  .A1(A1),
-  .A2(A2),
-  .B1(B1),
-  .C1(C1)
-);

@@ -1,40 +1,31 @@
-// SVA for up_counter
-module up_counter_sva (input clk, input reset, input [3:0] count);
-  default clocking cb @(posedge clk); endclocking
+module up_counter_sva (
+    input logic [3:0] count,
+    input logic       clk,
+    input logic       reset
+);
 
-  // Reset behavior
-  assert property (!reset |-> count == 4'd0)
-    else $error("count not 0 during reset");
+    // Active-low reset forces count to zero.
+    check_reset_clears_count: assert property (
+        @(posedge clk) !reset |-> (count == 4'b0000)
+    );
 
-  // No X/Z out of reset
-  assert property (reset |-> !$isunknown(count))
-    else $error("count X/Z when out of reset");
+    // The first sampled cycle after reset release still sees count at zero.
+    check_release_from_reset_starts_at_zero: assert property (
+        @(posedge clk) disable iff (!reset)
+        (!$initstate && !$past(reset)) |-> (count == 4'b0000)
+    );
 
-  // Increment by exactly +1 when reset is stably high
-  assert property (reset && $past(reset) |-> count == $past(count) + 4'd1)
-    else $error("count failed to increment by 1");
+    // From a non-max value, count advances by one unless reset occurred between clocks.
+    check_increment_or_async_clear_from_nonmax: assert property (
+        @(posedge clk) disable iff (!reset)
+        (!$initstate && $past(reset) && ($past(count) != 4'hF)) |->
+        ((count == ($past(count) + 4'd1)) || (count == 4'b0000))
+    );
 
-  // First cycle after reset deassertion
-  assert property ($rose(reset) |-> $past(count) == 4'd0 && count == 4'd1)
-    else $error("bad value on first cycle after reset deassertion");
+    // From 4'hF, the sampled next value must wrap to zero.
+    check_wrap_from_max: assert property (
+        @(posedge clk) disable iff (!reset)
+        (!$initstate && $past(reset) && ($past(count) == 4'hF)) |-> (count == 4'b0000)
+    );
 
-  // Wrap from F to 0
-  assert property (reset && $past(reset) && $past(count)==4'hF |-> count==4'h0)
-    else $error("no wrap from 0xF to 0x0");
-
-  // Coverage
-  cover property ($fell(reset));
-  cover property ($rose(reset));
-
-  // Cover a full 16-step cycle after deassert (implies all states visited)
-  cover property ($rose(reset)
-                  ##1 (reset && $past(reset) && (count==$past(count)+4'd1))[*15]
-                  ##1 (count==4'd0));
-
-  // Hit representative states out of reset
-  cover property (reset && count==4'd0);
-  cover property (reset && count==4'd7);
-  cover property (reset && count==4'd15);
 endmodule
-
-bind up_counter up_counter_sva sva_inst (.*);

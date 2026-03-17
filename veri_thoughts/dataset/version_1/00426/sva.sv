@@ -1,55 +1,39 @@
-// SVA for module adder
-module adder_sva #(parameter W=16)
-(
-  input  logic                     clk,
-  input  logic                     rst,
-  input  logic signed [W-1:0]      a,
-  input  logic signed [W-1:0]      b,
-  input  logic signed [W-1:0]      sum
+module adder_sva(
+    input logic signed [15:0] a,
+    input logic signed [15:0] b,
+    input logic clk,
+    input logic rst,
+    input logic signed [15:0] sum
 );
 
-  default clocking cb @(posedge clk); endclocking
+    // Sum matches the operation taken on the previous clock edge.
+    check_sum_matches_previous_cycle_operation: assert property (
+        @(posedge clk)
+        1'b1 |=> (sum == ($past(rst) ? 16'sd0 : ($past(a) + $past(b))))
+    );
 
-  function automatic signed [W-1:0] add_s(input signed [W-1:0] x, input signed [W-1:0] y);
-    add_s = x + y; // 2's complement wrap (matches RTL)
-  endfunction
+    // A reset cycle drives sum to zero.
+    check_reset_clears_sum: assert property (
+        @(posedge clk)
+        rst |=> (sum == 16'sd0)
+    );
 
-  // Assertions
+    // A non-reset cycle loads the previous sum of a and b.
+    check_sum_updates_after_nonreset_cycle: assert property (
+        @(posedge clk) disable iff (rst)
+        !rst |=> (sum == ($past(a) + $past(b)))
+    );
 
-  // Synchronous reset: next-cycle output is zero
-  ap_rst_nxt_zero:        assert property ( $past(rst) |-> sum == '0 );
+    // With a equal to zero, sum passes through the previous value of b.
+    check_zero_a_passes_b: assert property (
+        @(posedge clk) disable iff (rst)
+        (!rst && (a == 16'sd0)) |=> (sum == $past(b))
+    );
 
-  // Functional correctness: registered 1-cycle sum when not in reset previous cycle
-  ap_sum_correct:         assert property ( !$past(rst) |-> sum == add_s($past(a), $past(b)) );
-
-  // First cycle after reset deassert: compute from deassertion-cycle inputs
-  ap_first_after_reset:   assert property ( $fell(rst) |=> sum == add_s($past(a), $past(b)) );
-
-  // Output should never be X/Z once there is at least one cycle of history
-  ap_no_x_sum:            assert property ( $past(1'b1) |-> !$isunknown(sum) );
-
-  // While reset remains asserted across cycles, sum stays zero
-  ap_hold_zero_while_rst: assert property ( $past(rst) && rst |-> sum == '0 );
-
-  // Coverage
-
-  // See both reset edges
-  cv_reset_assert:  cover property ( $rose(rst) );
-  cv_reset_release: cover property ( $fell(rst) );
-
-  // Normal operation exercised
-  cv_oper:          cover property ( !$past(rst) && sum == add_s($past(a), $past(b)) );
-
-  // Positive overflow (pos + pos -> neg)
-  cv_pos_overflow:  cover property ( !$past(rst) && ($past(a[W-1])==0) && ($past(b[W-1])==0) && sum[W-1]==1 );
-
-  // Negative overflow (neg + neg -> pos)
-  cv_neg_overflow:  cover property ( !$past(rst) && ($past(a[W-1])==1) && ($past(b[W-1])==1) && sum[W-1]==0 );
-
-  // Zero result (e.g., b == -a)
-  cv_zero_sum:      cover property ( !$past(rst) && sum == '0 );
+    // With b equal to zero, sum passes through the previous value of a.
+    check_zero_b_passes_a: assert property (
+        @(posedge clk) disable iff (rst)
+        (!rst && (b == 16'sd0)) |=> (sum == $past(a))
+    );
 
 endmodule
-
-// Bind into DUT
-bind adder adder_sva #(.W(16)) u_adder_sva (.*);

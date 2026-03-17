@@ -1,90 +1,67 @@
-// SVA for top_module, four_bit_adder, barrel_shifter
-// Clockless concurrent assertions using @(*). Bind as shown below.
-
 module top_module_sva (
-  input  [3:0] DIN,
-  input  [1:0] SHIFT,
-  input  [3:0] a,
-  input  [3:0] b,
-  input        cin,
-  input        cout,
-  input  [3:0] sum,
-  input  [3:0] DOUT
+    input logic        clk,
+    input logic [3:0]  DIN,
+    input logic [1:0]  SHIFT,
+    input logic [3:0]  a,
+    input logic [3:0]  b,
+    input logic        cin,
+    input logic        cout,
+    input logic [3:0]  sum,
+    input logic [3:0]  DOUT
 );
-  // Golden model
-  let shifted_g = {DIN[SHIFT[1]], DIN[SHIFT[0]], DIN[3], DIN[2]};
-  let add5_g    = ({1'b0,a} + {1'b0,shifted_g} + cin);
-  let adder_sum_g  = add5_g[3:0];
-  let adder_cout_g = add5_g[4];
-  let sum5_g    = ({1'b0,adder_sum_g} + {1'b0,b} + cin);
-  let sum_g     = sum5_g[3:0];
 
-  // Functional correctness
-  assert property (@(*) DOUT == adder_sum_g);
-  assert property (@(*) cout == adder_cout_g);
-  assert property (@(*) sum  == sum_g);
+    // SHIFT=00 selects DIN[0], DIN[0], DIN[3], DIN[2] into the first adder.
+    check_first_stage_shift_00: assert property (
+        @(posedge clk)
+        (SHIFT == 2'b00) |-> ({cout, DOUT} == ({1'b0, a} + {1'b0, {DIN[0], DIN[0], DIN[3], DIN[2]}} + cin))
+    );
 
-  // X-prop: if inputs known, outputs known
-  assert property (@(*) (!$isunknown({DIN,SHIFT,a,b,cin})) |-> !$isunknown({cout,sum,DOUT}));
+    // SHIFT=01 selects DIN[0], DIN[1], DIN[3], DIN[2] into the first adder.
+    check_first_stage_shift_01: assert property (
+        @(posedge clk)
+        (SHIFT == 2'b01) |-> ({cout, DOUT} == ({1'b0, a} + {1'b0, {DIN[0], DIN[1], DIN[3], DIN[2]}} + cin))
+    );
 
-  // Coverage
-  cover property (@(*) SHIFT==2'b00);
-  cover property (@(*) SHIFT==2'b01);
-  cover property (@(*) SHIFT==2'b10);
-  cover property (@(*) SHIFT==2'b11);
-  cover property (@(*) cin==1'b0);
-  cover property (@(*) cin==1'b1);
-  cover property (@(*) adder_cout_g==1'b1);   // first add carry out
-  cover property (@(*) sum5_g[4]==1'b1);      // second add overflow
-  cover property (@(*) DOUT==4'h0);
-  cover property (@(*) DOUT==4'hF);
+    // SHIFT=10 selects DIN[1], DIN[0], DIN[3], DIN[2] into the first adder.
+    check_first_stage_shift_10: assert property (
+        @(posedge clk)
+        (SHIFT == 2'b10) |-> ({cout, DOUT} == ({1'b0, a} + {1'b0, {DIN[1], DIN[0], DIN[3], DIN[2]}} + cin))
+    );
+
+    // SHIFT=11 selects DIN[1], DIN[1], DIN[3], DIN[2] into the first adder.
+    check_first_stage_shift_11: assert property (
+        @(posedge clk)
+        (SHIFT == 2'b11) |-> ({cout, DOUT} == ({1'b0, a} + {1'b0, {DIN[1], DIN[1], DIN[3], DIN[2]}} + cin))
+    );
+
+    // sum is DOUT plus b plus cin, truncated to 4 bits.
+    check_sum_from_dout_b_cin: assert property (
+        @(posedge clk)
+        ({1'b0, sum} == (({1'b0, DOUT} + {1'b0, b} + cin) & 5'h0f))
+    );
+
+    // DOUT and cout do not depend on b.
+    check_first_stage_independent_of_b: assert property (
+        @(posedge clk)
+        ($stable(DIN) && $stable(SHIFT) && $stable(a) && $stable(cin)) |-> ($stable(DOUT) && $stable(cout))
+    );
+
+    // sum depends only on DOUT, b, and cin.
+    check_sum_stable_when_inputs_stable: assert property (
+        @(posedge clk)
+        ($stable(DOUT) && $stable(b) && $stable(cin)) |-> $stable(sum)
+    );
+
+    // With b and cin both zero, sum matches DOUT.
+    check_sum_equals_dout_when_b_and_cin_zero: assert property (
+        @(posedge clk)
+        ((b == 4'h0) && (cin == 1'b0)) |-> (sum == DOUT)
+    );
+
+    // All outputs remain stable when all inputs remain stable.
+    check_outputs_stable_when_all_inputs_stable: assert property (
+        @(posedge clk)
+        ($stable(DIN) && $stable(SHIFT) && $stable(a) && $stable(b) && $stable(cin)) |-> ($stable(cout) && $stable(sum) && $stable(DOUT))
+    );
+
 endmodule
-
-
-module four_bit_adder_sva (
-  input  [3:0] a,
-  input  [3:0] b,
-  input        cin,
-  input        cout,
-  input  [3:0] sum
-);
-  let add5 = ({1'b0,a} + {1'b0,b} + cin);
-
-  // Functional correctness
-  assert property (@(*) {cout,sum} == add5);
-
-  // X-prop
-  assert property (@(*) (!$isunknown({a,b,cin})) |-> !$isunknown({cout,sum}));
-
-  // Coverage
-  cover property (@(*) cin==1'b0);
-  cover property (@(*) cin==1'b1);
-  cover property (@(*) add5[4]==1'b1);  // carry out
-  cover property (@(*) sum==4'h0);
-  cover property (@(*) sum==4'hF);
-endmodule
-
-
-module barrel_shifter_sva (
-  input  [3:0] DIN,
-  input  [1:0] SHIFT,
-  input  [3:0] DOUT
-);
-  // Functional correctness (as implemented)
-  assert property (@(*) DOUT == {DIN[SHIFT[1]], DIN[SHIFT[0]], DIN[3], DIN[2]});
-
-  // X-prop
-  assert property (@(*) (!$isunknown({DIN,SHIFT})) |-> !$isunknown(DOUT));
-
-  // Coverage
-  cover property (@(*) SHIFT==2'b00);
-  cover property (@(*) SHIFT==2'b01);
-  cover property (@(*) SHIFT==2'b10);
-  cover property (@(*) SHIFT==2'b11);
-endmodule
-
-
-// Bind these in your testbench/top-level scope (adjust instance paths if needed):
-// bind top_module      top_module_sva      u_top_sva      (.*);
-// bind four_bit_adder  four_bit_adder_sva  u_adder_sva    (.*);
-// bind barrel_shifter  barrel_shifter_sva  u_shifter_sva  (.*);

@@ -1,41 +1,45 @@
-// SVA for up_counter
-module up_counter_sva #(parameter int SIZE=4)
-(
-  input logic              Clock,
-  input logic              Reset,
-  input logic              Enable,
-  input logic              Load,
-  input logic [SIZE-1:0]   Data,
-  input logic [SIZE-1:0]   Q
+module up_counter_sva #(parameter SIZE = 4) (
+    input logic            Clock,
+    input logic            Reset,
+    input logic            Enable,
+    input logic            Load,
+    input logic [SIZE-1:0] Data,
+    input logic [SIZE-1:0] Q
 );
 
-  localparam logic [SIZE-1:0] MAX = {SIZE{1'b1}};
+    // A reset observed on a clock edge leaves the counter cleared by the next clock.
+    reset_clears_counter: assert property (
+        @(posedge Clock) Reset |=> (Q == {SIZE{1'b0}})
+    );
 
-  default clocking cb @(posedge Clock); endclocking
+    // Load causes Q to capture Data on the next clock.
+    load_captures_data: assert property (
+        @(posedge Clock) disable iff (Reset)
+        Load |=> (Q == $past(Data))
+    );
 
-  // Asynchronous reset checks (not disabled)
-  a_async_reset_zero: assert property (@(posedge Reset) Q == '0);
-  a_reset_hold_zero:  assert property (@(posedge Clock) Reset |-> Q == '0);
-  a_no_x_rst:         assert property (@(posedge Reset) !$isunknown(Q));
+    // Load has priority over Enable when both are asserted.
+    load_has_priority_over_enable: assert property (
+        @(posedge Clock) disable iff (Reset)
+        (Load && Enable) |=> (Q == $past(Data))
+    );
 
-  // Normal operation checks (ignore cycles with Reset=1)
-  default disable iff (Reset);
+    // Enable increments Q when Load is low.
+    increment_when_enabled: assert property (
+        @(posedge Clock) disable iff (Reset)
+        (!Load && Enable) |=> (Q == ($past(Q) + 1'b1))
+    );
 
-  a_load:  assert property (Load |=> Q == $past(Data,1,Reset));
-  a_inc:   assert property ((!Load && Enable) |=> Q == $past(Q,1,Reset) + 1);
-  a_hold:  assert property ((!Load && !Enable) |=> Q == $past(Q,1,Reset));
-  a_only_changes_on_ops: assert property ($changed(Q) |-> (Load || Enable));
-  a_no_x_clk: assert property (!$isunknown(Q));
+    // Q holds its value when neither Load nor Enable is asserted.
+    hold_when_idle: assert property (
+        @(posedge Clock) disable iff (Reset)
+        (!Load && !Enable) |=> (Q == $past(Q))
+    );
 
-  // Coverage
-  c_reset:  cover property (@(posedge Reset) Q=='0);
-  c_load:   cover property (Load |=> Q == $past(Data,1,Reset));
-  c_enable: cover property ((!Load && Enable) |=> Q == $past(Q,1,Reset)+1);
-  c_hold:   cover property ((!Load && !Enable) |=> Q == $past(Q,1,Reset));
-  c_wrap:   cover property ((!Load && Enable && $past(Q,1,Reset)==MAX) |=> Q=='0);
-  c_both:   cover property ((Load && Enable) |=> Q == $past(Data,1,Reset));
+    // Incrementing from the maximum value wraps Q to zero.
+    wrap_from_max_to_zero: assert property (
+        @(posedge Clock) disable iff (Reset)
+        (!Load && Enable && (Q == {SIZE{1'b1}})) |=> (Q == {SIZE{1'b0}})
+    );
 
 endmodule
-
-// Bind into DUT
-bind up_counter up_counter_sva #(.SIZE(SIZE)) up_counter_sva_i (.*);

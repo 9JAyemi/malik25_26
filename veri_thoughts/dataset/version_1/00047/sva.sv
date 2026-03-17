@@ -1,49 +1,36 @@
-// SVA checker for binary_counter
 module binary_counter_sva (
-  input logic        clk,
-  input logic        reset,
-  input logic        enable,
-  input logic [3:0]  out
+    input logic       clk,
+    input logic       reset,
+    input logic       enable,
+    input logic [3:0] out
 );
-  default clocking cb @(posedge clk); endclocking
 
-  // Reset behavior
-  a_reset_clears:     assert property (reset |=> out == 4'h0);
-  a_reset_held_zero:  assert property ($past(reset) && reset |-> out == 4'h0);
+    // A sampled reset clears the counter on the next clock.
+    check_reset_clears_out: assert property (
+        @(posedge clk) reset |=> (out == 4'b0000)
+    );
 
-  // Functional behavior
-  a_hold_when_disabled: assert property (
-    !$past(reset) && !$past(enable) |=> out == $past(out)
-  );
+    // Reset has priority over enable when both are high.
+    check_reset_overrides_enable: assert property (
+        @(posedge clk) (reset && enable) |=> (out == 4'b0000)
+    );
 
-  a_inc_when_enabled: assert property (
-    !$past(reset) && $past(enable) |=> out == (($past(out) + 4'd1) & 4'hF)
-  );
+    // When enabled outside reset, the counter increments by one.
+    check_increment_when_enabled: assert property (
+        @(posedge clk) disable iff (reset)
+        enable |=> (out == ($past(out) + 4'd1))
+    );
 
-  // No unintended changes (excluding reset-driven change)
-  a_change_only_on_enable: assert property (
-    !$past(reset) && $changed(out) |-> $past(enable)
-  );
+    // When disabled outside reset, the counter holds its value.
+    check_hold_when_disabled: assert property (
+        @(posedge clk) disable iff (reset)
+        !enable |=> (out == $past(out))
+    );
 
-  // Known-value check once counter has been controlled (after reset or an enable)
-  a_out_known_after_activity: assert property (
-    ($past(reset) || $past(enable)) |-> !$isunknown(out)
-  );
+    // Incrementing from 4'hF wraps the counter to 4'h0.
+    check_wrap_from_max: assert property (
+        @(posedge clk) disable iff (reset)
+        (enable && (out == 4'hF)) |=> (out == 4'h0)
+    );
 
-  // Coverage
-  c_reset_pulse:        cover property ($rose(reset));
-  c_reset_release:      cover property ($fell(reset));
-  c_hold_cycle:         cover property (!$past(reset) && !$past(enable) |=> out == $past(out));
-  c_inc_cycle:          cover property (!$past(reset) && $past(enable) |=> out == (($past(out) + 4'd1) & 4'hF));
-  c_wraparound:         cover property (
-                          !$past(reset) && $past(enable) && $past(out) == 4'hF |=> out == 4'h0
-                        );
 endmodule
-
-// Bind into DUT
-bind binary_counter binary_counter_sva i_binary_counter_sva (
-  .clk(clk),
-  .reset(reset),
-  .enable(enable),
-  .out(out)
-);

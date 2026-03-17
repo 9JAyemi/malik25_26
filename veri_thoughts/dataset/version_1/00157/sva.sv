@@ -1,57 +1,62 @@
-// SVA for sky130_fd_sc_ms__mux_2_1
-// Bind these assertions to the DUT
-
 module sky130_fd_sc_ms__mux_2_1_sva (
-  input out,
-  input in0,
-  input in1,
-  input sel,
-  input VPWR,
-  input VGND,
-  input VPB,
-  input VNB
+    input logic out,
+    input logic in0,
+    input logic in1,
+    input logic sel,
+    input logic VPWR,
+    input logic VGND,
+    input logic VPB,
+    input logic VNB
 );
-  wire rails_known = !$isunknown({VPWR,VGND,VPB,VNB});
-  wire pwr_ok = rails_known && VPWR && VPB && !VGND && !VNB;
 
-  // Functional correctness on any relevant change
-  assert property (@(in0 or in1 or sel or VPWR or VGND or VPB or VNB)
-                   pwr_ok |-> ##0 (out === (sel ? in1 : in0)));
+    // Out always equals the selected data input.
+    check_mux_equation: assert property (
+        @($global_clock) out == (sel ? in1 : in0)
+    );
 
-  // Out has no X when powered and inputs known
-  assert property (@(in0 or in1 or sel or VPWR or VGND or VPB or VNB)
-                   pwr_ok && !$isunknown({in0,in1,sel}) |-> ##0 !$isunknown(out));
+    // When sel is low, out matches in0.
+    check_sel_low_selects_in0: assert property (
+        @($global_clock) !sel |-> (out == in0)
+    );
 
-  // Follow selected data on change
-  assert property (@(in0 or sel or VPWR or VGND or VPB or VNB)
-                   pwr_ok && (sel==1'b0) && $changed(in0) |-> ##0 (out===in0));
-  assert property (@(in1 or sel or VPWR or VGND or VPB or VNB)
-                   pwr_ok && (sel==1'b1) && $changed(in1) |-> ##0 (out===in1));
+    // When sel is high, out matches in1.
+    check_sel_high_selects_in1: assert property (
+        @($global_clock) sel |-> (out == in1)
+    );
 
-  // No spurious change from unselected input
-  assert property (@(in1 or sel) pwr_ok && (sel==1'b0) && $changed(in1) |-> ##0 !$changed(out));
-  assert property (@(in0 or sel) pwr_ok && (sel==1'b1) && $changed(in0) |-> ##0 !$changed(out));
+    // A change on in0 is reflected when in0 is selected.
+    check_in0_change_reflected_when_selected: assert property (
+        @($global_clock) $stable(sel) && !sel && $changed(in0) |-> (out == in0)
+    );
 
-  // On sel change, out equals newly selected input
-  assert property (@(sel or in0 or in1 or VPWR or VGND or VPB or VNB)
-                   pwr_ok && $changed(sel) |-> ##0 (out === (sel ? in1 : in0)));
+    // A change on in1 is reflected when in1 is selected.
+    check_in1_change_reflected_when_selected: assert property (
+        @($global_clock) $stable(sel) && sel && $changed(in1) |-> (out == in1)
+    );
 
-  // When inputs equal, out equals them regardless of sel
-  assert property (@(in0 or in1 or sel or VPWR or VGND or VPB or VNB)
-                   pwr_ok && (in0===in1) |-> ##0 (out===in0));
+    // A change on in0 is ignored when in1 remains selected.
+    check_in0_change_ignored_when_unselected: assert property (
+        @($global_clock) $stable(sel) && sel && $stable(in1) && $changed(in0) |-> $stable(out)
+    );
 
-  // Bias pins tied correctly to rails when known
-  assert property (@(VPWR or VGND or VPB or VNB)
-                   rails_known |-> (VPB===VPWR && VNB===VGND));
+    // A change on in1 is ignored when in0 remains selected.
+    check_in1_change_ignored_when_unselected: assert property (
+        @($global_clock) $stable(sel) && !sel && $stable(in0) && $changed(in1) |-> $stable(out)
+    );
 
-  // Coverage
-  cover property (@(VPWR or VGND or VPB or VNB) (!$past(pwr_ok,1,1'b0)) && pwr_ok); // power good observed
-  cover property (@(in0 or in1 or sel or VPWR or VGND or VPB or VNB) pwr_ok && sel==1'b0);
-  cover property (@(in0 or in1 or sel or VPWR or VGND or VPB or VNB) pwr_ok && sel==1'b1);
-  cover property (@(sel) pwr_ok && $changed(sel));
-  cover property (@(in0) pwr_ok && (sel==1'b0) && $changed(in0));
-  cover property (@(in1) pwr_ok && (sel==1'b1) && $changed(in1));
-  cover property (@(in0 or in1 or sel) pwr_ok && (in0!==in1) && $changed(sel) && $changed(out));
+    // A rising sel switches the output to in1 when data inputs are stable.
+    check_sel_rise_selects_in1: assert property (
+        @($global_clock) $rose(sel) && $stable(in0) && $stable(in1) |-> (out == in1)
+    );
+
+    // A falling sel switches the output to in0 when data inputs are stable.
+    check_sel_fall_selects_in0: assert property (
+        @($global_clock) $fell(sel) && $stable(in0) && $stable(in1) |-> (out == in0)
+    );
+
+    // Stable functional inputs keep the output stable.
+    check_stable_inputs_keep_output_stable: assert property (
+        @($global_clock) $stable(sel) && $stable(in0) && $stable(in1) |-> $stable(out)
+    );
+
 endmodule
-
-bind sky130_fd_sc_ms__mux_2_1 sky130_fd_sc_ms__mux_2_1_sva (.*);

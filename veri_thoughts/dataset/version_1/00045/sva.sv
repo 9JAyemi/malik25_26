@@ -1,67 +1,49 @@
-// SVA for the given design. Uses $global_clock to sample combinational logic post-settle.
-// Bind these modules after compiling the DUT.
+module top_module_sva (
+    input logic a,
+    input logic b,
+    input logic [2:0] a_bitwise,
+    input logic [2:0] b_bitwise,
+    input logic [2:0] out_sum
+);
 
-module sva_half_adder(half_adder m);
-  default clocking cb @(posedge $global_clock); endclocking
+    // Top-level output matches the implemented combinational function.
+    check_out_sum_function: assert property (
+        @($global_clock) out_sum == ((a ^ b) + (a_bitwise | b_bitwise))
+    );
 
-  // Functional correctness
-  a_ha_sum:  assert property (##0 (m.sum  === (m.a ^ m.b)));
-  a_ha_cout: assert property (##0 (m.cout === (m.a & m.b)));
+    // When the half-adder sum is 0, the output passes through the bitwise OR.
+    check_xor_zero_passthrough: assert property (
+        @($global_clock) (!(a ^ b)) |-> (out_sum == (a_bitwise | b_bitwise))
+    );
 
-  // Key coverage: all input combos and carry generation
-  c_ha_00: cover property (##0 (m.a==0 && m.b==0 && m.sum==0 && m.cout==0));
-  c_ha_01: cover property (##0 (m.a==0 && m.b==1 && m.sum==1 && m.cout==0));
-  c_ha_10: cover property (##0 (m.a==1 && m.b==0 && m.sum==1 && m.cout==0));
-  c_ha_11: cover property (##0 (m.a==1 && m.b==1 && m.sum==0 && m.cout==1));
+    // When the half-adder sum is 1, the output is the bitwise OR plus one.
+    check_xor_one_increment: assert property (
+        @($global_clock) (a ^ b) |-> (out_sum == ((a_bitwise | b_bitwise) + 3'b001))
+    );
+
+    // Bit 0 reflects addition of the XOR result into bit 0 of the OR vector.
+    check_out_sum_bit0: assert property (
+        @($global_clock) out_sum[0] == ((a ^ b) ^ (a_bitwise[0] | b_bitwise[0]))
+    );
+
+    // Bit 1 reflects bit 1 of the OR vector plus carry from bit 0.
+    check_out_sum_bit1: assert property (
+        @($global_clock) out_sum[1] == ((a_bitwise[1] | b_bitwise[1]) ^ ((a ^ b) & (a_bitwise[0] | b_bitwise[0])))
+    );
+
+    // Bit 2 reflects bit 2 of the OR vector plus carry propagated through bit 1.
+    check_out_sum_bit2: assert property (
+        @($global_clock) out_sum[2] == ((a_bitwise[2] | b_bitwise[2]) ^ ((a ^ b) & (a_bitwise[0] | b_bitwise[0]) & (a_bitwise[1] | b_bitwise[1])))
+    );
+
+    // With zero 3-bit inputs, the output is just the zero-extended XOR of a and b.
+    check_zero_vector_case: assert property (
+        @($global_clock) ((a_bitwise == 3'b000) && (b_bitwise == 3'b000)) |-> (out_sum == {2'b00, (a ^ b)})
+    );
+
+    // Adding one to 3'b111 wraps in the 3-bit output, as implemented by the RTL width.
+    check_full_scale_wraparound: assert property (
+        @($global_clock) ((a ^ b) && ((a_bitwise | b_bitwise) == 3'b111)) |-> (out_sum == 3'b000)
+    );
+
 endmodule
-
-module sva_bitwise_or(bitwise_OR m);
-  default clocking cb @(posedge $global_clock); endclocking
-
-  // Functional correctness
-  a_bo_or:  assert property (##0 (m.out_or_bitwise === (m.a_bitwise | m.b_bitwise)));
-  a_bo_lor: assert property (##0 (m.out_or_logical === (|{m.a_bitwise, m.b_bitwise})));
-  a_bo_not: assert property (##0 (m.out_not === ~{m.a_bitwise, m.b_bitwise}));
-
-  // Key coverage
-  c_bo_zero_in:   cover property (##0 (m.a_bitwise==3'b000 && m.b_bitwise==3'b000 &&
-                                     m.out_or_bitwise==3'b000 && m.out_or_logical==0));
-  c_bo_all_ones:  cover property (##0 (m.a_bitwise==3'b111 && m.b_bitwise==3'b111 &&
-                                     m.out_or_bitwise==3'b111 && m.out_or_logical==1));
-  c_bo_mix_bits:  cover property (##0 (m.a_bitwise==3'b101 && m.b_bitwise==3'b010 &&
-                                     m.out_or_bitwise==3'b111 && m.out_or_logical==1));
-  c_bo_not_edges: cover property (##0 (m.out_not==~{3'b000,3'b000})) &&
-                   cover property (##0 (m.out_not==~{3'b111,3'b111}));
-  c_bo_lor_0_1:   cover property (##0 (m.out_or_logical==0)) &&
-                   cover property (##0 (m.out_or_logical==1));
-endmodule
-
-module sva_functional_module(functional_module m);
-  default clocking cb @(posedge $global_clock); endclocking
-
-  // Functional correctness (3-bit truncated sum)
-  a_fm_add: assert property (##0 (m.out_final === (m.out_or_bitwise + m.sum)));
-
-  // Key coverage: sum contributes/no-op and wraparound
-  c_fm_sum0:  cover property (##0 (m.sum==1'b0 && m.out_final==m.out_or_bitwise));
-  c_fm_sum1:  cover property (##0 (m.sum==1'b1));
-  c_fm_wrap:  cover property (##0 (m.sum==1'b1 && m.out_or_bitwise==3'b111 &&
-                                  m.out_final==3'b000));
-endmodule
-
-module sva_top(top_module m);
-  default clocking cb @(posedge $global_clock); endclocking
-
-  // Passthrough from functional_module to top output
-  a_top_pass: assert property (##0 (m.out_sum === m.out_final));
-
-  // Simple integration coverage: exercise both 0 and nonzero outputs
-  c_top_zero:   cover property (##0 (m.out_sum==3'b000));
-  c_top_nonzero:cover property (##0 (m.out_sum!=3'b000));
-endmodule
-
-// Bind statements
-bind half_adder        sva_half_adder      sva_ha   (.*);
-bind bitwise_OR        sva_bitwise_or      sva_bo   (.*);
-bind functional_module sva_functional_module sva_fm (.*);
-bind top_module        sva_top             sva_tp   (.*);

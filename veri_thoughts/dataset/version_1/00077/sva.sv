@@ -1,45 +1,39 @@
-// SVA checker + bind for binary_to_onehot
+module binary_to_onehot_sva (
+    input logic clk,
+    input logic [3:0] B,
+    input logic [7:0] O
+);
 
-checker binary_to_onehot_sva (input logic [3:0] B, input logic [7:0] O);
+    // 0001 maps to output bit 0.
+    check_map_0001: assert property (
+        @(posedge clk) (B == 4'b0001) |-> (O == 8'b00000001)
+    );
 
-  function automatic logic [7:0] expected (input logic [3:0] b);
-    unique case (b)
-      4'b0001: expected = 8'b00000001;
-      4'b0010: expected = 8'b00000010;
-      4'b0100: expected = 8'b00000100;
-      4'b1000: expected = 8'b00001000;
-      default: expected = 8'b00000000;
-    endcase
-  endfunction
+    // 0010 maps to output bit 1.
+    check_map_0010: assert property (
+        @(posedge clk) (B == 4'b0010) |-> (O == 8'b00000010)
+    );
 
-  // Functional equivalence and structural invariants (combinational block)
-  always_comb begin
-    assert (O === expected(B))
-      else $error("binary_to_onehot mismatch: B=%b O=%b exp=%b", B, O, expected(B));
+    // 0100 maps to output bit 2.
+    check_map_0100: assert property (
+        @(posedge clk) (B == 4'b0100) |-> (O == 8'b00000100)
+    );
 
-    assert (O[7:4] == 4'b0)
-      else $error("Upper nibble of O must be 0, got %b (B=%b)", O[7:4], B);
+    // 1000 maps to output bit 3.
+    check_map_1000: assert property (
+        @(posedge clk) (B == 4'b1000) |-> (O == 8'b00001000)
+    );
 
-    assert ($onehot0(O[3:0]))
-      else $error("Lower nibble of O must be onehot or zero, got %b (B=%b)", O[3:0], B);
+    // All other input values drive zero.
+    check_default_zero: assert property (
+        @(posedge clk)
+        ((B != 4'b0001) && (B != 4'b0010) && (B != 4'b0100) && (B != 4'b1000))
+        |-> (O == 8'b00000000)
+    );
 
-    // X/Z on B must drive O==0 per case default
-    if ($isunknown(B))
-      assert (O === 8'b0)
-        else $error("With X/Z on B, O must be 0, got %b (B=%b)", O, B);
-  end
+    // The upper four output bits are always zero.
+    check_upper_bits_zero: assert property (
+        @(posedge clk) (O[7:4] == 4'b0000)
+    );
 
-  // Coverage: each decode, explicit default zero, illegal inputs, and X/Z handling
-  always_comb begin
-    cover (B == 4'b0001 && O == 8'b00000001);
-    cover (B == 4'b0010 && O == 8'b00000010);
-    cover (B == 4'b0100 && O == 8'b00000100);
-    cover (B == 4'b1000 && O == 8'b00001000);
-    cover ((B == 4'b0000) && (O == 8'b00000000));
-    cover (($countones(B) >= 2) && (O == 8'b00000000));
-    cover ($isunknown(B) && (O === 8'b00000000));
-  end
-
-endchecker
-
-bind binary_to_onehot binary_to_onehot_sva chk (.B(B), .O(O));
+endmodule

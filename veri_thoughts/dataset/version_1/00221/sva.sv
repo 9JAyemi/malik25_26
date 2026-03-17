@@ -1,73 +1,37 @@
-// SVA for binary_counter
-module binary_counter_sva (
-  input  logic       clk,
-  input  logic       reset,     // active-low in DUT; here 1=deasserted, 0=asserted
-  input  logic [3:0] count_out
+module binary_counter_assertions (
+    input logic       clk,
+    input logic       reset,
+    input logic [3:0] count_out
 );
 
-  // Async reset drives 0 immediately on negedge reset
-  assert property (@(negedge reset) 1'b1 |-> ##0 (count_out == 4'h0))
-    else $error("count_out not cleared immediately on async reset assert");
+    // While active-low reset is asserted, the counter output is zero.
+    check_reset_forces_zero: assert property (
+        @(posedge clk) disable iff ($initstate)
+        !reset |-> (count_out == 4'h0)
+    );
 
-  // While in reset, output must be 0 at each clk edge
-  assert property (@(posedge clk) !reset |-> (count_out == 4'h0))
-    else $error("count_out not held at 0 while reset asserted");
+    // On the first sampled clock after reset is released, the counter is one.
+    check_release_from_reset_starts_at_one: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        $rose(reset) |-> (count_out == 4'h1)
+    );
 
-  // No X/Z during normal operation
-  assert property (@(posedge clk) reset |-> !$isunknown(count_out))
-    else $error("count_out has X/Z during normal operation");
+    // A sampled zero is followed by one on the next active clock.
+    check_zero_advances_to_one: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        ($past(count_out) == 4'h0) |-> (count_out == 4'h1)
+    );
 
-  // First active clock after reset deassertion must produce 1
-  assert property (@(posedge clk) $rose(reset) |-> (count_out == 4'h1))
-    else $error("First count after reset deassert is not 1");
+    // Any active count value other than one must equal the previous value plus one.
+    check_active_counts_increment_except_one: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        (count_out != 4'h1) |-> (count_out == ($past(count_out) + 4'd1))
+    );
 
-  // Increment by 1 when not wrapping (and not just out of reset)
-  assert property (@(posedge clk)
-                   reset && $past(reset) && ($past(count_out) != 4'hF)
-                   |-> (count_out == $past(count_out) + 4'd1))
-    else $error("Count failed to increment by 1");
-
-  // Wrap 15 -> 0
-  assert property (@(posedge clk)
-                   reset && $past(reset) && ($past(count_out) == 4'hF)
-                   |-> (count_out == 4'h0))
-    else $error("Count failed to wrap from 15 to 0");
-
-  // No mid-cycle glitches when reset is high
-  assert property (@(negedge clk) reset |-> $stable(count_out))
-    else $error("count_out changed away from posedge clk");
-
-  // -------------------------
-  // Functional coverage
-  // -------------------------
-
-  // See both reset edges
-  cover property (@(posedge clk) $fell(reset));
-  cover property (@(posedge clk) $rose(reset));
-
-  // Cover wraparound and post-reset first increment
-  cover property (@(posedge clk) reset && $past(reset) && ($past(count_out)==4'hF)
-                               ##1 reset && (count_out==4'h0));
-  cover property (@(posedge clk) $rose(reset) ##1 (reset && count_out==4'h1));
-
-  // Cover a full 16-step cycle after a reset release
-  cover property (@(posedge clk) $rose(reset)
-                  ##1 (reset && count_out==4'h1)
-                  ##15 (reset && count_out==4'h0));
-
-  // Cover all 16 count values under normal operation
-  genvar i;
-  generate
-    for (i = 0; i < 16; i++) begin : g_val_cov
-      cover property (@(posedge clk) reset && (count_out == i[3:0]));
-    end
-  endgenerate
+    // A zero during active counting can only occur after the maximum count.
+    check_wrap_to_zero_from_fifteen: assert property (
+        @(posedge clk) disable iff (!reset || $initstate)
+        (count_out == 4'h0) |-> ($past(count_out) == 4'hF)
+    );
 
 endmodule
-
-// Bind into DUT
-bind binary_counter binary_counter_sva u_binary_counter_sva (
-  .clk      (clk),
-  .reset    (reset),
-  .count_out(count_out)
-);

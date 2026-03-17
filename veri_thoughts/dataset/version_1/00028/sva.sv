@@ -1,80 +1,60 @@
-// SVA for up_down_counter
-module udc_sva(input CLK, input UP_DOWN, input RESET, input EN, input [3:0] OUT);
-  default clocking cb @ (posedge CLK); endclocking
+module top_module_sva (
+    input logic CLK,
+    input logic UP_DOWN,
+    input logic RESET,
+    input logic EN,
+    input logic select,
+    input logic [3:0] A,
+    input logic [3:0] B,
+    input logic [3:0] OUT1,
+    input logic [7:0] OUT2
+);
 
-  // Reset/hold/update semantics
-  a_reset_sync: assert property (RESET |-> OUT==4'h0) else $error("UDC: OUT not 0 during RESET");
-  a_hold:       assert property (!RESET && !EN |-> OUT == $past(OUT)) else $error("UDC: OUT changed while EN=0");
-  a_inc:        assert property (!RESET && EN &&  UP_DOWN |-> OUT == $past(OUT)+4'd1) else $error("UDC: INC wrong");
-  a_dec:        assert property (!RESET && EN && !UP_DOWN |-> OUT == $past(OUT)-4'd1) else $error("UDC: DEC wrong");
-  a_change_en:  assert property (!RESET && !$isunknown($past(OUT)) && (OUT != $past(OUT)) |-> EN) else $error("UDC: OUT changed without EN");
+    // After a sampled reset, the counter output is zero on the next clock.
+    check_counter_clears_after_reset: assert property (
+        @(posedge CLK) RESET |=> (OUT1 == 4'h0)
+    );
 
-  // Async reset edge
-  always @(posedge RESET) assert (OUT==4'h0) else $error("UDC: OUT not 0 on RESET edge");
+    // A zero counter value stays at zero when counting is disabled.
+    check_counter_zero_holds_when_disabled: assert property (
+        @(posedge CLK) disable iff (RESET)
+        (!EN && (OUT1 == 4'h0)) |=> (OUT1 == 4'h0)
+    );
 
-  // Coverage
-  c_inc:       cover property (!RESET && EN &&  UP_DOWN);
-  c_dec:       cover property (!RESET && EN && !UP_DOWN);
-  c_wrap_up:   cover property (!RESET && EN &&  UP_DOWN && $past(OUT)==4'hF |-> OUT==4'h0);
-  c_wrap_down: cover property (!RESET && EN && !UP_DOWN && $past(OUT)==4'h0 |-> OUT==4'hF);
-  c_hold:      cover property (!RESET && !EN |-> OUT==$past(OUT));
-  c_reset:     cover property (RESET);
+    // Incrementing from 4'hF wraps the 4-bit counter back to zero.
+    check_counter_wraps_on_increment_from_max: assert property (
+        @(posedge CLK) disable iff (RESET)
+        (EN && UP_DOWN && (OUT1 == 4'hF)) |=> (OUT1 == 4'h0)
+    );
+
+    // OUT2 always equals the product of A and B.
+    check_multiplier_matches_ab_product: assert property (
+        @(posedge CLK) disable iff (RESET)
+        (OUT2 == (A * B))
+    );
+
+    // A zero multiplier operand forces the product to zero.
+    check_multiplier_zero_operand_gives_zero: assert property (
+        @(posedge CLK) disable iff (RESET)
+        ((A == 4'h0) || (B == 4'h0)) |-> (OUT2 == 8'h00)
+    );
+
+    // A value of one on A passes B through the multiplier.
+    check_multiplier_a_one_passes_b: assert property (
+        @(posedge CLK) disable iff (RESET)
+        (A == 4'h1) |-> (OUT2 == {4'b0000, B})
+    );
+
+    // A value of one on B passes A through the multiplier.
+    check_multiplier_b_one_passes_a: assert property (
+        @(posedge CLK) disable iff (RESET)
+        (B == 4'h1) |-> (OUT2 == {4'b0000, A})
+    );
+
+    // Changing select alone does not change the product.
+    check_select_change_does_not_change_product: assert property (
+        @(posedge CLK) disable iff (RESET)
+        ($changed(select) && $stable(A) && $stable(B)) |-> (OUT2 == $past(OUT2))
+    );
+
 endmodule
-
-// SVA for top: mux/connectivity and multiplier
-module top_sva(
-  input CLK,
-  input select,
-  input [3:0] A,
-  input [3:0] B,
-  input [3:0] OUT1,
-  input [7:0] OUT2,
-  input [3:0] udc_OUT,
-  input [3:0] bm_A,
-  input [3:0] bm_B,
-  input [7:0] bm_OUT
-);
-  default clocking cb @ (posedge CLK); endclocking
-
-  // Connectivity
-  a_out1_conn: assert property (OUT1 == udc_OUT) else $error("TOP: OUT1 not from UDC");
-  a_out2_conn: assert property (OUT2 == bm_OUT)  else $error("TOP: OUT2 not from BM");
-
-  // Mux into multiplier
-  a_mux_sel1: assert property (select  |-> (bm_A==A && bm_B==B)) else $error("TOP: select=1 mapping wrong");
-  a_mux_sel0: assert property (!select |-> (bm_A==B && bm_B==A)) else $error("TOP: select=0 mapping wrong");
-
-  // Multiplier correctness and end-to-end product
-  a_mul_correct:  assert property (bm_OUT == (bm_A * bm_B)) else $error("BM: OUT != A*B");
-  a_e2e_product:  assert property (OUT2   == (A * B))       else $error("TOP: OUT2 != A*B");
-
-  // Coverage
-  c_sel1:        cover property (select);
-  c_sel0:        cover property (!select);
-  c_sel_rise:    cover property ($rose(select));
-  c_sel_fall:    cover property ($fell(select));
-  c_mul_zero:    cover property (bm_A==4'h0 || bm_B==4'h0);
-  c_mul_max:     cover property (bm_A==4'hF && bm_B==4'hF);
-endmodule
-
-// Bind assertions
-bind up_down_counter udc_sva u_udc_sva(
-  .CLK(CLK),
-  .UP_DOWN(UP_DOWN),
-  .RESET(RESET),
-  .EN(EN),
-  .OUT(OUT)
-);
-
-bind top_module top_sva u_top_sva(
-  .CLK(CLK),
-  .select(select),
-  .A(A),
-  .B(B),
-  .OUT1(OUT1),
-  .OUT2(OUT2),
-  .udc_OUT(udc.OUT),
-  .bm_A(bm.A),
-  .bm_B(bm.B),
-  .bm_OUT(bm.OUT)
-);

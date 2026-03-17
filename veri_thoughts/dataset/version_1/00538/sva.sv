@@ -1,41 +1,34 @@
-// SVA for latch_module
-module latch_module_sva (input logic CLK, EN, TE, ENCLK);
+module latch_module_sva (
+    input logic CLK,
+    input logic EN,
+    input logic TE,
+    input logic ENCLK
+);
 
-  default clocking cb @(posedge CLK); endclocking
+    // No reset is present; ENCLK loads TE on enabled rising clocks.
 
-  // past-valid guard (no reset in DUT)
-  logic past_valid;
-  initial past_valid = 1'b0;
-  always @(cb) past_valid <= 1'b1;
+    // When EN is high, ENCLK updates to the sampled TE value.
+    check_load_when_enabled: assert property (
+        @(posedge CLK) disable iff ($initstate)
+        (EN == 1'b1) |=> (ENCLK == $past(TE))
+    );
 
-  default disable iff (!past_valid)
+    // When EN is low, ENCLK holds its previous value.
+    check_hold_when_disabled: assert property (
+        @(posedge CLK) disable iff ($initstate)
+        (EN == 1'b0) |=> (ENCLK == $past(ENCLK))
+    );
 
-  // Golden next-state relation
-  // ENCLK(n) == EN(n-1) ? TE(n-1) : ENCLK(n-1)
-  assert property (ENCLK == ($past(EN) ? $past(TE) : $past(ENCLK)))
-    else $error("ENCLK next-state mismatch");
+    // A rising ENCLK must come from an enabled load of TE high.
+    check_rise_requires_enabled_high_te: assert property (
+        @(posedge CLK) disable iff ($initstate)
+        $rose(ENCLK) |-> (($past(EN) == 1'b1) && ($past(TE) == 1'b1))
+    );
 
-  // Any ENCLK change must be caused by a prior enable, and must equal prior TE
-  assert property ($changed(ENCLK) |-> ($past(EN) && (ENCLK == $past(TE))))
-    else $error("ENCLK changed without prior EN or mismatched TE");
-
-  // Output should never be X/Z after first cycle
-  assert property (!$isunknown(ENCLK))
-    else $error("ENCLK is X/Z");
-
-  // Coverage: update to 1
-  cover property (EN && TE |=> ENCLK);
-
-  // Coverage: update to 0
-  cover property (EN && !TE |=> !ENCLK);
-
-  // Coverage: hold when disabled for at least one cycle
-  cover property (!EN |=> $stable(ENCLK));
-
-  // Coverage: back-to-back enables with different TE values
-  cover property ((EN && TE) ##1 (EN && !TE));
+    // A falling ENCLK must come from an enabled load of TE low.
+    check_fall_requires_enabled_low_te: assert property (
+        @(posedge CLK) disable iff ($initstate)
+        $fell(ENCLK) |-> (($past(EN) == 1'b1) && ($past(TE) == 1'b0))
+    );
 
 endmodule
-
-// Bind into DUT
-bind latch_module latch_module_sva u_latch_module_sva (.*);
