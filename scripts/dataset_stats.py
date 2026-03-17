@@ -1169,6 +1169,246 @@ def generate_interactive_pie_html(all_rows: list[dict], label: str, out_path: st
     print(f"  Saved interactive pie chart: {out_path}")
 
 
+def parse_property_results_csv(csv_path: str) -> dict:
+    """Parse a property_results.csv and return data grouped by ID.
+
+    Returns dict[id] = list of {property_name, type, result}.
+    """
+    by_id = defaultdict(list)
+    if not os.path.isfile(csv_path):
+        return by_id
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            by_id[row["id"].strip()].append({
+                "property_name": row["property_name"].strip(),
+                "type": row["type"].strip(),
+                "result": row["result"].strip(),
+            })
+    return dict(by_id)
+
+
+def parse_cex_details(cex_path: str) -> dict:
+    """Parse a cex_details.txt file.
+
+    Returns dict[property_name] = {cex_type, cex_length}.
+    """
+    details = {}
+    if not os.path.isfile(cex_path):
+        return details
+    try:
+        with open(cex_path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                parts = [p.strip() for p in stripped.split("|")]
+                if len(parts) >= 2:
+                    prop = parts[0]
+                    cex_type = parts[1] if len(parts) > 1 else ""
+                    cex_len = parts[2] if len(parts) > 2 else ""
+                    details[prop] = {
+                        "cex_type": cex_type,
+                        "cex_length": cex_len if cex_len else "N/A",
+                    }
+    except (OSError, IOError):
+        pass
+    return details
+
+
+def collect_property_data(dataset_dir: str) -> tuple:
+    """Collect property_results.csv and cex_details across all version_X dirs.
+
+    Returns (by_id, cex_by_id) where:
+        by_id[id]     = list of {property_name, type, result}
+        cex_by_id[id] = dict[property_name] = {cex_type, cex_length}
+    Latest version wins for each ID.
+    """
+    verif_base = os.path.join(dataset_dir, "verification_results")
+    if not os.path.isdir(verif_base):
+        return {}, {}
+    by_id = {}
+    cex_by_id = {}
+    version_dirs = sorted(
+        [d for d in os.listdir(verif_base) if d.startswith("version_") and
+         os.path.isdir(os.path.join(verif_base, d))]
+    )
+    for vdir in version_dirs:
+        vpath = os.path.join(verif_base, vdir)
+        # Property results
+        prop_csv = os.path.join(vpath, "visual_data", "property_results.csv")
+        for sid, props in parse_property_results_csv(prop_csv).items():
+            by_id[sid] = props
+        # CEX details per ID
+        ids_dir = os.path.join(vpath, "ids")
+        if os.path.isdir(ids_dir):
+            for sid_dir in os.listdir(ids_dir):
+                cex_path = os.path.join(ids_dir, sid_dir, "cex_details.txt")
+                cex = parse_cex_details(cex_path)
+                if cex:
+                    cex_by_id[sid_dir] = cex
+    return by_id, cex_by_id
+
+
+def generate_interactive_assertion_detail_html(
+    by_id: dict, cex_by_id: dict, label: str, out_path: str
+):
+    """Generate an interactive HTML page with a dropdown to select an ID and see
+    a horizontal bar chart of each assertion/cover property, colored by result
+    (proven=green, cex=red, covered=blue, unreachable=orange), with hover text
+    showing counterexample details when available.
+    """
+    if not HAS_PLOTLY:
+        print(f"  WARNING: plotly not installed, skipping assertion detail chart for {label}")
+        return
+
+    # Only include IDs that have at least one property
+    ids_sorted = sorted(sid for sid, props in by_id.items() if props)
+    if not ids_sorted:
+        print(f"  No IDs with property results found for {label}, skipping assertion detail chart.")
+        return
+
+    result_colors = {
+        "proven": "#4CAF50",
+        "cex": "#F44336",
+        "covered": "#2196F3",
+        "unreachable": "#FF9800",
+    }
+
+    # Build all traces (one bar trace per ID, all hidden except first)
+    fig = go.Figure()
+
+    for i, sid in enumerate(ids_sorted):
+        props = by_id[sid]
+        cex_info = cex_by_id.get(sid, {})
+
+        # Separate assertions and covers
+        assertions = [p for p in props if p["type"] == "assertion"]
+        covers = [p for p in props if p["type"] == "cover"]
+        all_props = assertions + covers
+
+        if not all_props:
+            # Add an empty invisible trace as placeholder
+            fig.add_trace(go.Bar(
+                x=[0], y=["(no properties)"], orientation="h",
+                visible=(i == 0),
+                showlegend=False,
+            ))
+            continue
+
+        names = []
+        colors = []
+        hover_texts = []
+        values = []
+
+        for p in all_props:
+            pname = p["property_name"]
+            result = p["result"]
+            ptype = p["type"]
+
+            # Shorten the display name: take the last part after the last dot
+            short_name = pname.rsplit(".", 1)[-1] if "." in pname else pname
+            display = f"[{ptype[0].upper()}] {short_name}"
+            names.append(display)
+            colors.append(result_colors.get(result, "#9E9E9E"))
+            values.append(1)
+
+            # Build hover text
+            hover = f"<b>{pname}</b><br>Type: {ptype}<br>Result: {result}"
+            if result == "cex":
+                # Look up cex details — try full name and also the embedded format
+                cex = cex_info.get(pname)
+                if not cex:
+                    # Try matching by suffix (cex_details often has embedded:: prefix)
+                    for cex_key, cex_val in cex_info.items():
+                        if pname.endswith(cex_key.rsplit("::", 1)[-1].rsplit(".", 1)[-1]):
+                            cex = cex_val
+                            break
+                        if cex_key.endswith(short_name):
+                            cex = cex_val
+                            break
+                if cex:
+                    hover += (f"<br><br><b>Counter-Example:</b>"
+                              f"<br>CEX Type: {cex['cex_type']}"
+                              f"<br>CEX Length: {cex['cex_length']}")
+                else:
+                    hover += "<br><br><i>(no CEX details available)</i>"
+            hover_texts.append(hover)
+
+        fig.add_trace(go.Bar(
+            y=names,
+            x=values,
+            orientation="h",
+            marker=dict(color=colors, line=dict(color="black", width=0.5)),
+            hovertext=hover_texts,
+            hoverinfo="text",
+            visible=(i == 0),
+            showlegend=False,
+        ))
+
+    # Build dropdown buttons
+    buttons = []
+    for i, sid in enumerate(ids_sorted):
+        vis = [False] * len(ids_sorted)
+        vis[i] = True
+        props = by_id[sid]
+        n_assert = sum(1 for p in props if p["type"] == "assertion")
+        n_cex = sum(1 for p in props if p["type"] == "assertion" and p["result"] == "cex")
+        n_proven = sum(1 for p in props if p["type"] == "assertion" and p["result"] == "proven")
+        n_cover = sum(1 for p in props if p["type"] == "cover")
+        subtitle = (f"ID {sid}  —  {n_assert} assertions "
+                    f"({n_proven} proven, {n_cex} cex), {n_cover} covers")
+        buttons.append(dict(
+            label=sid,
+            method="update",
+            args=[{"visible": vis},
+                  {"title": f"{label} — {subtitle}"}],
+        ))
+
+    # Initial title
+    first_props = by_id[ids_sorted[0]]
+    n0_a = sum(1 for p in first_props if p["type"] == "assertion")
+    n0_p = sum(1 for p in first_props if p["type"] == "assertion" and p["result"] == "proven")
+    n0_c = sum(1 for p in first_props if p["type"] == "assertion" and p["result"] == "cex")
+    n0_cv = sum(1 for p in first_props if p["type"] == "cover")
+    init_title = (f"{label} — ID {ids_sorted[0]}  —  {n0_a} assertions "
+                  f"({n0_p} proven, {n0_c} cex), {n0_cv} covers")
+
+    # Compute max bar count across all IDs for consistent height
+    max_props = max(len(by_id[sid]) for sid in ids_sorted) if ids_sorted else 10
+    fig_height = max(500, min(1200, 50 + max_props * 25))
+
+    fig.update_layout(
+        updatemenus=[dict(
+            active=0,
+            buttons=buttons,
+            x=0.5, xanchor="center",
+            y=1.12, yanchor="top",
+            bgcolor="#e0e0e0",
+            font=dict(size=12),
+        )],
+        title=dict(text=init_title, x=0.5),
+        xaxis=dict(title="", showticklabels=False),
+        yaxis=dict(title="", automargin=True),
+        height=fig_height,
+        width=1100,
+        margin=dict(l=350, r=40, t=100, b=40),
+        annotations=[
+            dict(text="<b>Legend:</b>  "
+                      '<span style="color:#4CAF50">■</span> Proven  '
+                      '<span style="color:#F44336">■</span> CEX  '
+                      '<span style="color:#2196F3">■</span> Covered  '
+                      '<span style="color:#FF9800">■</span> Unreachable',
+                 xref="paper", yref="paper", x=0.5, y=-0.02,
+                 showarrow=False, font=dict(size=12)),
+        ],
+    )
+
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    fig.write_html(out_path)
+    print(f"  Saved interactive assertion detail chart: {out_path}")
+
+
 def plot_cdf_comparison(data_a, data_b, label_a, label_b,
                         xlabel, title, out_path):
     """Overlapping CDF curves for two datasets with percentile cutoff annotations."""
@@ -1257,6 +1497,22 @@ def _process_version(version_dir, dataset_dir, label, version_name, verif_stats)
         html_path = os.path.join(out_dir, "interactive_pie_per_id.html")
         generate_interactive_pie_html(id_rows, version_label, html_path)
 
+    # ── Interactive assertion detail chart from property_results.csv ──
+    prop_csv = os.path.join(
+        dataset_dir, "verification_results", version_name, "visual_data", "property_results.csv"
+    )
+    prop_by_id = parse_property_results_csv(prop_csv)
+    if prop_by_id:
+        ids_dir = os.path.join(dataset_dir, "verification_results", version_name, "ids")
+        cex_by_id = {}
+        if os.path.isdir(ids_dir):
+            for sid_dir in os.listdir(ids_dir):
+                cex = parse_cex_details(os.path.join(ids_dir, sid_dir, "cex_details.txt"))
+                if cex:
+                    cex_by_id[sid_dir] = cex
+        html_path2 = os.path.join(out_dir, "interactive_assertion_detail.html")
+        generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, version_label, html_path2)
+
     print(f"\nAll {version_label} outputs saved to {out_dir}")
 
 
@@ -1311,6 +1567,14 @@ def main():
             html_out = os.path.join(ddir, "dataset_stats",
                                     f"interactive_pie_per_id_{lbl}.html")
             generate_interactive_pie_html(combined_rows, lbl, html_out)
+
+    # ── Combined interactive assertion detail charts ──
+    for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
+        prop_by_id, cex_by_id = collect_property_data(ddir)
+        if prop_by_id:
+            html_out = os.path.join(ddir, "dataset_stats",
+                                    f"interactive_assertion_detail_{lbl}.html")
+            generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, lbl, html_out)
 
     print("Done!")
 
