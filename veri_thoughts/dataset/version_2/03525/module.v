@@ -1,0 +1,15 @@
+module counter(
+  input rst,
+  input clk,
+  output reg [2:0] count
+);
+
+  always @(posedge clk) begin
+    if(rst) begin
+      count <= 3'd0;
+    end else begin
+      count <= count + 1;
+    end
+  end
+
+endmodule

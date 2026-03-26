@@ -426,7 +426,7 @@ def process_batch_results(results, modules_metadata, processed_modules):
 
             meta_obj = {
                 "source": "openai_batch",
-                "model_used": body.get("model", "gpt-5"),
+                "model_used": body.get("model", "gpt-5.4"),
                 "batch_id": result.get("id") or response.get("id"),
                 "custom_id": custom_id,
                 "module_name": module_name,
@@ -653,7 +653,7 @@ def main_single_mode():
             print("Generating SVA assertions...")
             prompt = compute_prompt_text(rtl_code)
             response = client.responses.create(
-                model="gpt-5",
+                model="gpt-5.4",
                 input=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}

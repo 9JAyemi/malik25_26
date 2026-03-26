@@ -1,0 +1,15 @@
+module up_counter(
+    input clk,
+    input reset,
+    output reg [3:0] count
+);
+
+    always @(posedge clk or negedge reset) begin
+        if (reset == 0) begin
+            count <= 4'b0;
+        end else begin
+            count <= count + 1;
+        end
+    end
+
+endmodule

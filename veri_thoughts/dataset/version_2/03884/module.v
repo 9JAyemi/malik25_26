@@ -1,0 +1,15 @@
+
+module mux_2to1(
+    input a,
+    input b,
+    input sel_b1,
+    input sel_b2,
+    output out_always
+);
+
+    wire sel = sel_b1 & sel_b2;
+    wire not_sel = ~sel;
+    
+    assign out_always = (sel) ? b : a;
+    
+endmodule
