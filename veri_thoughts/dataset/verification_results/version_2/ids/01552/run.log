@@ -39,7 +39,7 @@ INFO: successfully checked out license "jasper_fao".
 INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % # ============================================================
 % # JasperGold Assertion Verification Runner (env-driven)
-% # Output: verification_results/<DESIGN_ID>/
+% # Output: verification_results/ids/<DESIGN_ID>/
 % #
 % # Env:
 % #   DESIGN_ID     : required (subfolder name)
@@ -54,6 +54,7 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
 % #   JG_RESET      : explicit reset signal name (optional)
 % #   JG_RESET_EXPR : explicit reset expression (optional)
+% #   JG_DUMP_VCD   : 1 to dump VCD waveforms for CEX properties (default: 0)
 % # ============================================================
 % 
 % proc split_env_list {s} {
@@ -288,6 +289,8 @@ sv12
 % set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
 % set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
 1
+% set DUMP_VCD [expr {[info exists ::env(JG_DUMP_VCD)] ? $::env(JG_DUMP_VCD) : 0}]
+1
 % 
 % # JG_DESIGN/JG_SVA can be:
 % # - a directory
@@ -363,6 +366,8 @@ INFO: Verification run starting
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
   AUTO_BIND : 1
+% puts "  DUMP_VCD  : $DUMP_VCD"
+  DUMP_VCD  : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
@@ -483,7 +488,7 @@ INFO: Found 5 asserts, 4 covers
 [<embedded>] % 
 [<embedded>] % # Write property names
 [<embedded>] % set fp [open $PROP_LIST_TXT "w"]
-file41
+file42
 [<embedded>] % puts $fp "ASSERT PROPERTIES:"
 [<embedded>] % foreach a $ASSERTS { puts $fp $a }
 [<embedded>] % puts $fp ""
@@ -499,6 +504,7 @@ file41
 [<embedded>] % # ---- Prove all assertions ----
 [<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
 [<embedded>] % set_prove_time_limit 3600
+[<embedded>] % 
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -552,47 +558,45 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 7
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 1535293@della-r3c3n2(local) jg_1535226_della-r3c3n2_1
-0.0.N: Proofgrid shell started at 1535292@della-r3c3n2(local) jg_1535226_della-r3c3n2_1
+0.0.Hp: Proofgrid shell started at 1870134@della-h14n3(local) jg_1869967_della-h14n3_1
+0.0.N: Proofgrid shell started at 1870133@della-h14n3(local) jg_1869967_della-h14n3_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running" in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.post_reset_output_zero" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "sensor_interface.auto_sva_inst.post_reset_output_zero:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running" in 0.01 s.
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_maps_prev_sensor" in 0.01 s by the incidental trace "sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
-INFO (IPF047): 0.0.N: The cover property "sensor_interface.auto_sva_inst.output_maps_prev_sensor:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable" in 0.01 s by the incidental trace "sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
-INFO (IPF047): 0.0.N: The cover property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
-0.0.N: Stopped processing property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running"	[0.01 s].
-0.0.N: Starting proof for property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
+0.0.N: Starting proof for property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_maps_prev_sensor" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "sensor_interface.auto_sva_inst.output_maps_prev_sensor:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.post_reset_output_zero" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "sensor_interface.auto_sva_inst.post_reset_output_zero:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "sensor_interface.auto_sva_inst.post_reset_output_zero".
-0.0.N: Stopped processing property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
-0.0.Hp: Interrupted (multi)
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.B: Proofgrid shell started at 1535307@della-r3c3n2(local) jg_1535226_della-r3c3n2_1
-0.0.B: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.05 s)
+0.0.Hp: Exited with Success (@ 0.00 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.Ht: Proofgrid shell started at 1535306@della-r3c3n2(local) jg_1535226_della-r3c3n2_1
+0.0.N: Stopped processing property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.Ht: Proofgrid shell started at 1870147@della-h14n3(local) jg_1869967_della-h14n3_1
 0.0.Ht: Requesting engine job to terminate
-0.0.B: Exited with Success (@ 0.05 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.Ht: Exited with Success (@ 0.05 s)
+0.0.B: Proofgrid shell started at 1870148@della-h14n3(local) jg_1869967_della-h14n3_1
+0.0.B: Requesting engine job to terminate
+0.0.B: Interrupted. [0.01 s]
+0.0.N: Exited with Success (@ 0.07 s)
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.07 s)
+0.0.Ht: Exited with Success (@ 0.07 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 1.36 %)
+ProofGrid Summary (utilization 1.00 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -601,20 +605,20 @@ ProofGrid Summary (utilization 1.36 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        2.53 %
-     Hp        0.05        0.00        0.00        2.75 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        1.36 %
+      N        0.07        0.00        0.00        1.66 %
+     Hp        0.06        0.00        0.00        2.35 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        1.00 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20        0.00        0.00
+               0.26        0.00        0.00
 
-    Data read    : 2.90 kiB
-    Data written : 1.42 kiB
+    Data read    : 3.50 kiB
+    Data written : 1.44 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -684,9 +688,849 @@ INFO: CEX properties: 4 cex, 0 ar_cex
 [<embedded>] % puts "INFO: Wrote $CEX_TXT"
 INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01552/cex_details.txt
 [<embedded>] % 
+[<embedded>] % # ---- Dump VCD waveforms for CEX properties ----
+[<embedded>] % if {$DUMP_VCD && ($n_cex > 0 || $n_ar_cex > 0)} {
+  set VCD_DIR [file join $OUT_DIR "cex_vcd"]
+  file mkdir $VCD_DIR
+  set all_cex_props [concat $cex_props $ar_cex_props]
+  set vcd_count 0
+
+  foreach prop $all_cex_props {
+    set safe_name [regsub -all {[^A-Za-z0-9_.-]} $prop "_"]
+    set vcd_path [file join $VCD_DIR "${safe_name}.vcd"]
+
+    set dumped 0
+
+    # Strip <embedded>:: prefix for prove -property (it needs the short name)
+    set short_prop [regsub {^<embedded>::} $prop ""]
+
+    # Force re-prove the property so JasperGold regenerates the trace,
+    # then immediately visualize before the trace is discarded.
+    if {!$dumped && [catch {
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err1]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 1 (force re-prove) failed: $err1"
+    }
+
+    # Approach 2: visualize -violation with -new_trace to force trace gen
+    if {!$dumped && [catch {
+      visualize -violation $prop -new_trace
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err2]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 2 (-new_trace) failed: $err2"
+    }
+
+    # Approach 3: prove with -force and auto engine mode
+    if {!$dumped && [catch {
+      set_engine_mode {auto}
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err3]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 3 (auto engine) failed: $err3"
+    }
+
+    if {!$dumped} {
+      puts "WARN: Could not dump VCD for $prop (all approaches failed)"
+    }
+  }
+  puts "INFO: Dumped $vcd_count VCD files to $VCD_DIR"
+} elseif {$DUMP_VCD} {
+  puts "INFO: No CEX properties to dump VCD for"
+}
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 1:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+1: Using multistage preprocessing
+1: Starting reduce
+1: Finished reduce in 0s
+1.0.PRE: Performing Proof Simplification...
+1.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+1.0.N: Proof Simplification Iteration 1	[0.00 s]
+1.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 1.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+1.0.PRE: Proof Simplification completed in 0.00 s
+1: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+1: =============================== ProofGrid start ===============================
+1: ProofGrid usable level: 1
+1: ProofGrid is starting event handling
+1.0.Hp: Proofgrid shell started at 1870170@della-h14n3(local) jg_1869967_della-h14n3_2
+1.0.N: Proofgrid shell started at 1870169@della-h14n3(local) jg_1869967_della-h14n3_2
+1.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+1.0.N: OS RSS memory limit : 68719476736 / 68719476736
+1.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+1.0.Hp: Trace Attempt  1	[0.00 s]
+1.0.N: Requesting engine job to stop
+1.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 1: Initiating shutdown of proof [0.00 s]
+1.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 1.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running" in 0.00 s.
+1.0.Hp: All properties determined. [0.00 s]
+1.0.N: Interrupted. [0.00 s]
+1.0.Hp: Exited with Success (@ 0.00 s)
+1: ProofGrid usable level: 0
+1.0.Ht: Proofgrid shell started at 1870183@della-h14n3(local) jg_1869967_della-h14n3_2
+1.0.Ht: Requesting engine job to terminate
+1.0.B: Proofgrid shell started at 1870184@della-h14n3(local) jg_1869967_della-h14n3_2
+1.0.B: Requesting engine job to terminate
+1.0.B: Interrupted. [0.01 s]
+1.0.N: Exited with Success (@ 0.07 s)
+1.0.Ht: Interrupted. [0.01 s]
+1.0.B: Exited with Success (@ 0.07 s)
+1.0.Ht: Exited with Success (@ 0.07 s)
+1: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.30 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.20 %
+     Hp        0.06        0.00        0.00        1.01 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.06        0.00        0.00        0.00 %
+    all        0.06        0.00        0.00        0.30 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.37 kiB
+    Data written : 1.27 kiB
+
+1: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 1
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
+INFO (IPF031): Settings used for proof thread 2:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Hp Ht N B 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Hp Ht N B, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 3:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+3: Using multistage preprocessing
+3: Starting reduce
+3: Finished reduce in 0s
+3.0.PRE: Performing Proof Simplification...
+3.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+3.0.N: Proof Simplification Iteration 1	[0.00 s]
+3.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 3.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+3.0.PRE: Proof Simplification completed in 0.00 s
+3: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+3: =============================== ProofGrid start ===============================
+3: ProofGrid usable level: 1
+3: ProofGrid is starting event handling
+3.0.N: Proofgrid shell started at 1870207@della-h14n3(local) jg_1869967_della-h14n3_4
+3.0.Hp: Proofgrid shell started at 1870208@della-h14n3(local) jg_1869967_della-h14n3_4
+3.0.N: OS RSS memory limit : 68719476736 / 68719476736
+3.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+3.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+3.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+3.0.N: Last scan. Per property time limit: 0s
+3.0.N: Starting proof for property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running"	[0.00 s].
+3.0.N: Trace Attempt  1	[0.00 s]
+3.0.Hp: Trace Attempt  1	[0.00 s]
+3.0.N: Requesting engine job to stop
+3.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 3: Initiating shutdown of proof [0.00 s]
+3.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 3.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running" in 0.00 s.
+3.0.Hp: All properties determined. [0.00 s]
+3.0.N: Stopped processing property "sensor_interface.auto_sva_inst.high_nibble_zero_when_running"	[0.00 s].
+3.0.N: All properties determined. [0.00 s]
+3.0.Hp: Exited with Success (@ 0.07 s)
+3: ProofGrid usable level: 0
+3.0.B: Proofgrid shell started at 1870222@della-h14n3(local) jg_1869967_della-h14n3_4
+3.0.B: Requesting engine job to terminate
+3.0.N: Exited with Success (@ 0.07 s)
+3.0.B: Interrupted. [0.01 s]
+3.0.Ht: Proofgrid shell started at 1870221@della-h14n3(local) jg_1869967_della-h14n3_4
+3.0.Ht: Requesting engine job to terminate
+3.0.Ht: Interrupted. [0.01 s]
+3.0.B: Exited with Success (@ 0.07 s)
+3.0.Ht: Exited with Success (@ 0.07 s)
+3: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.54 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.08 %
+     Hp        0.06        0.00        0.00        1.06 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.06        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.54 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.63 kiB
+    Data written : 1.27 kiB
+
+3: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 3
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.high_nibble_zero_when_running".
+INFO (IPF031): Settings used for proof thread 4:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::sensor_interface.auto_sva_inst.high_nibble_zero_when_running (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 5:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+5: Using multistage preprocessing
+5: Starting reduce
+5: Finished reduce in 0s
+5.0.PRE: Performing Proof Simplification...
+5.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: Proof Simplification Iteration 1	[0.00 s]
+5.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 5.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+5.0.PRE: Proof Simplification completed in 0.00 s
+5: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+5: =============================== ProofGrid start ===============================
+5: ProofGrid usable level: 1
+5: ProofGrid is starting event handling
+5.0.Hp: Proofgrid shell started at 1870246@della-h14n3(local) jg_1869967_della-h14n3_6
+5.0.N: Proofgrid shell started at 1870245@della-h14n3(local) jg_1869967_della-h14n3_6
+5.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+5.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: OS RSS memory limit : 68719476736 / 68719476736
+5.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: Last scan. Per property time limit: 0s
+5.0.N: Starting proof for property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+5.0.Hp: Trace Attempt  1	[0.00 s]
+5.0.N: Trace Attempt  1	[0.00 s]
+5.0.N: Requesting engine job to stop
+5.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 5: Initiating shutdown of proof [0.00 s]
+5.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 5.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_maps_prev_sensor" in 0.00 s.
+5.0.Hp: All properties determined. [0.00 s]
+5.0.N: Stopped processing property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+5.0.N: All properties determined. [0.00 s]
+5.0.Ht: Proofgrid shell started at 1870259@della-h14n3(local) jg_1869967_della-h14n3_6
+5.0.Ht: Requesting engine job to terminate
+5.0.N: Exited with Success (@ 0.07 s)
+5: ProofGrid usable level: 0
+5.0.Hp: Exited with Success (@ 0.07 s)
+5.0.Ht: Interrupted. [0.01 s]
+5.0.B: Proofgrid shell started at 1870260@della-h14n3(local) jg_1869967_della-h14n3_6
+5.0.B: Requesting engine job to terminate
+5.0.B: Interrupted. [0.01 s]
+5.0.Ht: Exited with Success (@ 0.07 s)
+5.0.B: Exited with Success (@ 0.07 s)
+5: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.66 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.91 %
+     Hp        0.06        0.00        0.00        1.73 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.66 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 2.09 kiB
+    Data written : 1.27 kiB
+
+5: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 5
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.output_maps_prev_sensor".
+INFO (IPF031): Settings used for proof thread 6:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 7:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+7: Using multistage preprocessing
+7: Starting reduce
+7: Finished reduce in 0s
+7.0.PRE: Performing Proof Simplification...
+7.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: Proof Simplification Iteration 1	[0.00 s]
+7.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 7.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+7.0.PRE: Proof Simplification completed in 0.00 s
+7: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+7: =============================== ProofGrid start ===============================
+7: ProofGrid usable level: 1
+7: ProofGrid is starting event handling
+7.0.Hp: Proofgrid shell started at 1870284@della-h14n3(local) jg_1869967_della-h14n3_8
+7.0.N: Proofgrid shell started at 1870283@della-h14n3(local) jg_1869967_della-h14n3_8
+7.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+7.0.N: OS RSS memory limit : 68719476736 / 68719476736
+7.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: Last scan. Per property time limit: 0s
+7.0.N: Starting proof for property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+7.0.N: Trace Attempt  1	[0.00 s]
+7.0.N: Requesting engine job to stop
+7.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 7: Initiating shutdown of proof [0.00 s]
+7.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 7.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_maps_prev_sensor" in 0.00 s.
+7.0.N: Stopped processing property "sensor_interface.auto_sva_inst.output_maps_prev_sensor"	[0.00 s].
+7.0.Hp: Trace Attempt  1	[0.00 s]
+7.0.Hp: All properties determined. [0.00 s]
+7.0.N: All properties determined. [0.00 s]
+7.0.Hp: Exited with Success (@ 0.00 s)
+7: ProofGrid usable level: 0
+7.0.B: Proofgrid shell started at 1870298@della-h14n3(local) jg_1869967_della-h14n3_8
+7.0.B: Requesting engine job to terminate
+7.0.N: Exited with Success (@ 0.07 s)
+7.0.B: Interrupted. [0.01 s]
+7.0.Ht: Proofgrid shell started at 1870297@della-h14n3(local) jg_1869967_della-h14n3_8
+7.0.Ht: Requesting engine job to terminate
+7.0.Ht: Interrupted. [0.01 s]
+7.0.B: Exited with Success (@ 0.07 s)
+7.0.Ht: Exited with Success (@ 0.07 s)
+7: --------------------------------------------------------------
+ProofGrid Summary (utilization 1.08 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.82 %
+     Hp        0.06        0.00        0.00        2.44 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.06        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        1.08 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 2.09 kiB
+    Data written : 1.26 kiB
+
+7: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 7
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.output_maps_prev_sensor".
+INFO (IPF031): Settings used for proof thread 8:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::sensor_interface.auto_sva_inst.output_maps_prev_sensor (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 9:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+9: Using multistage preprocessing
+9: Starting reduce
+9: Finished reduce in 0s
+9.0.PRE: Performing Proof Simplification...
+9.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: Proof Simplification Iteration 1	[0.00 s]
+9.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 9.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+9.0.PRE: Proof Simplification completed in 0.00 s
+9: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+9: =============================== ProofGrid start ===============================
+9: ProofGrid usable level: 1
+9: ProofGrid is starting event handling
+9.0.Hp: Proofgrid shell started at 1870322@della-h14n3(local) jg_1869967_della-h14n3_10
+9.0.N: Proofgrid shell started at 1870321@della-h14n3(local) jg_1869967_della-h14n3_10
+9.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+9.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: OS RSS memory limit : 68719476736 / 68719476736
+9.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: Last scan. Per property time limit: 0s
+9.0.N: Starting proof for property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
+9.0.Hp: Trace Attempt  1	[0.00 s]
+9.0.N: Requesting engine job to stop
+9.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 9: Initiating shutdown of proof [0.00 s]
+9.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 9.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.post_reset_output_zero" in 0.00 s.
+9.0.N: Trace Attempt  1	[0.00 s]
+9.0.Hp: All properties determined. [0.00 s]
+9.0.N: Stopped processing property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
+9.0.N: All properties determined. [0.00 s]
+9.0.Hp: Exited with Success (@ 0.07 s)
+9: ProofGrid usable level: 0
+9.0.Ht: Proofgrid shell started at 1870335@della-h14n3(local) jg_1869967_della-h14n3_10
+9.0.Ht: Requesting engine job to terminate
+9.0.N: Exited with Success (@ 0.07 s)
+9.0.Ht: Interrupted. [0.01 s]
+9.0.B: Proofgrid shell started at 1870336@della-h14n3(local) jg_1869967_della-h14n3_10
+9.0.B: Requesting engine job to terminate
+9.0.Ht: Exited with Success (@ 0.07 s)
+9.0.B: Interrupted. [0.01 s]
+9.0.B: Exited with Success (@ 0.07 s)
+9: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.51 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.06        0.00        0.00        0.64 %
+     Hp        0.06        0.00        0.00        1.41 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.06        0.00        0.00        0.51 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.72 kiB
+    Data written : 1.27 kiB
+
+9: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 9
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.post_reset_output_zero".
+INFO (IPF031): Settings used for proof thread 10:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 11:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+11: Using multistage preprocessing
+11: Starting reduce
+11: Finished reduce in 0s
+11.0.PRE: Performing Proof Simplification...
+11.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+11.0.N: Proof Simplification Iteration 1	[0.00 s]
+11.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 11.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+11.0.PRE: Proof Simplification completed in 0.00 s
+11: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+11: =============================== ProofGrid start ===============================
+11: ProofGrid usable level: 1
+11: ProofGrid is starting event handling
+11.0.Hp: Proofgrid shell started at 1870360@della-h14n3(local) jg_1869967_della-h14n3_12
+11.0.N: Proofgrid shell started at 1870359@della-h14n3(local) jg_1869967_della-h14n3_12
+11.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+11.0.N: OS RSS memory limit : 68719476736 / 68719476736
+11.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.N: Last scan. Per property time limit: 0s
+11.0.N: Starting proof for property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
+11.0.N: Trace Attempt  1	[0.00 s]
+11.0.N: Requesting engine job to stop
+11.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 11: Initiating shutdown of proof [0.00 s]
+11.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 11.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.post_reset_output_zero" in 0.00 s.
+11.0.N: Stopped processing property "sensor_interface.auto_sva_inst.post_reset_output_zero"	[0.00 s].
+11.0.N: All properties determined. [0.00 s]
+11.0.Hp: All properties determined. [0.00 s]
+11.0.Ht: Proofgrid shell started at 1870373@della-h14n3(local) jg_1869967_della-h14n3_12
+11.0.Ht: Requesting engine job to terminate
+11.0.B: Proofgrid shell started at 1870374@della-h14n3(local) jg_1869967_della-h14n3_12
+11.0.B: Requesting engine job to terminate
+11.0.B: Interrupted. [0.01 s]
+11.0.N: Exited with Success (@ 0.07 s)
+11: ProofGrid usable level: 0
+11.0.Hp: Exited with Success (@ 0.07 s)
+11.0.Ht: Interrupted. [0.01 s]
+11.0.Ht: Exited with Success (@ 0.07 s)
+11.0.B: Exited with Success (@ 0.07 s)
+11: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.49 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.95 %
+     Hp        0.06        0.00        0.00        1.01 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.49 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.70 kiB
+    Data written : 1.27 kiB
+
+11: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 11
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.post_reset_output_zero".
+INFO (IPF031): Settings used for proof thread 12:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::sensor_interface.auto_sva_inst.post_reset_output_zero (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 13:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+13: Using multistage preprocessing
+13: Starting reduce
+13: Finished reduce in 0s
+13.0.PRE: Performing Proof Simplification...
+13.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+13.0.N: Proof Simplification Iteration 1	[0.00 s]
+13.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 13.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+13.0.PRE: Proof Simplification completed in 0.00 s
+13: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+13: =============================== ProofGrid start ===============================
+13: ProofGrid usable level: 1
+13: ProofGrid is starting event handling
+13.0.Hp: Proofgrid shell started at 1870398@della-h14n3(local) jg_1869967_della-h14n3_14
+13.0.N: Proofgrid shell started at 1870397@della-h14n3(local) jg_1869967_della-h14n3_14
+13.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+13.0.N: OS RSS memory limit : 68719476736 / 68719476736
+13.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+13.0.Hp: Trace Attempt  1	[0.00 s]
+13.0.N: Requesting engine job to stop
+13.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 13: Initiating shutdown of proof [0.00 s]
+13.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 13.0.Hp: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable" in 0.00 s.
+13.0.Hp: All properties determined. [0.00 s]
+13.0.N: Interrupted. [0.00 s]
+13.0.N: Exited with Success (@ 0.00 s)
+13: ProofGrid usable level: 0
+13.0.Hp: Exited with Success (@ 0.00 s)
+13.0.B: Proofgrid shell started at 1870412@della-h14n3(local) jg_1869967_della-h14n3_14
+13.0.B: Requesting engine job to terminate
+13.0.B: Interrupted. [0.01 s]
+13.0.Ht: Proofgrid shell started at 1870411@della-h14n3(local) jg_1869967_della-h14n3_14
+13.0.Ht: Requesting engine job to terminate
+13.0.Ht: Interrupted. [0.01 s]
+13.0.B: Exited with Success (@ 0.07 s)
+13.0.Ht: Exited with Success (@ 0.07 s)
+13: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.42 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.15 %
+     Hp        0.06        0.00        0.00        1.54 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.06        0.00        0.00        0.00 %
+    all        0.06        0.00        0.00        0.42 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.85 kiB
+    Data written : 1.27 kiB
+
+13: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 13
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.output_holds_when_sensor_stable".
+INFO (IPF031): Settings used for proof thread 14:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 15:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+15: Using multistage preprocessing
+15: Starting reduce
+15: Finished reduce in 0s
+15.0.PRE: Performing Proof Simplification...
+15.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+15.0.N: Proof Simplification Iteration 1	[0.00 s]
+15.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 15.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+15.0.PRE: Proof Simplification completed in 0.00 s
+15: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+15: =============================== ProofGrid start ===============================
+15: ProofGrid usable level: 1
+15: ProofGrid is starting event handling
+15.0.N: Proofgrid shell started at 1870435@della-h14n3(local) jg_1869967_della-h14n3_16
+15.0.Hp: Proofgrid shell started at 1870436@della-h14n3(local) jg_1869967_della-h14n3_16
+15.0.N: OS RSS memory limit : 68719476736 / 68719476736
+15.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+15.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+15.0.N: Last scan. Per property time limit: 0s
+15.0.N: Starting proof for property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable"	[0.00 s].
+15.0.N: Trace Attempt  1	[0.00 s]
+15.0.N: Requesting engine job to stop
+15.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 15: Initiating shutdown of proof [0.02 s]
+15.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 15.0.N: A counterexample (cex) with 1 cycles was found for the property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable" in 0.00 s.
+15.0.N: Stopped processing property "sensor_interface.auto_sva_inst.output_holds_when_sensor_stable"	[0.00 s].
+15.0.N: All properties determined. [0.02 s]
+15.0.Hp: Interrupted. [0.02 s]
+15.0.Hp: Exited with Success (@ 0.02 s)
+15: ProofGrid usable level: 0
+15.0.Ht: Proofgrid shell started at 1870449@della-h14n3(local) jg_1869967_della-h14n3_16
+15.0.Ht: Requesting engine job to terminate
+15.0.N: Exited with Success (@ 0.07 s)
+15.0.Ht: Interrupted. [0.01 s]
+15.0.B: Proofgrid shell started at 1870450@della-h14n3(local) jg_1869967_della-h14n3_16
+15.0.B: Requesting engine job to terminate
+15.0.Ht: Exited with Success (@ 0.09 s)
+15.0.B: Interrupted. [0.01 s]
+15.0.B: Exited with Success (@ 0.09 s)
+15: --------------------------------------------------------------
+ProofGrid Summary (utilization 7.43 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.02        0.00       25.34 %
+     Hp        0.06        0.00        0.00        0.07 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.01        0.00        7.43 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.28        0.02        0.00
+
+    Data read    : 1.80 kiB
+    Data written : 1.27 kiB
+
+15: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 15
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::sensor_interface.auto_sva_inst.output_holds_when_sensor_stable".
+INFO (IPF031): Settings used for proof thread 16:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::sensor_interface.auto_sva_inst.output_holds_when_sensor_stable (all approaches failed)
+INFO: Dumped 0 VCD files to /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01552/cex_vcd
+[<embedded>] % 
 [<embedded>] % # ---- Write summary ----
 [<embedded>] % set fp [open $SUMMARY_TXT "w"]
-file44
+file16
 [<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
 [<embedded>] % puts $fp "TOP=$TOP"
 [<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
@@ -710,6 +1554,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.315 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.407 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

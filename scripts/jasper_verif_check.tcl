@@ -15,6 +15,7 @@
 #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
 #   JG_RESET      : explicit reset signal name (optional)
 #   JG_RESET_EXPR : explicit reset expression (optional)
+#   JG_DUMP_VCD   : 1 to dump VCD waveforms for CEX properties (default: 0)
 # ============================================================
 
 proc split_env_list {s} {
@@ -246,6 +247,7 @@ set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_
 # Defines should be space-separated (do NOT split on ':')
 set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
 set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+set DUMP_VCD [expr {[info exists ::env(JG_DUMP_VCD)] ? $::env(JG_DUMP_VCD) : 0}]
 
 # JG_DESIGN/JG_SVA can be:
 # - a directory
@@ -300,6 +302,7 @@ puts "  INCDIRS   : $INCDIRS"
 puts "  DEFINES   : $DEFINES"
 puts "  NO_CLOCK  : $NO_CLOCK"
 puts "  AUTO_BIND : $AUTO_BIND"
+puts "  DUMP_VCD  : $DUMP_VCD"
 puts "  N_DESIGN  : [llength $DESIGN_FILES]"
 puts "  N_SVA     : [llength $SVA_FILES]"
 puts "  OUT_DIR   : $OUT_DIR"
@@ -401,6 +404,7 @@ if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
 # ---- Prove all assertions ----
 # 3600 seconds = 1 hour timeout per property (adjust as needed)
 set_prove_time_limit 3600
+
 puts "INFO: Running prove -all"
 if {[catch { prove -all } pmsg]} {
   puts "ERROR: prove command failed:\n$pmsg"
@@ -438,6 +442,74 @@ set n_cex    [llength $cex_props]
 set n_ar_cex [llength $ar_cex_props]
 puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
 puts "INFO: Wrote $CEX_TXT"
+
+# ---- Dump VCD waveforms for CEX properties ----
+if {$DUMP_VCD && ($n_cex > 0 || $n_ar_cex > 0)} {
+  set VCD_DIR [file join $OUT_DIR "cex_vcd"]
+  file mkdir $VCD_DIR
+  set all_cex_props [concat $cex_props $ar_cex_props]
+  set vcd_count 0
+
+  foreach prop $all_cex_props {
+    set safe_name [regsub -all {[^A-Za-z0-9_.-]} $prop "_"]
+    set vcd_path [file join $VCD_DIR "${safe_name}.vcd"]
+
+    set dumped 0
+
+    # Strip <embedded>:: prefix for prove -property (it needs the short name)
+    set short_prop [regsub {^<embedded>::} $prop ""]
+
+    # Force re-prove the property so JasperGold regenerates the trace,
+    # then immediately visualize before the trace is discarded.
+    if {!$dumped && [catch {
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err1]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 1 (force re-prove) failed: $err1"
+    }
+
+    # Approach 2: visualize -violation with -new_trace to force trace gen
+    if {!$dumped && [catch {
+      visualize -violation $prop -new_trace
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err2]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 2 (-new_trace) failed: $err2"
+    }
+
+    # Approach 3: prove with -force and auto engine mode
+    if {!$dumped && [catch {
+      set_engine_mode {auto}
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err3]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 3 (auto engine) failed: $err3"
+    }
+
+    if {!$dumped} {
+      puts "WARN: Could not dump VCD for $prop (all approaches failed)"
+    }
+  }
+  puts "INFO: Dumped $vcd_count VCD files to $VCD_DIR"
+} elseif {$DUMP_VCD} {
+  puts "INFO: No CEX properties to dump VCD for"
+}
 
 # ---- Write summary ----
 set fp [open $SUMMARY_TXT "w"]

@@ -39,7 +39,7 @@ INFO: successfully checked out license "jasper_fao".
 INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % # ============================================================
 % # JasperGold Assertion Verification Runner (env-driven)
-% # Output: verification_results/<DESIGN_ID>/
+% # Output: verification_results/ids/<DESIGN_ID>/
 % #
 % # Env:
 % #   DESIGN_ID     : required (subfolder name)
@@ -54,6 +54,7 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
 % #   JG_RESET      : explicit reset signal name (optional)
 % #   JG_RESET_EXPR : explicit reset expression (optional)
+% #   JG_DUMP_VCD   : 1 to dump VCD waveforms for CEX properties (default: 0)
 % # ============================================================
 % 
 % proc split_env_list {s} {
@@ -288,6 +289,8 @@ sv12
 % set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
 % set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
 1
+% set DUMP_VCD [expr {[info exists ::env(JG_DUMP_VCD)] ? $::env(JG_DUMP_VCD) : 0}]
+1
 % 
 % # JG_DESIGN/JG_SVA can be:
 % # - a directory
@@ -363,6 +366,8 @@ INFO: Verification run starting
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
   AUTO_BIND : 1
+% puts "  DUMP_VCD  : $DUMP_VCD"
+  DUMP_VCD  : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
@@ -505,6 +510,7 @@ file41
 [<embedded>] % # ---- Prove all assertions ----
 [<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
 [<embedded>] % set_prove_time_limit 3600
+[<embedded>] % 
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
 [<embedded>] % if {[catch { prove -all } pmsg]} {
@@ -560,8 +566,8 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 17
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 1442177@della-r3c3n2(local) jg_1442071_della-r3c3n2_1
-0.0.N: Proofgrid shell started at 1442176@della-r3c3n2(local) jg_1442071_della-r3c3n2_1
+0.0.Hp: Proofgrid shell started at 1550052@della-h14n3(local) jg_1549885_della-h14n3_1
+0.0.N: Proofgrid shell started at 1550051@della-h14n3(local) jg_1549885_della-h14n3_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -577,29 +583,40 @@ INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.no_clko_ch
 0.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_never_above_threshold"	[0.01 s].
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
+INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.count_increments_when_below_threshold:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold" in 0.01 s.
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold" in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.zero_count_has_valid_cause" in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.zero_count_has_valid_cause:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.zero_advances_to_one_next:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.01 s.
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.01 s.
 0.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.01 s].
+0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.02 s.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.02 s.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.02 s.
+0.0.Hp: Trace Attempt  4	[0.01 s]
+0.0.Hp: Trace Attempt  5	[0.01 s]
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
@@ -610,14 +627,20 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.02 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.02 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.02 s.
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
-0.0.Ht: Proofgrid shell started at 1442190@della-r3c3n2(local) jg_1442071_della-r3c3n2_1
+0.0.N: Trace Attempt  1	[0.05 s]
+0.0.N: Trace Attempt  2	[0.05 s]
+0.0.N: Trace Attempt  3	[0.05 s]
+0.0.B: Proofgrid shell started at 1550066@della-h14n3(local) jg_1549885_della-h14n3_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Proofgrid shell started at 1550065@della-h14n3(local) jg_1549885_della-h14n3_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
@@ -625,23 +648,10 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.B: Proofgrid shell started at 1442191@della-r3c3n2(local) jg_1442071_della-r3c3n2_1
-0.0.B: OS RSS memory limit : 68719476736 / 68719476736
-0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.07 s]
-0.0.N: Trace Attempt  2	[0.07 s]
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  3	[0.07 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 1
-0.0.B: Trace Attempt 153	[0.90 s]
-0.0.B: Per property time limit expired (0.93 s) [0.93 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.93 s].
+0.0.B: Trace Attempt 164	[0.93 s]
+0.0.B: Per property time limit expired (0.94 s) [0.94 s]
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.94 s].
 0.0.B: Last scan. Per property time limit: 0s
 0.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -649,107 +659,114 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 235	[0.99 s]
+0.0.N: Trace Attempt 265	[1.00 s]
 0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.99 s].
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.98 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.N: Trace Attempt 22	[0.00 s]
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.03 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.N: Trace Attempt 355	[4.03 s]
-0.0.B: Trace Attempt 267	[4.17 s]
-0.0.Ht: Trace Attempt 300	[5.17 s]
-0.0.Hp: Trace Attempt 236	[5.78 s]
-0.0.B: Trace Attempt 312	[8.35 s]
-0.0.N: Trace Attempt 592	[8.76 s]
-0.0.B: Trace Attempt 353	[12.65 s]
-0.0.N: Trace Attempt 849	[13.25 s]
-0.0.B: Trace Attempt 370	[17.26 s]
-0.0.N: Trace Attempt 1011	[17.41 s]
-0.0.B: Trace Attempt 376	[21.34 s]
-0.0.N: Trace Attempt 1219	[21.42 s]
-0.0.N: Trace Attempt 1415	[26.61 s]
-0.0.B: Trace Attempt 384	[27.02 s]
-0.0.Ht: Trace Attempt 591	[28.82 s]
-0.0.N: Trace Attempt 1837	[30.64 s]
-0.0.B: Trace Attempt 389	[32.14 s]
-0.0.N: Trace Attempt 1893	[34.65 s]
-0.0.B: Trace Attempt 399	[36.51 s]
-0.0.N: Trace Attempt 1920	[38.95 s]
-0.0.B: Trace Attempt 407	[40.77 s]
-0.0.N: Trace Attempt 1937	[43.05 s]
-0.0.Hp: Trace Attempt 395	[46.16 s]
-0.0.B: Trace Attempt 416	[45.30 s]
-0.0.N: Trace Attempt 1975	[47.13 s]
-0.0.B: Trace Attempt 419	[50.94 s]
-0.0.N: Trace Attempt 1986	[51.16 s]
-0.0.B: Trace Attempt 423	[56.12 s]
-0.0.N: Trace Attempt 1994	[56.24 s]
-0.0.N: Trace Attempt 2002	[60.47 s]
-0.0.B: Trace Attempt 428	[60.69 s]
-0.0.B: Trace Attempt 433	[65.12 s]
-0.0.B: Trace Attempt 437	[69.50 s]
-0.0.B: Trace Attempt 441	[73.77 s]
-0.0.B: Trace Attempt 447	[78.34 s]
-0.0.B: Trace Attempt 451	[82.52 s]
-0.0.B: Trace Attempt 456	[87.31 s]
-0.0.B: Trace Attempt 460	[91.90 s]
-0.0.B: Trace Attempt 464	[96.72 s]
-0.0.B: Trace Attempt 467	[101.23 s]
-0.0.B: Trace Attempt 470	[105.77 s]
-0.0.B: Trace Attempt 474	[111.30 s]
-0.0.B: Trace Attempt 477	[117.70 s]
-0.0.B: Trace Attempt 480	[123.29 s]
-0.0.B: Trace Attempt 483	[128.89 s]
-0.0.B: Trace Attempt 486	[134.41 s]
-0.0.B: Trace Attempt 489	[139.94 s]
-0.0.B: Trace Attempt 492	[145.96 s]
-0.0.B: Trace Attempt 495	[151.10 s]
-0.0.B: Trace Attempt 497	[155.11 s]
-0.0.B: Trace Attempt 499	[159.30 s]
-0.0.B: Trace Attempt 501	[163.40 s]
-0.0.B: Trace Attempt 503	[168.25 s]
-0.0.B: Trace Attempt 505	[172.76 s]
-0.0.Ht: Trace Attempt 1501	[175.08 s]
-0.0.B: Trace Attempt 507	[177.59 s]
-0.0.B: Trace Attempt 509	[181.78 s]
-0.0.B: Trace Attempt 512	[187.36 s]
-0.0.B: Trace Attempt 515	[192.87 s]
-0.0.B: Trace Attempt 517	[197.03 s]
-0.0.B: Trace Attempt 520	[202.94 s]
-0.0.B: Trace Attempt 523	[208.86 s]
-0.0.B: Trace Attempt 526	[215.32 s]
-0.0.B: Trace Attempt 529	[221.35 s]
-0.0.B: Trace Attempt 531	[226.05 s]
-0.0.B: Trace Attempt 534	[231.72 s]
-0.0.B: Trace Attempt 536	[236.25 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.Hp: Trace Attempt 266	[4.62 s]
+0.0.N: Trace Attempt 397	[4.03 s]
+0.0.B: Trace Attempt 271	[4.24 s]
+0.0.Ht: Trace Attempt 348	[8.00 s]
+0.0.N: Trace Attempt 713	[8.04 s]
+0.0.B: Trace Attempt 318	[8.40 s]
+0.0.N: Trace Attempt 963	[12.05 s]
+0.0.B: Trace Attempt 361	[12.43 s]
+0.0.N: Trace Attempt 1215	[16.30 s]
+0.0.B: Trace Attempt 372	[16.91 s]
+0.0.Ht: Trace Attempt 658	[20.68 s]
+0.0.N: Trace Attempt 1432	[20.30 s]
+0.0.B: Trace Attempt 380	[21.61 s]
+0.0.N: Trace Attempt 1861	[24.35 s]
+0.0.B: Trace Attempt 386	[26.24 s]
+0.0.N: Trace Attempt 1905	[28.37 s]
+0.0.B: Trace Attempt 393	[30.27 s]
+0.0.N: Trace Attempt 1936	[32.73 s]
+0.0.B: Trace Attempt 404	[34.91 s]
+0.0.N: Trace Attempt 1979	[36.95 s]
+0.0.B: Trace Attempt 410	[39.09 s]
+0.0.N: Trace Attempt 1992	[41.27 s]
+0.0.B: Trace Attempt 418	[44.46 s]
+0.0.Hp: Trace Attempt 395	[46.51 s]
+0.0.N: Trace Attempt 2002	[45.87 s]
+0.0.B: Trace Attempt 421	[48.79 s]
+0.0.B: Trace Attempt 425	[53.05 s]
+0.0.B: Trace Attempt 430	[57.13 s]
+0.0.B: Trace Attempt 435	[61.98 s]
+0.0.B: Trace Attempt 440	[66.03 s]
+0.0.B: Trace Attempt 446	[70.50 s]
+0.0.B: Trace Attempt 451	[75.17 s]
+0.0.B: Trace Attempt 456	[79.44 s]
+0.0.B: Trace Attempt 460	[83.57 s]
+0.0.B: Trace Attempt 464	[87.83 s]
+0.0.B: Trace Attempt 467	[91.84 s]
+0.0.Ht: Trace Attempt 1415	[96.33 s]
+0.0.B: Trace Attempt 470	[95.85 s]
+0.0.B: Trace Attempt 474	[100.69 s]
+0.0.B: Trace Attempt 477	[106.28 s]
+0.0.B: Trace Attempt 480	[111.12 s]
+0.0.B: Trace Attempt 483	[115.99 s]
+0.0.B: Trace Attempt 486	[120.83 s]
+0.0.B: Trace Attempt 489	[125.80 s]
+0.0.B: Trace Attempt 492	[131.18 s]
+0.0.B: Trace Attempt 495	[135.70 s]
+0.0.B: Trace Attempt 498	[141.15 s]
+0.0.B: Trace Attempt 501	[146.86 s]
+0.0.B: Trace Attempt 503	[151.24 s]
+0.0.B: Trace Attempt 505	[155.31 s]
+0.0.B: Trace Attempt 507	[159.63 s]
+0.0.B: Trace Attempt 510	[164.85 s]
+0.0.B: Trace Attempt 513	[169.50 s]
+0.0.B: Trace Attempt 516	[174.79 s]
+0.0.B: Trace Attempt 519	[179.83 s]
+0.0.B: Trace Attempt 522	[185.30 s]
+0.0.B: Trace Attempt 525	[190.59 s]
+0.0.B: Trace Attempt 527	[194.70 s]
+0.0.B: Trace Attempt 530	[200.39 s]
+0.0.Ht: Trace Attempt 2003	[204.79 s]
+0.0.B: Trace Attempt 533	[205.93 s]
+0.0.Ht: Trace Attempt 2052	[210.71 s]
+0.0.B: Trace Attempt 536	[211.61 s]
+0.0.Ht: Trace Attempt 2116	[214.71 s]
+0.0.B: Trace Attempt 538	[215.63 s]
+0.0.Ht: Trace Attempt 2170	[218.74 s]
+0.0.B: Trace Attempt 541	[221.55 s]
+0.0.Ht: Trace Attempt 2218	[225.57 s]
+0.0.B: Trace Attempt 543	[225.62 s]
+0.0.Ht: Trace Attempt 2286	[229.60 s]
+0.0.B: Trace Attempt 545	[229.89 s]
+0.0.Ht: Trace Attempt 2326	[233.72 s]
+0.0.B: Trace Attempt 548	[236.58 s]
+0.0.Ht: Trace Attempt 2342	[238.05 s]
 0.0.Hp: Interrupted (multi)
 0.0.Hp: Morphing to Mp
-0.0.Hp: Trace Attempt 1960	[46.44 s]
+0.0.Hp: Trace Attempt 2001	[46.74 s]
 0.0.Hp: All properties determined. [0.00 s]
 0.0.Hp: Exited with Success (@ 0.00 s)
 0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Mp: Trace Attempt  1	[0.00 s]
 0.0.Mp: Trace Attempt  2	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  4	[0.01 s]
-0.0.Mp: Trace Attempt  4	[0.01 s]
-0.0.Mp: Trace Attempt  5	[0.01 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.10 s].
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.03 s].
 0.0.B: Morphing to K
-0.0.B: Trace Attempt 537	[238.51 s]
+0.0.B: Trace Attempt 549	[238.87 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
-0.0.K: Trace Attempt 2002	[0.08 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.26 s].
+0.0.K: Trace Attempt 2002	[0.04 s]
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.22 s].
 0.0.N: Morphing to AM
-0.0.N: Trace Attempt 2002	[61.15 s]
+0.0.N: Trace Attempt 2002	[46.39 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -760,28 +777,29 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.08 s]
-0.0.AM: Trace Attempt  2	[0.08 s]
-0.0.AM: Trace Attempt  3	[0.08 s]
-0.0.AM: Trace Attempt  1	[0.36 s]
-0.0.AM: Trace Attempt  2	[0.36 s]
-0.0.AM: Trace Attempt  3	[0.36 s]
-0.0.AM: Trace Attempt  1	[2.38 s]
-0.0.AM: Trace Attempt  2	[2.38 s]
-0.0.AM: Trace Attempt  3	[2.38 s]
-0.0.Mp: Trace Attempt 245	[4.14 s]
-0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.22 s].
+0.0.AM: Trace Attempt  1	[0.06 s]
+0.0.AM: Trace Attempt  2	[0.06 s]
+0.0.AM: Trace Attempt  3	[0.06 s]
+0.0.AM: Trace Attempt  1	[0.28 s]
+0.0.AM: Trace Attempt  2	[0.28 s]
+0.0.AM: Trace Attempt  3	[0.28 s]
+0.0.Ht: Trace Attempt 2388	[242.10 s]
+0.0.AM: Trace Attempt  1	[1.86 s]
+0.0.AM: Trace Attempt  2	[1.86 s]
+0.0.AM: Trace Attempt  3	[1.86 s]
+0.0.Mp: Trace Attempt 245	[4.07 s]
+0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[4.46 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 297	[6.19 s]
+0.0.AM: Trace Attempt 252	[3.24 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.42 s].
+0.0.K: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[4.69 s].
 0.0.K: Morphing to AB
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
@@ -797,68 +815,68 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.06 s]
+0.0.AB: Trace Attempt  2	[0.06 s]
+0.0.AB: Trace Attempt  3	[0.06 s]
+0.0.AB: Trace Attempt  4	[0.06 s]
+0.0.AB: Trace Attempt  5	[0.06 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.AB: Trace Attempt  1	[0.09 s]
-0.0.AB: Trace Attempt  2	[0.09 s]
-0.0.AB: Trace Attempt  3	[0.09 s]
-0.0.AB: Trace Attempt  4	[0.09 s]
-0.0.AB: Trace Attempt  5	[0.09 s]
-0.0.Tri:    0.14" ---- Launching abstraction thread ----
-0.0.Tri:    0.16" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.27 s]
-0.0.Tri: Trace Attempt  3	[0.27 s]
-0.0.Tri: Trace Attempt  4	[0.27 s]
-0.0.Tri: Trace Attempt  5	[0.27 s]
-0.0.AB: Trace Attempt  1	[0.48 s]
-0.0.AB: Trace Attempt  2	[0.48 s]
-0.0.AB: Trace Attempt  3	[0.48 s]
-0.0.AB: Trace Attempt  4	[0.48 s]
-0.0.AB: Trace Attempt  5	[0.48 s]
-0.0.Ht: Trace Attempt 2003	[248.36 s]
-0.0.Tri:    1.33" Simplification phase 1 complete
-0.0.Tri:    1.39" Simplification phase 2 complete
-0.0.Tri:    1.44" Simplification phase 3 complete
-   1.44" ---- Completed simplification thread ----
-   1.44" ---- Restarting main thread on simplified netlist ----
-0.0.Mp: Trace Attempt 506	[8.14 s]
-0.0.AB: Trace Attempt  1	[3.43 s]
-0.0.AB: Trace Attempt  2	[3.43 s]
-0.0.AB: Trace Attempt  3	[3.43 s]
-0.0.AB: Trace Attempt  4	[3.43 s]
-0.0.AB: Trace Attempt  5	[3.43 s]
-0.0.Mp: Trace Attempt 750	[12.45 s]
+0.0.AB: Trace Attempt  1	[0.34 s]
+0.0.AB: Trace Attempt  2	[0.34 s]
+0.0.AB: Trace Attempt  3	[0.34 s]
+0.0.AB: Trace Attempt  4	[0.34 s]
+0.0.AB: Trace Attempt  5	[0.34 s]
+0.0.Ht: Trace Attempt 2439	[246.16 s]
+0.0.Tri:    0.31" ---- Launching abstraction thread ----
+0.0.Tri:    0.35" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.61 s]
+0.0.Tri: Trace Attempt  3	[0.61 s]
+0.0.Tri: Trace Attempt  4	[0.61 s]
+0.0.Tri: Trace Attempt  5	[0.61 s]
+0.0.Tri:    1.39" Simplification phase 1 complete
+0.0.AB: Trace Attempt  1	[2.32 s]
+0.0.AB: Trace Attempt  2	[2.32 s]
+0.0.AB: Trace Attempt  3	[2.32 s]
+0.0.AB: Trace Attempt  4	[2.32 s]
+0.0.AB: Trace Attempt  5	[2.32 s]
+0.0.Tri:    3.01" Simplification phase 2 complete
+0.0.Tri:    3.07" Simplification phase 3 complete
+   3.07" ---- Completed simplification thread ----
+   3.07" ---- Restarting main thread on simplified netlist ----
+0.0.Mp: Trace Attempt 626	[8.09 s]
+0.0.Tri: Trace Attempt 7823	[4.61 s]
+0.0.AB: Trace Attempt 247	[6.65 s]
 0.0.Tri: Requesting engine job to stop
 0.0.AB: Requesting engine job to stop
 0.0.Ht: Requesting engine job to terminate
 0.0.Mp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [253.94 s]
-0.0.Tri: Trace Attempt 10003	[3.69 s]
-0.0.Tri: A trace with 10003 cycles was found. [6.29 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 6.44 s.
-0.0.AB: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.44 s].
-0.0.AB: Trace Attempt 164	[6.37 s]
-0.0.AB: All properties determined. [6.42 s]
-0.0.AB: Exited with Success (@ 253.96 s)
+INFO (IPF144): 0: Initiating shutdown of proof [252.65 s]
+0.0.Tri: Trace Attempt 10003	[5.55 s]
+0.0.Tri: A trace with 10003 cycles was found. [6.75 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 6.90 s.
+0.0.AB: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.93 s].
+0.0.AB: All properties determined. [6.92 s]
+0.0.Mp: Trace Attempt 992	[11.67 s]
+0.0.Mp: All properties determined. [11.75 s]
+0.0.AB: Exited with Success (@ 252.74 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 3668	[248.67 s]
-0.0.Ht: All properties determined. [253.89 s]
-0.0.Mp: Trace Attempt 804	[12.90 s]
-0.0.Mp: All properties determined. [12.95 s]
-0.0.Ht: Exited with Success (@ 253.99 s)
-0.0.Mp: Exited with Success (@ 254.14 s)
-0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.61 s].
-0.0.Tri: All properties determined. [6.61 s]
-0.0.Tri: Exited with Success (@ 254.16 s)
+0.0.Mp: Exited with Success (@ 252.85 s)
+0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[7.09 s].
+0.0.Tri: All properties determined. [7.09 s]
+0.0.Tri: Sending SIGKILL
+0.0.Ht: Sending SIGKILL
+0.0.Tri: Exited with Success (@ 254.89 s)
+0.0.Ht: Trace Attempt 2773	[246.84 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 254.89 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
      engines started                               :     9
      engine jobs started                           :     4
@@ -867,20 +885,20 @@ ProofGrid Summary (utilization 99.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.07      253.88        0.00       99.97 %
-     Mp        0.05      253.93        0.00       99.98 %
-    Tri        0.05      253.75        0.00       99.98 %
-     AB        0.07      253.82        0.00       99.97 %
-    all        0.06      253.84        0.00       99.98 %
+     Ht        0.09      252.56        0.00       99.96 %
+     Mp        0.06      252.65        0.00       99.97 %
+    Tri        0.07      252.44        0.00       99.97 %
+     AB        0.07      252.52        0.00       99.97 %
+    all        0.07      252.54        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.24     1015.37        0.00
+               0.29     1010.17        0.00
 
-    Data read    : 3.58 MiB
-    Data written : 271.48 kiB
+    Data read    : 3.87 MiB
+    Data written : 278.01 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -950,9 +968,2367 @@ INFO: CEX properties: 9 cex, 0 ar_cex
 [<embedded>] % puts "INFO: Wrote $CEX_TXT"
 INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00720/cex_details.txt
 [<embedded>] % 
+[<embedded>] % # ---- Dump VCD waveforms for CEX properties ----
+[<embedded>] % if {$DUMP_VCD && ($n_cex > 0 || $n_ar_cex > 0)} {
+  set VCD_DIR [file join $OUT_DIR "cex_vcd"]
+  file mkdir $VCD_DIR
+  set all_cex_props [concat $cex_props $ar_cex_props]
+  set vcd_count 0
+
+  foreach prop $all_cex_props {
+    set safe_name [regsub -all {[^A-Za-z0-9_.-]} $prop "_"]
+    set vcd_path [file join $VCD_DIR "${safe_name}.vcd"]
+
+    set dumped 0
+
+    # Strip <embedded>:: prefix for prove -property (it needs the short name)
+    set short_prop [regsub {^<embedded>::} $prop ""]
+
+    # Force re-prove the property so JasperGold regenerates the trace,
+    # then immediately visualize before the trace is discarded.
+    if {!$dumped && [catch {
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err1]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 1 (force re-prove) failed: $err1"
+    }
+
+    # Approach 2: visualize -violation with -new_trace to force trace gen
+    if {!$dumped && [catch {
+      visualize -violation $prop -new_trace
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err2]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 2 (-new_trace) failed: $err2"
+    }
+
+    # Approach 3: prove with -force and auto engine mode
+    if {!$dumped && [catch {
+      set_engine_mode {auto}
+      prove -property $short_prop -force
+      visualize -violation $prop
+      visualize -save -vcd $vcd_path
+      visualize -close
+      set dumped 1
+      incr vcd_count
+      puts "INFO: Dumped VCD for $prop -> $vcd_path"
+    } err3]} {
+      catch { visualize -close }
+      puts "DEBUG: Approach 3 (auto engine) failed: $err3"
+    }
+
+    if {!$dumped} {
+      puts "WARN: Could not dump VCD for $prop (all approaches failed)"
+    }
+  }
+  puts "INFO: Dumped $vcd_count VCD files to $VCD_DIR"
+} elseif {$DUMP_VCD} {
+  puts "INFO: No CEX properties to dump VCD for"
+}
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 1:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+1: Using multistage preprocessing
+1: Starting reduce
+1: Finished reduce in 0s
+1.0.PRE: Performing Proof Simplification...
+1.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+1.0.N: Proof Simplification Iteration 1	[0.00 s]
+1.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 1.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+1.0.PRE: Proof Simplification completed in 0.00 s
+1: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+1: =============================== ProofGrid start ===============================
+1: ProofGrid usable level: 1
+1: ProofGrid is starting event handling
+1.0.N: Proofgrid shell started at 1550970@della-h14n3(local) jg_1549885_della-h14n3_2
+1.0.Hp: Proofgrid shell started at 1550971@della-h14n3(local) jg_1549885_della-h14n3_2
+1.0.N: OS RSS memory limit : 68719476736 / 68719476736
+1.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+1.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+1.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+1.0.N: Last scan. Per property time limit: 0s
+1.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_never_above_threshold"	[0.00 s].
+1.0.Hp: Trace Attempt  1	[0.00 s]
+1.0.N: Requesting engine job to stop
+1.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 1: Initiating shutdown of proof [0.00 s]
+1.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 1.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.count_never_above_threshold" in 0.00 s.
+1.0.Hp: All properties determined. [0.00 s]
+1.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_never_above_threshold"	[0.00 s].
+1.0.N: All properties determined. [0.00 s]
+1.0.Hp: Exited with Success (@ 0.00 s)
+1: ProofGrid usable level: 0
+1.0.N: Exited with Success (@ 0.00 s)
+1.0.Ht: Proofgrid shell started at 1550984@della-h14n3(local) jg_1549885_della-h14n3_2
+1.0.Ht: Requesting engine job to terminate
+1.0.Ht: Interrupted. [0.01 s]
+1.0.B: Proofgrid shell started at 1550985@della-h14n3(local) jg_1549885_della-h14n3_2
+1.0.B: Requesting engine job to terminate
+1.0.Ht: Exited with Success (@ 0.08 s)
+1.0.B: Interrupted. [0.01 s]
+1.0.B: Exited with Success (@ 0.08 s)
+1: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.57 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.06        0.00        0.00        1.22 %
+     Hp        0.06        0.00        0.00        1.20 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.57 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.28        0.00        0.00
+
+    Data read    : 1.61 kiB
+    Data written : 1.27 kiB
+
+1: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 1
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_never_above_threshold".
+INFO (IPF031): Settings used for proof thread 2:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Hp Ht N B 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Hp Ht N B, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 3:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+3: Using multistage preprocessing
+3: Starting reduce
+3: Finished reduce in 0s
+3.0.PRE: Performing Proof Simplification...
+3.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+3.0.N: Proof Simplification Iteration 1	[0.00 s]
+3.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 3.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+3.0.PRE: Proof Simplification completed in 0.00 s
+3: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+3: =============================== ProofGrid start ===============================
+3: ProofGrid usable level: 1
+3: ProofGrid is starting event handling
+3.0.Hp: Proofgrid shell started at 1551009@della-h14n3(local) jg_1549885_della-h14n3_4
+3.0.N: Proofgrid shell started at 1551008@della-h14n3(local) jg_1549885_della-h14n3_4
+3.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+3.0.N: OS RSS memory limit : 68719476736 / 68719476736
+3.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+3.0.Hp: Trace Attempt  1	[0.00 s]
+3.0.N: Requesting engine job to stop
+3.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 3: Initiating shutdown of proof [0.01 s]
+3.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 3.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.count_never_above_threshold" in 0.00 s.
+3.0.Hp: All properties determined. [0.00 s]
+3.0.Hp: Exited with Success (@ 0.01 s)
+3: ProofGrid usable level: 0
+3.0.N: Interrupted. [0.01 s]
+3.0.Ht: Proofgrid shell started at 1551022@della-h14n3(local) jg_1549885_della-h14n3_4
+3.0.Ht: Requesting engine job to terminate
+3.0.N: Exited with Success (@ 0.06 s)
+3.0.Ht: Interrupted. [0.01 s]
+3.0.B: Proofgrid shell started at 1551023@della-h14n3(local) jg_1549885_della-h14n3_4
+3.0.B: Requesting engine job to terminate
+3.0.Ht: Exited with Success (@ 0.08 s)
+3.0.B: Interrupted. [0.01 s]
+3.0.B: Exited with Success (@ 0.08 s)
+3: --------------------------------------------------------------
+ProofGrid Summary (utilization 4.58 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.10 %
+     Hp        0.06        0.01        0.00       16.72 %
+     Ht        0.06        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        4.58 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.01        0.00
+
+    Data read    : 1.44 kiB
+    Data written : 1.26 kiB
+
+3: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 3
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_never_above_threshold".
+INFO (IPF031): Settings used for proof thread 4:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.count_never_above_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 5:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+5: Using multistage preprocessing
+5: Starting reduce
+5: Finished reduce in 0s
+5.0.PRE: Performing Proof Simplification...
+5.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: Proof Simplification Iteration 1	[0.00 s]
+5.0.N: Proof Simplification Iteration 2	[0.00 s]
+5.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 5.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+5.0.PRE: Proof Simplification completed in 0.00 s
+5: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+5: =============================== ProofGrid start ===============================
+5: ProofGrid usable level: 1
+5: ProofGrid is starting event handling
+5.0.Hp: Proofgrid shell started at 1551047@della-h14n3(local) jg_1549885_della-h14n3_6
+5.0.N: Proofgrid shell started at 1551046@della-h14n3(local) jg_1549885_della-h14n3_6
+5.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+5.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: OS RSS memory limit : 68719476736 / 68719476736
+5.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+5.0.N: Last scan. Per property time limit: 0s
+5.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
+5.0.N: Trace Attempt  1	[0.00 s]
+5.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
+INFO (IPF008): 5.0.N: A max_length bound of 262144 was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
+5.0.N: Trace Attempt  2	[0.00 s]
+5.0.Hp: Trace Attempt  1	[0.00 s]
+5.0.Hp: Trace Attempt  2	[0.00 s]
+5.0.N: Trace Attempt  2	[0.00 s]
+5.0.N: Trace Attempt  3	[0.00 s]
+5.0.N: Trace Attempt  3	[0.00 s]
+5.0.N: Requesting engine job to stop
+5.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 5: Initiating shutdown of proof [0.00 s]
+5.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 5.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
+5.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
+5.0.N: All properties determined. [0.00 s]
+5.0.N: Exited with Success (@ 0.00 s)
+5: ProofGrid usable level: 0
+5.0.Hp: Interrupted (multi)
+5.0.Hp: All properties determined. [0.00 s]
+5.0.B: Proofgrid shell started at 1551065@della-h14n3(local) jg_1549885_della-h14n3_6
+5.0.B: Requesting engine job to terminate
+5.0.Hp: Exited with Success (@ 0.07 s)
+5.0.B: Interrupted. [0.01 s]
+5.0.Ht: Proofgrid shell started at 1551064@della-h14n3(local) jg_1549885_della-h14n3_6
+5.0.Ht: Requesting engine job to terminate
+5.0.Ht: Interrupted. [0.01 s]
+5.0.B: Exited with Success (@ 0.07 s)
+5.0.Ht: Exited with Success (@ 0.07 s)
+5: --------------------------------------------------------------
+ProofGrid Summary (utilization 1.31 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        2.20 %
+     Hp        0.06        0.00        0.00        2.99 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        1.31 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 2.25 kiB
+    Data written : 1.36 kiB
+
+5: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 5
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_increments_when_below_threshold".
+INFO (IPF031): Settings used for proof thread 6:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 7:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+7: Using multistage preprocessing
+7: Starting reduce
+7: Finished reduce in 0s
+7.0.PRE: Performing Proof Simplification...
+7.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: Proof Simplification Iteration 1	[0.00 s]
+7.0.N: Proof Simplification Iteration 2	[0.00 s]
+7.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 7.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+7.0.PRE: Proof Simplification completed in 0.00 s
+7: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+7: =============================== ProofGrid start ===============================
+7: ProofGrid usable level: 1
+7: ProofGrid is starting event handling
+7.0.Hp: Proofgrid shell started at 1551091@della-h14n3(local) jg_1549885_della-h14n3_8
+7.0.N: Proofgrid shell started at 1551090@della-h14n3(local) jg_1549885_della-h14n3_8
+7.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+7.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: OS RSS memory limit : 68719476736 / 68719476736
+7.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+7.0.N: Last scan. Per property time limit: 0s
+7.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
+7.0.N: Trace Attempt  1	[0.00 s]
+7.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
+INFO (IPF008): 7.0.N: A max_length bound of 262144 was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
+7.0.N: Trace Attempt  2	[0.00 s]
+7.0.N: Trace Attempt  2	[0.00 s]
+7.0.N: Trace Attempt  3	[0.00 s]
+7.0.Hp: Trace Attempt  1	[0.00 s]
+7.0.N: Trace Attempt  3	[0.00 s]
+7.0.Hp: Trace Attempt  2	[0.00 s]
+7.0.N: Requesting engine job to stop
+7.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 7: Initiating shutdown of proof [0.00 s]
+7.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 7.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
+7.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
+7.0.N: All properties determined. [0.00 s]
+7.0.N: Exited with Success (@ 0.00 s)
+7: ProofGrid usable level: 0
+7.0.Hp: Interrupted (multi)
+7.0.Hp: All properties determined. [0.00 s]
+7.0.Ht: Proofgrid shell started at 1551104@della-h14n3(local) jg_1549885_della-h14n3_8
+7.0.Ht: Requesting engine job to terminate
+7.0.B: Proofgrid shell started at 1551105@della-h14n3(local) jg_1549885_della-h14n3_8
+7.0.B: Requesting engine job to terminate
+7.0.Hp: Exited with Success (@ 0.07 s)
+7.0.Ht: Interrupted. [0.01 s]
+7.0.B: Interrupted. [0.01 s]
+7.0.Ht: Exited with Success (@ 0.07 s)
+7.0.B: Exited with Success (@ 0.07 s)
+7: --------------------------------------------------------------
+ProofGrid Summary (utilization 1.66 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        2.93 %
+     Hp        0.07        0.00        0.00        3.61 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        1.66 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 2.27 kiB
+    Data written : 1.36 kiB
+
+7: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 7
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_increments_when_below_threshold".
+INFO (IPF031): Settings used for proof thread 8:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.count_increments_when_below_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 9:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+9: Using multistage preprocessing
+9: Starting reduce
+9: Finished reduce in 0s
+9.0.PRE: Performing Proof Simplification...
+9.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: Proof Simplification Iteration 1	[0.00 s]
+9.0.N: Proof Simplification Iteration 2	[0.00 s]
+9.0.N: Proof Simplification Iteration 3	[0.00 s]
+9.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 9.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+9.0.PRE: Proof Simplification completed in 0.00 s
+9: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+9: =============================== ProofGrid start ===============================
+9: ProofGrid usable level: 1
+9: ProofGrid is starting event handling
+9.0.Hp: Proofgrid shell started at 1551129@della-h14n3(local) jg_1549885_della-h14n3_10
+9.0.N: Proofgrid shell started at 1551128@della-h14n3(local) jg_1549885_della-h14n3_10
+9.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+9.0.N: OS RSS memory limit : 68719476736 / 68719476736
+9.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.N: Last scan. Per property time limit: 0s
+9.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.N: Trace Attempt  1	[0.00 s]
+9.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 9.0.N: A max_length bound of 1048576 was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 0.00 s.
+9.0.N: Trace Attempt  2	[0.00 s]
+9.0.N: Trace Attempt  2	[0.00 s]
+9.0.N: Trace Attempt  3	[0.00 s]
+9.0.N: Trace Attempt  3	[0.00 s]
+9.0.N: Trace Attempt  4	[0.00 s]
+9.0.N: Trace Attempt  5	[0.00 s]
+9.0.Hp: Trace Attempt  1	[0.03 s]
+9.0.Hp: Trace Attempt  2	[0.03 s]
+9.0.Hp: Trace Attempt  3	[0.03 s]
+9.0.Hp: Trace Attempt  4	[0.03 s]
+9.0.Hp: Trace Attempt  5	[0.03 s]
+9.0.N: Trace Attempt  1	[0.03 s]
+9.0.N: Trace Attempt  2	[0.03 s]
+9.0.N: Trace Attempt  3	[0.04 s]
+9.0.B: Proofgrid shell started at 1551145@della-h14n3(local) jg_1549885_della-h14n3_10
+9.0.B: OS RSS memory limit : 68719476736 / 68719476736
+9.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.B: Last scan. Per property time limit: 0s
+9.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.B: Trace Attempt  1	[0.00 s]
+9.0.B: Trace Attempt  2	[0.00 s]
+9.0.B: Trace Attempt  3	[0.00 s]
+9.0.B: Trace Attempt  4	[0.00 s]
+9.0.B: Trace Attempt  5	[0.00 s]
+9.0.Ht: Proofgrid shell started at 1551144@della-h14n3(local) jg_1549885_della-h14n3_10
+9.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+9.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.Ht: Trace Attempt  1	[0.00 s]
+9.0.Ht: Trace Attempt  2	[0.00 s]
+9.0.Ht: Trace Attempt  3	[0.00 s]
+9.0.Ht: Trace Attempt  4	[0.00 s]
+9.0.Ht: Trace Attempt  5	[0.00 s]
+9.0.B: Trace Attempt 255	[4.01 s]
+9.0.N: Trace Attempt 330	[4.17 s]
+9.0.Ht: Trace Attempt 329	[6.44 s]
+9.0.N: Trace Attempt 621	[8.30 s]
+9.0.B: Trace Attempt 312	[8.60 s]
+9.0.N: Trace Attempt 913	[12.62 s]
+9.0.B: Trace Attempt 349	[12.66 s]
+9.0.Ht: Trace Attempt 571	[14.61 s]
+9.0.N: Trace Attempt 1349	[16.89 s]
+9.0.B: Trace Attempt 360	[16.89 s]
+9.0.N: Trace Attempt 1769	[20.98 s]
+9.0.B: Trace Attempt 458	[20.96 s]
+9.0.N: Trace Attempt 1816	[25.21 s]
+9.0.B: Trace Attempt 471	[25.27 s]
+9.0.N: Trace Attempt 1864	[29.52 s]
+9.0.B: Trace Attempt 502	[29.88 s]
+9.0.N: Trace Attempt 1883	[34.03 s]
+9.0.B: Trace Attempt 505	[34.43 s]
+9.0.N: Trace Attempt 1894	[38.09 s]
+9.0.B: Trace Attempt 519	[38.77 s]
+9.0.N: Trace Attempt 1905	[42.29 s]
+9.0.Hp: Trace Attempt 329	[42.70 s]
+9.0.B: Trace Attempt 522	[42.92 s]
+9.0.N: Trace Attempt 1929	[46.31 s]
+9.0.B: Trace Attempt 534	[48.39 s]
+9.0.N: Trace Attempt 1946	[50.61 s]
+9.0.B: Trace Attempt 545	[53.19 s]
+9.0.N: Trace Attempt 1957	[54.66 s]
+9.0.B: Trace Attempt 548	[58.73 s]
+9.0.N: Trace Attempt 1964	[59.24 s]
+9.0.B: Trace Attempt 551	[62.96 s]
+9.0.Ht: Trace Attempt 1170	[62.98 s]
+9.0.N: Trace Attempt 1973	[63.46 s]
+9.0.N: Trace Attempt 1978	[67.51 s]
+9.0.B: Trace Attempt 554	[69.57 s]
+9.0.N: Trace Attempt 2012	[71.52 s]
+9.0.N: Trace Attempt 2028	[75.67 s]
+9.0.B: Trace Attempt 557	[75.86 s]
+9.0.N: Trace Attempt 2040	[80.03 s]
+9.0.B: Trace Attempt 560	[84.08 s]
+9.0.N: Trace Attempt 2050	[84.58 s]
+9.0.N: Trace Attempt 2066	[89.05 s]
+9.0.B: Trace Attempt 562	[90.00 s]
+9.0.N: Trace Attempt 2074	[93.40 s]
+9.0.B: Trace Attempt 564	[95.25 s]
+9.0.N: Trace Attempt 2081	[97.69 s]
+9.0.B: Trace Attempt 566	[101.28 s]
+9.0.B: Trace Attempt 569	[106.55 s]
+9.0.B: Trace Attempt 571	[112.77 s]
+9.0.B: Trace Attempt 574	[120.09 s]
+9.0.B: Trace Attempt 577	[126.39 s]
+9.0.B: Trace Attempt 579	[133.38 s]
+9.0.B: Trace Attempt 582	[139.74 s]
+9.0.B: Trace Attempt 583	[145.82 s]
+9.0.B: Trace Attempt 585	[151.05 s]
+9.0.B: Trace Attempt 587	[157.81 s]
+9.0.B: Trace Attempt 589	[162.19 s]
+9.0.B: Trace Attempt 592	[167.04 s]
+9.0.B: Trace Attempt 595	[172.57 s]
+9.0.B: Trace Attempt 597	[176.81 s]
+9.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[181.46 s].
+9.0.N: Morphing to AM
+9.0.N: Trace Attempt 2083	[100.19 s]
+9.0.N: All properties determined. [0.00 s]
+9.0.N: Exited with Success (@ 0.00 s)
+9.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.AM: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.AM: Trace Attempt  1	[0.00 s]
+9.0.AM: Trace Attempt  2	[0.00 s]
+9.0.AM: Trace Attempt  3	[0.00 s]
+9.0.AM: Trace Attempt  4	[0.00 s]
+9.0.AM: Trace Attempt  5	[0.00 s]
+9.0.AM: Trace Attempt  1	[0.00 s]
+9.0.AM: Trace Attempt  2	[0.00 s]
+9.0.AM: Trace Attempt  3	[0.01 s]
+9.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[181.41 s].
+9.0.B: Morphing to Tri
+9.0.B: Trace Attempt 598	[179.27 s]
+9.0.B: All properties determined. [0.00 s]
+9.0.B: Exited with Success (@ 0.00 s)
+9.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.AM: Trace Attempt  1	[0.01 s]
+9.0.AM: Trace Attempt  2	[0.01 s]
+9.0.AM: Trace Attempt  3	[0.01 s]
+9.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.Tri: Trace Attempt  1	[0.00 s]
+9.0.Tri:    0.00" ---- Launching main thread ----
+9.0.AM: Trace Attempt  1	[0.11 s]
+9.0.AM: Trace Attempt  2	[0.11 s]
+9.0.AM: Trace Attempt  3	[0.11 s]
+9.0.Tri:    0.22" ---- Launching abstraction thread ----
+9.0.Tri:    0.26" ---- Launching multi-phase simplification thread ----
+9.0.AM: Trace Attempt  1	[0.36 s]
+9.0.AM: Trace Attempt  2	[0.36 s]
+9.0.AM: Trace Attempt  3	[0.36 s]
+9.0.Tri: Trace Attempt  2	[0.34 s]
+9.0.Tri: Trace Attempt  3	[0.34 s]
+9.0.Tri: Trace Attempt  4	[0.34 s]
+9.0.Tri: Trace Attempt  5	[0.34 s]
+9.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.57 s].
+9.0.Tri: Morphing to I
+9.0.Tri: Trace Attempt 144	[0.56 s]
+9.0.Tri: All properties determined. [0.00 s]
+9.0.Tri: Exited with Success (@ 0.00 s)
+9.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.I: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.I: Trace Attempt 23	[0.00 s]
+9.0.I: Trace Attempt  1	[0.04 s]
+9.0.I: Trace Attempt  2	[0.04 s]
+9.0.I: Trace Attempt  3	[0.04 s]
+9.0.I: Trace Attempt  4	[0.04 s]
+9.0.I: Trace Attempt  5	[0.04 s]
+9.0.AM: Trace Attempt  1	[1.53 s]
+9.0.AM: Trace Attempt  2	[1.53 s]
+9.0.AM: Trace Attempt  3	[1.53 s]
+9.0.I: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[3.09 s].
+9.0.I: Morphing to AD
+9.0.I: Trace Attempt 54	[0.81 s]
+9.0.I: All properties determined. [0.00 s]
+9.0.I: Exited with Success (@ 0.00 s)
+9.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.AD: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.AD: Trace Attempt  1	[0.00 s]
+9.0.AD: Trace Attempt  2	[0.00 s]
+9.0.AD: Trace Attempt  3	[0.00 s]
+9.0.AD: Trace Attempt  4	[0.00 s]
+9.0.AD: Trace Attempt  5	[0.00 s]
+9.0.AD: Trace Attempt  1	[0.00 s]
+9.0.AD: Trace Attempt  2	[0.00 s]
+9.0.AD: Trace Attempt  3	[0.00 s]
+9.0.AD: Trace Attempt  4	[0.00 s]
+9.0.AD: Trace Attempt  5	[0.01 s]
+9.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[3.74 s].
+9.0.AM: Morphing to D
+9.0.AM: Trace Attempt 375	[3.72 s]
+9.0.AM: All properties determined. [0.00 s]
+9.0.AM: Exited with Success (@ 0.00 s)
+9.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.D: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.D: Trace Attempt  1	[0.00 s]
+9.0.D: Trace Attempt  2	[0.00 s]
+9.0.D: Trace Attempt  3	[0.00 s]
+9.0.D: Trace Attempt  4	[0.00 s]
+9.0.D: Trace Attempt  5	[0.00 s]
+9.0.AD: Trace Attempt  1	[0.02 s]
+9.0.AD: Trace Attempt  2	[0.02 s]
+9.0.AD: Trace Attempt  3	[0.02 s]
+9.0.AD: Trace Attempt  4	[0.03 s]
+9.0.AD: Trace Attempt  5	[0.03 s]
+9.0.AD: Trace Attempt  1	[0.94 s]
+9.0.AD: Trace Attempt  2	[0.94 s]
+9.0.AD: Trace Attempt  3	[0.94 s]
+9.0.AD: Trace Attempt  4	[0.95 s]
+9.0.AD: Trace Attempt  5	[0.95 s]
+9.0.AD: Trace Attempt 74	[6.81 s]
+9.0.AD: Trace Attempt  1	[10.19 s]
+9.0.AD: Trace Attempt  2	[10.19 s]
+9.0.AD: Trace Attempt  3	[10.19 s]
+9.0.AD: Trace Attempt  4	[10.19 s]
+9.0.AD: Trace Attempt  5	[10.19 s]
+9.0.AD: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[14.90 s].
+9.0.AD: Morphing to Ncustom1
+9.0.AD: Trace Attempt 54	[12.40 s]
+9.0.AD: All properties determined. [0.00 s]
+9.0.AD: Exited with Success (@ 0.00 s)
+9.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.Ncustom1: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.Ncustom1: Trace Attempt 2083	[0.05 s]
+9.0.Ht: Trace Attempt 1973	[210.52 s]
+9.0.D: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[25.39 s].
+9.0.D: Morphing to Tri
+9.0.D: Trace Attempt 59	[1.06 s]
+9.0.D: All properties determined. [0.00 s]
+9.0.D: Exited with Success (@ 0.00 s)
+9.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+9.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+9.0.Tri: Trace Attempt  1	[0.00 s]
+9.0.Tri:    0.00" ---- Launching main thread ----
+9.0.Tri:    0.22" ---- Launching abstraction thread ----
+9.0.Tri:    0.26" ---- Launching multi-phase simplification thread ----
+9.0.Tri: Trace Attempt  2	[0.35 s]
+9.0.Tri: Trace Attempt  3	[0.35 s]
+9.0.Tri: Trace Attempt  4	[0.35 s]
+9.0.Tri: Trace Attempt  5	[0.35 s]
+9.0.Tri:    1.55" Simplification phase 1 complete
+9.0.Tri:    1.61" Simplification phase 2 complete
+9.0.Tri:    1.67" Simplification phase 3 complete
+   1.67" ---- Completed simplification thread ----
+   1.67" ---- Restarting main thread on simplified netlist ----
+9.0.Tri:    1.90" ---- Restarting abstraction thread on simplified netlist ----
+9.0.Tri: Trace Attempt 8702	[4.36 s]
+9.0.Tri: Requesting engine job to stop
+9.0.Ncustom1: Requesting engine job to stop
+9.0.Hp: Requesting engine job to terminate
+9.0.Ht: Requesting engine job to terminate
+INFO (IPF144): 9: Initiating shutdown of proof [217.30 s]
+9.0.Tri: Trace Attempt 10003	[5.15 s]
+9.0.Tri: A trace with 10003 cycles was found. [6.61 s]
+INFO (IPF055): 9.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 6.66 s.
+9.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.66 s].
+9.0.Tri: All properties determined. [6.66 s]
+9.0.Ncustom1: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[17.28 s].
+9.0.Ncustom1: All properties determined. [17.28 s]
+9.0.Tri: Exited with Success (@ 217.83 s)
+9: ProofGrid usable level: 0
+9.0.Ht: Interrupted (multi)
+9.0.Ht: Trace Attempt 2083	[210.53 s]
+9.0.Ht: All properties determined. [217.76 s]
+9.0.Ncustom1: Exited with Success (@ 217.83 s)
+9.0.Ht: Exited with Success (@ 218.46 s)
+9.0.Hp: Interrupted (multi)
+9.0.Hp: Trace Attempt 1906	[42.95 s]
+9.0.Hp: All properties determined. [218.46 s]
+9.0.Hp: Exited with Success (@ 218.49 s)
+9: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.97 %)
+--------------------------------------------------------------
+     engines started                               :    10
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Hp        0.06      217.30        0.00       99.97 %
+     Ht        0.07      217.23        0.00       99.97 %
+    Tri        0.07      217.17        0.00       99.97 %
+    Ncustom1        0.07      217.20        0.00       99.97 %
+    all        0.07      217.23        0.00       99.97 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27      868.90        0.00
+
+    Data read    : 3.60 MiB
+    Data written : 394.67 kiB
+
+9: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 9
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold".
+INFO (IPF031): Settings used for proof thread 10:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 11:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+11: Using multistage preprocessing
+11: Starting reduce
+11: Finished reduce in 0s
+11.0.PRE: Performing Proof Simplification...
+11.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+11.0.N: Proof Simplification Iteration 1	[0.00 s]
+11.0.N: Proof Simplification Iteration 2	[0.00 s]
+11.0.N: Proof Simplification Iteration 3	[0.00 s]
+11.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 11.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+11.0.PRE: Proof Simplification completed in 0.00 s
+11: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+11: =============================== ProofGrid start ===============================
+11: ProofGrid usable level: 1
+11: ProofGrid is starting event handling
+11.0.Hp: Proofgrid shell started at 1552450@della-h14n3(local) jg_1549885_della-h14n3_12
+11.0.N: Proofgrid shell started at 1552449@della-h14n3(local) jg_1549885_della-h14n3_12
+11.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+11.0.N: OS RSS memory limit : 68719476736 / 68719476736
+11.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.Hp: Trace Attempt  1	[0.00 s]
+11.0.Hp: Trace Attempt  2	[0.00 s]
+11.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.Hp: Trace Attempt  3	[0.00 s]
+11.0.N: Last scan. Per property time limit: 0s
+11.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.N: Trace Attempt  1	[0.00 s]
+11.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 11.0.N: A max_length bound of 1048576 was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 0.00 s.
+11.0.N: Trace Attempt  2	[0.00 s]
+11.0.Hp: Trace Attempt  4	[0.00 s]
+11.0.N: Trace Attempt  2	[0.00 s]
+11.0.N: Trace Attempt  3	[0.00 s]
+11.0.N: Trace Attempt  3	[0.00 s]
+11.0.N: Trace Attempt  4	[0.00 s]
+11.0.N: Trace Attempt  5	[0.00 s]
+11.0.Hp: Trace Attempt  5	[0.03 s]
+11.0.N: Trace Attempt  1	[0.04 s]
+11.0.N: Trace Attempt  2	[0.04 s]
+11.0.N: Trace Attempt  3	[0.04 s]
+11.0.Ht: Proofgrid shell started at 1552463@della-h14n3(local) jg_1549885_della-h14n3_12
+11.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+11.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.Ht: Trace Attempt  1	[0.00 s]
+11.0.B: Proofgrid shell started at 1552464@della-h14n3(local) jg_1549885_della-h14n3_12
+11.0.B: OS RSS memory limit : 68719476736 / 68719476736
+11.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.B: Last scan. Per property time limit: 0s
+11.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.Ht: Trace Attempt  2	[0.00 s]
+11.0.B: Trace Attempt  1	[0.00 s]
+11.0.Ht: Trace Attempt  3	[0.00 s]
+11.0.Ht: Trace Attempt  4	[0.00 s]
+11.0.B: Trace Attempt  2	[0.00 s]
+11.0.Ht: Trace Attempt  5	[0.00 s]
+11.0.B: Trace Attempt  3	[0.00 s]
+11.0.B: Trace Attempt  4	[0.00 s]
+11.0.B: Trace Attempt  5	[0.00 s]
+11.0.B: Trace Attempt 238	[4.03 s]
+11.0.N: Trace Attempt 330	[4.33 s]
+11.0.Hp: Trace Attempt 234	[5.04 s]
+11.0.Ht: Trace Attempt 329	[7.39 s]
+11.0.B: Trace Attempt 303	[8.13 s]
+11.0.N: Trace Attempt 621	[8.74 s]
+11.0.B: Trace Attempt 333	[12.44 s]
+11.0.N: Trace Attempt 886	[12.74 s]
+11.0.N: Trace Attempt 1302	[16.76 s]
+11.0.B: Trace Attempt 359	[18.21 s]
+11.0.Ht: Trace Attempt 619	[18.52 s]
+11.0.N: Trace Attempt 1751	[20.81 s]
+11.0.B: Trace Attempt 457	[22.42 s]
+11.0.N: Trace Attempt 1809	[24.88 s]
+11.0.B: Trace Attempt 470	[26.89 s]
+11.0.N: Trace Attempt 1850	[29.14 s]
+11.0.B: Trace Attempt 480	[31.40 s]
+11.0.N: Trace Attempt 1876	[33.18 s]
+11.0.B: Trace Attempt 503	[35.41 s]
+11.0.N: Trace Attempt 1887	[37.18 s]
+11.0.B: Trace Attempt 506	[39.48 s]
+11.0.N: Trace Attempt 1899	[41.70 s]
+11.0.B: Trace Attempt 520	[44.57 s]
+11.0.N: Trace Attempt 1907	[45.92 s]
+11.0.B: Trace Attempt 529	[48.76 s]
+11.0.N: Trace Attempt 1943	[50.69 s]
+11.0.B: Trace Attempt 534	[52.85 s]
+11.0.Hp: Trace Attempt 394	[54.72 s]
+11.0.N: Trace Attempt 1955	[55.12 s]
+11.0.B: Trace Attempt 545	[58.01 s]
+11.0.N: Trace Attempt 1962	[59.82 s]
+11.0.B: Trace Attempt 547	[62.17 s]
+11.0.N: Trace Attempt 1969	[64.31 s]
+11.0.B: Trace Attempt 550	[67.55 s]
+11.0.N: Trace Attempt 1978	[69.72 s]
+11.0.B: Trace Attempt 552	[71.62 s]
+11.0.N: Trace Attempt 2012	[73.78 s]
+11.0.B: Trace Attempt 554	[76.31 s]
+11.0.N: Trace Attempt 2028	[77.99 s]
+11.0.N: Trace Attempt 2040	[82.41 s]
+11.0.B: Trace Attempt 557	[83.20 s]
+11.0.N: Trace Attempt 2050	[87.04 s]
+11.0.Ht: Trace Attempt 1429	[89.02 s]
+11.0.N: Trace Attempt 2066	[91.57 s]
+11.0.B: Trace Attempt 560	[92.10 s]
+11.0.N: Trace Attempt 2074	[96.01 s]
+11.0.B: Trace Attempt 562	[98.33 s]
+11.0.N: Trace Attempt 2081	[100.34 s]
+11.0.B: Trace Attempt 564	[103.88 s]
+11.0.B: Trace Attempt 566	[110.35 s]
+11.0.B: Trace Attempt 568	[114.35 s]
+11.0.B: Trace Attempt 570	[118.90 s]
+11.0.B: Trace Attempt 572	[124.78 s]
+11.0.B: Trace Attempt 574	[129.70 s]
+11.0.B: Trace Attempt 577	[135.83 s]
+11.0.B: Trace Attempt 579	[142.34 s]
+11.0.B: Trace Attempt 582	[148.41 s]
+11.0.B: Trace Attempt 583	[154.45 s]
+11.0.B: Trace Attempt 585	[159.49 s]
+11.0.B: Trace Attempt 587	[166.08 s]
+11.0.B: Trace Attempt 589	[170.27 s]
+11.0.B: Trace Attempt 592	[174.92 s]
+11.0.B: Trace Attempt 595	[179.92 s]
+11.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[181.10 s].
+11.0.N: Morphing to AM
+11.0.N: Trace Attempt 2083	[102.84 s]
+11.0.N: All properties determined. [0.00 s]
+11.0.N: Exited with Success (@ 0.00 s)
+11.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.AM: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.AM: Trace Attempt  1	[0.00 s]
+11.0.AM: Trace Attempt  2	[0.00 s]
+11.0.AM: Trace Attempt  3	[0.00 s]
+11.0.AM: Trace Attempt  4	[0.00 s]
+11.0.AM: Trace Attempt  5	[0.00 s]
+11.0.AM: Trace Attempt  1	[0.00 s]
+11.0.AM: Trace Attempt  2	[0.00 s]
+11.0.AM: Trace Attempt  3	[0.00 s]
+11.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[181.04 s].
+11.0.B: Morphing to Tri
+11.0.B: All properties determined. [0.00 s]
+11.0.B: Exited with Success (@ 0.00 s)
+11.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.AM: Trace Attempt  1	[0.01 s]
+11.0.AM: Trace Attempt  2	[0.01 s]
+11.0.AM: Trace Attempt  3	[0.01 s]
+11.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.Tri: Trace Attempt  1	[0.00 s]
+11.0.Tri:    0.00" ---- Launching main thread ----
+11.0.AM: Trace Attempt  1	[0.10 s]
+11.0.AM: Trace Attempt  2	[0.10 s]
+11.0.AM: Trace Attempt  3	[0.10 s]
+11.0.Tri:    0.22" ---- Launching abstraction thread ----
+11.0.Tri:    0.25" ---- Launching multi-phase simplification thread ----
+11.0.AM: Trace Attempt  1	[0.35 s]
+11.0.AM: Trace Attempt  2	[0.35 s]
+11.0.AM: Trace Attempt  3	[0.35 s]
+11.0.Tri: Trace Attempt  2	[0.33 s]
+11.0.Tri: Trace Attempt  3	[0.33 s]
+11.0.Tri: Trace Attempt  4	[0.33 s]
+11.0.Tri: Trace Attempt  5	[0.33 s]
+11.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.82 s].
+11.0.Tri: Morphing to I
+11.0.Tri: Trace Attempt 2220	[0.82 s]
+11.0.Tri: All properties determined. [0.00 s]
+11.0.Tri: Exited with Success (@ 0.00 s)
+11.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.I: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.I: Trace Attempt 23	[0.00 s]
+11.0.I: Trace Attempt  1	[0.04 s]
+11.0.I: Trace Attempt  2	[0.04 s]
+11.0.I: Trace Attempt  3	[0.04 s]
+11.0.I: Trace Attempt  4	[0.04 s]
+11.0.I: Trace Attempt  5	[0.04 s]
+11.0.AM: Trace Attempt  1	[1.50 s]
+11.0.AM: Trace Attempt  2	[1.50 s]
+11.0.AM: Trace Attempt  3	[1.50 s]
+11.0.I: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[3.51 s].
+11.0.I: Morphing to AD
+11.0.I: Trace Attempt 54	[0.81 s]
+11.0.I: All properties determined. [0.00 s]
+11.0.I: Exited with Success (@ 0.00 s)
+11.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.AD: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.AD: Trace Attempt  1	[0.00 s]
+11.0.AD: Trace Attempt  2	[0.00 s]
+11.0.AD: Trace Attempt  3	[0.00 s]
+11.0.AD: Trace Attempt  4	[0.00 s]
+11.0.AD: Trace Attempt  5	[0.00 s]
+11.0.AD: Trace Attempt  1	[0.00 s]
+11.0.AD: Trace Attempt  2	[0.00 s]
+11.0.AD: Trace Attempt  3	[0.00 s]
+11.0.AD: Trace Attempt  4	[0.00 s]
+11.0.AD: Trace Attempt  5	[0.00 s]
+11.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[4.40 s].
+11.0.AM: Morphing to D
+11.0.AM: Trace Attempt 450	[4.38 s]
+11.0.AM: All properties determined. [0.00 s]
+11.0.AM: Exited with Success (@ 0.00 s)
+11.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.D: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.D: Trace Attempt  1	[0.00 s]
+11.0.D: Trace Attempt  2	[0.00 s]
+11.0.D: Trace Attempt  3	[0.00 s]
+11.0.D: Trace Attempt  4	[0.00 s]
+11.0.D: Trace Attempt  5	[0.00 s]
+11.0.AD: Trace Attempt  1	[0.02 s]
+11.0.AD: Trace Attempt  2	[0.02 s]
+11.0.AD: Trace Attempt  3	[0.02 s]
+11.0.AD: Trace Attempt  4	[0.03 s]
+11.0.AD: Trace Attempt  5	[0.03 s]
+11.0.AD: Trace Attempt  1	[0.93 s]
+11.0.AD: Trace Attempt  2	[0.93 s]
+11.0.AD: Trace Attempt  3	[0.93 s]
+11.0.AD: Trace Attempt  4	[0.93 s]
+11.0.AD: Trace Attempt  5	[0.93 s]
+11.0.AD: Trace Attempt 74	[6.59 s]
+11.0.AD: Trace Attempt  1	[9.88 s]
+11.0.AD: Trace Attempt  2	[9.88 s]
+11.0.AD: Trace Attempt  3	[9.88 s]
+11.0.AD: Trace Attempt  4	[9.89 s]
+11.0.AD: Trace Attempt  5	[9.89 s]
+11.0.AD: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[14.47 s].
+11.0.AD: Morphing to Ncustom1
+11.0.AD: Trace Attempt 54	[12.06 s]
+11.0.AD: All properties determined. [0.00 s]
+11.0.AD: Exited with Success (@ 0.00 s)
+11.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.Ncustom1: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.Ncustom1: Trace Attempt 2083	[0.05 s]
+11.0.Ht: Trace Attempt 2064	[213.13 s]
+11.0.D: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[27.70 s].
+11.0.D: Morphing to Tri
+11.0.D: Trace Attempt 59	[1.06 s]
+11.0.D: All properties determined. [0.00 s]
+11.0.D: Exited with Success (@ 0.00 s)
+11.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+11.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+11.0.Tri: Trace Attempt  1	[0.00 s]
+11.0.Tri:    0.00" ---- Launching main thread ----
+11.0.Tri:    0.23" ---- Launching abstraction thread ----
+11.0.Tri:    0.27" ---- Launching multi-phase simplification thread ----
+11.0.Tri: Trace Attempt  2	[0.34 s]
+11.0.Tri: Trace Attempt  3	[0.35 s]
+11.0.Tri: Trace Attempt  4	[0.35 s]
+11.0.Tri: Trace Attempt  5	[0.35 s]
+11.0.Tri:    1.46" Simplification phase 1 complete
+11.0.Tri:    1.52" Simplification phase 2 complete
+11.0.Tri:    1.58" Simplification phase 3 complete
+   1.58" ---- Completed simplification thread ----
+11.0.Tri:    1.58" ---- Restarting main thread on simplified netlist ----
+11.0.Tri:    1.81" ---- Restarting abstraction thread on simplified netlist ----
+11.0.Tri: Trace Attempt 9830	[4.35 s]
+11.0.Tri: Requesting engine job to stop
+11.0.Ncustom1: Requesting engine job to stop
+11.0.Hp: Requesting engine job to terminate
+11.0.Ht: Requesting engine job to terminate
+INFO (IPF144): 11: Initiating shutdown of proof [218.93 s]
+11.0.Tri: Trace Attempt 10003	[4.38 s]
+11.0.Tri: A trace with 10003 cycles was found. [5.60 s]
+INFO (IPF055): 11.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 5.68 s.
+11.0.Ht: Interrupted (multi)
+11.0.Ht: Trace Attempt 2220	[213.15 s]
+11.0.Ht: All properties determined. [218.86 s]
+11.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[5.68 s].
+11.0.Tri: All properties determined. [5.68 s]
+11.0.Ht: Exited with Success (@ 218.99 s)
+11: ProofGrid usable level: 0
+11.0.Tri: Exited with Success (@ 218.99 s)
+11.0.Ncustom1: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[19.02 s].
+11.0.Ncustom1: All properties determined. [19.02 s]
+11.0.Hp: Sending SIGKILL
+11.0.Ncustom1: Sending SIGKILL
+11.0.Ncustom1: Exited with Success (@ 221.03 s)
+11.0.Hp: Trace Attempt 1954	[54.95 s]
+11.0.Hp: Terminated by signal SIGKILL (@ 221.03 s)
+11: --------------------------------------------------------------
+ProofGrid Summary (utilization 99.97 %)
+--------------------------------------------------------------
+     engines started                               :    10
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+     Hp        0.07      218.93        0.00       99.97 %
+     Ht        0.07      218.86        0.00       99.97 %
+    Tri        0.07      218.80        0.00       99.97 %
+    Ncustom1        0.07      218.83        0.00       99.97 %
+    all        0.07      218.85        0.00       99.97 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.28      875.41        0.00
+
+    Data read    : 3.65 MiB
+    Data written : 411.52 kiB
+
+11: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 11
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold".
+INFO (IPF031): Settings used for proof thread 12:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 13:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+13: Using multistage preprocessing
+13: Starting reduce
+13: Finished reduce in 0s
+13.0.PRE: Performing Proof Simplification...
+13.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+13.0.N: Proof Simplification Iteration 1	[0.00 s]
+13.0.N: Proof Simplification Iteration 2	[0.00 s]
+13.0.N: Proof Simplification Iteration 3	[0.00 s]
+13.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 13.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+13.0.PRE: Proof Simplification completed in 0.00 s
+13: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+13: =============================== ProofGrid start ===============================
+13: ProofGrid usable level: 1
+13: ProofGrid is starting event handling
+13.0.N: Proofgrid shell started at 1553562@della-h14n3(local) jg_1549885_della-h14n3_14
+13.0.Hp: Proofgrid shell started at 1553563@della-h14n3(local) jg_1549885_della-h14n3_14
+13.0.N: OS RSS memory limit : 68719476736 / 68719476736
+13.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+13.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+13.0.N: Last scan. Per property time limit: 0s
+13.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold"	[0.00 s].
+13.0.N: Trace Attempt  1	[0.00 s]
+13.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 13.0.N: A max_length bound of 1048576 was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.00 s.
+13.0.N: Trace Attempt  2	[0.00 s]
+13.0.N: Trace Attempt  2	[0.00 s]
+13.0.N: Trace Attempt  3	[0.00 s]
+13.0.N: Trace Attempt  3	[0.00 s]
+13.0.N: Requesting engine job to stop
+13.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 13: Initiating shutdown of proof [0.01 s]
+13.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 13.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.00 s.
+13.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold"	[0.00 s].
+13.0.N: All properties determined. [0.01 s]
+13.0.Hp: Interrupted. [0.01 s]
+13.0.Ht: Proofgrid shell started at 1553576@della-h14n3(local) jg_1549885_della-h14n3_14
+13.0.Ht: Requesting engine job to terminate
+13.0.N: Exited with Success (@ 0.07 s)
+13: ProofGrid usable level: 0
+13.0.Hp: Exited with Success (@ 0.07 s)
+13.0.Ht: Interrupted. [0.01 s]
+13.0.B: Proofgrid shell started at 1553577@della-h14n3(local) jg_1549885_della-h14n3_14
+13.0.B: Requesting engine job to terminate
+13.0.Ht: Exited with Success (@ 0.08 s)
+13.0.B: Interrupted. [0.01 s]
+13.0.B: Exited with Success (@ 0.08 s)
+13: --------------------------------------------------------------
+ProofGrid Summary (utilization 4.71 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.01        0.00       17.02 %
+     Hp        0.07        0.00        0.00        0.18 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        4.71 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.28        0.01        0.00
+
+    Data read    : 1.91 kiB
+    Data written : 1.36 kiB
+
+13: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 13
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clk_o_toggles_on_threshold".
+INFO (IPF031): Settings used for proof thread 14:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 15:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+15: Using multistage preprocessing
+15: Starting reduce
+15: Finished reduce in 0s
+15.0.PRE: Performing Proof Simplification...
+15.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+15.0.N: Proof Simplification Iteration 1	[0.00 s]
+15.0.N: Proof Simplification Iteration 2	[0.00 s]
+15.0.N: Proof Simplification Iteration 3	[0.00 s]
+15.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 15.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+15.0.PRE: Proof Simplification completed in 0.00 s
+15: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+15: =============================== ProofGrid start ===============================
+15: ProofGrid usable level: 1
+15: ProofGrid is starting event handling
+15.0.Hp: Proofgrid shell started at 1553601@della-h14n3(local) jg_1549885_della-h14n3_16
+15.0.N: Proofgrid shell started at 1553600@della-h14n3(local) jg_1549885_della-h14n3_16
+15.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+15.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+15.0.N: OS RSS memory limit : 68719476736 / 68719476736
+15.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+15.0.N: Last scan. Per property time limit: 0s
+15.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold"	[0.00 s].
+15.0.N: Trace Attempt  1	[0.00 s]
+15.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
+INFO (IPF008): 15.0.N: A max_length bound of 1048576 was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.00 s.
+15.0.Hp: Trace Attempt  1	[0.00 s]
+15.0.Hp: Trace Attempt  2	[0.00 s]
+15.0.N: Trace Attempt  2	[0.00 s]
+15.0.Hp: Trace Attempt  3	[0.00 s]
+15.0.N: Requesting engine job to stop
+15.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 15: Initiating shutdown of proof [0.00 s]
+15.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 15.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.00 s.
+15.0.Hp: All properties determined. [0.00 s]
+15.0.N: Trace Attempt  2	[0.00 s]
+15.0.Hp: Exited with Success (@ 0.00 s)
+15: ProofGrid usable level: 0
+15.0.N: Trace Attempt  3	[0.00 s]
+15.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold"	[0.00 s].
+15.0.N: All properties determined. [0.00 s]
+15.0.B: Proofgrid shell started at 1553615@della-h14n3(local) jg_1549885_della-h14n3_16
+15.0.B: Requesting engine job to terminate
+15.0.N: Exited with Success (@ 0.07 s)
+15.0.B: Interrupted. [0.01 s]
+15.0.Ht: Proofgrid shell started at 1553614@della-h14n3(local) jg_1549885_della-h14n3_16
+15.0.Ht: Requesting engine job to terminate
+15.0.Ht: Interrupted. [0.01 s]
+15.0.B: Exited with Success (@ 0.07 s)
+15.0.Ht: Exited with Success (@ 0.07 s)
+15: --------------------------------------------------------------
+ProofGrid Summary (utilization 1.14 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.90 %
+     Hp        0.07        0.00        0.00        2.61 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        1.14 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 2.13 kiB
+    Data written : 1.36 kiB
+
+15: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 15
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clk_o_toggles_on_threshold".
+INFO (IPF031): Settings used for proof thread 16:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.clk_o_toggles_on_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 17:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+17: Using multistage preprocessing
+17: Starting reduce
+17: Finished reduce in 0s
+17.0.PRE: Performing Proof Simplification...
+17.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+17.0.N: Proof Simplification Iteration 1	[0.00 s]
+17.0.N: Proof Simplification Iteration 2	[0.00 s]
+17.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 17.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+17.0.PRE: Proof Simplification completed in 0.00 s
+17: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+17: =============================== ProofGrid start ===============================
+17: ProofGrid usable level: 1
+17: ProofGrid is starting event handling
+17.0.N: Proofgrid shell started at 1553638@della-h14n3(local) jg_1549885_della-h14n3_18
+17.0.Hp: Proofgrid shell started at 1553639@della-h14n3(local) jg_1549885_della-h14n3_18
+17.0.N: OS RSS memory limit : 68719476736 / 68719476736
+17.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+17.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+17.0.N: Last scan. Per property time limit: 0s
+17.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_clears_on_threshold"	[0.00 s].
+17.0.N: Trace Attempt  1	[0.00 s]
+17.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
+INFO (IPF008): 17.0.N: A max_length bound of 8 was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.00 s.
+17.0.N: Trace Attempt  2	[0.00 s]
+17.0.N: Trace Attempt  2	[0.00 s]
+17.0.N: Trace Attempt  3	[0.00 s]
+17.0.N: Trace Attempt  3	[0.00 s]
+17.0.N: Requesting engine job to stop
+17.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 17: Initiating shutdown of proof [0.00 s]
+17.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 17.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.00 s.
+17.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_clears_on_threshold"	[0.00 s].
+17.0.N: All properties determined. [0.00 s]
+17.0.Hp: Interrupted. [0.00 s]
+17.0.Ht: Proofgrid shell started at 1553652@della-h14n3(local) jg_1549885_della-h14n3_18
+17.0.Ht: Requesting engine job to terminate
+17.0.N: Exited with Success (@ 0.07 s)
+17: ProofGrid usable level: 0
+17.0.Hp: Exited with Success (@ 0.07 s)
+17.0.Ht: Interrupted. [0.01 s]
+17.0.B: Proofgrid shell started at 1553653@della-h14n3(local) jg_1549885_della-h14n3_18
+17.0.B: Requesting engine job to terminate
+17.0.Ht: Exited with Success (@ 0.07 s)
+17.0.B: Interrupted. [0.01 s]
+17.0.B: Exited with Success (@ 0.07 s)
+17: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.64 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.63 %
+     Hp        0.07        0.00        0.00        0.91 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.64 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 1.77 kiB
+    Data written : 1.34 kiB
+
+17: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 17
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_clears_on_threshold".
+INFO (IPF031): Settings used for proof thread 18:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 19:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+19: Using multistage preprocessing
+19: Starting reduce
+19: Finished reduce in 0s
+19.0.PRE: Performing Proof Simplification...
+19.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+19.0.N: Proof Simplification Iteration 1	[0.00 s]
+19.0.N: Proof Simplification Iteration 2	[0.00 s]
+19.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 19.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+19.0.PRE: Proof Simplification completed in 0.00 s
+19: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+19: =============================== ProofGrid start ===============================
+19: ProofGrid usable level: 1
+19: ProofGrid is starting event handling
+19.0.Hp: Proofgrid shell started at 1553677@della-h14n3(local) jg_1549885_della-h14n3_20
+19.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+19.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+19.0.N: Proofgrid shell started at 1553676@della-h14n3(local) jg_1549885_della-h14n3_20
+19.0.N: OS RSS memory limit : 68719476736 / 68719476736
+19.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+19.0.N: Last scan. Per property time limit: 0s
+19.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_clears_on_threshold"	[0.00 s].
+19.0.N: Trace Attempt  1	[0.00 s]
+19.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
+INFO (IPF008): 19.0.N: A max_length bound of 8 was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.00 s.
+19.0.Hp: Trace Attempt  1	[0.00 s]
+19.0.Hp: Trace Attempt  2	[0.00 s]
+19.0.N: Trace Attempt  2	[0.00 s]
+19.0.N: Trace Attempt  2	[0.00 s]
+19.0.Hp: Trace Attempt  3	[0.00 s]
+19.0.N: Requesting engine job to stop
+19.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 19: Initiating shutdown of proof [0.00 s]
+19.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 19.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.00 s.
+19.0.N: Trace Attempt  3	[0.00 s]
+19.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_clears_on_threshold"	[0.00 s].
+19.0.N: All properties determined. [0.00 s]
+19.0.Hp: All properties determined. [0.00 s]
+19.0.Ht: Proofgrid shell started at 1553690@della-h14n3(local) jg_1549885_della-h14n3_20
+19.0.Ht: Requesting engine job to terminate
+19.0.B: Proofgrid shell started at 1553691@della-h14n3(local) jg_1549885_della-h14n3_20
+19.0.B: Requesting engine job to terminate
+19.0.B: Interrupted. [0.01 s]
+19.0.N: Exited with Success (@ 0.07 s)
+19: ProofGrid usable level: 0
+19.0.Hp: Exited with Success (@ 0.07 s)
+19.0.Ht: Interrupted. [0.01 s]
+19.0.Ht: Exited with Success (@ 0.07 s)
+19.0.B: Exited with Success (@ 0.07 s)
+19: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.88 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.32 %
+     Hp        0.07        0.00        0.00        2.19 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.88 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 2.08 kiB
+    Data written : 1.35 kiB
+
+19: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 19
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.count_clears_on_threshold".
+INFO (IPF031): Settings used for proof thread 20:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.count_clears_on_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 21:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+21: Using multistage preprocessing
+21: Starting reduce
+21: Finished reduce in 0s
+21.0.PRE: Performing Proof Simplification...
+21.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+21.0.N: Proof Simplification Iteration 1	[0.00 s]
+21.0.N: Proof Simplification Iteration 2	[0.00 s]
+21.0.N: Proof Simplification Iteration 3	[0.00 s]
+21.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 21.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+21.0.PRE: Proof Simplification completed in 0.00 s
+21: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+21: =============================== ProofGrid start ===============================
+21: ProofGrid usable level: 1
+21: ProofGrid is starting event handling
+21.0.Hp: Proofgrid shell started at 1553715@della-h14n3(local) jg_1549885_della-h14n3_22
+21.0.N: Proofgrid shell started at 1553714@della-h14n3(local) jg_1549885_della-h14n3_22
+21.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+21.0.N: OS RSS memory limit : 68719476736 / 68719476736
+21.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+21.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+21.0.N: Last scan. Per property time limit: 0s
+21.0.N: Starting proof for property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold"	[0.00 s].
+21.0.N: Trace Attempt  1	[0.00 s]
+21.0.N: Requesting engine job to stop
+21.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 21: Initiating shutdown of proof [0.00 s]
+21.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 21.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold" in 0.00 s.
+21.0.N: Stopped processing property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold"	[0.00 s].
+21.0.N: All properties determined. [0.00 s]
+21.0.Hp: Interrupted (multi)
+21.0.Hp: All properties determined. [0.00 s]
+21.0.Ht: Proofgrid shell started at 1553728@della-h14n3(local) jg_1549885_della-h14n3_22
+21.0.Ht: Requesting engine job to terminate
+21.0.N: Exited with Success (@ 0.07 s)
+21: ProofGrid usable level: 0
+21.0.Hp: Exited with Success (@ 0.07 s)
+21.0.Ht: Interrupted. [0.01 s]
+21.0.B: Proofgrid shell started at 1553729@della-h14n3(local) jg_1549885_della-h14n3_22
+21.0.B: Requesting engine job to terminate
+21.0.B: Interrupted. [0.01 s]
+21.0.B: Exited with Success (@ 0.07 s)
+21.0.Ht: Exited with Success (@ 0.07 s)
+21: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.51 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.99 %
+     Hp        0.07        0.00        0.00        1.04 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.51 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 1.75 kiB
+    Data written : 1.27 kiB
+
+21: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 21
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clko_change_caused_by_threshold".
+INFO (IPF031): Settings used for proof thread 22:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 23:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+23: Using multistage preprocessing
+23: Starting reduce
+23: Finished reduce in 0s
+23.0.PRE: Performing Proof Simplification...
+23.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+23.0.N: Proof Simplification Iteration 1	[0.00 s]
+23.0.N: Proof Simplification Iteration 2	[0.00 s]
+23.0.N: Proof Simplification Iteration 3	[0.00 s]
+23.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 23.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+23.0.PRE: Proof Simplification completed in 0.00 s
+23: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+23: =============================== ProofGrid start ===============================
+23: ProofGrid usable level: 1
+23: ProofGrid is starting event handling
+23.0.Hp: Proofgrid shell started at 1553753@della-h14n3(local) jg_1549885_della-h14n3_24
+23.0.N: Proofgrid shell started at 1553752@della-h14n3(local) jg_1549885_della-h14n3_24
+23.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+23.0.N: OS RSS memory limit : 68719476736 / 68719476736
+23.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+23.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+23.0.N: Last scan. Per property time limit: 0s
+23.0.N: Starting proof for property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold"	[0.00 s].
+23.0.N: Trace Attempt  1	[0.00 s]
+23.0.N: Requesting engine job to stop
+23.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 23: Initiating shutdown of proof [0.00 s]
+23.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 23.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold" in 0.00 s.
+23.0.N: Stopped processing property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold"	[0.00 s].
+23.0.N: All properties determined. [0.00 s]
+23.0.Hp: Interrupted (multi)
+23.0.Hp: All properties determined. [0.00 s]
+23.0.N: Exited with Success (@ 0.00 s)
+23: ProofGrid usable level: 0
+23.0.Ht: Proofgrid shell started at 1553766@della-h14n3(local) jg_1549885_della-h14n3_24
+23.0.Ht: Requesting engine job to terminate
+23.0.Hp: Exited with Success (@ 0.07 s)
+23.0.Ht: Interrupted. [0.01 s]
+23.0.B: Proofgrid shell started at 1553767@della-h14n3(local) jg_1549885_della-h14n3_24
+23.0.B: Requesting engine job to terminate
+23.0.B: Interrupted. [0.01 s]
+23.0.Ht: Exited with Success (@ 0.07 s)
+23.0.B: Exited with Success (@ 0.07 s)
+23: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.60 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.16 %
+     Hp        0.07        0.00        0.00        1.21 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.60 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.75 kiB
+    Data written : 1.27 kiB
+
+23: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 23
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.clko_change_caused_by_threshold".
+INFO (IPF031): Settings used for proof thread 24:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.clko_change_caused_by_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 25:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+25: Using multistage preprocessing
+25: Starting reduce
+25: Finished reduce in 0s
+25.0.PRE: Performing Proof Simplification...
+25.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+25.0.N: Proof Simplification Iteration 1	[0.00 s]
+25.0.N: Proof Simplification Iteration 2	[0.00 s]
+25.0.N: Proof Simplification Iteration 3	[0.00 s]
+25.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 25.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+25.0.PRE: Proof Simplification completed in 0.00 s
+25: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+25: =============================== ProofGrid start ===============================
+25: ProofGrid usable level: 1
+25: ProofGrid is starting event handling
+25.0.Hp: Proofgrid shell started at 1553791@della-h14n3(local) jg_1549885_della-h14n3_26
+25.0.N: Proofgrid shell started at 1553790@della-h14n3(local) jg_1549885_della-h14n3_26
+25.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+25.0.N: OS RSS memory limit : 68719476736 / 68719476736
+25.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+25.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+25.0.N: Last scan. Per property time limit: 0s
+25.0.N: Starting proof for property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold"	[0.00 s].
+25.0.Hp: Trace Attempt  1	[0.00 s]
+25.0.N: Requesting engine job to stop
+25.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 25: Initiating shutdown of proof [0.00 s]
+25.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 25.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold" in 0.00 s.
+25.0.N: Trace Attempt  1	[0.00 s]
+25.0.N: Stopped processing property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold"	[0.00 s].
+25.0.N: All properties determined. [0.00 s]
+25.0.Hp: All properties determined. [0.00 s]
+25.0.B: Proofgrid shell started at 1553805@della-h14n3(local) jg_1549885_della-h14n3_26
+25.0.B: Requesting engine job to terminate
+25.0.N: Exited with Success (@ 0.07 s)
+25: ProofGrid usable level: 0
+25.0.Hp: Exited with Success (@ 0.07 s)
+25.0.B: Interrupted. [0.01 s]
+25.0.Ht: Proofgrid shell started at 1553804@della-h14n3(local) jg_1549885_della-h14n3_26
+25.0.Ht: Requesting engine job to terminate
+25.0.Ht: Interrupted. [0.01 s]
+25.0.B: Exited with Success (@ 0.07 s)
+25.0.Ht: Exited with Success (@ 0.07 s)
+25: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.58 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.81 %
+     Hp        0.07        0.00        0.00        1.50 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.58 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 2.12 kiB
+    Data written : 1.27 kiB
+
+25: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 25
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold".
+INFO (IPF031): Settings used for proof thread 26:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 27:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+27: Using multistage preprocessing
+27: Starting reduce
+27: Finished reduce in 0s
+27.0.PRE: Performing Proof Simplification...
+27.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+27.0.N: Proof Simplification Iteration 1	[0.00 s]
+27.0.N: Proof Simplification Iteration 2	[0.00 s]
+27.0.N: Proof Simplification Iteration 3	[0.00 s]
+27.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 27.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+27.0.PRE: Proof Simplification completed in 0.00 s
+27: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+27: =============================== ProofGrid start ===============================
+27: ProofGrid usable level: 1
+27: ProofGrid is starting event handling
+27.0.N: Proofgrid shell started at 1553828@della-h14n3(local) jg_1549885_della-h14n3_28
+27.0.Hp: Proofgrid shell started at 1553829@della-h14n3(local) jg_1549885_della-h14n3_28
+27.0.N: OS RSS memory limit : 68719476736 / 68719476736
+27.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+27.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+27.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+27.0.N: Last scan. Per property time limit: 0s
+27.0.N: Starting proof for property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold"	[0.00 s].
+27.0.N: Trace Attempt  1	[0.00 s]
+27.0.N: Requesting engine job to stop
+27.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 27: Initiating shutdown of proof [0.00 s]
+27.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 27.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold" in 0.00 s.
+27.0.Hp: Trace Attempt  1	[0.00 s]
+27.0.Hp: All properties determined. [0.00 s]
+27.0.N: Stopped processing property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold"	[0.00 s].
+27.0.Hp: Exited with Success (@ 0.00 s)
+27: ProofGrid usable level: 0
+27.0.N: All properties determined. [0.00 s]
+27.0.Ht: Proofgrid shell started at 1553842@della-h14n3(local) jg_1549885_della-h14n3_28
+27.0.Ht: Requesting engine job to terminate
+27.0.N: Exited with Success (@ 0.08 s)
+27.0.Ht: Interrupted. [0.01 s]
+27.0.B: Proofgrid shell started at 1553843@della-h14n3(local) jg_1549885_della-h14n3_28
+27.0.B: Requesting engine job to terminate
+27.0.Ht: Exited with Success (@ 0.08 s)
+27.0.B: Interrupted. [0.01 s]
+27.0.B: Exited with Success (@ 0.08 s)
+27: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.77 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.98 %
+     Hp        0.07        0.00        0.00        1.36 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.77 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.29        0.00        0.00
+
+    Data read    : 2.12 kiB
+    Data written : 1.27 kiB
+
+27: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 27
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold".
+INFO (IPF031): Settings used for proof thread 28:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 29:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+29: Using multistage preprocessing
+29: Starting reduce
+29: Finished reduce in 0s
+29.0.PRE: Performing Proof Simplification...
+29.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+29.0.N: Proof Simplification Iteration 1	[0.00 s]
+29.0.N: Proof Simplification Iteration 2	[0.00 s]
+29.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 29.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+29.0.PRE: Proof Simplification completed in 0.00 s
+29: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+29: =============================== ProofGrid start ===============================
+29: ProofGrid usable level: 1
+29: ProofGrid is starting event handling
+29.0.N: Proofgrid shell started at 1553866@della-h14n3(local) jg_1549885_della-h14n3_30
+29.0.Hp: Proofgrid shell started at 1553867@della-h14n3(local) jg_1549885_della-h14n3_30
+29.0.N: OS RSS memory limit : 68719476736 / 68719476736
+29.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+29.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+29.0.N: Last scan. Per property time limit: 0s
+29.0.N: Starting proof for property "clock_counter.auto_sva_inst.zero_count_has_valid_cause"	[0.00 s].
+29.0.N: Trace Attempt  1	[0.00 s]
+29.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+29.0.N: Requesting engine job to stop
+29.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 29: Initiating shutdown of proof [0.00 s]
+29.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 29.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.zero_count_has_valid_cause" in 0.00 s.
+29.0.N: Stopped processing property "clock_counter.auto_sva_inst.zero_count_has_valid_cause"	[0.00 s].
+29.0.N: All properties determined. [0.00 s]
+29.0.Hp: Interrupted (multi)
+29.0.Hp: All properties determined. [0.00 s]
+29.0.Hp: Exited with Success (@ 0.00 s)
+29: ProofGrid usable level: 0
+29.0.Ht: Proofgrid shell started at 1553880@della-h14n3(local) jg_1549885_della-h14n3_30
+29.0.Ht: Requesting engine job to terminate
+29.0.N: Exited with Success (@ 0.09 s)
+29.0.Ht: Interrupted. [0.01 s]
+29.0.B: Proofgrid shell started at 1553881@della-h14n3(local) jg_1549885_della-h14n3_30
+29.0.B: Requesting engine job to terminate
+29.0.Ht: Exited with Success (@ 0.09 s)
+29.0.B: Interrupted. [0.01 s]
+29.0.B: Exited with Success (@ 0.09 s)
+29: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.31 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.10 %
+     Hp        0.07        0.00        0.00        0.36 %
+     Ht        0.09        0.00        0.00        0.00 %
+      B        0.09        0.00        0.00        0.00 %
+    all        0.08        0.00        0.00        0.31 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.31        0.00        0.00
+
+    Data read    : 1.66 kiB
+    Data written : 1.28 kiB
+
+29: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 29
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.zero_count_has_valid_cause".
+INFO (IPF031): Settings used for proof thread 30:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 31:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+31: Using multistage preprocessing
+31: Starting reduce
+31: Finished reduce in 0s
+31.0.PRE: Performing Proof Simplification...
+31.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+31.0.N: Proof Simplification Iteration 1	[0.00 s]
+31.0.N: Proof Simplification Iteration 2	[0.00 s]
+31.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 31.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+31.0.PRE: Proof Simplification completed in 0.00 s
+31: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+31: =============================== ProofGrid start ===============================
+31: ProofGrid usable level: 1
+31: ProofGrid is starting event handling
+31.0.N: Proofgrid shell started at 1553904@della-h14n3(local) jg_1549885_della-h14n3_32
+31.0.Hp: Proofgrid shell started at 1553905@della-h14n3(local) jg_1549885_della-h14n3_32
+31.0.N: OS RSS memory limit : 68719476736 / 68719476736
+31.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+31.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+31.0.N: Last scan. Per property time limit: 0s
+31.0.N: Starting proof for property "clock_counter.auto_sva_inst.zero_count_has_valid_cause"	[0.00 s].
+31.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+31.0.N: Trace Attempt  1	[0.00 s]
+31.0.N: Requesting engine job to stop
+31.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 31: Initiating shutdown of proof [0.00 s]
+31.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 31.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.zero_count_has_valid_cause" in 0.00 s.
+31.0.N: Stopped processing property "clock_counter.auto_sva_inst.zero_count_has_valid_cause"	[0.00 s].
+31.0.N: All properties determined. [0.00 s]
+31.0.Hp: Interrupted (multi)
+31.0.Hp: All properties determined. [0.00 s]
+31.0.N: Exited with Success (@ 0.00 s)
+31: ProofGrid usable level: 0
+31.0.Ht: Proofgrid shell started at 1553918@della-h14n3(local) jg_1549885_della-h14n3_32
+31.0.Ht: Requesting engine job to terminate
+31.0.Hp: Exited with Success (@ 0.07 s)
+31.0.Ht: Interrupted. [0.01 s]
+31.0.B: Proofgrid shell started at 1553919@della-h14n3(local) jg_1549885_della-h14n3_32
+31.0.B: Requesting engine job to terminate
+31.0.Ht: Exited with Success (@ 0.07 s)
+31.0.B: Interrupted. [0.01 s]
+31.0.B: Exited with Success (@ 0.07 s)
+31: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.77 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.83 %
+     Hp        0.07        0.00        0.00        1.17 %
+     Ht        0.06        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.77 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.26        0.00        0.00
+
+    Data read    : 1.66 kiB
+    Data written : 1.27 kiB
+
+31: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 31
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.zero_count_has_valid_cause".
+INFO (IPF031): Settings used for proof thread 32:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.zero_count_has_valid_cause (all approaches failed)
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 33:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+33: Using multistage preprocessing
+33: Starting reduce
+33: Finished reduce in 0s
+33.0.PRE: Performing Proof Simplification...
+33.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+33.0.N: Proof Simplification Iteration 1	[0.00 s]
+33.0.N: Proof Simplification Iteration 2	[0.00 s]
+33.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 33.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+33.0.PRE: Proof Simplification completed in 0.00 s
+33: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+33: =============================== ProofGrid start ===============================
+33: ProofGrid usable level: 1
+33: ProofGrid is starting event handling
+33.0.N: Proofgrid shell started at 1553942@della-h14n3(local) jg_1549885_della-h14n3_34
+33.0.Hp: Proofgrid shell started at 1553943@della-h14n3(local) jg_1549885_della-h14n3_34
+33.0.N: OS RSS memory limit : 68719476736 / 68719476736
+33.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+33.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+33.0.N: Last scan. Per property time limit: 0s
+33.0.N: Starting proof for property "clock_counter.auto_sva_inst.zero_advances_to_one_next"	[0.00 s].
+33.0.N: Trace Attempt  1	[0.00 s]
+33.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
+INFO (IPF008): 33.0.N: A max_length bound of 8 was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.00 s.
+33.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+33.0.N: Trace Attempt  2	[0.00 s]
+33.0.Hp: Trace Attempt  1	[0.00 s]
+33.0.Hp: Trace Attempt  2	[0.00 s]
+33.0.N: Trace Attempt  2	[0.00 s]
+33.0.N: Trace Attempt  3	[0.00 s]
+33.0.N: Trace Attempt  3	[0.00 s]
+33.0.N: Requesting engine job to stop
+33.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 33: Initiating shutdown of proof [0.00 s]
+33.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 33.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.00 s.
+33.0.N: Stopped processing property "clock_counter.auto_sva_inst.zero_advances_to_one_next"	[0.00 s].
+33.0.Hp: Interrupted (multi)
+33.0.Hp: All properties determined. [0.00 s]
+33.0.N: All properties determined. [0.00 s]
+33.0.B: Proofgrid shell started at 1553957@della-h14n3(local) jg_1549885_della-h14n3_34
+33.0.B: Requesting engine job to terminate
+33.0.N: Exited with Success (@ 0.08 s)
+33: ProofGrid usable level: 0
+33.0.Hp: Exited with Success (@ 0.08 s)
+33.0.B: Interrupted. [0.01 s]
+33.0.Ht: Proofgrid shell started at 1553956@della-h14n3(local) jg_1549885_della-h14n3_34
+33.0.Ht: Requesting engine job to terminate
+33.0.Ht: Interrupted. [0.01 s]
+33.0.Ht: Exited with Success (@ 0.08 s)
+33.0.B: Exited with Success (@ 0.08 s)
+33: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.78 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        2.08 %
+     Hp        0.07        0.00        0.00        1.37 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.78 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.30        0.00        0.00
+
+    Data read    : 2.12 kiB
+    Data written : 1.35 kiB
+
+33: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 33
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.zero_advances_to_one_next".
+INFO (IPF031): Settings used for proof thread 34:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 1 (force re-prove) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+DEBUG: Approach 2 (-new_trace) failed: ERROR (ESW104): Invalid command formation.
+    Problem occurs with "-violation -new_trace".
+
+INFO (IPF036): Starting proof on task: "<embedded>", 1 properties to prove with 0 already proven/unreachable
+INFO (IPF031): Settings used for proof thread 35:
+    orchestration                 = on (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+35: Using multistage preprocessing
+35: Starting reduce
+35: Finished reduce in 0s
+35.0.PRE: Performing Proof Simplification...
+35.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+35.0.N: Proof Simplification Iteration 1	[0.00 s]
+35.0.N: Proof Simplification Iteration 2	[0.00 s]
+35.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 35.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+35.0.PRE: Proof Simplification completed in 0.00 s
+35: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+35: =============================== ProofGrid start ===============================
+35: ProofGrid usable level: 1
+35: ProofGrid is starting event handling
+35.0.Hp: Proofgrid shell started at 1553981@della-h14n3(local) jg_1549885_della-h14n3_36
+35.0.N: Proofgrid shell started at 1553980@della-h14n3(local) jg_1549885_della-h14n3_36
+35.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+35.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+35.0.N: OS RSS memory limit : 68719476736 / 68719476736
+35.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+35.0.Hp: Trace Attempt  1	[0.00 s]
+35.0.Hp: Trace Attempt  2	[0.00 s]
+35.0.N: Last scan. Per property time limit: 0s
+35.0.N: Starting proof for property "clock_counter.auto_sva_inst.zero_advances_to_one_next"	[0.00 s].
+35.0.Hp: Trace Attempt  3	[0.00 s]
+35.0.N: Requesting engine job to stop
+35.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 35: Initiating shutdown of proof [0.00 s]
+35.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 35.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.00 s.
+35.0.Hp: All properties determined. [0.00 s]
+35.0.N: Trace Attempt  1	[0.00 s]
+35.0.N: Trace Attempt  2	[0.00 s]
+35.0.N: Stopped processing property "clock_counter.auto_sva_inst.zero_advances_to_one_next"	[0.00 s].
+35.0.Hp: Exited with Success (@ 0.00 s)
+35: ProofGrid usable level: 0
+35.0.N: All properties determined. [0.00 s]
+35.0.Ht: Proofgrid shell started at 1553994@della-h14n3(local) jg_1549885_della-h14n3_36
+35.0.Ht: Requesting engine job to terminate
+35.0.B: Proofgrid shell started at 1553995@della-h14n3(local) jg_1549885_della-h14n3_36
+35.0.B: Requesting engine job to terminate
+35.0.N: Exited with Success (@ 0.07 s)
+35.0.Ht: Interrupted. [0.01 s]
+35.0.B: Interrupted. [0.01 s]
+35.0.Ht: Exited with Success (@ 0.07 s)
+35.0.B: Exited with Success (@ 0.07 s)
+35: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.94 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        1.46 %
+     Hp        0.07        0.00        0.00        2.28 %
+     Ht        0.07        0.00        0.00        0.00 %
+      B        0.07        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.94 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.27        0.00        0.00
+
+    Data read    : 1.86 kiB
+    Data written : 1.31 kiB
+
+35: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 35
+INFO (IVS015): Setting Visualize task to "<embedded>".
+INFO (IVS008): Expanding analysis region to enable visualization of "<embedded>::clock_counter.auto_sva_inst.zero_advances_to_one_next".
+INFO (IPF031): Settings used for proof thread 36:
+    orchestration                 = off (auto)
+    time_limit                    = 3600s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = Ht Hp B N 
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = Ht Hp B N, total 2
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+ERROR (EVS053): No trace satisfying these configurations exists for any max_length.
+WARNING (WVS028): Saved trace only contains values for the target's COI.
+    Use "set_trace_optimization standard" before running Visualize to save values for the full design.
+DEBUG: Approach 3 (auto engine) failed: ERROR (EVS125): No Visualize trace is available for "visualize -save -vcd".
+
+WARN: Could not dump VCD for <embedded>::clock_counter.auto_sva_inst.zero_advances_to_one_next (all approaches failed)
+INFO: Dumped 0 VCD files to /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00720/cex_vcd
+[<embedded>] % 
 [<embedded>] % # ---- Write summary ----
 [<embedded>] % set fp [open $SUMMARY_TXT "w"]
-file43
+file15
 [<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
 [<embedded>] % puts $fp "TOP=$TOP"
 [<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
@@ -976,6 +3352,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 1.998 GB.
+INFO (IPL018): The peak resident set memory use for this session was 2.217 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

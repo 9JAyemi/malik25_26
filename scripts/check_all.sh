@@ -221,6 +221,7 @@ run_verif() {
       JG_INCDIRS="${JG_INCDIRS:-}" \
       JG_DEFINES="${JG_DEFINES:-}" \
       JG_NO_CLOCK="${JG_NO_CLOCK:-1}" \
+      JG_DUMP_VCD="${JG_DUMP_VCD:-0}" \
       JG_OUT_DIR="$out_dir" \
       jaspergold -batch -allow_unsupported_OS \
         -proj "$proj_dir" \
