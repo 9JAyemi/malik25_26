@@ -33,8 +33,7 @@ DATASET_DIR = PROJECT_ROOT / "dataset"
 VERSION_1_DIR = DATASET_DIR / "version_1"
 VERSION_2_DIR = DATASET_DIR / "version_2"
 FAILING_IDS_FILE = PROJECT_ROOT / "failing_ids.txt"
-PASSING_CSV_V1 = DATASET_DIR / "dataset_stats" / "version_1" / "passing_assertions.csv"
-PASSING_CSV_V2 = DATASET_DIR / "dataset_stats" / "version_2" / "passing_assertions.csv"
+PASSING_CSV = DATASET_DIR / "dataset_stats" / "version_2" / "passing_assertions.csv"
 OUTPUT_DIR = PROJECT_ROOT / "dataset_cleaned"
 
 HF_REPO = "aarushgoradia/malik25_26"
@@ -86,11 +85,11 @@ def load_all_samples() -> dict:
             if not sample_dir.is_dir():
                 continue
             sample_id = sample_dir.name
-            rtl_path = sample_dir / "rtl.v"
+            rtl_path = sample_dir / "module.v"
             sva_path = sample_dir / "sva.sv"
 
             if not rtl_path.exists() or not sva_path.exists():
-                print(f"WARNING: Missing rtl.v or sva.sv in {sample_dir}, skipping")
+                print(f"WARNING: Missing module.v or sva.sv in {sample_dir}, skipping")
                 continue
 
             rtl = rtl_path.read_text(encoding="utf-8", errors="replace")
@@ -259,13 +258,12 @@ def main():
     failing_ids = load_failing_ids(FAILING_IDS_FILE)
 
     passing_assertions = defaultdict(list)
-    for csv_path in [PASSING_CSV_V1, PASSING_CSV_V2]:
-        if csv_path.exists():
-            pa = load_passing_assertions(csv_path)
-            for k, v in pa.items():
-                passing_assertions[k].extend(v)
-        else:
-            print(f"WARNING: {csv_path} not found")
+    if PASSING_CSV.exists():
+        pa = load_passing_assertions(PASSING_CSV)
+        for k, v in pa.items():
+            passing_assertions[k].extend(v)
+    else:
+        print(f"WARNING: {PASSING_CSV} not found")
 
     # 2. Compute the global split (same IDs for all tiers)
     print("\n--- Computing 80/10/10 split ---")
