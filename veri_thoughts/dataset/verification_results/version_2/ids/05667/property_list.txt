@@ -1,0 +1,22 @@
+ASSERT PROPERTIES:
+XOR_8.auto_sva_inst.check_z_matches_xor
+XOR_8.auto_sva_inst.check_z_bit0_xor
+XOR_8.auto_sva_inst.check_z_bit1_xor
+XOR_8.auto_sva_inst.check_z_bit2_xor
+XOR_8.auto_sva_inst.check_z_bit3_xor
+XOR_8.auto_sva_inst.check_z_bit4_xor
+XOR_8.auto_sva_inst.check_z_bit5_xor
+XOR_8.auto_sva_inst.check_z_bit6_xor
+XOR_8.auto_sva_inst.check_z_bit7_xor
+XOR_8.auto_sva_inst.check_equal_inputs_zero
+XOR_8.auto_sva_inst.check_b_zero_passthrough_a
+XOR_8.auto_sva_inst.check_a_zero_passthrough_b
+XOR_8.auto_sva_inst.check_complement_inputs_all_ones
+XOR_8.auto_sva_inst.check_stable_inputs_stable_output
+
+COVER PROPERTIES:
+XOR_8.auto_sva_inst.check_equal_inputs_zero:precondition1
+XOR_8.auto_sva_inst.check_b_zero_passthrough_a:precondition1
+XOR_8.auto_sva_inst.check_a_zero_passthrough_b:precondition1
+XOR_8.auto_sva_inst.check_complement_inputs_all_ones:precondition1
+XOR_8.auto_sva_inst.check_stable_inputs_stable_output:precondition1

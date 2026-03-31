@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+digital_circuit.auto_sva_inst.check_output_equation
+digital_circuit.auto_sva_inst.check_a_term_drives_high
+digital_circuit.auto_sva_inst.check_b_term_drives_high
+digital_circuit.auto_sva_inst.check_no_terms_means_low
+digital_circuit.auto_sva_inst.check_y_high_has_cause
+
+COVER PROPERTIES:
+digital_circuit.auto_sva_inst.check_a_term_drives_high:precondition1
+digital_circuit.auto_sva_inst.check_b_term_drives_high:precondition1
+digital_circuit.auto_sva_inst.check_no_terms_means_low:precondition1
+digital_circuit.auto_sva_inst.check_y_high_has_cause:precondition1

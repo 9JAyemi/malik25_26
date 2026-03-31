@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_forces_zero_next
+counter.auto_sva_inst.wrap_from_nine
+counter.auto_sva_inst.increment_or_clear_from_non_nine
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_forces_zero_next:precondition1
+counter.auto_sva_inst.wrap_from_nine:precondition1
+counter.auto_sva_inst.increment_or_clear_from_non_nine:precondition1

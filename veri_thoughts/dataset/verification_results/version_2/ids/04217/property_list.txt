@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_scan_hold
+my_module.auto_sva_inst.check_capture_when_enabled
+my_module.auto_sva_inst.check_hold_when_disabled
+my_module.auto_sva_inst.check_change_requires_capture
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_scan_hold:precondition1
+my_module.auto_sva_inst.check_capture_when_enabled:precondition1
+my_module.auto_sva_inst.check_hold_when_disabled:precondition1
+my_module.auto_sva_inst.check_change_requires_capture:precondition1

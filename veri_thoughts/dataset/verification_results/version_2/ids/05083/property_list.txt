@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux2.auto_sva_inst.check_mux_function
+mux2.auto_sva_inst.check_select_zero_routes_a0
+mux2.auto_sva_inst.check_select_one_routes_a1
+mux2.auto_sva_inst.check_equal_inputs_force_output
+mux2.auto_sva_inst.check_unselected_a1_has_no_effect
+mux2.auto_sva_inst.check_unselected_a0_has_no_effect
+
+COVER PROPERTIES:
+mux2.auto_sva_inst.check_select_zero_routes_a0:precondition1
+mux2.auto_sva_inst.check_select_one_routes_a1:precondition1
+mux2.auto_sva_inst.check_equal_inputs_force_output:precondition1
+mux2.auto_sva_inst.check_unselected_a1_has_no_effect:precondition1
+mux2.auto_sva_inst.check_unselected_a0_has_no_effect:precondition1

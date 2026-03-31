@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+multiplexer.auto_sva_inst.check_mux_function
+multiplexer.auto_sva_inst.check_select_d0
+multiplexer.auto_sva_inst.check_select_d1
+multiplexer.auto_sva_inst.check_stable_when_d0_selected
+multiplexer.auto_sva_inst.check_stable_when_d1_selected
+
+COVER PROPERTIES:
+multiplexer.auto_sva_inst.check_select_d0:precondition1
+multiplexer.auto_sva_inst.check_select_d1:precondition1
+multiplexer.auto_sva_inst.check_stable_when_d0_selected:precondition1
+multiplexer.auto_sva_inst.check_stable_when_d1_selected:precondition1

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+bitwise_op.auto_sva_inst.check_output_function
+bitwise_op.auto_sva_inst.check_and_operation
+bitwise_op.auto_sva_inst.check_or_operation
+bitwise_op.auto_sva_inst.check_xor_operation
+bitwise_op.auto_sva_inst.check_default_zero
+
+COVER PROPERTIES:
+bitwise_op.auto_sva_inst.check_and_operation:precondition1
+bitwise_op.auto_sva_inst.check_or_operation:precondition1
+bitwise_op.auto_sva_inst.check_xor_operation:precondition1
+bitwise_op.auto_sva_inst.check_default_zero:precondition1

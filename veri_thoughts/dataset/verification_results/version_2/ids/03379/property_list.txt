@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_holds_outputs_cleared
+counter.auto_sva_inst.check_wrap_resets_count
+counter.auto_sva_inst.check_wrap_sets_flag
+counter.auto_sva_inst.check_non_wrap_increments_count
+counter.auto_sva_inst.check_non_wrap_clears_flag
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_holds_outputs_cleared:precondition1
+counter.auto_sva_inst.check_wrap_resets_count:precondition1
+counter.auto_sva_inst.check_wrap_sets_flag:precondition1
+counter.auto_sva_inst.check_non_wrap_increments_count:precondition1
+counter.auto_sva_inst.check_non_wrap_clears_flag:precondition1

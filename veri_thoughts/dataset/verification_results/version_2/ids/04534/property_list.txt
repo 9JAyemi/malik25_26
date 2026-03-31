@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+DFFSR.auto_sva_inst.check_qn_is_inverse_of_q
+DFFSR.auto_sva_inst.check_set_drives_q_high
+DFFSR.auto_sva_inst.check_set_overrides_reset
+DFFSR.auto_sva_inst.check_reset_drives_q_low
+DFFSR.auto_sva_inst.check_data_capture
+
+COVER PROPERTIES:
+DFFSR.auto_sva_inst.check_set_drives_q_high:precondition1
+DFFSR.auto_sva_inst.check_set_overrides_reset:precondition1
+DFFSR.auto_sva_inst.check_reset_drives_q_low:precondition1
+DFFSR.auto_sva_inst.check_data_capture:precondition1

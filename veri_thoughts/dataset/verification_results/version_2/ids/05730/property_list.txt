@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+comb_logic.auto_sva_inst.check_registered_mux_function
+comb_logic.auto_sva_inst.check_xor_path
+comb_logic.auto_sva_inst.check_or_path
+comb_logic.auto_sva_inst.check_xor_equal_inputs_zero
+comb_logic.auto_sva_inst.check_xor_different_inputs_one
+comb_logic.auto_sva_inst.check_or_both_low_zero
+comb_logic.auto_sva_inst.check_or_any_high_one
+
+COVER PROPERTIES:
+comb_logic.auto_sva_inst.check_registered_mux_function:precondition1
+comb_logic.auto_sva_inst.check_xor_path:precondition1
+comb_logic.auto_sva_inst.check_or_path:precondition1
+comb_logic.auto_sva_inst.check_xor_equal_inputs_zero:precondition1
+comb_logic.auto_sva_inst.check_xor_different_inputs_one:precondition1
+comb_logic.auto_sva_inst.check_or_both_low_zero:precondition1
+comb_logic.auto_sva_inst.check_or_any_high_one:precondition1

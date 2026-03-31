@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_reset_clears_pipeline
+top_module.auto_sva_inst.check_adder1_update
+top_module.auto_sva_inst.check_adder2_update
+top_module.auto_sva_inst.check_final_output_sum
+top_module.auto_sva_inst.check_final_output_pipeline_result
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_reset_clears_pipeline:precondition1
+top_module.auto_sva_inst.check_adder1_update:precondition1
+top_module.auto_sva_inst.check_adder2_update:precondition1
+top_module.auto_sva_inst.check_final_output_pipeline_result:precondition1

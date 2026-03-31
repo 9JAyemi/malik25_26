@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+main.auto_sva_inst.check_y_definition
+main.auto_sva_inst.check_a1_all_ones_sets_y
+main.auto_sva_inst.check_a2_all_ones_sets_y
+main.auto_sva_inst.check_a3_all_ones_sets_y
+main.auto_sva_inst.check_no_full_bus_means_y_low
+main.auto_sva_inst.check_y_high_requires_full_bus
+main.auto_sva_inst.check_y_low_excludes_a1_full
+main.auto_sva_inst.check_y_low_excludes_a2_full
+main.auto_sva_inst.check_y_low_excludes_a3_full
+
+COVER PROPERTIES:
+main.auto_sva_inst.check_a1_all_ones_sets_y:precondition1
+main.auto_sva_inst.check_a2_all_ones_sets_y:precondition1
+main.auto_sva_inst.check_a3_all_ones_sets_y:precondition1
+main.auto_sva_inst.check_no_full_bus_means_y_low:precondition1
+main.auto_sva_inst.check_y_high_requires_full_bus:precondition1
+main.auto_sva_inst.check_y_low_excludes_a1_full:precondition1
+main.auto_sva_inst.check_y_low_excludes_a2_full:precondition1
+main.auto_sva_inst.check_y_low_excludes_a3_full:precondition1

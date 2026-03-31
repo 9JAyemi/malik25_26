@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nor2_gate.auto_sva_inst.check_nor_equation
+nor2_gate.auto_sva_inst.check_output_high_when_both_low
+nor2_gate.auto_sva_inst.check_output_low_when_a_high
+nor2_gate.auto_sva_inst.check_output_low_when_b_high
+nor2_gate.auto_sva_inst.check_output_high_only_when_inputs_low
+
+COVER PROPERTIES:
+nor2_gate.auto_sva_inst.check_output_high_when_both_low:precondition1
+nor2_gate.auto_sva_inst.check_output_low_when_a_high:precondition1
+nor2_gate.auto_sva_inst.check_output_low_when_b_high:precondition1
+nor2_gate.auto_sva_inst.check_output_high_only_when_inputs_low:precondition1

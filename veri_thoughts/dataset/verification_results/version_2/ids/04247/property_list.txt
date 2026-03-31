@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+dut_mux2.auto_sva_inst.check_sel_high_selects_b
+dut_mux2.auto_sva_inst.check_sel_low_selects_a
+dut_mux2.auto_sva_inst.check_equal_inputs_pass_through
+dut_mux2.auto_sva_inst.check_output_is_from_inputs
+
+COVER PROPERTIES:
+dut_mux2.auto_sva_inst.check_sel_high_selects_b:precondition1
+dut_mux2.auto_sva_inst.check_sel_low_selects_a:precondition1
+dut_mux2.auto_sva_inst.check_equal_inputs_pass_through:precondition1

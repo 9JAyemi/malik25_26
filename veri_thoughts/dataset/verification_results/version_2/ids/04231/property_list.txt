@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+mux2to1.auto_sva_inst.check_mux_function_exact
+mux2to1.auto_sva_inst.check_select_low_routes_a
+mux2to1.auto_sva_inst.check_select_high_routes_b
+mux2to1.auto_sva_inst.check_equal_inputs_force_output
+mux2to1.auto_sva_inst.check_unknown_select_diff_inputs_x_output
+
+COVER PROPERTIES:
+mux2to1.auto_sva_inst.check_select_low_routes_a:precondition1
+mux2to1.auto_sva_inst.check_select_high_routes_b:precondition1
+mux2to1.auto_sva_inst.check_equal_inputs_force_output:precondition1

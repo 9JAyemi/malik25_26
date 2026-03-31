@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+mem_shifter.auto_sva_inst.check_word_opcode_passthrough
+mem_shifter.auto_sva_inst.check_nonword_addr_00
+mem_shifter.auto_sva_inst.check_nonword_addr_01
+mem_shifter.auto_sva_inst.check_nonword_addr_10
+mem_shifter.auto_sva_inst.check_nonword_addr_11
+
+COVER PROPERTIES:
+mem_shifter.auto_sva_inst.check_word_opcode_passthrough:precondition1
+mem_shifter.auto_sva_inst.check_nonword_addr_00:precondition1
+mem_shifter.auto_sva_inst.check_nonword_addr_01:precondition1
+mem_shifter.auto_sva_inst.check_nonword_addr_10:precondition1
+mem_shifter.auto_sva_inst.check_nonword_addr_11:precondition1

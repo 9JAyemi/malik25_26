@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nand4.auto_sva_inst.check_y_matches_nand_function
+nand4.auto_sva_inst.check_all_inputs_high_drive_y_low
+nand4.auto_sva_inst.check_y_low_only_when_all_inputs_high
+nand4.auto_sva_inst.check_any_input_low_drives_y_high
+nand4.auto_sva_inst.check_stable_inputs_keep_y_stable
+
+COVER PROPERTIES:
+nand4.auto_sva_inst.check_all_inputs_high_drive_y_low:precondition1
+nand4.auto_sva_inst.check_y_low_only_when_all_inputs_high:precondition1
+nand4.auto_sva_inst.check_any_input_low_drives_y_high:precondition1
+nand4.auto_sva_inst.check_stable_inputs_keep_y_stable:precondition1

@@ -1,0 +1,9 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_nand_function, assert, property, posedge, check_all_inputs_high_drives_low, b1, b0, check_a_low_forces_high, check_b_low_forces_high, check_c_low_forces_high, check_d_low_forces_high, check_low_output_requires_all_inputs_high, check_stable_inputs_keep_stable_output, stable
+bind sky130_fd_sc_ls__nand4 sky130_fd_sc_ls__nand4_sva auto_sva_inst (
+    .Y(Y),
+    .A(A),
+    .B(B),
+    .C(C),
+    .D(D)
+);

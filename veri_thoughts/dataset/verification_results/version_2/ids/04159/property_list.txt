@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux.auto_sva_inst.check_output_matches_mux_function
+mux.auto_sva_inst.check_disabled_drives_zero
+mux.auto_sva_inst.check_sel0_routes_in0
+mux.auto_sva_inst.check_sel1_routes_in1
+mux.auto_sva_inst.check_sel2_routes_in2
+mux.auto_sva_inst.check_sel3_routes_in3
+
+COVER PROPERTIES:
+mux.auto_sva_inst.check_disabled_drives_zero:precondition1
+mux.auto_sva_inst.check_sel0_routes_in0:precondition1
+mux.auto_sva_inst.check_sel1_routes_in1:precondition1
+mux.auto_sva_inst.check_sel2_routes_in2:precondition1
+mux.auto_sva_inst.check_sel3_routes_in3:precondition1

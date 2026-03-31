@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+onehot0.auto_sva_inst.check_out_matches_rtl_expression
+onehot0.auto_sva_inst.check_lsb_one_forces_out_low
+onehot0.auto_sva_inst.check_zero_input_sets_out_high
+onehot0.auto_sva_inst.check_upper_onehot_sets_out_high
+onehot0.auto_sva_inst.check_multi_bit_input_clears_out
+
+COVER PROPERTIES:
+onehot0.auto_sva_inst.check_lsb_one_forces_out_low:precondition1
+onehot0.auto_sva_inst.check_zero_input_sets_out_high:precondition1
+onehot0.auto_sva_inst.check_upper_onehot_sets_out_high:precondition1
+onehot0.auto_sva_inst.check_multi_bit_input_clears_out:precondition1

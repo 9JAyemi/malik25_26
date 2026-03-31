@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+sync_counter.auto_sva_inst.check_reset_clears_q
+sync_counter.auto_sva_inst.check_enable_increments_q
+sync_counter.auto_sva_inst.check_disable_holds_q
+sync_counter.auto_sva_inst.check_counter_wraps
+
+COVER PROPERTIES:
+sync_counter.auto_sva_inst.check_reset_clears_q:precondition1
+sync_counter.auto_sva_inst.check_enable_increments_q:precondition1
+sync_counter.auto_sva_inst.check_disable_holds_q:precondition1
+sync_counter.auto_sva_inst.check_counter_wraps:precondition1

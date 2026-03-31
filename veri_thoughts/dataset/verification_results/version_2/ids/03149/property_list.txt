@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+dff_sr.auto_sva_inst.check_qn_complement
+dff_sr.auto_sva_inst.check_sync_set
+dff_sr.auto_sva_inst.check_set_priority_over_reset
+dff_sr.auto_sva_inst.check_sync_reset
+dff_sr.auto_sva_inst.check_data_capture_one
+dff_sr.auto_sva_inst.check_data_capture_zero
+
+COVER PROPERTIES:
+dff_sr.auto_sva_inst.check_sync_set:precondition1
+dff_sr.auto_sva_inst.check_set_priority_over_reset:precondition1
+dff_sr.auto_sva_inst.check_sync_reset:precondition1
+dff_sr.auto_sva_inst.check_data_capture_one:precondition1
+dff_sr.auto_sva_inst.check_data_capture_zero:precondition1

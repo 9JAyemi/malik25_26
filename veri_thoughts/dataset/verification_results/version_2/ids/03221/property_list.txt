@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+parity_check.auto_sva_inst.check_reset_release_clears_output
+parity_check.auto_sva_inst.check_even_parity_sets_output
+parity_check.auto_sva_inst.check_odd_parity_clears_output
+
+COVER PROPERTIES:
+parity_check.auto_sva_inst.check_reset_release_clears_output:precondition1
+parity_check.auto_sva_inst.check_even_parity_sets_output:precondition1
+parity_check.auto_sva_inst.check_odd_parity_clears_output:precondition1

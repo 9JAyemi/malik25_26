@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_output_function
+my_module.auto_sva_inst.check_e_term_drives_z
+my_module.auto_sva_inst.check_ab_term_drives_z
+my_module.auto_sva_inst.check_cd_term_drives_z
+my_module.auto_sva_inst.check_no_active_term_means_z_low
+my_module.auto_sva_inst.check_z_low_implies_no_active_term
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_e_term_drives_z:precondition1
+my_module.auto_sva_inst.check_ab_term_drives_z:precondition1
+my_module.auto_sva_inst.check_cd_term_drives_z:precondition1
+my_module.auto_sva_inst.check_no_active_term_means_z_low:precondition1
+my_module.auto_sva_inst.check_z_low_implies_no_active_term:precondition1

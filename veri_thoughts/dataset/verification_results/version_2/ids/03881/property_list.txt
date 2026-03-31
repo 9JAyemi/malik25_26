@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+decoder.auto_sva_inst.check_data_out_onehot0
+decoder.auto_sva_inst.check_data_out_valid_bit_positions
+decoder.auto_sva_inst.check_data_out_bit0_low
+decoder.auto_sva_inst.check_encode_0_pattern
+decoder.auto_sva_inst.check_encode_1_pattern
+decoder.auto_sva_inst.check_encode_2_pattern
+decoder.auto_sva_inst.check_encode_3_pattern
+decoder.auto_sva_inst.check_encode_4_pattern
+decoder.auto_sva_inst.check_encode_ge5_zero
+
+COVER PROPERTIES:
+decoder.auto_sva_inst.check_encode_0_pattern:precondition1
+decoder.auto_sva_inst.check_encode_1_pattern:precondition1
+decoder.auto_sva_inst.check_encode_2_pattern:precondition1
+decoder.auto_sva_inst.check_encode_3_pattern:precondition1
+decoder.auto_sva_inst.check_encode_4_pattern:precondition1
+decoder.auto_sva_inst.check_encode_ge5_zero:precondition1

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+mux_and.auto_sva_inst.check_out_matches_rtl_function
+mux_and.auto_sva_inst.check_selects_choose_b
+mux_and.auto_sva_inst.check_selects_choose_a
+mux_and.auto_sva_inst.check_upper_nibble_forced_zero
+mux_and.auto_sva_inst.check_zero_mask_clears_output
+
+COVER PROPERTIES:
+mux_and.auto_sva_inst.check_selects_choose_b:precondition1
+mux_and.auto_sva_inst.check_selects_choose_a:precondition1
+mux_and.auto_sva_inst.check_zero_mask_clears_output:precondition1

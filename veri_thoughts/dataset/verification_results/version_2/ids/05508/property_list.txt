@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+nor_gate.auto_sva_inst.check_output_function
+nor_gate.auto_sva_inst.check_gnd_forces_x_high
+nor_gate.auto_sva_inst.check_no_vdd_and_no_gnd_forces_x_low
+nor_gate.auto_sva_inst.check_b1_high_blocks_output
+nor_gate.auto_sva_inst.check_b1_low_passes_a_or
+nor_gate.auto_sva_inst.check_both_a_low_force_x_low
+
+COVER PROPERTIES:
+nor_gate.auto_sva_inst.check_gnd_forces_x_high:precondition1
+nor_gate.auto_sva_inst.check_no_vdd_and_no_gnd_forces_x_low:precondition1
+nor_gate.auto_sva_inst.check_b1_high_blocks_output:precondition1
+nor_gate.auto_sva_inst.check_b1_low_passes_a_or:precondition1
+nor_gate.auto_sva_inst.check_both_a_low_force_x_low:precondition1

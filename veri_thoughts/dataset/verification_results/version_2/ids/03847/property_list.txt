@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+simple_adder.auto_sva_inst.check_no_carry_passthrough
+simple_adder.auto_sva_inst.check_carry_msb0_saturates_7f
+simple_adder.auto_sva_inst.check_carry_msb1_saturates_80
+simple_adder.auto_sva_inst.check_cout_matches_carry
+simple_adder.auto_sva_inst.check_sum_matches_selected_result
+
+COVER PROPERTIES:
+simple_adder.auto_sva_inst.check_no_carry_passthrough:precondition1
+simple_adder.auto_sva_inst.check_carry_msb0_saturates_7f:precondition1
+simple_adder.auto_sva_inst.check_carry_msb1_saturates_80:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+xor3.auto_sva_inst.check_nand1_function
+xor3.auto_sva_inst.check_nand2_function
+xor3.auto_sva_inst.check_output_inverter_function
+xor3.auto_sva_inst.check_output_equals_c_and_nand1
+xor3.auto_sva_inst.check_output_boolean_function
+xor3.auto_sva_inst.check_c_low_forces_y_low
+xor3.auto_sva_inst.check_c_high_reduces_to_not_ab
+xor3.auto_sva_inst.check_ab_high_forces_y_low
+xor3.auto_sva_inst.check_c_high_and_not_ab_drives_y_high
+
+COVER PROPERTIES:
+xor3.auto_sva_inst.check_c_low_forces_y_low:precondition1
+xor3.auto_sva_inst.check_c_high_reduces_to_not_ab:precondition1
+xor3.auto_sva_inst.check_ab_high_forces_y_low:precondition1
+xor3.auto_sva_inst.check_c_high_and_not_ab_drives_y_high:precondition1

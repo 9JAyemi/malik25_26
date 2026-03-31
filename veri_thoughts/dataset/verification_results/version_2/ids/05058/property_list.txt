@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_o_matches_dio_p
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_p_follows_dio_i_when_dio_t_high
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_p_forced_high_when_dio_t_low
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_o_follows_dio_i_when_dio_t_high
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_o_forced_high_when_dio_t_low
+
+COVER PROPERTIES:
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_p_follows_dio_i_when_dio_t_high:precondition1
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_p_forced_high_when_dio_t_low:precondition1
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_o_follows_dio_i_when_dio_t_high:precondition1
+ad_iobuf.auto_sva_inst.g_iobuf_checks[0].check_dio_o_forced_high_when_dio_t_low:precondition1

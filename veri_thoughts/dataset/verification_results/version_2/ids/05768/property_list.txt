@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+mux_2to1_enable.auto_sva_inst.check_select_in1
+mux_2to1_enable.auto_sva_inst.check_select_in2
+mux_2to1_enable.auto_sva_inst.check_mux_function
+mux_2to1_enable.auto_sva_inst.check_stable_in1_path
+mux_2to1_enable.auto_sva_inst.check_stable_in2_path
+
+COVER PROPERTIES:
+mux_2to1_enable.auto_sva_inst.check_select_in1:precondition1
+mux_2to1_enable.auto_sva_inst.check_select_in2:precondition1
+mux_2to1_enable.auto_sva_inst.check_stable_in1_path:precondition1
+mux_2to1_enable.auto_sva_inst.check_stable_in2_path:precondition1

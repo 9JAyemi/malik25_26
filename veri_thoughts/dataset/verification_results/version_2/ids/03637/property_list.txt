@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+delay_gate_4stage.auto_sva_inst.check_four_cycle_delay
+delay_gate_4stage.auto_sva_inst.check_high_propagation
+delay_gate_4stage.auto_sva_inst.check_low_propagation
+delay_gate_4stage.auto_sva_inst.check_rise_propagation
+delay_gate_4stage.auto_sva_inst.check_fall_propagation
+
+COVER PROPERTIES:
+delay_gate_4stage.auto_sva_inst.check_high_propagation:precondition1
+delay_gate_4stage.auto_sva_inst.check_low_propagation:precondition1
+delay_gate_4stage.auto_sva_inst.check_rise_propagation:precondition1
+delay_gate_4stage.auto_sva_inst.check_fall_propagation:precondition1

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+sync_reset_dff.auto_sva_inst.check_reset_clears_q
+sync_reset_dff.auto_sva_inst.check_reset_release_holds_zero_on_sampled_edge
+sync_reset_dff.auto_sva_inst.check_capture_one
+sync_reset_dff.auto_sva_inst.check_capture_zero
+
+COVER PROPERTIES:
+sync_reset_dff.auto_sva_inst.check_reset_clears_q:precondition1
+sync_reset_dff.auto_sva_inst.check_reset_release_holds_zero_on_sampled_edge:precondition1
+sync_reset_dff.auto_sva_inst.check_capture_one:precondition1
+sync_reset_dff.auto_sva_inst.check_capture_zero:precondition1

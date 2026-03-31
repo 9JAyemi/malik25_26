@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_xor_chain
+full_adder.auto_sva_inst.check_cout_xor_and_cin
+full_adder.auto_sva_inst.check_cin_low_behavior
+full_adder.auto_sva_inst.check_cin_high_behavior
+full_adder.auto_sva_inst.check_equal_ab_behavior
+full_adder.auto_sva_inst.check_unequal_ab_behavior
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_cin_low_behavior:precondition1
+full_adder.auto_sva_inst.check_cin_high_behavior:precondition1
+full_adder.auto_sva_inst.check_equal_ab_behavior:precondition1
+full_adder.auto_sva_inst.check_unequal_ab_behavior:precondition1

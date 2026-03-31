@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+up_counter.auto_sva_inst.check_reset_clears_out
+up_counter.auto_sva_inst.check_post_reset_zero
+up_counter.auto_sva_inst.check_count_increments
+up_counter.auto_sva_inst.check_count_wraps
+
+COVER PROPERTIES:
+up_counter.auto_sva_inst.check_reset_clears_out:precondition1
+up_counter.auto_sva_inst.check_post_reset_zero:precondition1
+up_counter.auto_sva_inst.check_count_increments:precondition1
+up_counter.auto_sva_inst.check_count_wraps:precondition1

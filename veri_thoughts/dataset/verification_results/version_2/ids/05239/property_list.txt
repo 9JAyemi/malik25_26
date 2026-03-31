@@ -1,0 +1,8 @@
+ASSERT PROPERTIES:
+complement_buffer.auto_sva_inst.check_output_is_complement
+complement_buffer.auto_sva_inst.check_low_input_drives_high_output
+complement_buffer.auto_sva_inst.check_high_input_drives_low_output
+
+COVER PROPERTIES:
+complement_buffer.auto_sva_inst.check_low_input_drives_high_output:precondition1
+complement_buffer.auto_sva_inst.check_high_input_drives_low_output:precondition1

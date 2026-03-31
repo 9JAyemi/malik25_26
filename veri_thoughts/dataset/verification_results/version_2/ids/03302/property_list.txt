@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+DEMUX.auto_sva_inst.check_out0_inverse_of_in
+DEMUX.auto_sva_inst.check_out3_matches_in
+DEMUX.auto_sva_inst.check_out1_constant_low
+DEMUX.auto_sva_inst.check_out2_constant_low
+DEMUX.auto_sva_inst.check_outputs_onehot
+DEMUX.auto_sva_inst.check_input_low_selects_out0
+DEMUX.auto_sva_inst.check_input_high_selects_out3
+
+COVER PROPERTIES:
+DEMUX.auto_sva_inst.check_input_low_selects_out0:precondition1
+DEMUX.auto_sva_inst.check_input_high_selects_out3:precondition1

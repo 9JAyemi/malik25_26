@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero
+counter.auto_sva_inst.check_zero_state_clears
+counter.auto_sva_inst.check_one_state_increments
+counter.auto_sva_inst.check_nine_state_clears
+counter.auto_sva_inst.check_enable_high_holds
+counter.auto_sva_inst.check_unmatched_cases_hold
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero:precondition1
+counter.auto_sva_inst.check_zero_state_clears:precondition1
+counter.auto_sva_inst.check_one_state_increments:precondition1
+counter.auto_sva_inst.check_nine_state_clears:precondition1
+counter.auto_sva_inst.check_enable_high_holds:precondition1
+counter.auto_sva_inst.check_unmatched_cases_hold:precondition1

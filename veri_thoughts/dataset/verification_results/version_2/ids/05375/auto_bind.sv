@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_reset_clears_outputs, assert, property, check_m_stall_holds_outputs, disable, iff, past, check_nonstalled_passthrough_fields, check_bubble_zeroes_control_and_addr, check_normal_control_transfer, check_m_stall_priority
+bind EX_stage EX_stage_sva auto_sva_inst (
+    .clk(clk),
+    .rst(rst),
+    .EX_stall(EX_stall),
+    .EX_flush(EX_flush),
+    .M_stall(M_stall),
+    .EX_regwrite(EX_regwrite),
+    .EX_memtoreg(EX_memtoreg),
+    .EX_memread(EX_memread),
+    .EX_memwrite(EX_memwrite),
+    .EX_memaddr(EX_memaddr),
+    .EX_load_op(EX_load_op),
+    .EX_store_op(EX_store_op),
+    .EX_alu_out(EX_alu_out),
+    .EX_alu_out_t(EX_alu_out_t),
+    .EX_rt_rd(EX_rt_rd),
+    .M_regwrite(M_regwrite),
+    .M_memtoreg(M_memtoreg),
+    .M_memread(M_memread),
+    .M_memwrite(M_memwrite),
+    .M_memaddr(M_memaddr),
+    .M_load_op(M_load_op),
+    .M_store_op(M_store_op),
+    .M_alu_out(M_alu_out),
+    .M_rt_rd(M_rt_rd),
+    .posedge(posedge),
+    .b0(b0)
+);

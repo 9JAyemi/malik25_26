@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count
+counter.auto_sva_inst.check_load_updates_count
+counter.auto_sva_inst.check_load_priority_over_enable
+counter.auto_sva_inst.check_enable_increments_count
+counter.auto_sva_inst.check_idle_holds_count
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count:precondition1
+counter.auto_sva_inst.check_load_updates_count:precondition1
+counter.auto_sva_inst.check_load_priority_over_enable:precondition1
+counter.auto_sva_inst.check_enable_increments_count:precondition1
+counter.auto_sva_inst.check_idle_holds_count:precondition1

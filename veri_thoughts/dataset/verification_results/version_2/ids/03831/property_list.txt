@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nand4b.auto_sva_inst.check_output_equation
+nand4b.auto_sva_inst.check_ab_pair_forces_low
+nand4b.auto_sva_inst.check_cd_pair_forces_low
+nand4b.auto_sva_inst.check_no_pair_high_drives_high
+nand4b.auto_sva_inst.check_low_output_has_active_pair
+
+COVER PROPERTIES:
+nand4b.auto_sva_inst.check_ab_pair_forces_low:precondition1
+nand4b.auto_sva_inst.check_cd_pair_forces_low:precondition1
+nand4b.auto_sva_inst.check_no_pair_high_drives_high:precondition1
+nand4b.auto_sva_inst.check_low_output_has_active_pair:precondition1

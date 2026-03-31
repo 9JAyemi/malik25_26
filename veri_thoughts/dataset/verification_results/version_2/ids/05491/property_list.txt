@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+bitwise_xor.auto_sva_inst.check_temp1_xor
+bitwise_xor.auto_sva_inst.check_temp2_invert_busA
+bitwise_xor.auto_sva_inst.check_temp3_invert_busB
+bitwise_xor.auto_sva_inst.check_temp4_and_stage
+bitwise_xor.auto_sva_inst.check_temp4_demorgan
+bitwise_xor.auto_sva_inst.check_output_final_xor
+bitwise_xor.auto_sva_inst.check_output_nand_function
+bitwise_xor.auto_sva_inst.check_output_stable_when_inputs_stable
+
+COVER PROPERTIES:
+bitwise_xor.auto_sva_inst.check_output_stable_when_inputs_stable:precondition1

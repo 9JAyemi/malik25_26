@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_data_master_constants, assert, property, posedge, disable, iff, d0, b1111, check_instruction_address_constant, check_debug_outputs_constant_zero, b0, check_reset_clears_reads, check_reset_req_clears_reads, check_d_waitrequest_deasserts_data_access, check_d_ready_asserts_read_only, b1, check_i_waitrequest_deasserts_read, check_i_ready_asserts_read
+bind cpu_interface cpu_interface_sva auto_sva_inst (
+    .clk(clk),
+    .reset_n(reset_n),
+    .reset_req(reset_req),
+    .d_readdata(d_readdata),
+    .d_waitrequest(d_waitrequest),
+    .i_readdata(i_readdata),
+    .i_waitrequest(i_waitrequest),
+    .irq(irq),
+    .debug_mem_slave_address(debug_mem_slave_address),
+    .debug_mem_slave_byteenable(debug_mem_slave_byteenable),
+    .debug_mem_slave_debugaccess(debug_mem_slave_debugaccess),
+    .debug_mem_slave_read(debug_mem_slave_read),
+    .debug_mem_slave_write(debug_mem_slave_write),
+    .debug_mem_slave_writedata(debug_mem_slave_writedata),
+    .d_address(d_address),
+    .d_byteenable(d_byteenable),
+    .d_read(d_read),
+    .d_write(d_write),
+    .d_writedata(d_writedata),
+    .debug_mem_slave_debugaccess_to_roms(debug_mem_slave_debugaccess_to_roms),
+    .i_address(i_address),
+    .i_read(i_read),
+    .debug_reset_request(debug_reset_request),
+    .debug_mem_slave_readdata(debug_mem_slave_readdata),
+    .debug_mem_slave_waitrequest(debug_mem_slave_waitrequest),
+    .dummy_ci_port(dummy_ci_port)
+);

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+INV3.auto_sva_inst.check_out_matches_inverted_and
+INV3.auto_sva_inst.check_all_zero_input_drives_high
+INV3.auto_sva_inst.check_in0_high_forces_out_low
+INV3.auto_sva_inst.check_in1_high_forces_out_low
+INV3.auto_sva_inst.check_in2_high_forces_out_low
+
+COVER PROPERTIES:
+INV3.auto_sva_inst.check_all_zero_input_drives_high:precondition1
+INV3.auto_sva_inst.check_in0_high_forces_out_low:precondition1
+INV3.auto_sva_inst.check_in1_high_forces_out_low:precondition1
+INV3.auto_sva_inst.check_in2_high_forces_out_low:precondition1

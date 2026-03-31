@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+add4.auto_sva_inst.check_full_add_result
+add4.auto_sva_inst.check_lower_sum_bits
+add4.auto_sva_inst.check_carry_out_bit
+add4.auto_sva_inst.check_bit0_xor
+add4.auto_sva_inst.check_bit1_with_carry0
+add4.auto_sva_inst.check_zero_a_identity
+add4.auto_sva_inst.check_zero_b_identity
+
+COVER PROPERTIES:
+add4.auto_sva_inst.check_zero_a_identity:precondition1
+add4.auto_sva_inst.check_zero_b_identity:precondition1

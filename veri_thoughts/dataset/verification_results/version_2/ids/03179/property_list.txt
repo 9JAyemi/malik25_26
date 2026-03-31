@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+lookahead.auto_sva_inst.check_sum_equation
+lookahead.auto_sva_inst.check_cout_equation
+lookahead.auto_sva_inst.check_both_zero_behavior
+lookahead.auto_sva_inst.check_both_one_behavior
+lookahead.auto_sva_inst.check_mismatched_inputs_behavior
+
+COVER PROPERTIES:
+lookahead.auto_sva_inst.check_both_zero_behavior:precondition1
+lookahead.auto_sva_inst.check_both_one_behavior:precondition1
+lookahead.auto_sva_inst.check_mismatched_inputs_behavior:precondition1

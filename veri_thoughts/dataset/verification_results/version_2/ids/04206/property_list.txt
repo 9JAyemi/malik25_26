@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter_3bit.auto_sva_inst.check_reset_clears_count
+counter_3bit.auto_sva_inst.check_hold_when_disabled
+counter_3bit.auto_sva_inst.check_increment_when_enabled_below_max
+counter_3bit.auto_sva_inst.check_wrap_when_enabled_at_max
+
+COVER PROPERTIES:
+counter_3bit.auto_sva_inst.check_reset_clears_count:precondition1
+counter_3bit.auto_sva_inst.check_hold_when_disabled:precondition1
+counter_3bit.auto_sva_inst.check_increment_when_enabled_below_max:precondition1
+counter_3bit.auto_sva_inst.check_wrap_when_enabled_at_max:precondition1

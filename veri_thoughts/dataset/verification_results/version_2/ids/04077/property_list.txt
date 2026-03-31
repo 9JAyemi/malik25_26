@@ -1,0 +1,8 @@
+ASSERT PROPERTIES:
+func.auto_sva_inst.check_x_matches_and_of_inputs
+func.auto_sva_inst.check_x_high_when_all_inputs_high
+func.auto_sva_inst.check_x_low_when_any_input_not_high
+
+COVER PROPERTIES:
+func.auto_sva_inst.check_x_high_when_all_inputs_high:precondition1
+func.auto_sva_inst.check_x_low_when_any_input_not_high:precondition1

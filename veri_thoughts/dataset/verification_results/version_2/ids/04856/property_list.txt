@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+lfsr_3bit.auto_sva_inst.check_q2_shift
+lfsr_3bit.auto_sva_inst.check_q1_shift
+lfsr_3bit.auto_sva_inst.check_q0_feedback
+lfsr_3bit.auto_sva_inst.check_state_update
+lfsr_3bit.auto_sva_inst.check_feedback_zero_case
+lfsr_3bit.auto_sva_inst.check_feedback_one_case
+lfsr_3bit.auto_sva_inst.check_zero_lockup
+
+COVER PROPERTIES:
+lfsr_3bit.auto_sva_inst.check_q2_shift:precondition1
+lfsr_3bit.auto_sva_inst.check_q1_shift:precondition1
+lfsr_3bit.auto_sva_inst.check_q0_feedback:precondition1
+lfsr_3bit.auto_sva_inst.check_state_update:precondition1
+lfsr_3bit.auto_sva_inst.check_feedback_zero_case:precondition1
+lfsr_3bit.auto_sva_inst.check_feedback_one_case:precondition1
+lfsr_3bit.auto_sva_inst.check_zero_lockup:precondition1

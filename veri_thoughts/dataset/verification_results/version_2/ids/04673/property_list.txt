@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+cpu_ctr.auto_sva_inst.check_jmp_decode
+cpu_ctr.auto_sva_inst.check_regdst_decode
+cpu_ctr.auto_sva_inst.check_memtoreg_decode
+cpu_ctr.auto_sva_inst.check_memwrite_decode
+cpu_ctr.auto_sva_inst.check_branch_decode
+cpu_ctr.auto_sva_inst.check_aluop1_decode
+cpu_ctr.auto_sva_inst.check_aluop0_decode
+cpu_ctr.auto_sva_inst.check_writereg_decode
+cpu_ctr.auto_sva_inst.check_alusrcb_decode
+cpu_ctr.auto_sva_inst.check_aluop1_matches_regdst
+cpu_ctr.auto_sva_inst.check_aluop0_matches_branch
+cpu_ctr.auto_sva_inst.check_writereg_relation
+cpu_ctr.auto_sva_inst.check_alusrcb_relation
+
+COVER PROPERTIES:

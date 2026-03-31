@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+Counter.auto_sva_inst.check_reset_loads_init
+Counter.auto_sva_inst.check_setf_loads_data_f
+Counter.auto_sva_inst.check_setc_loads_data_c
+Counter.auto_sva_inst.check_adda_updates_counter
+Counter.auto_sva_inst.check_addb_updates_counter
+Counter.auto_sva_inst.check_holds_without_controls
+
+COVER PROPERTIES:
+Counter.auto_sva_inst.check_reset_loads_init:precondition1
+Counter.auto_sva_inst.check_setf_loads_data_f:precondition1
+Counter.auto_sva_inst.check_setc_loads_data_c:precondition1
+Counter.auto_sva_inst.check_adda_updates_counter:precondition1
+Counter.auto_sva_inst.check_addb_updates_counter:precondition1
+Counter.auto_sva_inst.check_holds_without_controls:precondition1

@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+counter_module.auto_sva_inst.check_reset_clears_state
+counter_module.auto_sva_inst.check_increment_until_max
+counter_module.auto_sva_inst.check_saturate_and_flag_at_max
+
+COVER PROPERTIES:
+counter_module.auto_sva_inst.check_reset_clears_state:precondition1
+counter_module.auto_sva_inst.check_increment_until_max:precondition1
+counter_module.auto_sva_inst.check_saturate_and_flag_at_max:precondition1

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+mux_4_1.auto_sva_inst.check_full_mux_function
+mux_4_1.auto_sva_inst.check_lower_half_selected
+mux_4_1.auto_sva_inst.check_upper_half_selected
+mux_4_1.auto_sva_inst.check_s0_low_path
+mux_4_1.auto_sva_inst.check_s0_high_path
+
+COVER PROPERTIES:
+mux_4_1.auto_sva_inst.check_lower_half_selected:precondition1
+mux_4_1.auto_sva_inst.check_upper_half_selected:precondition1
+mux_4_1.auto_sva_inst.check_s0_low_path:precondition1
+mux_4_1.auto_sva_inst.check_s0_high_path:precondition1

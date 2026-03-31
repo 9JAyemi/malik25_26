@@ -1,0 +1,9 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_sum_matches_xor, assert, property, posedge, check_carry_matches_ab_and, check_sum_follows_cin_when_ab_equal, check_sum_inverts_cin_when_ab_different, check_carry_low_when_a_low, b0, check_carry_low_when_b_low, check_carry_high_when_ab_high, b1, check_sum_matches_cin_when_carry_high
+bind FA_106 FA_106_sva auto_sva_inst (
+    .A(A),
+    .B(B),
+    .Ci(Ci),
+    .S(S),
+    .Co(Co)
+);

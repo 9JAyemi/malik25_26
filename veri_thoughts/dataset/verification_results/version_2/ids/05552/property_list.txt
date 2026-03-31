@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+dff_4.auto_sva_inst.check_reset_clears_q
+dff_4.auto_sva_inst.check_reset_holds_q_zero
+dff_4.auto_sva_inst.check_reset_release_observes_zero
+dff_4.auto_sva_inst.check_q_captures_d
+
+COVER PROPERTIES:
+dff_4.auto_sva_inst.check_reset_clears_q:precondition1
+dff_4.auto_sva_inst.check_reset_holds_q_zero:precondition1
+dff_4.auto_sva_inst.check_reset_release_observes_zero:precondition1
+dff_4.auto_sva_inst.check_q_captures_d:precondition1

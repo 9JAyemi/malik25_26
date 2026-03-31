@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+flipflop.auto_sva_inst.check_sync_set
+flipflop.auto_sva_inst.check_sync_reset
+flipflop.auto_sva_inst.check_else_low_low_source
+flipflop.auto_sva_inst.check_else_high_high_source
+flipflop.auto_sva_inst.check_equal_sr_matching_data_holds_q
+
+COVER PROPERTIES:
+flipflop.auto_sva_inst.check_sync_set:precondition1
+flipflop.auto_sva_inst.check_sync_reset:precondition1
+flipflop.auto_sva_inst.check_else_low_low_source:precondition1
+flipflop.auto_sva_inst.check_else_high_high_source:precondition1
+flipflop.auto_sva_inst.check_equal_sr_matching_data_holds_q:precondition1

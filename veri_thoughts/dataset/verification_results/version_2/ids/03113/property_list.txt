@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+addition_module.auto_sva_inst.check_sum_zero_extended_add
+addition_module.auto_sva_inst.check_sum_msb_zero
+addition_module.auto_sva_inst.check_carry_matches_sum_msb
+addition_module.auto_sva_inst.check_carry_zero
+addition_module.auto_sva_inst.check_zero_plus_zero
+addition_module.auto_sva_inst.check_ff_plus_one_wraps
+
+COVER PROPERTIES:
+addition_module.auto_sva_inst.check_zero_plus_zero:precondition1
+addition_module.auto_sva_inst.check_ff_plus_one_wraps:precondition1

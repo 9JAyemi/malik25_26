@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_counter_transition_relation
+counter.auto_sva_inst.check_wrap_from_f_to_0
+counter.auto_sva_inst.check_increment_below_f
+counter.auto_sva_inst.check_no_stall_between_cycles
+counter.auto_sva_inst.check_zero_only_after_f
+counter.auto_sva_inst.check_f_only_after_e
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_counter_transition_relation:precondition1
+counter.auto_sva_inst.check_wrap_from_f_to_0:precondition1
+counter.auto_sva_inst.check_increment_below_f:precondition1
+counter.auto_sva_inst.check_no_stall_between_cycles:precondition1
+counter.auto_sva_inst.check_zero_only_after_f:precondition1
+counter.auto_sva_inst.check_f_only_after_e:precondition1

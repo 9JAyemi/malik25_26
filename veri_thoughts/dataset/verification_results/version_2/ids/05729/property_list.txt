@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+adder4bit.auto_sva_inst.check_full_sum
+adder4bit.auto_sva_inst.check_bit0_sum
+adder4bit.auto_sva_inst.check_low2_sum
+adder4bit.auto_sva_inst.check_low3_sum
+adder4bit.auto_sva_inst.check_b_zero_passthrough
+adder4bit.auto_sva_inst.check_a_zero_passthrough
+adder4bit.auto_sva_inst.check_cin_only_behavior
+adder4bit.auto_sva_inst.check_cout_threshold
+
+COVER PROPERTIES:
+adder4bit.auto_sva_inst.check_b_zero_passthrough:precondition1
+adder4bit.auto_sva_inst.check_a_zero_passthrough:precondition1
+adder4bit.auto_sva_inst.check_cin_only_behavior:precondition1

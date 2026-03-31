@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+rs232in.auto_sva_inst.check_input_synchronizer
+rs232in.auto_sva_inst.check_ttyclk_countdown
+rs232in.auto_sva_inst.check_bit_sample_nonfinal
+rs232in.auto_sva_inst.check_bit_sample_final
+rs232in.auto_sva_inst.check_start_bit_detect
+rs232in.auto_sva_inst.check_idle_hold
+rs232in.auto_sva_inst.check_attention_update
+rs232in.auto_sva_inst.check_received_data_update
+
+COVER PROPERTIES:
+rs232in.auto_sva_inst.check_input_synchronizer:precondition1
+rs232in.auto_sva_inst.check_ttyclk_countdown:precondition1
+rs232in.auto_sva_inst.check_bit_sample_nonfinal:precondition1
+rs232in.auto_sva_inst.check_bit_sample_final:precondition1
+rs232in.auto_sva_inst.check_start_bit_detect:precondition1
+rs232in.auto_sva_inst.check_idle_hold:precondition1
+rs232in.auto_sva_inst.check_attention_update:precondition1
+rs232in.auto_sva_inst.check_received_data_update:precondition1

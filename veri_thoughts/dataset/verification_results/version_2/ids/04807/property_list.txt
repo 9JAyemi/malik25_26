@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+adder4.auto_sva_inst.check_full_result
+adder4.auto_sva_inst.check_cout_threshold
+adder4.auto_sva_inst.check_sum_lsb
+adder4.auto_sva_inst.check_no_carry_sum
+adder4.auto_sva_inst.check_carry_wrap_sum
+
+COVER PROPERTIES:
+adder4.auto_sva_inst.check_no_carry_sum:precondition1
+adder4.auto_sva_inst.check_carry_wrap_sum:precondition1

@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_hb_dout_lane_select, assert, property, posedge, check_ca_enable_decode, check_hb_ram_addr_map, check_ca_ram_addr0_select, check_ca_ram_addr1_select, check_ca_ram_addrs_match_on_push, check_hb_dout_passthrough, check_ca_enable_passthrough
+bind ded_ca_top ded_ca_top_sva auto_sva_inst (
+    .mclock(mclock),
+    .mc_push(mc_push),
+    .ifdef(ifdef),
+    .BYTE16(BYTE16),
+    .mc_addr(mc_addr),
+    .elsif(elsif),
+    .BYTE8(BYTE8),
+    .else(else),
+    .endif(endif),
+    .hclock(hclock),
+    .hb_we(hb_we),
+    .hb_addr(hb_addr),
+    .BYTES(BYTES),
+    .hb_dout_ram(hb_dout_ram),
+    .rad(rad),
+    .ca_enable(ca_enable),
+    .hb_dout(hb_dout),
+    .hb_ram_addr(hb_ram_addr),
+    .ca_ram_addr0(ca_ram_addr0),
+    .ca_ram_addr1(ca_ram_addr1),
+    .d3(d3),
+    .d2(d2),
+    .d1(d1),
+    .d0(d0),
+    .b0(b0),
+    .h1(h1),
+    .b1(b1)
+);

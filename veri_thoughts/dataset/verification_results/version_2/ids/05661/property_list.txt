@@ -1,0 +1,25 @@
+ASSERT PROPERTIES:
+bridge.bridge_sva_i.check_reset_clears_state
+bridge.bridge_sva_i.check_hold_when_disabled
+bridge.bridge_sva_i.check_shift_left_1
+bridge.bridge_sva_i.check_shift_right_1
+bridge.bridge_sva_i.check_shift_left_2
+bridge.bridge_sva_i.check_shift_right_2
+bridge.bridge_sva_i.check_not_load
+bridge.bridge_sva_i.check_default_load
+bridge.bridge_sva_i.check_rgz_selects_not_reg
+bridge.bridge_sva_i.check_rgz_selects_zero_reg
+bridge.bridge_sva_i.check_rgz_selects_shift_reg
+
+COVER PROPERTIES:
+bridge.bridge_sva_i.check_reset_clears_state:precondition1
+bridge.bridge_sva_i.check_hold_when_disabled:precondition1
+bridge.bridge_sva_i.check_shift_left_1:precondition1
+bridge.bridge_sva_i.check_shift_right_1:precondition1
+bridge.bridge_sva_i.check_shift_left_2:precondition1
+bridge.bridge_sva_i.check_shift_right_2:precondition1
+bridge.bridge_sva_i.check_not_load:precondition1
+bridge.bridge_sva_i.check_default_load:precondition1
+bridge.bridge_sva_i.check_rgz_selects_not_reg:precondition1
+bridge.bridge_sva_i.check_rgz_selects_zero_reg:precondition1
+bridge.bridge_sva_i.check_rgz_selects_shift_reg:precondition1

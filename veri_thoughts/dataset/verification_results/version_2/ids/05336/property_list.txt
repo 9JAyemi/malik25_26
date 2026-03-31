@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_q_captures_high_d
+my_module.auto_sva_inst.check_q_captures_low_d
+my_module.auto_sva_inst.check_qn_inverts_q
+my_module.auto_sva_inst.check_q_stable_when_d_matches_q
+my_module.auto_sva_inst.check_q_updates_when_d_differs_q
+my_module.auto_sva_inst.check_qn_after_high_d
+my_module.auto_sva_inst.check_qn_after_low_d
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_q_captures_high_d:precondition1
+my_module.auto_sva_inst.check_q_captures_low_d:precondition1
+my_module.auto_sva_inst.check_q_stable_when_d_matches_q:precondition1
+my_module.auto_sva_inst.check_q_updates_when_d_differs_q:precondition1
+my_module.auto_sva_inst.check_qn_after_high_d:precondition1
+my_module.auto_sva_inst.check_qn_after_low_d:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+vad119b.auto_sva_inst.check_or_function
+vad119b.auto_sva_inst.check_nand_function
+vad119b.auto_sva_inst.check_both_inputs_low_case
+vad119b.auto_sva_inst.check_both_inputs_high_case
+vad119b.auto_sva_inst.check_inputs_differ_case
+vad119b.auto_sva_inst.check_outputs_never_both_low
+vad119b.auto_sva_inst.check_or_low_means_inputs_low
+vad119b.auto_sva_inst.check_nand_low_means_inputs_high
+
+COVER PROPERTIES:
+vad119b.auto_sva_inst.check_both_inputs_low_case:precondition1
+vad119b.auto_sva_inst.check_both_inputs_high_case:precondition1
+vad119b.auto_sva_inst.check_inputs_differ_case:precondition1
+vad119b.auto_sva_inst.check_or_low_means_inputs_low:precondition1
+vad119b.auto_sva_inst.check_nand_low_means_inputs_high:precondition1

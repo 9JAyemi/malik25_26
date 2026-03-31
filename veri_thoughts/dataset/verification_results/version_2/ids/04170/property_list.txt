@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_clk_gated_tracks_previous_enable
+clock_gate.auto_sva_inst.check_enable_high_sets_clk_gated
+clock_gate.auto_sva_inst.check_enable_low_clears_clk_gated
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_clk_gated_tracks_previous_enable:precondition1
+clock_gate.auto_sva_inst.check_enable_high_sets_clk_gated:precondition1
+clock_gate.auto_sva_inst.check_enable_low_clears_clk_gated:precondition1

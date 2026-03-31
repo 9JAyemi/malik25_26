@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_gt_encoding
+comparator.auto_sva_inst.check_lt_encoding
+comparator.auto_sva_inst.check_eq_encoding
+comparator.auto_sva_inst.check_code_01_means_gt
+comparator.auto_sva_inst.check_code_10_means_lt
+comparator.auto_sva_inst.check_code_11_means_eq
+comparator.auto_sva_inst.check_no_unused_code
+comparator.auto_sva_inst.check_stable_inputs_stable_output
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.check_gt_encoding:precondition1
+comparator.auto_sva_inst.check_lt_encoding:precondition1
+comparator.auto_sva_inst.check_eq_encoding:precondition1
+comparator.auto_sva_inst.check_code_01_means_gt:precondition1
+comparator.auto_sva_inst.check_code_10_means_lt:precondition1
+comparator.auto_sva_inst.check_code_11_means_eq:precondition1
+comparator.auto_sva_inst.check_stable_inputs_stable_output:precondition1

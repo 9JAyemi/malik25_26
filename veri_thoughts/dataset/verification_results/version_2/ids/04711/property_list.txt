@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+flip_flop.auto_sva_inst.check_set_state
+flip_flop.auto_sva_inst.check_set_priority_over_reset
+flip_flop.auto_sva_inst.check_reset_state
+flip_flop.auto_sva_inst.check_data_capture_one
+flip_flop.auto_sva_inst.check_data_capture_zero
+flip_flop.auto_sva_inst.check_outputs_complementary
+
+COVER PROPERTIES:
+flip_flop.auto_sva_inst.check_set_state:precondition1
+flip_flop.auto_sva_inst.check_set_priority_over_reset:precondition1
+flip_flop.auto_sva_inst.check_reset_state:precondition1
+flip_flop.auto_sva_inst.check_data_capture_one:precondition1
+flip_flop.auto_sva_inst.check_data_capture_zero:precondition1
+flip_flop.auto_sva_inst.check_outputs_complementary:precondition1

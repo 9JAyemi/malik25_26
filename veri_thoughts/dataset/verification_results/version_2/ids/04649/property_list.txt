@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+D_behavior.auto_sva_inst.check_qa_captures_d
+D_behavior.auto_sva_inst.check_qb_captures_qa
+D_behavior.auto_sva_inst.check_qc_captures_qb
+D_behavior.auto_sva_inst.check_qb_is_d_delayed_two_cycles
+D_behavior.auto_sva_inst.check_qc_is_d_delayed_three_cycles
+
+COVER PROPERTIES:
+D_behavior.auto_sva_inst.check_qa_captures_d:precondition1
+D_behavior.auto_sva_inst.check_qb_captures_qa:precondition1
+D_behavior.auto_sva_inst.check_qc_captures_qb:precondition1
+D_behavior.auto_sva_inst.check_qb_is_d_delayed_two_cycles:precondition1
+D_behavior.auto_sva_inst.check_qc_is_d_delayed_three_cycles:precondition1

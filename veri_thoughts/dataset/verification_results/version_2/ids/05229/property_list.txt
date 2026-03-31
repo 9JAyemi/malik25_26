@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+logic_gates.auto_sva_inst.check_and_equivalence
+logic_gates.auto_sva_inst.check_both_inputs_high
+logic_gates.auto_sva_inst.check_in1_low_forces_out_low
+logic_gates.auto_sva_inst.check_in2_low_forces_out_low
+logic_gates.auto_sva_inst.check_out_high_requires_both_inputs
+
+COVER PROPERTIES:
+logic_gates.auto_sva_inst.check_both_inputs_high:precondition1
+logic_gates.auto_sva_inst.check_in1_low_forces_out_low:precondition1
+logic_gates.auto_sva_inst.check_in2_low_forces_out_low:precondition1
+logic_gates.auto_sva_inst.check_out_high_requires_both_inputs:precondition1

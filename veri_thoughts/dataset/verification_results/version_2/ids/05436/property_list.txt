@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+pipeline_stage_2.auto_sva_inst.check_out_is_registered_input
+pipeline_stage_2.auto_sva_inst.check_out_matches_held_input
+pipeline_stage_2.auto_sva_inst.check_out_lags_input_change
+
+COVER PROPERTIES:
+pipeline_stage_2.auto_sva_inst.check_out_is_registered_input:precondition1
+pipeline_stage_2.auto_sva_inst.check_out_matches_held_input:precondition1
+pipeline_stage_2.auto_sva_inst.check_out_lags_input_change:precondition1

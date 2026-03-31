@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+four_to_one.auto_sva_inst.check_all_zero_drives_zero
+four_to_one.auto_sva_inst.check_all_one_drives_one
+four_to_one.auto_sva_inst.check_not_all_one_drives_zero
+four_to_one.auto_sva_inst.check_out_high_only_when_all_high
+four_to_one.auto_sva_inst.check_out_matches_function
+
+COVER PROPERTIES:
+four_to_one.auto_sva_inst.check_all_zero_drives_zero:precondition1
+four_to_one.auto_sva_inst.check_all_one_drives_one:precondition1
+four_to_one.auto_sva_inst.check_not_all_one_drives_zero:precondition1
+four_to_one.auto_sva_inst.check_out_high_only_when_all_high:precondition1

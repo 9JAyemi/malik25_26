@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+pc.auto_sva_inst.check_reset_clears_pc
+pc.auto_sva_inst.check_no_branch_request_increments_pc
+pc.auto_sva_inst.check_zero_blocks_branch
+pc.auto_sva_inst.check_taken_branch_loads_target
+
+COVER PROPERTIES:
+pc.auto_sva_inst.check_reset_clears_pc:precondition1
+pc.auto_sva_inst.check_no_branch_request_increments_pc:precondition1
+pc.auto_sva_inst.check_zero_blocks_branch:precondition1
+pc.auto_sva_inst.check_taken_branch_loads_target:precondition1

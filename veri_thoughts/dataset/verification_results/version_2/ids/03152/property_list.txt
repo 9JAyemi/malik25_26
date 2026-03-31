@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+nand2_en.auto_sva_inst.check_output_matches_rtl
+nand2_en.auto_sva_inst.check_ab_high_drive_z_high
+nand2_en.auto_sva_inst.check_z_high_requires_ab_high
+nand2_en.auto_sva_inst.check_any_low_drives_z_low
+
+COVER PROPERTIES:
+nand2_en.auto_sva_inst.check_ab_high_drive_z_high:precondition1
+nand2_en.auto_sva_inst.check_z_high_requires_ab_high:precondition1
+nand2_en.auto_sva_inst.check_any_low_drives_z_low:precondition1

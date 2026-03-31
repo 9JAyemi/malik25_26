@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+adder_4bit.auto_sva_inst.check_full_sum_match
+adder_4bit.auto_sva_inst.check_sum_low_bits
+adder_4bit.auto_sva_inst.check_carry_out
+adder_4bit.auto_sva_inst.check_lsb_xor
+adder_4bit.auto_sva_inst.check_stable_io
+adder_4bit.auto_sva_inst.check_zero_case
+adder_4bit.auto_sva_inst.check_wrap_carry_case
+adder_4bit.auto_sva_inst.check_max_case
+
+COVER PROPERTIES:
+adder_4bit.auto_sva_inst.check_stable_io:precondition1
+adder_4bit.auto_sva_inst.check_zero_case:precondition1
+adder_4bit.auto_sva_inst.check_wrap_carry_case:precondition1
+adder_4bit.auto_sva_inst.check_max_case:precondition1

@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+dectohexstr8.auto_sva_inst.check_low_nibble_ascii_encoding
+dectohexstr8.auto_sva_inst.check_high_nibble_ascii_encoding
+dectohexstr8.auto_sva_inst.check_full_output_encoding
+dectohexstr8.auto_sva_inst.check_zero_input_maps_to_ascii_00
+dectohexstr8.auto_sva_inst.check_ff_input_maps_to_ascii_ff
+
+COVER PROPERTIES:
+dectohexstr8.auto_sva_inst.check_zero_input_maps_to_ascii_00:precondition1
+dectohexstr8.auto_sva_inst.check_ff_input_maps_to_ascii_ff:precondition1

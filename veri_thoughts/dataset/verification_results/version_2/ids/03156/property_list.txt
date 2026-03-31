@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+binary_adder.auto_sva_inst.check_registered_sum
+binary_adder.auto_sva_inst.check_zero_plus_zero
+binary_adder.auto_sva_inst.check_a_plus_zero
+binary_adder.auto_sva_inst.check_zero_plus_b
+binary_adder.auto_sva_inst.check_overflow_wrap_f_plus_1
+binary_adder.auto_sva_inst.check_overflow_wrap_f_plus_f
+
+COVER PROPERTIES:
+binary_adder.auto_sva_inst.check_registered_sum:precondition1
+binary_adder.auto_sva_inst.check_zero_plus_zero:precondition1
+binary_adder.auto_sva_inst.check_a_plus_zero:precondition1
+binary_adder.auto_sva_inst.check_zero_plus_b:precondition1
+binary_adder.auto_sva_inst.check_overflow_wrap_f_plus_1:precondition1
+binary_adder.auto_sva_inst.check_overflow_wrap_f_plus_f:precondition1

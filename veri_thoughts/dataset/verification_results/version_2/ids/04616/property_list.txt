@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+cont_test.auto_sva_inst.check_reset_clears_state
+cont_test.auto_sva_inst.check_max_tick_decode
+cont_test.auto_sva_inst.check_min_tick_decode
+cont_test.auto_sva_inst.check_ticks_mutually_exclusive
+cont_test.auto_sva_inst.check_load_updates_q
+cont_test.auto_sva_inst.check_load_updates_ticks
+cont_test.auto_sva_inst.check_increment_updates_q
+cont_test.auto_sva_inst.check_hold_when_disabled
+cont_test.auto_sva_inst.check_wrap_from_max
+
+COVER PROPERTIES:
+cont_test.auto_sva_inst.check_reset_clears_state:precondition1
+cont_test.auto_sva_inst.check_load_updates_q:precondition1
+cont_test.auto_sva_inst.check_load_updates_ticks:precondition1
+cont_test.auto_sva_inst.check_increment_updates_q:precondition1
+cont_test.auto_sva_inst.check_hold_when_disabled:precondition1
+cont_test.auto_sva_inst.check_wrap_from_max:precondition1

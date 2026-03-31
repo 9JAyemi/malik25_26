@@ -1,0 +1,6 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_bit25_low_maps_to_0, assert, property, posedge, b00000, check_bit24_first_low_maps_to_1, b00001, check_bit23_first_low_maps_to_2, b00010, check_bit22_first_low_maps_to_3, b00011, check_bit21_first_low_maps_to_4, b00100, check_bit20_first_low_maps_to_5, b00101, check_bit19_first_low_maps_to_6, b00110, check_bit18_first_low_maps_to_7, b00111, check_bit17_first_low_maps_to_8, b01000, check_bit16_first_low_maps_to_9, b01001, check_bit15_first_low_maps_to_10, b01010, check_bit14_first_low_maps_to_11, b01011, check_bit13_first_low_maps_to_12, b01100, check_bit12_first_low_maps_to_13, b01101, check_bit11_first_low_maps_to_14, b01110, check_bit10_first_low_maps_to_15, b01111, check_bit9_first_low_maps_to_16, b10000, check_bit8_first_low_maps_to_17, b10001, check_bit7_first_low_maps_to_18, b10010, check_bit6_first_low_maps_to_19, b10011, check_bit5_first_low_maps_to_20, b10100, check_bit4_first_low_maps_to_21, b10101, check_bit3_first_low_maps_to_22, b10110, check_bit2_first_low_maps_to_23, b10111, check_bit1_first_low_maps_to_24, b11000, check_bit0_first_low_maps_to_21, check_all_high_maps_to_0
+bind Priority_Codec_32 Priority_Codec_32_sva auto_sva_inst (
+    .Data_Dec_i(Data_Dec_i),
+    .Data_Bin_o(Data_Bin_o)
+);

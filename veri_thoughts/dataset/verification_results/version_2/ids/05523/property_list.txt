@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+DEMUX.auto_sva_inst.gen_demux_checks[0].check_selected_path
+DEMUX.auto_sva_inst.gen_demux_checks[0].check_unselected_zero
+DEMUX.auto_sva_inst.gen_demux_checks[1].check_selected_path
+DEMUX.auto_sva_inst.gen_demux_checks[1].check_unselected_zero
+DEMUX.auto_sva_inst.gen_demux_checks[2].check_selected_path
+DEMUX.auto_sva_inst.gen_demux_checks[2].check_unselected_zero
+DEMUX.auto_sva_inst.gen_demux_checks[3].check_selected_path
+DEMUX.auto_sva_inst.gen_demux_checks[3].check_unselected_zero
+DEMUX.auto_sva_inst.check_input_low_clears_all
+DEMUX.auto_sva_inst.check_input_high_onehot
+
+COVER PROPERTIES:
+DEMUX.auto_sva_inst.gen_demux_checks[0].check_selected_path:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[0].check_unselected_zero:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[1].check_selected_path:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[1].check_unselected_zero:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[2].check_selected_path:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[2].check_unselected_zero:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[3].check_selected_path:precondition1
+DEMUX.auto_sva_inst.gen_demux_checks[3].check_unselected_zero:precondition1
+DEMUX.auto_sva_inst.check_input_low_clears_all:precondition1
+DEMUX.auto_sva_inst.check_input_high_onehot:precondition1

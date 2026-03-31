@@ -1,0 +1,32 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): function, automatic, expected_pos, value, endfunction, check_pos_onehot_maps_to_bit, assert, property, posedge, onehot, check_pos_non_onehot_defaults_zero, check_pos_matches_encoder_case, check_out_hi_upper_byte, check_out_lo_lower_byte, check_out_bytes_reconstruct_input, check_out_sum_captures_previous_visible_sum, b1, past, check_out_sum_captures_previous_input_sum
+bind priority_encoder top_module_sva auto_sva_inst (
+    .in(in),
+    .pos(pos),
+    .in2(in2),
+    .out_hi(out_hi),
+    .out_lo(out_lo),
+    .enable(enable),
+    .out_sum(out_sum),
+    .begin(begin),
+    .case(case),
+    .b00000001(b00000001),
+    .b000(b000),
+    .b00000010(b00000010),
+    .b001(b001),
+    .b00000100(b00000100),
+    .b010(b010),
+    .b00001000(b00001000),
+    .b011(b011),
+    .b00010000(b00010000),
+    .b100(b100),
+    .b00100000(b00100000),
+    .b101(b101),
+    .b01000000(b01000000),
+    .b110(b110),
+    .b10000000(b10000000),
+    .b111(b111),
+    .default(default),
+    .endcase(endcase),
+    .end(end)
+);

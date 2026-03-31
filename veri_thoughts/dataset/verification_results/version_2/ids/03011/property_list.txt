@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_low_phase_output_low
+clock_gate.auto_sva_inst.check_high_phase_function
+clock_gate.auto_sva_inst.check_enable_low_blocks_output
+clock_gate.auto_sva_inst.check_test_enable_blocks_output
+clock_gate.auto_sva_inst.check_enabled_non_test_passes_clock
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_enable_low_blocks_output:precondition1
+clock_gate.auto_sva_inst.check_test_enable_blocks_output:precondition1
+clock_gate.auto_sva_inst.check_enabled_non_test_passes_clock:precondition1

@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+binary_counter.auto_sva_inst.check_reset_clears_count
+binary_counter.auto_sva_inst.check_wrap_from_max_count
+binary_counter.auto_sva_inst.check_increment_from_nonmax_or_async_reset
+
+COVER PROPERTIES:
+binary_counter.auto_sva_inst.check_reset_clears_count:precondition1
+binary_counter.auto_sva_inst.check_wrap_from_max_count:precondition1
+binary_counter.auto_sva_inst.check_increment_from_nonmax_or_async_reset:precondition1

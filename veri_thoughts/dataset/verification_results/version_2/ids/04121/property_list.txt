@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+adder4.auto_sva_inst.check_full_sum
+adder4.auto_sva_inst.check_sum_bits
+adder4.auto_sva_inst.check_carry_bit
+adder4.auto_sva_inst.check_identity_with_a
+adder4.auto_sva_inst.check_identity_with_b
+adder4.auto_sva_inst.check_maximum_input_case
+adder4.auto_sva_inst.check_stable_inputs_stable_outputs
+
+COVER PROPERTIES:
+adder4.auto_sva_inst.check_identity_with_a:precondition1
+adder4.auto_sva_inst.check_identity_with_b:precondition1
+adder4.auto_sva_inst.check_maximum_input_case:precondition1
+adder4.auto_sva_inst.check_stable_inputs_stable_outputs:precondition1

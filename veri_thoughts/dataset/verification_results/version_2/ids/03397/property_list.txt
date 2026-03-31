@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_y_matches_and
+and_gate.auto_sva_inst.check_both_inputs_high_drive_y_high
+and_gate.auto_sva_inst.check_a_low_forces_y_low
+and_gate.auto_sva_inst.check_b_low_forces_y_low
+and_gate.auto_sva_inst.check_y_high_requires_both_inputs_high
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_both_inputs_high_drive_y_high:precondition1
+and_gate.auto_sva_inst.check_a_low_forces_y_low:precondition1
+and_gate.auto_sva_inst.check_b_low_forces_y_low:precondition1
+and_gate.auto_sva_inst.check_y_high_requires_both_inputs_high:precondition1

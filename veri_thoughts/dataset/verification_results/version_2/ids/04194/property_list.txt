@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+twos_comp.auto_sva_inst.check_out_matches_rtl
+twos_comp.auto_sva_inst.check_non_negative_passthrough
+twos_comp.auto_sva_inst.check_negative_twos_complement
+twos_comp.auto_sva_inst.check_negative_mod16_zero_sum
+twos_comp.auto_sva_inst.check_min_negative_fixed_point
+
+COVER PROPERTIES:
+twos_comp.auto_sva_inst.check_non_negative_passthrough:precondition1
+twos_comp.auto_sva_inst.check_negative_twos_complement:precondition1
+twos_comp.auto_sva_inst.check_negative_mod16_zero_sum:precondition1
+twos_comp.auto_sva_inst.check_min_negative_fixed_point:precondition1

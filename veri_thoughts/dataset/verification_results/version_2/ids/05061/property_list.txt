@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+comb_logic.auto_sva_inst.check_x_is_and
+comb_logic.auto_sva_inst.check_y_is_xor
+comb_logic.auto_sva_inst.check_both_high_outputs
+comb_logic.auto_sva_inst.check_both_low_outputs
+comb_logic.auto_sva_inst.check_inputs_differ_outputs
+comb_logic.auto_sva_inst.check_outputs_not_both_high
+
+COVER PROPERTIES:
+comb_logic.auto_sva_inst.check_both_high_outputs:precondition1
+comb_logic.auto_sva_inst.check_both_low_outputs:precondition1
+comb_logic.auto_sva_inst.check_inputs_differ_outputs:precondition1

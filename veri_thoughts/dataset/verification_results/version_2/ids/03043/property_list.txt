@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+myDFFSR.auto_sva_inst.check_reset_clears_q
+myDFFSR.auto_sva_inst.check_set_sets_q
+myDFFSR.auto_sva_inst.check_data_one_loads_q
+myDFFSR.auto_sva_inst.check_data_zero_loads_q
+
+COVER PROPERTIES:
+myDFFSR.auto_sva_inst.check_reset_clears_q:precondition1
+myDFFSR.auto_sva_inst.check_set_sets_q:precondition1
+myDFFSR.auto_sva_inst.check_data_one_loads_q:precondition1
+myDFFSR.auto_sva_inst.check_data_zero_loads_q:precondition1

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+d_latch.auto_sva_inst.check_reset_clears_q
+d_latch.auto_sva_inst.check_set_sets_q
+d_latch.auto_sva_inst.check_data_capture
+d_latch.auto_sva_inst.check_reset_priority_over_set
+d_latch.auto_sva_inst.check_full_next_state_function
+
+COVER PROPERTIES:
+d_latch.auto_sva_inst.check_reset_clears_q:precondition1
+d_latch.auto_sva_inst.check_set_sets_q:precondition1
+d_latch.auto_sva_inst.check_data_capture:precondition1
+d_latch.auto_sva_inst.check_reset_priority_over_set:precondition1
+d_latch.auto_sva_inst.check_full_next_state_function:precondition1

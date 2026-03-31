@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+bitwise_or.auto_sva_inst.check_stage1_or_capture
+bitwise_or.auto_sva_inst.check_stage2_pipeline_capture
+bitwise_or.auto_sva_inst.check_out_matches_stage2
+bitwise_or.auto_sva_inst.check_out_two_cycle_latency
+
+COVER PROPERTIES:
+bitwise_or.auto_sva_inst.check_stage1_or_capture:precondition1
+bitwise_or.auto_sva_inst.check_stage2_pipeline_capture:precondition1
+bitwise_or.auto_sva_inst.check_out_two_cycle_latency:precondition1

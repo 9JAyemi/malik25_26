@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+dffr.auto_sva_inst.check_reset_clears_q_next_clock
+dffr.auto_sva_inst.check_capture_zero_on_clock
+dffr.auto_sva_inst.check_q_high_requires_prior_high_input
+
+COVER PROPERTIES:
+dffr.auto_sva_inst.check_reset_clears_q_next_clock:precondition1
+dffr.auto_sva_inst.check_capture_zero_on_clock:precondition1
+dffr.auto_sva_inst.check_q_high_requires_prior_high_input:precondition1
+dffr.auto_sva_inst.check_q_high_requires_prior_high_input:precondition2

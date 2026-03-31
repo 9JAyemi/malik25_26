@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_count_increments
+counter.auto_sva_inst.check_count_wraps_at_seven
+counter.auto_sva_inst.check_count_holds_when_start_low
+counter.auto_sva_inst.check_count_next_state_rule
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_count_increments:precondition1
+counter.auto_sva_inst.check_count_wraps_at_seven:precondition1
+counter.auto_sva_inst.check_count_holds_when_start_low:precondition1
+counter.auto_sva_inst.check_count_next_state_rule:precondition1

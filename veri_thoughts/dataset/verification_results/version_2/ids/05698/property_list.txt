@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+shift_reg.auto_sva_inst.check_state_update
+shift_reg.auto_sva_inst.check_load_on_select
+shift_reg.auto_sva_inst.check_rotate_on_shift
+shift_reg.auto_sva_inst.check_rotate_bit3
+shift_reg.auto_sva_inst.check_rotate_bit2
+shift_reg.auto_sva_inst.check_rotate_bit1
+shift_reg.auto_sva_inst.check_rotate_bit0
+shift_reg.auto_sva_inst.check_four_shifts_restore_state
+
+COVER PROPERTIES:
+shift_reg.auto_sva_inst.check_state_update:precondition1
+shift_reg.auto_sva_inst.check_load_on_select:precondition1
+shift_reg.auto_sva_inst.check_rotate_on_shift:precondition1
+shift_reg.auto_sva_inst.check_rotate_bit3:precondition1
+shift_reg.auto_sva_inst.check_rotate_bit2:precondition1
+shift_reg.auto_sva_inst.check_rotate_bit1:precondition1
+shift_reg.auto_sva_inst.check_rotate_bit0:precondition1
+shift_reg.auto_sva_inst.check_four_shifts_restore_state:precondition1

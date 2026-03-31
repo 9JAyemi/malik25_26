@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_capture_one_when_te_high
+clock_gate.auto_sva_inst.check_capture_zero_when_te_high
+clock_gate.auto_sva_inst.check_hold_when_te_low
+clock_gate.auto_sva_inst.check_change_requires_prior_te
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_capture_one_when_te_high:precondition1
+clock_gate.auto_sva_inst.check_capture_zero_when_te_high:precondition1
+clock_gate.auto_sva_inst.check_hold_when_te_low:precondition1
+clock_gate.auto_sva_inst.check_change_requires_prior_te:precondition1

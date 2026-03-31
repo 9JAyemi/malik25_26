@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+TCMP.auto_sva_inst.check_reset_clears_state
+TCMP.auto_sva_inst.check_load_clears_state
+TCMP.auto_sva_inst.check_clear_state_zero_input
+TCMP.auto_sva_inst.check_clear_state_one_input
+TCMP.auto_sva_inst.check_set_state_zero_input
+TCMP.auto_sva_inst.check_set_state_one_input
+TCMP.auto_sva_inst.check_z_sticky_without_load
+
+COVER PROPERTIES:
+TCMP.auto_sva_inst.check_reset_clears_state:precondition1
+TCMP.auto_sva_inst.check_load_clears_state:precondition1
+TCMP.auto_sva_inst.check_clear_state_zero_input:precondition1
+TCMP.auto_sva_inst.check_clear_state_one_input:precondition1
+TCMP.auto_sva_inst.check_set_state_zero_input:precondition1
+TCMP.auto_sva_inst.check_set_state_one_input:precondition1
+TCMP.auto_sva_inst.check_z_sticky_without_load:precondition1

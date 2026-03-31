@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux4to1.auto_sva_inst.check_output_matches_rtl
+mux4to1.auto_sva_inst.check_oe_low_forces_zero
+mux4to1.auto_sva_inst.check_select_d0_when_enabled
+mux4to1.auto_sva_inst.check_select_d1_when_enabled
+mux4to1.auto_sva_inst.check_select_d2_when_enabled
+mux4to1.auto_sva_inst.check_select_d3_when_enabled
+
+COVER PROPERTIES:
+mux4to1.auto_sva_inst.check_oe_low_forces_zero:precondition1
+mux4to1.auto_sva_inst.check_select_d0_when_enabled:precondition1
+mux4to1.auto_sva_inst.check_select_d1_when_enabled:precondition1
+mux4to1.auto_sva_inst.check_select_d2_when_enabled:precondition1
+mux4to1.auto_sva_inst.check_select_d3_when_enabled:precondition1

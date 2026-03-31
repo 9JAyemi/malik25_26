@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_left.auto_sva_inst.check_registered_update
+shift_left.auto_sva_inst.check_shift_upper_bits
+shift_left.auto_sva_inst.check_shift_lsb_zero
+shift_left.auto_sva_inst.check_passthrough_update
+
+COVER PROPERTIES:
+shift_left.auto_sva_inst.check_registered_update:precondition1
+shift_left.auto_sva_inst.check_shift_upper_bits:precondition1
+shift_left.auto_sva_inst.check_shift_lsb_zero:precondition1
+shift_left.auto_sva_inst.check_passthrough_update:precondition1

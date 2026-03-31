@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_first_branch_sets_high
+my_module.auto_sva_inst.check_second_branch_sets_low
+my_module.auto_sva_inst.check_third_branch_sets_high
+my_module.auto_sva_inst.check_default_branch_follows_input8
+my_module.auto_sva_inst.check_full_priority_function
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_first_branch_sets_high:precondition1
+my_module.auto_sva_inst.check_second_branch_sets_low:precondition1
+my_module.auto_sva_inst.check_third_branch_sets_high:precondition1
+my_module.auto_sva_inst.check_default_branch_follows_input8:precondition1

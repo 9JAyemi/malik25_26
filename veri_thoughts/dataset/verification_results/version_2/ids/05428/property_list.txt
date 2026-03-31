@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_holds_zero
+counter.auto_sva_inst.check_match_wraps_to_zero
+counter.auto_sva_inst.check_nonmatch_advances_or_resets
+counter.auto_sva_inst.check_overflow_wraps_to_zero
+counter.auto_sva_inst.check_nonterminal_nonzero_changes
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_holds_zero:precondition1
+counter.auto_sva_inst.check_match_wraps_to_zero:precondition1
+counter.auto_sva_inst.check_nonmatch_advances_or_resets:precondition1
+counter.auto_sva_inst.check_overflow_wraps_to_zero:precondition1
+counter.auto_sva_inst.check_nonterminal_nonzero_changes:precondition1

@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+up_counter.auto_sva_inst.check_reset_forces_zero
+up_counter.auto_sva_inst.check_increment_when_not_max
+up_counter.auto_sva_inst.check_wrap_after_max
+
+COVER PROPERTIES:
+up_counter.auto_sva_inst.check_reset_forces_zero:precondition1
+up_counter.auto_sva_inst.check_increment_when_not_max:precondition1
+up_counter.auto_sva_inst.check_wrap_after_max:precondition1

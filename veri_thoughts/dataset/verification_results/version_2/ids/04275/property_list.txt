@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+buf2.auto_sva_inst.check_outputs_match_buffers
+buf2.auto_sva_inst.check_reset_clears_all
+buf2.auto_sva_inst.check_state0_captures_inputs
+buf2.auto_sva_inst.check_state1_holds_and_advances
+buf2.auto_sva_inst.check_state2_holds_and_wraps
+buf2.auto_sva_inst.check_en_low_holds_registers
+buf2.auto_sva_inst.check_state3_holds_without_case_match
+
+COVER PROPERTIES:
+buf2.auto_sva_inst.check_reset_clears_all:precondition1
+buf2.auto_sva_inst.check_state0_captures_inputs:precondition1
+buf2.auto_sva_inst.check_state1_holds_and_advances:precondition1
+buf2.auto_sva_inst.check_state2_holds_and_wraps:precondition1
+buf2.auto_sva_inst.check_en_low_holds_registers:precondition1
+buf2.auto_sva_inst.check_state3_holds_without_case_match:precondition1

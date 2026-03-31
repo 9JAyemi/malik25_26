@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+inv_module.auto_sva_inst.check_output_function
+inv_module.auto_sva_inst.check_passthrough_when_disabled
+inv_module.auto_sva_inst.check_invert_when_enabled
+inv_module.auto_sva_inst.check_bit0_function
+inv_module.auto_sva_inst.check_bit1_function
+inv_module.auto_sva_inst.check_bit2_function
+inv_module.auto_sva_inst.check_bit3_function
+
+COVER PROPERTIES:
+inv_module.auto_sva_inst.check_passthrough_when_disabled:precondition1
+inv_module.auto_sva_inst.check_invert_when_enabled:precondition1

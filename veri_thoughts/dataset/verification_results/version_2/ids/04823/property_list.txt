@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+binary_counter.auto_sva_inst.check_count_zero_on_reset
+binary_counter.auto_sva_inst.check_count_increments_when_enabled
+binary_counter.auto_sva_inst.check_count_holds_when_disabled
+
+COVER PROPERTIES:
+binary_counter.auto_sva_inst.check_count_zero_on_reset:precondition1
+binary_counter.auto_sva_inst.check_count_increments_when_enabled:precondition1
+binary_counter.auto_sva_inst.check_count_holds_when_disabled:precondition1

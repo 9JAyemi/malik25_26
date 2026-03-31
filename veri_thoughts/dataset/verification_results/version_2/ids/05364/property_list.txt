@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_out_matches_and
+top_module.auto_sva_inst.check_out_high_when_both_high
+top_module.auto_sva_inst.check_out_low_when_a_low
+top_module.auto_sva_inst.check_out_low_when_b_low
+top_module.auto_sva_inst.check_out_high_only_if_both_high
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_out_high_when_both_high:precondition1
+top_module.auto_sva_inst.check_out_low_when_a_low:precondition1
+top_module.auto_sva_inst.check_out_low_when_b_low:precondition1
+top_module.auto_sva_inst.check_out_high_only_if_both_high:precondition1

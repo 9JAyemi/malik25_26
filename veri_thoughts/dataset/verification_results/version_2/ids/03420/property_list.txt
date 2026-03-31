@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+up_down_counter.auto_sva_inst.check_load_clears_q
+up_down_counter.auto_sva_inst.check_decrement_on_00
+up_down_counter.auto_sva_inst.check_increment_on_01
+up_down_counter.auto_sva_inst.check_hold_on_10
+up_down_counter.auto_sva_inst.check_hold_on_11
+
+COVER PROPERTIES:
+up_down_counter.auto_sva_inst.check_load_clears_q:precondition1
+up_down_counter.auto_sva_inst.check_decrement_on_00:precondition1
+up_down_counter.auto_sva_inst.check_increment_on_01:precondition1
+up_down_counter.auto_sva_inst.check_hold_on_10:precondition1
+up_down_counter.auto_sva_inst.check_hold_on_11:precondition1

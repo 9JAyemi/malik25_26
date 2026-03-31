@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+a.a_assertions_bind.check_even_selects_half
+a.a_assertions_bind.check_odd_selects_double
+a.a_assertions_bind.check_out_matches_prior_inputs
+a.a_assertions_bind.check_zero_b_in_yields_zero
+
+COVER PROPERTIES:
+a.a_assertions_bind.check_even_selects_half:precondition1
+a.a_assertions_bind.check_odd_selects_double:precondition1
+a.a_assertions_bind.check_out_matches_prior_inputs:precondition1
+a.a_assertions_bind.check_zero_b_in_yields_zero:precondition1

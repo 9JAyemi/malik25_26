@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+Test.auto_sva_inst.check_registered_truncated_sum
+Test.auto_sva_inst.check_zero_plus_zero
+Test.auto_sva_inst.check_zero_a_passthrough
+Test.auto_sva_inst.check_zero_b_passthrough
+Test.auto_sva_inst.check_stable_inputs_hold_output
+Test.auto_sva_inst.check_lsb_xor
+Test.auto_sva_inst.check_sum_without_bit7_matches_out
+Test.auto_sva_inst.check_sum_with_bit7_drops_msb
+
+COVER PROPERTIES:
+Test.auto_sva_inst.check_registered_truncated_sum:precondition1
+Test.auto_sva_inst.check_zero_plus_zero:precondition1
+Test.auto_sva_inst.check_zero_a_passthrough:precondition1
+Test.auto_sva_inst.check_zero_b_passthrough:precondition1
+Test.auto_sva_inst.check_stable_inputs_hold_output:precondition1
+Test.auto_sva_inst.check_lsb_xor:precondition1
+Test.auto_sva_inst.check_sum_without_bit7_matches_out:precondition1
+Test.auto_sva_inst.check_sum_with_bit7_drops_msb:precondition1

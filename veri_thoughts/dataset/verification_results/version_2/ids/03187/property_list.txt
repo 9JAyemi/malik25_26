@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_byte_addition
+adder.auto_sva_inst.check_lsb_xor
+adder.auto_sva_inst.check_low_nibble_addition
+adder.auto_sva_inst.check_b_zero_passthrough
+adder.auto_sva_inst.check_a_zero_passthrough
+adder.auto_sva_inst.check_zero_plus_zero
+adder.auto_sva_inst.check_ff_plus_one_wraps
+adder.auto_sva_inst.check_ff_plus_ff
+adder.auto_sva_inst.check_stable_inputs_stable_sum
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_b_zero_passthrough:precondition1
+adder.auto_sva_inst.check_a_zero_passthrough:precondition1
+adder.auto_sva_inst.check_zero_plus_zero:precondition1
+adder.auto_sva_inst.check_ff_plus_one_wraps:precondition1
+adder.auto_sva_inst.check_ff_plus_ff:precondition1
+adder.auto_sva_inst.check_stable_inputs_stable_sum:precondition1

@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+ring_counter.auto_sva_inst.check_all_ones_wraps_to_zero
+ring_counter.auto_sva_inst.check_all_zero_holds
+ring_counter.auto_sva_inst.gen_multi_bit.check_lsb_wraparound
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[1].check_shift_from_lower
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[2].check_shift_from_lower
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[3].check_shift_from_lower
+
+COVER PROPERTIES:
+ring_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1
+ring_counter.auto_sva_inst.check_all_zero_holds:precondition1
+ring_counter.auto_sva_inst.gen_multi_bit.check_lsb_wraparound:precondition1
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[1].check_shift_from_lower:precondition1
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[2].check_shift_from_lower:precondition1
+ring_counter.auto_sva_inst.gen_multi_bit.gen_shift_bits[3].check_shift_from_lower:precondition1

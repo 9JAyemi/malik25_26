@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+addsub_4bit.auto_sva_inst.check_selected_operation
+addsub_4bit.auto_sva_inst.check_add_mode_result
+addsub_4bit.auto_sva_inst.check_sub_mode_result
+addsub_4bit.auto_sva_inst.check_add_zero_on_b
+addsub_4bit.auto_sva_inst.check_add_zero_on_a
+addsub_4bit.auto_sva_inst.check_sub_zero_on_b
+addsub_4bit.auto_sva_inst.check_sub_equal_operands_zero
+
+COVER PROPERTIES:
+addsub_4bit.auto_sva_inst.check_add_mode_result:precondition1
+addsub_4bit.auto_sva_inst.check_sub_mode_result:precondition1
+addsub_4bit.auto_sva_inst.check_add_zero_on_b:precondition1
+addsub_4bit.auto_sva_inst.check_add_zero_on_a:precondition1
+addsub_4bit.auto_sva_inst.check_sub_zero_on_b:precondition1
+addsub_4bit.auto_sva_inst.check_sub_equal_operands_zero:precondition1

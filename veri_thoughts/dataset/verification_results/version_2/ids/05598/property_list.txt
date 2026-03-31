@@ -1,0 +1,29 @@
+ASSERT PROPERTIES:
+control.auto_sva_inst.check_lw_decode
+control.auto_sva_inst.check_addi_decode
+control.auto_sva_inst.check_beq_decode
+control.auto_sva_inst.check_sw_decode
+control.auto_sva_inst.check_bne_decode
+control.auto_sva_inst.check_rtype_decode
+control.auto_sva_inst.check_jump_decode
+control.auto_sva_inst.check_unlisted_opcode_defaults
+control.auto_sva_inst.check_branch_eq_only_beq
+control.auto_sva_inst.check_branch_ne_only_bne
+control.auto_sva_inst.check_memread_only_lw
+control.auto_sva_inst.check_memwrite_only_sw
+control.auto_sva_inst.check_jump_only_jump_opcode
+
+COVER PROPERTIES:
+control.auto_sva_inst.check_lw_decode:precondition1
+control.auto_sva_inst.check_addi_decode:precondition1
+control.auto_sva_inst.check_beq_decode:precondition1
+control.auto_sva_inst.check_sw_decode:precondition1
+control.auto_sva_inst.check_bne_decode:precondition1
+control.auto_sva_inst.check_rtype_decode:precondition1
+control.auto_sva_inst.check_jump_decode:precondition1
+control.auto_sva_inst.check_unlisted_opcode_defaults:precondition1
+control.auto_sva_inst.check_branch_eq_only_beq:precondition1
+control.auto_sva_inst.check_branch_ne_only_bne:precondition1
+control.auto_sva_inst.check_memread_only_lw:precondition1
+control.auto_sva_inst.check_memwrite_only_sw:precondition1
+control.auto_sva_inst.check_jump_only_jump_opcode:precondition1

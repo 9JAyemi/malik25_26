@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+adbg_crc32.auto_sva_inst.check_reset_value
+adbg_crc32.auto_sva_inst.check_serial_matches_lsb
+adbg_crc32.auto_sva_inst.check_clear_sets_all_ones
+adbg_crc32.auto_sva_inst.check_enable_updates_crc
+adbg_crc32.auto_sva_inst.check_shift_right
+adbg_crc32.auto_sva_inst.check_idle_holds_crc
+
+COVER PROPERTIES:
+adbg_crc32.auto_sva_inst.check_reset_value:precondition1
+adbg_crc32.auto_sva_inst.check_clear_sets_all_ones:precondition1
+adbg_crc32.auto_sva_inst.check_enable_updates_crc:precondition1
+adbg_crc32.auto_sva_inst.check_shift_right:precondition1
+adbg_crc32.auto_sva_inst.check_idle_holds_crc:precondition1

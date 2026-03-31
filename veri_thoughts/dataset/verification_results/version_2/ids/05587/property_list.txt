@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+lfsr.auto_sva_inst.check_reset_clears_state
+lfsr.auto_sva_inst.check_enable_sets_done
+lfsr.auto_sva_inst.check_disable_clears_done
+lfsr.auto_sva_inst.check_disable_holds_data
+lfsr.auto_sva_inst.check_disable_holds_lfsr
+lfsr.auto_sva_inst.check_enable_captures_lfsr_into_data
+lfsr.auto_sva_inst.check_enable_updates_lfsr
+
+COVER PROPERTIES:
+lfsr.auto_sva_inst.check_reset_clears_state:precondition1
+lfsr.auto_sva_inst.check_enable_sets_done:precondition1
+lfsr.auto_sva_inst.check_disable_clears_done:precondition1
+lfsr.auto_sva_inst.check_disable_holds_data:precondition1
+lfsr.auto_sva_inst.check_disable_holds_lfsr:precondition1
+lfsr.auto_sva_inst.check_enable_captures_lfsr_into_data:precondition1
+lfsr.auto_sva_inst.check_enable_updates_lfsr:precondition1

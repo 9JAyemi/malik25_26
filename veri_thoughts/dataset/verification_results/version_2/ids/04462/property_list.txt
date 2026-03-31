@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_out_matches_shift
+top_module.auto_sva_inst.check_zero_shift_passthrough
+top_module.auto_sva_inst.check_right_shift_behavior
+top_module.auto_sva_inst.check_left_shift_behavior
+top_module.auto_sva_inst.check_eq_definition
+top_module.auto_sva_inst.check_gt_definition
+top_module.auto_sva_inst.check_lt_definition
+top_module.auto_sva_inst.check_eq_exclusive
+top_module.auto_sva_inst.check_gt_lt_mutex
+top_module.auto_sva_inst.check_compare_complete
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_zero_shift_passthrough:precondition1
+top_module.auto_sva_inst.check_right_shift_behavior:precondition1
+top_module.auto_sva_inst.check_left_shift_behavior:precondition1

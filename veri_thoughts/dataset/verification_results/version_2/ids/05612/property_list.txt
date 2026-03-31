@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nand4bb.auto_sva_inst.check_y_matches_boolean_function
+nand4bb.auto_sva_inst.check_y_high_when_ab_high
+nand4bb.auto_sva_inst.check_y_high_when_cd_high
+nand4bb.auto_sva_inst.check_y_low_when_no_pair_high
+nand4bb.auto_sva_inst.check_y_high_requires_ab_or_cd
+
+COVER PROPERTIES:
+nand4bb.auto_sva_inst.check_y_high_when_ab_high:precondition1
+nand4bb.auto_sva_inst.check_y_high_when_cd_high:precondition1
+nand4bb.auto_sva_inst.check_y_low_when_no_pair_high:precondition1
+nand4bb.auto_sva_inst.check_y_high_requires_ab_or_cd:precondition1

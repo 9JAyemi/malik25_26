@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+d_ff.auto_sva_inst.check_qn_complement
+d_ff.auto_sva_inst.check_reset_clears_q
+d_ff.auto_sva_inst.check_q_captures_d
+d_ff.auto_sva_inst.check_reset_sets_qn_high
+
+COVER PROPERTIES:
+d_ff.auto_sva_inst.check_reset_clears_q:precondition1
+d_ff.auto_sva_inst.check_q_captures_d:precondition1
+d_ff.auto_sva_inst.check_reset_sets_qn_high:precondition1

@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+button_pio.auto_sva_inst.check_reset_clears_readdata
+button_pio.auto_sva_inst.check_address_zero_returns_input
+button_pio.auto_sva_inst.check_nonzero_address_returns_zero
+
+COVER PROPERTIES:
+button_pio.auto_sva_inst.check_reset_clears_readdata:precondition1
+button_pio.auto_sva_inst.check_address_zero_returns_input:precondition1
+button_pio.auto_sva_inst.check_nonzero_address_returns_zero:precondition1

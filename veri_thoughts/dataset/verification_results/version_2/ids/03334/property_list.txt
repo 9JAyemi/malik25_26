@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+four_bit_adder.auto_sva_inst.check_sum_matches_previous_add
+four_bit_adder.auto_sva_inst.check_cout_is_zero
+four_bit_adder.auto_sva_inst.check_overflow_wraps_without_carry
+
+COVER PROPERTIES:
+four_bit_adder.auto_sva_inst.check_sum_matches_previous_add:precondition1
+four_bit_adder.auto_sva_inst.check_cout_is_zero:precondition1
+four_bit_adder.auto_sva_inst.check_overflow_wraps_without_carry:precondition1

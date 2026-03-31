@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+xnor2.auto_sva_inst.check_y_matches_xnor_function
+xnor2.auto_sva_inst.check_00_outputs_high
+xnor2.auto_sva_inst.check_01_outputs_low
+xnor2.auto_sva_inst.check_10_outputs_low
+xnor2.auto_sva_inst.check_11_outputs_high
+
+COVER PROPERTIES:
+xnor2.auto_sva_inst.check_00_outputs_high:precondition1
+xnor2.auto_sva_inst.check_01_outputs_low:precondition1
+xnor2.auto_sva_inst.check_10_outputs_low:precondition1
+xnor2.auto_sva_inst.check_11_outputs_high:precondition1

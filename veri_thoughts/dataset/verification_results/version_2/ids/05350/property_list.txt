@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+selector_module.auto_sva_inst.check_select_sum
+selector_module.auto_sva_inst.check_select_diff
+selector_module.auto_sva_inst.check_select_prod
+selector_module.auto_sva_inst.check_select_quo
+selector_module.auto_sva_inst.check_output_stable_when_inputs_stable
+
+COVER PROPERTIES:
+selector_module.auto_sva_inst.check_select_sum:precondition1
+selector_module.auto_sva_inst.check_select_diff:precondition1
+selector_module.auto_sva_inst.check_select_prod:precondition1
+selector_module.auto_sva_inst.check_select_quo:precondition1
+selector_module.auto_sva_inst.check_output_stable_when_inputs_stable:precondition1

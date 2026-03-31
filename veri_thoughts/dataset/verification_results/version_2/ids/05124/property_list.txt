@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_output_equation
+and_gate.auto_sva_inst.check_output_high_inputs
+and_gate.auto_sva_inst.check_true_minterm
+and_gate.auto_sva_inst.check_in2_blocks_output
+and_gate.auto_sva_inst.check_in1_low_forces_output_low
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_output_high_inputs:precondition1
+and_gate.auto_sva_inst.check_true_minterm:precondition1
+and_gate.auto_sva_inst.check_in2_blocks_output:precondition1
+and_gate.auto_sva_inst.check_in1_low_forces_output_low:precondition1

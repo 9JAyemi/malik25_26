@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+output_module.auto_sva_inst.check_full_mux_behavior
+output_module.auto_sva_inst.check_ctrl1_zone_zero
+output_module.auto_sva_inst.check_ctrl2_zone_zero
+output_module.auto_sva_inst.check_statusb_zone_encoding
+output_module.auto_sva_inst.check_default_p1_passthrough
+
+COVER PROPERTIES:
+output_module.auto_sva_inst.check_ctrl1_zone_zero:precondition1
+output_module.auto_sva_inst.check_ctrl2_zone_zero:precondition1
+output_module.auto_sva_inst.check_statusb_zone_encoding:precondition1
+output_module.auto_sva_inst.check_default_p1_passthrough:precondition1

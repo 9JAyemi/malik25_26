@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+binary_adder.auto_sva_inst.check_full_result
+binary_adder.auto_sva_inst.check_sum_bit0
+binary_adder.auto_sva_inst.check_lower_two_bits
+binary_adder.auto_sva_inst.check_lower_three_bits
+binary_adder.auto_sva_inst.check_add_zero_on_b
+binary_adder.auto_sva_inst.check_add_zero_on_a
+binary_adder.auto_sva_inst.check_all_zero_inputs
+binary_adder.auto_sva_inst.check_cin_only
+binary_adder.auto_sva_inst.check_max_with_cin
+
+COVER PROPERTIES:
+binary_adder.auto_sva_inst.check_add_zero_on_b:precondition1
+binary_adder.auto_sva_inst.check_add_zero_on_a:precondition1
+binary_adder.auto_sva_inst.check_all_zero_inputs:precondition1
+binary_adder.auto_sva_inst.check_cin_only:precondition1
+binary_adder.auto_sva_inst.check_max_with_cin:precondition1

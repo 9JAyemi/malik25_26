@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+half_adder.auto_sva_inst.check_sum_xor
+half_adder.auto_sva_inst.check_cout_equation
+half_adder.auto_sva_inst.check_arithmetic_result
+half_adder.auto_sva_inst.check_zero_case
+half_adder.auto_sva_inst.check_one_high_case
+half_adder.auto_sva_inst.check_two_high_case
+half_adder.auto_sva_inst.check_all_high_case
+
+COVER PROPERTIES:
+half_adder.auto_sva_inst.check_zero_case:precondition1
+half_adder.auto_sva_inst.check_one_high_case:precondition1
+half_adder.auto_sva_inst.check_two_high_case:precondition1
+half_adder.auto_sva_inst.check_all_high_case:precondition1

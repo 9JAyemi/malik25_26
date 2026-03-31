@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+dff.auto_sva_inst.check_reset_state
+dff.auto_sva_inst.check_scd_sets_outputs
+dff.auto_sva_inst.check_scd_priority_over_sce
+dff.auto_sva_inst.check_sce_loads_one
+dff.auto_sva_inst.check_sce_loads_zero
+dff.auto_sva_inst.check_hold_when_controls_low
+
+COVER PROPERTIES:
+dff.auto_sva_inst.check_reset_state:precondition1
+dff.auto_sva_inst.check_scd_sets_outputs:precondition1
+dff.auto_sva_inst.check_scd_priority_over_sce:precondition1
+dff.auto_sva_inst.check_sce_loads_one:precondition1
+dff.auto_sva_inst.check_sce_loads_zero:precondition1
+dff.auto_sva_inst.check_hold_when_controls_low:precondition1

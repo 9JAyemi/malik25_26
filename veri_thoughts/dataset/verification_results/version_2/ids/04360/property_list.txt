@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+decoder_2to4_priority.auto_sva_inst.check_upper_bits_zero
+decoder_2to4_priority.auto_sva_inst.check_decode_00
+decoder_2to4_priority.auto_sva_inst.check_decode_10
+decoder_2to4_priority.auto_sva_inst.check_decode_01
+decoder_2to4_priority.auto_sva_inst.check_decode_11
+
+COVER PROPERTIES:
+decoder_2to4_priority.auto_sva_inst.check_decode_00:precondition1
+decoder_2to4_priority.auto_sva_inst.check_decode_10:precondition1
+decoder_2to4_priority.auto_sva_inst.check_decode_01:precondition1
+decoder_2to4_priority.auto_sva_inst.check_decode_11:precondition1

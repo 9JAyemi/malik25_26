@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+IF_ID.auto_sva_inst.check_reset_pcplus4
+IF_ID.auto_sva_inst.check_reset_instr
+IF_ID.auto_sva_inst.check_stall_or_bj_behavior
+IF_ID.auto_sva_inst.check_normal_capture
+
+COVER PROPERTIES:
+IF_ID.auto_sva_inst.check_reset_pcplus4:precondition1
+IF_ID.auto_sva_inst.check_reset_instr:precondition1
+IF_ID.auto_sva_inst.check_stall_or_bj_behavior:precondition1
+IF_ID.auto_sva_inst.check_normal_capture:precondition1

@@ -54,7 +54,6 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
 % #   JG_RESET      : explicit reset signal name (optional)
 % #   JG_RESET_EXPR : explicit reset expression (optional)
-% #   JG_DUMP_VCD   : 1 to dump VCD waveforms for CEX properties (default: 0)
 % # ============================================================
 % 
 % proc split_env_list {s} {
@@ -289,8 +288,6 @@ sv12
 % set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
 % set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
 1
-% set DUMP_VCD [expr {[info exists ::env(JG_DUMP_VCD)] ? $::env(JG_DUMP_VCD) : 0}]
-1
 % 
 % # JG_DESIGN/JG_SVA can be:
 % # - a directory
@@ -366,8 +363,6 @@ INFO: Verification run starting
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
   AUTO_BIND : 1
-% puts "  DUMP_VCD  : $DUMP_VCD"
-  DUMP_VCD  : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
@@ -504,8 +499,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
-[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
-[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % # 300 seconds = 5 minute timeout per property
+[<embedded>] % set_prove_time_limit 300
 [<embedded>] % 
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
@@ -525,7 +520,7 @@ INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 3600s
+    time_limit                    = 300s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -560,16 +555,12 @@ INFO (IPF057): 0.0.PRE: The property "twos_complement.auto_sva_inst.check_out_ms
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 18
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 1865990@della-h14n3(local) jg_1865823_della-h14n3_1
-0.0.N: Proofgrid shell started at 1865989@della-h14n3(local) jg_1865823_della-h14n3_1
+0.0.Hp: Proofgrid shell started at 3937580@della-i13n6(local) jg_3937507_della-i13n6_1
+0.0.N: Proofgrid shell started at 3937579@della-i13n6(local) jg_3937507_della-i13n6_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
-0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "twos_complement.auto_sva_inst.check_out_concat_when_a_low"	[0.00 s].
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: Lemmas used(1): ?1
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_concat_when_a_low" was proven in 0.00 s.
 0.0.Hp: Lemmas used(1): ?1
@@ -587,8 +578,6 @@ INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_rep
 0.0.Hp: Lemmas used(1): ?1
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_F_when_a_high_all_ones" was proven in 0.00 s.
-0.0.N: Stopped processing property "twos_complement.auto_sva_inst.check_out_concat_when_a_low"	[0.00 s].
-0.0.N: Starting proof for property "twos_complement.auto_sva_inst.check_out_concat_when_a_low:precondition1"	[0.00 s].
 0.0.Hp: Lemmas used(1): ?1
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_zero_when_a_high_any_zero" was proven in 0.00 s.
@@ -596,46 +585,38 @@ INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_zer
 0.0.Hp: A proof was found: No trace exists. [0.00 s]
 INFO (IPF057): 0.0.Hp: The property "twos_complement.auto_sva_inst.check_out_lsb_equals_and_when_a_high" was proven in 0.00 s.
 0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_concat_when_a_low:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_msb_zero_when_a_low:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_bit2_matches_B_when_a_low:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_bit1_matches_C_when_a_low:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_bit0_matches_D_when_a_low:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Stopped processing property "twos_complement.auto_sva_inst.check_out_concat_when_a_low:precondition1"	[0.01 s].
-0.0.N: Starting proof for property "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.N: The cover property "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1" was covered in 1 cycles in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "twos_complement.auto_sva_inst.check_out_zero_when_a_high_any_zero:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1".
-INFO (IPF047): 0.0.N: The cover property "twos_complement.auto_sva_inst.check_out_msb_equals_and_when_a_high:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1".
-INFO (IPF047): 0.0.N: The cover property "twos_complement.auto_sva_inst.check_out_lsb_equals_and_when_a_high:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1".
-0.0.N: Stopped processing property "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1"	[0.00 s].
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "twos_complement.auto_sva_inst.check_out_F_when_a_high_all_ones:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_replication_when_a_high:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_F_when_a_high_all_ones:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_msb_equals_and_when_a_high:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_lsb_equals_and_when_a_high:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_F_when_a_high_all_ones:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Stopped processing property "twos_complement.auto_sva_inst.check_out_F_when_a_high_all_ones:precondition1"	[0.00 s].
-0.0.N: All properties determined. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "twos_complement.auto_sva_inst.check_out_zero_when_a_high_any_zero:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: All properties determined. [0.00 s]
-0.0.Ht: Proofgrid shell started at 1866003@della-h14n3(local) jg_1865823_della-h14n3_1
-0.0.Ht: Requesting engine job to terminate
-0.0.N: Exited with Success (@ 0.06 s)
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: All properties determined. [0.01 s]
+0.0.Hp: Exited with Success (@ 0.01 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.06 s)
-0.0.Ht: Interrupted. [0.01 s]
-0.0.B: Proofgrid shell started at 1866004@della-h14n3(local) jg_1865823_della-h14n3_1
+0.0.Ht: Proofgrid shell started at 3937593@della-i13n6(local) jg_3937507_della-i13n6_1
+0.0.Ht: Requesting engine job to terminate
+0.0.N: Exited with Success (@ 0.04 s)
+0.0.Ht: Interrupted. [0.00 s]
+0.0.B: Proofgrid shell started at 3937594@della-i13n6(local) jg_3937507_della-i13n6_1
 0.0.B: Requesting engine job to terminate
-0.0.B: Interrupted. [0.01 s]
 0.0.Ht: Exited with Success (@ 0.06 s)
+0.0.B: Interrupted. [0.00 s]
 0.0.B: Exited with Success (@ 0.06 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 1.01 %)
+ProofGrid Summary (utilization 6.61 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -644,19 +625,19 @@ ProofGrid Summary (utilization 1.01 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.07        0.00        0.00        1.64 %
-     Hp        0.06        0.00        0.00        2.35 %
-     Ht        0.06        0.00        0.00        0.00 %
+      N        0.05        0.00        0.00        0.51 %
+     Hp        0.04        0.01        0.00       22.86 %
+     Ht        0.04        0.00        0.00        0.00 %
       B        0.06        0.00        0.00        0.00 %
-    all        0.06        0.00        0.00        1.01 %
+    all        0.05        0.00        0.00        6.61 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.26        0.00        0.00
+               0.19        0.01        0.00
 
-    Data read    : 2.86 kiB
+    Data read    : 2.33 kiB
     Data written : 1.68 kiB
 
 0: All pending notifications were processed.
@@ -702,7 +683,7 @@ WARNING (WPM042): No properties matched the specified filters.
 0
 [<embedded>] % 
 [<embedded>] % set fp_cex [open $CEX_TXT "w"]
-file44
+file43
 [<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
 [<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
 [<embedded>] % puts $fp_cex ""
@@ -728,78 +709,9 @@ INFO: CEX properties: 0 cex, 0 ar_cex
 [<embedded>] % puts "INFO: Wrote $CEX_TXT"
 INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/01540/cex_details.txt
 [<embedded>] % 
-[<embedded>] % # ---- Dump VCD waveforms for CEX properties ----
-[<embedded>] % if {$DUMP_VCD && ($n_cex > 0 || $n_ar_cex > 0)} {
-  set VCD_DIR [file join $OUT_DIR "cex_vcd"]
-  file mkdir $VCD_DIR
-  set all_cex_props [concat $cex_props $ar_cex_props]
-  set vcd_count 0
-
-  foreach prop $all_cex_props {
-    set safe_name [regsub -all {[^A-Za-z0-9_.-]} $prop "_"]
-    set vcd_path [file join $VCD_DIR "${safe_name}.vcd"]
-
-    set dumped 0
-
-    # Strip <embedded>:: prefix for prove -property (it needs the short name)
-    set short_prop [regsub {^<embedded>::} $prop ""]
-
-    # Force re-prove the property so JasperGold regenerates the trace,
-    # then immediately visualize before the trace is discarded.
-    if {!$dumped && [catch {
-      prove -property $short_prop -force
-      visualize -violation $prop
-      visualize -save -vcd $vcd_path
-      visualize -close
-      set dumped 1
-      incr vcd_count
-      puts "INFO: Dumped VCD for $prop -> $vcd_path"
-    } err1]} {
-      catch { visualize -close }
-      puts "DEBUG: Approach 1 (force re-prove) failed: $err1"
-    }
-
-    # Approach 2: visualize -violation with -new_trace to force trace gen
-    if {!$dumped && [catch {
-      visualize -violation $prop -new_trace
-      visualize -save -vcd $vcd_path
-      visualize -close
-      set dumped 1
-      incr vcd_count
-      puts "INFO: Dumped VCD for $prop -> $vcd_path"
-    } err2]} {
-      catch { visualize -close }
-      puts "DEBUG: Approach 2 (-new_trace) failed: $err2"
-    }
-
-    # Approach 3: prove with -force and auto engine mode
-    if {!$dumped && [catch {
-      set_engine_mode {auto}
-      prove -property $short_prop -force
-      visualize -violation $prop
-      visualize -save -vcd $vcd_path
-      visualize -close
-      set dumped 1
-      incr vcd_count
-      puts "INFO: Dumped VCD for $prop -> $vcd_path"
-    } err3]} {
-      catch { visualize -close }
-      puts "DEBUG: Approach 3 (auto engine) failed: $err3"
-    }
-
-    if {!$dumped} {
-      puts "WARN: Could not dump VCD for $prop (all approaches failed)"
-    }
-  }
-  puts "INFO: Dumped $vcd_count VCD files to $VCD_DIR"
-} elseif {$DUMP_VCD} {
-  puts "INFO: No CEX properties to dump VCD for"
-}
-INFO: No CEX properties to dump VCD for
-[<embedded>] % 
 [<embedded>] % # ---- Write summary ----
 [<embedded>] % set fp [open $SUMMARY_TXT "w"]
-file44
+file43
 [<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
 [<embedded>] % puts $fp "TOP=$TOP"
 [<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
@@ -823,6 +735,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.319 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.309 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

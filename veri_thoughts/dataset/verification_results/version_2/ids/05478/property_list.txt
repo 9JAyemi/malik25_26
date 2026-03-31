@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+adder_subtractor.auto_sva_inst.check_add_mode_sum
+adder_subtractor.auto_sva_inst.check_sub_mode_sum
+adder_subtractor.auto_sva_inst.check_no_ovf_without_cin
+adder_subtractor.auto_sva_inst.check_add_with_cin
+adder_subtractor.auto_sva_inst.check_sub_with_cin
+
+COVER PROPERTIES:
+adder_subtractor.auto_sva_inst.check_add_mode_sum:precondition1
+adder_subtractor.auto_sva_inst.check_sub_mode_sum:precondition1
+adder_subtractor.auto_sva_inst.check_no_ovf_without_cin:precondition1
+adder_subtractor.auto_sva_inst.check_add_with_cin:precondition1
+adder_subtractor.auto_sva_inst.check_sub_with_cin:precondition1

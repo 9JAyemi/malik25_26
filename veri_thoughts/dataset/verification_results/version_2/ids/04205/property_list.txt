@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_matches_addition
+adder.auto_sva_inst.check_overflow_matches_sign_rule
+adder.auto_sva_inst.check_xor_output_matches_sum
+adder.auto_sva_inst.check_out_matches_add_then_xor
+adder.auto_sva_inst.check_no_overflow_for_mixed_sign_inputs
+adder.auto_sva_inst.check_positive_overflow_case
+adder.auto_sva_inst.check_negative_overflow_case
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_no_overflow_for_mixed_sign_inputs:precondition1
+adder.auto_sva_inst.check_positive_overflow_case:precondition1
+adder.auto_sva_inst.check_negative_overflow_case:precondition1

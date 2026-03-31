@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+cycle_counter.auto_sva_inst.check_clear_on_enn
+cycle_counter.auto_sva_inst.check_increment_when_enn_low
+cycle_counter.auto_sva_inst.check_wrap_from_max
+cycle_counter.auto_sva_inst.check_full_modulo_cycle
+cycle_counter.auto_sva_inst.check_clear_then_count
+
+COVER PROPERTIES:
+cycle_counter.auto_sva_inst.check_clear_on_enn:precondition1
+cycle_counter.auto_sva_inst.check_increment_when_enn_low:precondition1
+cycle_counter.auto_sva_inst.check_wrap_from_max:precondition1
+cycle_counter.auto_sva_inst.check_full_modulo_cycle:precondition1
+cycle_counter.auto_sva_inst.check_clear_then_count:precondition1

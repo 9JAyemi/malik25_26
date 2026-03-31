@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+not_gate.auto_sva_inst.check_xor_equivalence
+not_gate.auto_sva_inst.check_sop_equivalence
+not_gate.auto_sva_inst.check_equal_inputs_drive_zero
+not_gate.auto_sva_inst.check_different_inputs_drive_one
+not_gate.auto_sva_inst.check_zero_zero_case
+not_gate.auto_sva_inst.check_zero_one_case
+not_gate.auto_sva_inst.check_one_zero_case
+not_gate.auto_sva_inst.check_one_one_case
+
+COVER PROPERTIES:
+not_gate.auto_sva_inst.check_equal_inputs_drive_zero:precondition1
+not_gate.auto_sva_inst.check_different_inputs_drive_one:precondition1
+not_gate.auto_sva_inst.check_zero_zero_case:precondition1
+not_gate.auto_sva_inst.check_zero_one_case:precondition1
+not_gate.auto_sva_inst.check_one_zero_case:precondition1
+not_gate.auto_sva_inst.check_one_one_case:precondition1

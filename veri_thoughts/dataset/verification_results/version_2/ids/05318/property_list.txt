@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_disable_clears_output
+clock_gate.auto_sva_inst.check_test_enable_sets_output
+clock_gate.auto_sva_inst.check_clk_capture_sets_output
+clock_gate.auto_sva_inst.check_output_tracks_previous_en
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_disable_clears_output:precondition1
+clock_gate.auto_sva_inst.check_test_enable_sets_output:precondition1
+clock_gate.auto_sva_inst.check_clk_capture_sets_output:precondition1
+clock_gate.auto_sva_inst.check_output_tracks_previous_en:precondition1

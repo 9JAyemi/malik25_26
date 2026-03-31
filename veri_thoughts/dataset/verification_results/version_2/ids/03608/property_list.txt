@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+clk_generator.auto_sva_inst.check_clk_bus_matches_clk_i
+clk_generator.auto_sva_inst.check_clk_core_starts_low
+clk_generator.auto_sva_inst.check_clk_core_known
+clk_generator.auto_sva_inst.check_clk_core_low_to_high
+clk_generator.auto_sva_inst.check_clk_core_high_to_low
+
+COVER PROPERTIES:
+clk_generator.auto_sva_inst.check_clk_core_starts_low:precondition1
+clk_generator.auto_sva_inst.check_clk_core_low_to_high:precondition1
+clk_generator.auto_sva_inst.check_clk_core_high_to_low:precondition1

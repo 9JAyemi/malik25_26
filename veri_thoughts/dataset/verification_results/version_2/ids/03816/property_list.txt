@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+binary_counter.auto_sva_inst.reset_clears_count
+binary_counter.auto_sva_inst.count_rolls_over_at_nine
+binary_counter.auto_sva_inst.count_advances_or_resets_otherwise
+
+COVER PROPERTIES:
+binary_counter.auto_sva_inst.reset_clears_count:precondition1
+binary_counter.auto_sva_inst.count_rolls_over_at_nine:precondition1
+binary_counter.auto_sva_inst.count_advances_or_resets_otherwise:precondition1

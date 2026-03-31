@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+shift_and_zero.auto_sva_inst.check_reset_zero
+shift_and_zero.auto_sva_inst.check_shift_mapping
+shift_and_zero.auto_sva_inst.check_low_bits_zero
+shift_and_zero.auto_sva_inst.check_upper_bits_match
+shift_and_zero.auto_sva_inst.check_stable_input_stable_output
+shift_and_zero.auto_sva_inst.check_lower_input_bits_ignored
+
+COVER PROPERTIES:
+shift_and_zero.auto_sva_inst.check_reset_zero:precondition1
+shift_and_zero.auto_sva_inst.check_stable_input_stable_output:precondition1
+shift_and_zero.auto_sva_inst.check_lower_input_bits_ignored:precondition1

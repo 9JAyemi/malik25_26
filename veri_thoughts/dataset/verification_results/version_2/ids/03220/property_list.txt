@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_enclk_matches_registered_gate
+clock_gate.auto_sva_inst.check_enable_sets_enclk
+clock_gate.auto_sva_inst.check_disable_clears_enclk
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_enclk_matches_registered_gate:precondition1
+clock_gate.auto_sva_inst.check_enable_sets_enclk:precondition1
+clock_gate.auto_sva_inst.check_disable_clears_enclk:precondition1

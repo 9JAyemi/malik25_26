@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nor4.auto_sva_inst.check_output_equation
+nor4.auto_sva_inst.check_d_low_reduces_to_nor3
+nor4.auto_sva_inst.check_d_high_forces_y_high
+nor4.auto_sva_inst.check_abc_high_with_d_low_forces_y_low
+nor4.auto_sva_inst.check_stable_inputs_keep_output_stable
+
+COVER PROPERTIES:
+nor4.auto_sva_inst.check_d_low_reduces_to_nor3:precondition1
+nor4.auto_sva_inst.check_d_high_forces_y_high:precondition1
+nor4.auto_sva_inst.check_abc_high_with_d_low_forces_y_low:precondition1
+nor4.auto_sva_inst.check_stable_inputs_keep_output_stable:precondition1

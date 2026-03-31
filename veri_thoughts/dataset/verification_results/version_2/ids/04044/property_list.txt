@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+decoder.auto_sva_inst.check_decode_equation
+decoder.auto_sva_inst.check_output_onehot
+decoder.auto_sva_inst.check_selected_bit_high
+decoder.auto_sva_inst.check_decode_zero
+decoder.auto_sva_inst.check_decode_fifteen
+
+COVER PROPERTIES:
+decoder.auto_sva_inst.check_decode_zero:precondition1
+decoder.auto_sva_inst.check_decode_fifteen:precondition1

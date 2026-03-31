@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+binary_adder.auto_sva_inst.check_add_mode_result
+binary_adder.auto_sva_inst.check_sub_mode_result
+binary_adder.auto_sva_inst.check_output_stable_when_inputs_stable
+
+COVER PROPERTIES:
+binary_adder.auto_sva_inst.check_add_mode_result:precondition1
+binary_adder.auto_sva_inst.check_sub_mode_result:precondition1
+binary_adder.auto_sva_inst.check_output_stable_when_inputs_stable:precondition1

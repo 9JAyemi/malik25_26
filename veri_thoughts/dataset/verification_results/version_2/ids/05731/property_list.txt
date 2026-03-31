@@ -1,0 +1,8 @@
+ASSERT PROPERTIES:
+clock_gating_cell.auto_sva_inst.check_gated_clk_low_on_posedge
+clock_gating_cell.auto_sva_inst.check_gated_clk_blocked_when_disabled
+clock_gating_cell.auto_sva_inst.check_gated_clk_passes_when_enabled
+
+COVER PROPERTIES:
+clock_gating_cell.auto_sva_inst.check_gated_clk_blocked_when_disabled:precondition1
+clock_gating_cell.auto_sva_inst.check_gated_clk_passes_when_enabled:precondition1

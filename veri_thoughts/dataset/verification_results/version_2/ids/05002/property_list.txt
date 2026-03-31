@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+nand2.auto_sva_inst.check_output_function
+nand2.auto_sva_inst.check_ab_pair_drives_high
+nand2.auto_sva_inst.check_cd_pair_drives_high
+nand2.auto_sva_inst.check_no_pair_drives_low
+nand2.auto_sva_inst.check_high_output_requires_pair
+
+COVER PROPERTIES:
+nand2.auto_sva_inst.check_ab_pair_drives_high:precondition1
+nand2.auto_sva_inst.check_cd_pair_drives_high:precondition1
+nand2.auto_sva_inst.check_no_pair_drives_low:precondition1
+nand2.auto_sva_inst.check_high_output_requires_pair:precondition1

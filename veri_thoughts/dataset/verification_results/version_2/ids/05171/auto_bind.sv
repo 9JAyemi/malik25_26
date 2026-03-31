@@ -1,0 +1,6 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_gray_bit0, assert, property, posedge, check_gray_bit1, check_gray_bit2, check_gray_bit3, check_gray_vector
+bind binary_to_gray binary_to_gray_sva auto_sva_inst (
+    .A(A),
+    .G(G)
+);

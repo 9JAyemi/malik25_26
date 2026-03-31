@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+two_input_gate.auto_sva_inst.check_output_equation
+two_input_gate.auto_sva_inst.check_00_high
+two_input_gate.auto_sva_inst.check_01_low
+two_input_gate.auto_sva_inst.check_10_low
+two_input_gate.auto_sva_inst.check_11_high
+two_input_gate.auto_sva_inst.check_stable_inputs_stable_output
+
+COVER PROPERTIES:
+two_input_gate.auto_sva_inst.check_00_high:precondition1
+two_input_gate.auto_sva_inst.check_01_low:precondition1
+two_input_gate.auto_sva_inst.check_10_low:precondition1
+two_input_gate.auto_sva_inst.check_11_high:precondition1
+two_input_gate.auto_sva_inst.check_stable_inputs_stable_output:precondition1

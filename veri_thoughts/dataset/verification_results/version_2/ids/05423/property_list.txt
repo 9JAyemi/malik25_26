@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+bit_counter.auto_sva_inst.check_count_matches_parity
+bit_counter.auto_sva_inst.check_zero_or_four_ones_drive_low
+bit_counter.auto_sva_inst.check_one_hot_drives_high
+bit_counter.auto_sva_inst.check_two_ones_drive_low
+bit_counter.auto_sva_inst.check_three_ones_drive_high
+
+COVER PROPERTIES:
+bit_counter.auto_sva_inst.check_zero_or_four_ones_drive_low:precondition1
+bit_counter.auto_sva_inst.check_one_hot_drives_high:precondition1
+bit_counter.auto_sva_inst.check_two_ones_drive_low:precondition1
+bit_counter.auto_sva_inst.check_three_ones_drive_high:precondition1

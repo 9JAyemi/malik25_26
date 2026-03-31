@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_output_matches_addition
+full_adder.auto_sva_inst.check_sum_is_input_parity
+full_adder.auto_sva_inst.check_cout_is_majority
+full_adder.auto_sva_inst.check_zero_inputs
+full_adder.auto_sva_inst.check_all_one_inputs
+full_adder.auto_sva_inst.check_one_high_input
+full_adder.auto_sva_inst.check_two_high_inputs
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_zero_inputs:precondition1
+full_adder.auto_sva_inst.check_all_one_inputs:precondition1
+full_adder.auto_sva_inst.check_one_high_input:precondition1
+full_adder.auto_sva_inst.check_two_high_inputs:precondition1

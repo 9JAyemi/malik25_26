@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_eq_high_when_equal
+comparator.auto_sva_inst.check_eq_low_when_different
+comparator.auto_sva_inst.check_eq_high_implies_equal
+comparator.auto_sva_inst.check_eq_low_implies_different
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.check_eq_high_when_equal:precondition1
+comparator.auto_sva_inst.check_eq_low_when_different:precondition1
+comparator.auto_sva_inst.check_eq_high_implies_equal:precondition1
+comparator.auto_sva_inst.check_eq_low_implies_different:precondition1

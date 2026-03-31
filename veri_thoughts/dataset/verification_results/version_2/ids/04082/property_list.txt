@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero_next_cycle
+counter.auto_sva_inst.check_increment_when_not_max
+counter.auto_sva_inst.check_wrap_after_max
+counter.auto_sva_inst.check_counter_advances_each_active_cycle
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_forces_zero_next_cycle:precondition1
+counter.auto_sva_inst.check_increment_when_not_max:precondition1
+counter.auto_sva_inst.check_wrap_after_max:precondition1
+counter.auto_sva_inst.check_counter_advances_each_active_cycle:precondition1

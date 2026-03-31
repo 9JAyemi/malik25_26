@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+binary_adder.auto_sva_inst.check_sum_equation
+binary_adder.auto_sva_inst.check_cout_n_equation
+binary_adder.auto_sva_inst.check_full_adder_result
+binary_adder.auto_sva_inst.check_half_adder_mode
+binary_adder.auto_sva_inst.check_carry_in_high_mode
+binary_adder.auto_sva_inst.check_zero_case
+binary_adder.auto_sva_inst.check_all_one_case
+binary_adder.auto_sva_inst.check_one_hot_case
+binary_adder.auto_sva_inst.check_two_hot_case
+
+COVER PROPERTIES:
+binary_adder.auto_sva_inst.check_half_adder_mode:precondition1
+binary_adder.auto_sva_inst.check_carry_in_high_mode:precondition1
+binary_adder.auto_sva_inst.check_zero_case:precondition1
+binary_adder.auto_sva_inst.check_all_one_case:precondition1
+binary_adder.auto_sva_inst.check_one_hot_case:precondition1
+binary_adder.auto_sva_inst.check_two_hot_case:precondition1

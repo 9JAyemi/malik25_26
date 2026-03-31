@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_parity
+full_adder.auto_sva_inst.check_cout_function
+full_adder.auto_sva_inst.check_zero_case
+full_adder.auto_sva_inst.check_ci_only_case
+full_adder.auto_sva_inst.check_ci_low_blocks_cout
+full_adder.auto_sva_inst.check_ab_high_blocks_cout
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_zero_case:precondition1
+full_adder.auto_sva_inst.check_ci_only_case:precondition1
+full_adder.auto_sva_inst.check_ci_low_blocks_cout:precondition1
+full_adder.auto_sva_inst.check_ab_high_blocks_cout:precondition1

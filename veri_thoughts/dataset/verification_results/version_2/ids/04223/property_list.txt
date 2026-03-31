@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_reset_clears_outputs
+top_module.auto_sva_inst.check_sum_matches_q1_q2
+top_module.auto_sva_inst.check_q1_load_priority
+top_module.auto_sva_inst.check_q1_increment
+top_module.auto_sva_inst.check_q1_decrement
+top_module.auto_sva_inst.check_q2_load_priority
+top_module.auto_sva_inst.check_q2_increment
+top_module.auto_sva_inst.check_q2_decrement
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_reset_clears_outputs:precondition1
+top_module.auto_sva_inst.check_q1_load_priority:precondition1
+top_module.auto_sva_inst.check_q1_increment:precondition1
+top_module.auto_sva_inst.check_q1_decrement:precondition1
+top_module.auto_sva_inst.check_q2_load_priority:precondition1
+top_module.auto_sva_inst.check_q2_increment:precondition1
+top_module.auto_sva_inst.check_q2_decrement:precondition1

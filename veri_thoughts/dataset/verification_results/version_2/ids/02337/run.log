@@ -54,7 +54,6 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 % #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
 % #   JG_RESET      : explicit reset signal name (optional)
 % #   JG_RESET_EXPR : explicit reset expression (optional)
-% #   JG_DUMP_VCD   : 1 to dump VCD waveforms for CEX properties (default: 0)
 % # ============================================================
 % 
 % proc split_env_list {s} {
@@ -289,8 +288,6 @@ sv12
 % set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
 % set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
 1
-% set DUMP_VCD [expr {[info exists ::env(JG_DUMP_VCD)] ? $::env(JG_DUMP_VCD) : 0}]
-1
 % 
 % # JG_DESIGN/JG_SVA can be:
 % # - a directory
@@ -366,8 +363,6 @@ INFO: Verification run starting
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
   AUTO_BIND : 1
-% puts "  DUMP_VCD  : $DUMP_VCD"
-  DUMP_VCD  : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
@@ -503,8 +498,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
-[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
-[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % # 300 seconds = 5 minute timeout per property
+[<embedded>] % set_prove_time_limit 300
 [<embedded>] % 
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
@@ -553,7 +548,7 @@ failed
 [<embedded>] % INFO (IPL005): Received request to exit from the console.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.303 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO (IPL015): The Tcl-thread exited with status 4.
 INFO (IPL016): Exiting the analysis session with status 4.

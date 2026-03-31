@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+unsigned_multiplier.auto_sva_inst.check_product_exact
+unsigned_multiplier.auto_sva_inst.check_zero_multiplicand
+unsigned_multiplier.auto_sva_inst.check_a_is_one
+unsigned_multiplier.auto_sva_inst.check_b_is_one
+unsigned_multiplier.auto_sva_inst.check_product_lsb
+unsigned_multiplier.auto_sva_inst.check_max_operands
+
+COVER PROPERTIES:
+unsigned_multiplier.auto_sva_inst.check_zero_multiplicand:precondition1
+unsigned_multiplier.auto_sva_inst.check_a_is_one:precondition1
+unsigned_multiplier.auto_sva_inst.check_b_is_one:precondition1
+unsigned_multiplier.auto_sva_inst.check_max_operands:precondition1

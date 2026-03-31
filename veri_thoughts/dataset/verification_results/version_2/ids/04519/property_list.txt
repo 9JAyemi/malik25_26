@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+nor_and.auto_sva_inst.check_supply_constants
+nor_and.auto_sva_inst.check_y_boolean_equation
+nor_and.auto_sva_inst.check_ab_zero_forces_y_low
+nor_and.auto_sva_inst.check_cd_zero_forces_y_low
+nor_and.auto_sva_inst.check_y_high_requires_ab_or
+nor_and.auto_sva_inst.check_y_high_requires_cd_or
+nor_and.auto_sva_inst.check_pairwise_or_drives_y_high
+
+COVER PROPERTIES:
+nor_and.auto_sva_inst.check_ab_zero_forces_y_low:precondition1
+nor_and.auto_sva_inst.check_cd_zero_forces_y_low:precondition1
+nor_and.auto_sva_inst.check_y_high_requires_ab_or:precondition1
+nor_and.auto_sva_inst.check_y_high_requires_cd_or:precondition1
+nor_and.auto_sva_inst.check_pairwise_or_drives_y_high:precondition1

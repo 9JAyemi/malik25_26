@@ -1,0 +1,8 @@
+ASSERT PROPERTIES:
+my_inverter.auto_sva_inst.check_output_is_inverted_input
+my_inverter.auto_sva_inst.check_high_input_drives_low_output
+my_inverter.auto_sva_inst.check_low_input_drives_high_output
+
+COVER PROPERTIES:
+my_inverter.auto_sva_inst.check_high_input_drives_low_output:precondition1
+my_inverter.auto_sva_inst.check_low_input_drives_high_output:precondition1

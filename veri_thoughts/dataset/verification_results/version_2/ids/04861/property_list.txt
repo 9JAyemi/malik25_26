@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+rsdec_syn_m0.auto_sva_inst.check_reset_clears_regs
+rsdec_syn_m0.auto_sva_inst.check_init_loads_all_regs
+rsdec_syn_m0.auto_sva_inst.check_enable_updates_scaled_xor
+rsdec_syn_m0.auto_sva_inst.check_shift_rotates_regs
+rsdec_syn_m0.auto_sva_inst.check_idle_holds_regs
+
+COVER PROPERTIES:
+rsdec_syn_m0.auto_sva_inst.check_reset_clears_regs:precondition1
+rsdec_syn_m0.auto_sva_inst.check_init_loads_all_regs:precondition1
+rsdec_syn_m0.auto_sva_inst.check_enable_updates_scaled_xor:precondition1
+rsdec_syn_m0.auto_sva_inst.check_shift_rotates_regs:precondition1
+rsdec_syn_m0.auto_sva_inst.check_idle_holds_regs:precondition1

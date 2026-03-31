@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+my_and2_1.auto_sva_inst.check_y_matches_and
+my_and2_1.auto_sva_inst.check_y_high_requires_a_high
+my_and2_1.auto_sva_inst.check_y_high_requires_b_high
+my_and2_1.auto_sva_inst.check_ab_high_implies_y_high
+
+COVER PROPERTIES:
+my_and2_1.auto_sva_inst.check_y_high_requires_a_high:precondition1
+my_and2_1.auto_sva_inst.check_y_high_requires_b_high:precondition1
+my_and2_1.auto_sva_inst.check_ab_high_implies_y_high:precondition1

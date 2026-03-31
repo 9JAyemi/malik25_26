@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_depth8_x00_mapping, assert, property, posedge, check_depth8_x01_mapping, check_depth8_x10_mapping, check_depth8_x11_mapping, check_depth16_even_mapping, check_depth16_odd_mapping, check_other_depth_passthrough, memory_to_color_sva, check_depth8_mem00_mapping, check_depth8_mem01_mapping, check_depth8_mem10_mapping, check_depth8_mem11_mapping
+bind color_to_memory color_to_memory_sva auto_sva_inst (
+    .color_depth_i(color_depth_i),
+    .color_i(color_i),
+    .x_lsb_i(x_lsb_i),
+    .mem_o(mem_o),
+    .sel_o(sel_o),
+    .b00(b00),
+    .b1000(b1000),
+    .h000000(h000000),
+    .b01(b01),
+    .b0100(b0100),
+    .h00(h00),
+    .h0000(h0000),
+    .b10(b10),
+    .b0010(b0010),
+    .b11(b11),
+    .b0001(b0001),
+    .b0(b0),
+    .b1100(b1100),
+    .b1(b1),
+    .b0011(b0011),
+    .b1111(b1111),
+    .endmodule(endmodule),
+    .module(module),
+    .mem_i(mem_i),
+    .mem_lsb_i(mem_lsb_i),
+    .color_o(color_o)
+);

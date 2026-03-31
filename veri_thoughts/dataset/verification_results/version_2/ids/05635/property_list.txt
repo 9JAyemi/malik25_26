@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+and_gate_ctrl.auto_sva_inst.check_ctrl_low_forces_zero
+and_gate_ctrl.auto_sva_inst.check_ctrl_high_passes_and
+and_gate_ctrl.auto_sva_inst.check_output_high_requires_all_high
+and_gate_ctrl.auto_sva_inst.check_all_high_drive_high
+
+COVER PROPERTIES:
+and_gate_ctrl.auto_sva_inst.check_ctrl_low_forces_zero:precondition1
+and_gate_ctrl.auto_sva_inst.check_ctrl_high_passes_and:precondition1
+and_gate_ctrl.auto_sva_inst.check_output_high_requires_all_high:precondition1
+and_gate_ctrl.auto_sva_inst.check_all_high_drive_high:precondition1

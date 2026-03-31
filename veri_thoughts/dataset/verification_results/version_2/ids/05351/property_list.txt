@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_eq_function
+top_module.auto_sva_inst.check_gt_function
+top_module.auto_sva_inst.check_or_combination
+top_module.auto_sva_inst.check_compare_mutex
+top_module.auto_sva_inst.check_enable_selects_b
+top_module.auto_sva_inst.check_disable_less_than_case
+top_module.auto_sva_inst.check_disable_equal_case
+top_module.auto_sva_inst.check_disable_greater_than_case
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_enable_selects_b:precondition1
+top_module.auto_sva_inst.check_disable_less_than_case:precondition1
+top_module.auto_sva_inst.check_disable_equal_case:precondition1
+top_module.auto_sva_inst.check_disable_greater_than_case:precondition1

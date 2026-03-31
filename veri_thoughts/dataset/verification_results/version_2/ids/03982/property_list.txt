@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_en_high_sets_enclk
+clock_gate.auto_sva_inst.check_en_low_clears_enclk
+clock_gate.auto_sva_inst.check_enclk_tracks_previous_en
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_en_high_sets_enclk:precondition1
+clock_gate.auto_sva_inst.check_en_low_clears_enclk:precondition1
+clock_gate.auto_sva_inst.check_enclk_tracks_previous_en:precondition1

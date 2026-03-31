@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+XOR2.auto_sva_inst.check_output_is_three_input_xor
+XOR2.auto_sva_inst.check_reduce_when_i2_low
+XOR2.auto_sva_inst.check_invert_when_i2_high
+XOR2.auto_sva_inst.check_equal_inputs_pass_through_i2
+XOR2.auto_sva_inst.check_different_inputs_invert_i2
+XOR2.auto_sva_inst.check_reduce_when_i0_low
+XOR2.auto_sva_inst.check_reduce_when_i1_low
+
+COVER PROPERTIES:
+XOR2.auto_sva_inst.check_reduce_when_i2_low:precondition1
+XOR2.auto_sva_inst.check_invert_when_i2_high:precondition1
+XOR2.auto_sva_inst.check_equal_inputs_pass_through_i2:precondition1
+XOR2.auto_sva_inst.check_different_inputs_invert_i2:precondition1
+XOR2.auto_sva_inst.check_reduce_when_i0_low:precondition1
+XOR2.auto_sva_inst.check_reduce_when_i1_low:precondition1

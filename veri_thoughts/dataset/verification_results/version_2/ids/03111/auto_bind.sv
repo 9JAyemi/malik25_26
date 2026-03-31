@@ -1,0 +1,32 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_shift_stage_1_to_4, assert, property, posedge, past, check_shift_stage_5_to_8, check_shift_stage_9_to_12, check_shift_stage_13_to_16, check_shift_stage_17_to_20, check_shift_stage_21_to_24, check_hold_stage_1_to_4, check_hold_stage_5_to_8, check_hold_stage_9_to_12, check_hold_stage_13_to_16, check_hold_stage_17_to_20, check_hold_stage_21_to_24, sequence, enabled_24_cycles, endsequence, check_end_to_end_24_cycle_shift
+bind jt12_sh24 jt12_sh24_assertions auto_sva_inst (
+    .clk(clk),
+    .clk_en(clk_en),
+    .width(width),
+    .din(din),
+    .st1(st1),
+    .st2(st2),
+    .st3(st3),
+    .st4(st4),
+    .st5(st5),
+    .st6(st6),
+    .st7(st7),
+    .st8(st8),
+    .st9(st9),
+    .st10(st10),
+    .st11(st11),
+    .st12(st12),
+    .st13(st13),
+    .st14(st14),
+    .st15(st15),
+    .st16(st16),
+    .st17(st17),
+    .st18(st18),
+    .st19(st19),
+    .st20(st20),
+    .st21(st21),
+    .st22(st22),
+    .st23(st23),
+    .st24(st24)
+);

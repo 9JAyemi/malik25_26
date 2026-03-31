@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+addr_map.auto_sva_inst.check_addr_equation
+addr_map.auto_sva_inst.check_addr_upper_bits_zero
+addr_map.auto_sva_inst.check_addr_low_bits_from_hcount
+addr_map.auto_sva_inst.check_addr_ignores_hcount_lsb
+addr_map.auto_sva_inst.check_addr_ignores_vcount_lsb
+addr_map.auto_sva_inst.check_addr_ignores_vcount_upper_bits
+
+COVER PROPERTIES:
+addr_map.auto_sva_inst.check_addr_ignores_hcount_lsb:precondition1
+addr_map.auto_sva_inst.check_addr_ignores_vcount_lsb:precondition1
+addr_map.auto_sva_inst.check_addr_ignores_vcount_upper_bits:precondition1

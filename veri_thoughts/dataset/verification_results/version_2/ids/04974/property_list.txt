@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_mux_boolean_equation
+mux_2to1.auto_sva_inst.check_select_low_path
+mux_2to1.auto_sva_inst.check_select_high_path
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_select_low_path:precondition1
+mux_2to1.auto_sva_inst.check_select_high_path:precondition1
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough:precondition1

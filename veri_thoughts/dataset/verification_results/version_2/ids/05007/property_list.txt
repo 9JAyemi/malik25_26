@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+nor_gate_using_nand.auto_sva_inst.check_out_is_nor
+nor_gate_using_nand.auto_sva_inst.check_a_high_forces_low
+nor_gate_using_nand.auto_sva_inst.check_b_high_forces_low
+nor_gate_using_nand.auto_sva_inst.check_both_low_forces_high
+
+COVER PROPERTIES:
+nor_gate_using_nand.auto_sva_inst.check_a_high_forces_low:precondition1
+nor_gate_using_nand.auto_sva_inst.check_b_high_forces_low:precondition1
+nor_gate_using_nand.auto_sva_inst.check_both_low_forces_high:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+boolean_ops.auto_sva_inst.check_logic_out_mux_function
+boolean_ops.auto_sva_inst.check_and_selected
+boolean_ops.auto_sva_inst.check_or_selected
+boolean_ops.auto_sva_inst.check_xor_selected
+boolean_ops.auto_sva_inst.check_mov_selected
+boolean_ops.auto_sva_inst.check_mov_upper_half_masked
+boolean_ops.auto_sva_inst.check_mov_lower_half_passes_rs2
+
+COVER PROPERTIES:
+boolean_ops.auto_sva_inst.check_and_selected:precondition1
+boolean_ops.auto_sva_inst.check_or_selected:precondition1
+boolean_ops.auto_sva_inst.check_xor_selected:precondition1
+boolean_ops.auto_sva_inst.check_mov_selected:precondition1
+boolean_ops.auto_sva_inst.check_mov_upper_half_masked:precondition1
+boolean_ops.auto_sva_inst.check_mov_lower_half_passes_rs2:precondition1

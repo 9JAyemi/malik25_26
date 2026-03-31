@@ -1,0 +1,19 @@
+ASSERT PROPERTIES:
+ALU.auto_sva_inst.check_reset_clears_res
+ALU.auto_sva_inst.check_addition_result
+ALU.auto_sva_inst.check_subtraction_result
+ALU.auto_sva_inst.check_and_result
+ALU.auto_sva_inst.check_or_result
+ALU.auto_sva_inst.check_xor_result
+ALU.auto_sva_inst.check_shift_left_result
+ALU.auto_sva_inst.check_default_zero_result
+
+COVER PROPERTIES:
+ALU.auto_sva_inst.check_reset_clears_res:precondition1
+ALU.auto_sva_inst.check_addition_result:precondition1
+ALU.auto_sva_inst.check_subtraction_result:precondition1
+ALU.auto_sva_inst.check_and_result:precondition1
+ALU.auto_sva_inst.check_or_result:precondition1
+ALU.auto_sva_inst.check_xor_result:precondition1
+ALU.auto_sva_inst.check_shift_left_result:precondition1
+ALU.auto_sva_inst.check_default_zero_result:precondition1

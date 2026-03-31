@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+Register.auto_sva_inst.check_reset_clears_q
+Register.auto_sva_inst.check_low_byte_write
+Register.auto_sva_inst.check_low_byte_hold
+Register.auto_sva_inst.check_high_byte_write
+Register.auto_sva_inst.check_high_byte_hold
+
+COVER PROPERTIES:
+Register.auto_sva_inst.check_reset_clears_q:precondition1
+Register.auto_sva_inst.check_low_byte_write:precondition1
+Register.auto_sva_inst.check_low_byte_hold:precondition1
+Register.auto_sva_inst.check_high_byte_write:precondition1
+Register.auto_sva_inst.check_high_byte_hold:precondition1

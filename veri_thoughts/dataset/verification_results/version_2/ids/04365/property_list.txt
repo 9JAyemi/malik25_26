@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+math_op.auto_sva_inst.check_output_boolean_form
+math_op.auto_sva_inst.check_lt_branch_forces_zero
+math_op.auto_sva_inst.check_gt_branch_matches_c
+math_op.auto_sva_inst.check_eq_low_branch_forces_zero
+math_op.auto_sva_inst.check_eq_high_branch_sets_one
+
+COVER PROPERTIES:
+math_op.auto_sva_inst.check_lt_branch_forces_zero:precondition1
+math_op.auto_sva_inst.check_gt_branch_matches_c:precondition1
+math_op.auto_sva_inst.check_eq_low_branch_forces_zero:precondition1
+math_op.auto_sva_inst.check_eq_high_branch_sets_one:precondition1
