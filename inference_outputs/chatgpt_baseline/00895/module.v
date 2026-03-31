@@ -1,0 +1,16 @@
+module binary_counter(
+    input clk,
+    input rst,
+    output reg [2:0] count
+);
+
+    always @(posedge clk or negedge rst) begin
+        if (rst == 0) begin
+            count <= 3'b0;
+        end
+        else begin
+            count <= count + 1;
+        end
+    end
+
+endmodule
