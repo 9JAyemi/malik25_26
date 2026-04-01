@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+xor_module.auto_sva_inst.check_xor_function
+xor_module.auto_sva_inst.check_both_low
+xor_module.auto_sva_inst.check_both_high
+xor_module.auto_sva_inst.check_inputs_differ
+xor_module.auto_sva_inst.check_output_high_requires_xor
+
+COVER PROPERTIES:
+xor_module.auto_sva_inst.check_both_low:precondition1
+xor_module.auto_sva_inst.check_both_high:precondition1
+xor_module.auto_sva_inst.check_inputs_differ:precondition1
+xor_module.auto_sva_inst.check_output_high_requires_xor:precondition1

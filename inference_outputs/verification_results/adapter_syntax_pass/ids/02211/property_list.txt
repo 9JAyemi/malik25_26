@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+shift_right.auto_sva_inst.check_reset_clears_state
+shift_right.auto_sva_inst.check_load_updates_shiftreg
+shift_right.auto_sva_inst.check_load_priority_over_shift
+shift_right.auto_sva_inst.check_shift_updates_state
+shift_right.auto_sva_inst.check_idle_holds_state
+
+COVER PROPERTIES:
+shift_right.auto_sva_inst.check_reset_clears_state:precondition1
+shift_right.auto_sva_inst.check_load_updates_shiftreg:precondition1
+shift_right.auto_sva_inst.check_load_priority_over_shift:precondition1
+shift_right.auto_sva_inst.check_shift_updates_state:precondition1
+shift_right.auto_sva_inst.check_idle_holds_state:precondition1

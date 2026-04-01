@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+flip_flop.auto_sva_inst.check_next_state_function
+flip_flop.auto_sva_inst.check_de_loads_d
+flip_flop.auto_sva_inst.check_sce_loads_scd_when_de_low
+flip_flop.auto_sva_inst.check_hold_when_both_controls_low
+
+COVER PROPERTIES:
+flip_flop.auto_sva_inst.check_next_state_function:precondition1
+flip_flop.auto_sva_inst.check_de_loads_d:precondition1
+flip_flop.auto_sva_inst.check_sce_loads_scd_when_de_low:precondition1
+flip_flop.auto_sva_inst.check_hold_when_both_controls_low:precondition1

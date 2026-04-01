@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+dffr.auto_sva_inst.check_reset_forces_q_low
+dffr.auto_sva_inst.check_reset_cycle_keeps_q_low
+dffr.auto_sva_inst.check_q_follows_previous_d
+dffr.auto_sva_inst.check_q_high_requires_prior_d_high
+dffr.auto_sva_inst.check_q_low_requires_prior_d_low
+
+COVER PROPERTIES:
+dffr.auto_sva_inst.check_reset_forces_q_low:precondition1
+dffr.auto_sva_inst.check_reset_cycle_keeps_q_low:precondition1
+dffr.auto_sva_inst.check_q_follows_previous_d:precondition1
+dffr.auto_sva_inst.check_q_high_requires_prior_d_high:precondition1
+dffr.auto_sva_inst.check_q_low_requires_prior_d_low:precondition1

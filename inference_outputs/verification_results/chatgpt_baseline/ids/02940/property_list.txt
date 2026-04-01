@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+add_sub.auto_sva_inst.reset_level_forces_zero
+add_sub.auto_sva_inst.first_clk_after_reset_release_zero
+add_sub.auto_sva_inst.update_sum_when_op0
+add_sub.auto_sva_inst.update_diff_when_op1
+
+COVER PROPERTIES:
+add_sub.auto_sva_inst.reset_level_forces_zero:precondition1
+add_sub.auto_sva_inst.first_clk_after_reset_release_zero:precondition1
+add_sub.auto_sva_inst.update_sum_when_op0:precondition1
+add_sub.auto_sva_inst.update_diff_when_op1:precondition1

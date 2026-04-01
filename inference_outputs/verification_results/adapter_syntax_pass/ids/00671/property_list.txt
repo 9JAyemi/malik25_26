@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_out_matches_rtl_expression
+xor_gate.auto_sva_inst.check_out_matches_xor_function
+xor_gate.auto_sva_inst.check_equal_inputs_drive_low
+xor_gate.auto_sva_inst.check_different_inputs_drive_high
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_equal_inputs_drive_low:precondition1
+xor_gate.auto_sva_inst.check_different_inputs_drive_high:precondition1

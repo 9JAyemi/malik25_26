@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_matches_three_input_xor
+full_adder.auto_sva_inst.check_cout_matches_three_input_majority
+full_adder.auto_sva_inst.check_all_zero_case
+full_adder.auto_sva_inst.check_one_hot_case
+full_adder.auto_sva_inst.check_two_hot_case
+full_adder.auto_sva_inst.check_all_one_case
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_all_zero_case:precondition1
+full_adder.auto_sva_inst.check_one_hot_case:precondition1
+full_adder.auto_sva_inst.check_two_hot_case:precondition1
+full_adder.auto_sva_inst.check_all_one_case:precondition1

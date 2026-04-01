@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+OR3_gate.auto_sva_inst.check_or_function
+OR3_gate.auto_sva_inst.check_all_zero_implies_x_zero
+OR3_gate.auto_sva_inst.check_any_one_implies_x_one
+OR3_gate.auto_sva_inst.check_x_rise_requires_any_one
+OR3_gate.auto_sva_inst.check_x_fall_requires_all_zero
+
+COVER PROPERTIES:
+OR3_gate.auto_sva_inst.check_all_zero_implies_x_zero:precondition1
+OR3_gate.auto_sva_inst.check_any_one_implies_x_one:precondition1
+OR3_gate.auto_sva_inst.check_x_rise_requires_any_one:precondition1
+OR3_gate.auto_sva_inst.check_x_fall_requires_all_zero:precondition1

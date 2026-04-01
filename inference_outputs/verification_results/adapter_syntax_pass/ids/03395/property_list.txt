@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+AND3.auto_sva_inst.check_and_function
+AND3.auto_sva_inst.check_all_inputs_high_drive_output_high
+AND3.auto_sva_inst.check_a_low_forces_output_low
+AND3.auto_sva_inst.check_b_low_forces_output_low
+AND3.auto_sva_inst.check_c_low_forces_output_low
+
+COVER PROPERTIES:
+AND3.auto_sva_inst.check_all_inputs_high_drive_output_high:precondition1
+AND3.auto_sva_inst.check_a_low_forces_output_low:precondition1
+AND3.auto_sva_inst.check_b_low_forces_output_low:precondition1
+AND3.auto_sva_inst.check_c_low_forces_output_low:precondition1

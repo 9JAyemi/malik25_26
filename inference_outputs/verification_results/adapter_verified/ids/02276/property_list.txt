@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+mag_comparator.auto_sva_inst.check_eq_definition
+mag_comparator.auto_sva_inst.check_gt_definition
+mag_comparator.auto_sva_inst.check_lt_definition
+mag_comparator.auto_sva_inst.check_outputs_onehot
+mag_comparator.auto_sva_inst.check_eq_when_equal
+mag_comparator.auto_sva_inst.check_gt_when_greater
+mag_comparator.auto_sva_inst.check_lt_when_less
+
+COVER PROPERTIES:
+mag_comparator.auto_sva_inst.check_eq_when_equal:precondition1
+mag_comparator.auto_sva_inst.check_gt_when_greater:precondition1
+mag_comparator.auto_sva_inst.check_lt_when_less:precondition1

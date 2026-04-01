@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+mux4.auto_sva_inst.check_mux_equation
+mux4.auto_sva_inst.check_select_low_path
+mux4.auto_sva_inst.check_select_high_path
+mux4.auto_sva_inst.check_select_low_low
+mux4.auto_sva_inst.check_select_low_high
+mux4.auto_sva_inst.check_select_high_low
+mux4.auto_sva_inst.check_select_high_high
+mux4.auto_sva_inst.check_output_stable_when_inputs_stable
+
+COVER PROPERTIES:
+mux4.auto_sva_inst.check_select_low_path:precondition1
+mux4.auto_sva_inst.check_select_high_path:precondition1
+mux4.auto_sva_inst.check_select_low_low:precondition1
+mux4.auto_sva_inst.check_select_low_high:precondition1
+mux4.auto_sva_inst.check_select_high_low:precondition1
+mux4.auto_sva_inst.check_select_high_high:precondition1
+mux4.auto_sva_inst.check_output_stable_when_inputs_stable:precondition1

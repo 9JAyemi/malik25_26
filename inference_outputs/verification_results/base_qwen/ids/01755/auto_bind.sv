@@ -1,0 +1,33 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): select_update, assert, property, disable, iff, changed, q1_update, q2_update, cin1_update, cin2_update, q_reset, q1_reset, q2_reset, cin1_reset, cin2_reset
+bind top_module top_module_sva auto_sva_inst (
+    .clk(clk),
+    .reset(reset),
+    .d1(d1),
+    .d2(d2),
+    .select(select),
+    .q(q),
+    .q1(q1),
+    .q2(q2),
+    .cin1(cin1),
+    .cin2(cin2),
+    .sum1(sum1),
+    .sum2(sum2),
+    .cout1(cout1),
+    .cout2(cout2),
+    .adder(adder),
+    .adder1(adder1),
+    .a(a),
+    .b(b),
+    .cin(cin),
+    .sum(sum),
+    .cout(cout),
+    .adder2(adder2),
+    .always(always),
+    .posedge(posedge),
+    .begin(begin),
+    .if(if),
+    .end(end),
+    .else(else),
+    .b0(b0)
+);

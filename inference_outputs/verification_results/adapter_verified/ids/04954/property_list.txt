@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+pipelined_adder.auto_sva_inst.check_out_two_cycle_latency
+pipelined_adder.auto_sva_inst.check_zero_a_passthrough
+pipelined_adder.auto_sva_inst.check_zero_b_passthrough
+pipelined_adder.auto_sva_inst.check_max_sum_wraps
+
+COVER PROPERTIES:
+pipelined_adder.auto_sva_inst.check_zero_a_passthrough:precondition1
+pipelined_adder.auto_sva_inst.check_zero_b_passthrough:precondition1
+pipelined_adder.auto_sva_inst.check_max_sum_wraps:precondition1

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+counter_4bit.auto_sva_inst.check_reset_clears_count
+counter_4bit.auto_sva_inst.check_count_increments_when_enabled
+counter_4bit.auto_sva_inst.check_count_holds_when_disabled
+counter_4bit.auto_sva_inst.check_count_wraps_from_max
+
+COVER PROPERTIES:
+counter_4bit.auto_sva_inst.check_reset_clears_count:precondition1
+counter_4bit.auto_sva_inst.check_count_increments_when_enabled:precondition1
+counter_4bit.auto_sva_inst.check_count_holds_when_disabled:precondition1
+counter_4bit.auto_sva_inst.check_count_wraps_from_max:precondition1

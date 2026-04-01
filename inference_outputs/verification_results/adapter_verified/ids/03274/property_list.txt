@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+dffr.auto_sva_inst.reset_clears_next
+dffr.auto_sva_inst.reset_holds_zero
+dffr.auto_sva_inst.capture_d_when_reset_high
+dffr.auto_sva_inst.hold_when_d_equals_q
+dffr.auto_sva_inst.change_when_d_differs
+
+COVER PROPERTIES:
+dffr.auto_sva_inst.reset_clears_next:precondition1
+dffr.auto_sva_inst.reset_holds_zero:precondition1
+dffr.auto_sva_inst.capture_d_when_reset_high:precondition1
+dffr.auto_sva_inst.hold_when_d_equals_q:precondition1
+dffr.auto_sva_inst.change_when_d_differs:precondition1

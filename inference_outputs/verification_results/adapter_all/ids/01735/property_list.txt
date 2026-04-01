@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+tri_buf.auto_sva_inst.check_z_matches_function
+tri_buf.auto_sva_inst.check_z_low_when_tri_state_enabled
+tri_buf.auto_sva_inst.check_z_follows_a_when_enabled
+tri_buf.auto_sva_inst.check_a_low_appears_on_z
+tri_buf.auto_sva_inst.check_a_high_appears_on_z
+
+COVER PROPERTIES:
+tri_buf.auto_sva_inst.check_z_low_when_tri_state_enabled:precondition1
+tri_buf.auto_sva_inst.check_z_follows_a_when_enabled:precondition1
+tri_buf.auto_sva_inst.check_a_low_appears_on_z:precondition1
+tri_buf.auto_sva_inst.check_a_high_appears_on_z:precondition1

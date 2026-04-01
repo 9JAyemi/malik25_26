@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+NAND4AND2.auto_sva_inst.check_z0_high
+NAND4AND2.auto_sva_inst.check_z1_is_ab_and_inverted
+NAND4AND2.auto_sva_inst.check_z1_low_when_ab_high
+NAND4AND2.auto_sva_inst.check_z1_high_when_ab_not_both_high
+NAND4AND2.auto_sva_inst.check_z1_high_when_a_low
+NAND4AND2.auto_sva_inst.check_z1_high_when_b_low
+NAND4AND2.auto_sva_inst.check_z1_high_when_ab_low
+
+COVER PROPERTIES:
+NAND4AND2.auto_sva_inst.check_z1_low_when_ab_high:precondition1
+NAND4AND2.auto_sva_inst.check_z1_high_when_ab_not_both_high:precondition1
+NAND4AND2.auto_sva_inst.check_z1_high_when_a_low:precondition1
+NAND4AND2.auto_sva_inst.check_z1_high_when_b_low:precondition1
+NAND4AND2.auto_sva_inst.check_z1_high_when_ab_low:precondition1

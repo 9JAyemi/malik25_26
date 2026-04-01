@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_x_matches_or_of_ands
+my_module.auto_sva_inst.check_a_triplet_drives_x_high
+my_module.auto_sva_inst.check_b_pair_drives_x_high
+my_module.auto_sva_inst.check_no_active_term_means_x_low
+my_module.auto_sva_inst.check_x_high_has_valid_source
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_a_triplet_drives_x_high:precondition1
+my_module.auto_sva_inst.check_b_pair_drives_x_high:precondition1
+my_module.auto_sva_inst.check_no_active_term_means_x_low:precondition1
+my_module.auto_sva_inst.check_x_high_has_valid_source:precondition1

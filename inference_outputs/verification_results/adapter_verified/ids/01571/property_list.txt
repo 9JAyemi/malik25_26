@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+r_FAULT_STATUS.auto_sva_inst.check_reset_clears_next
+r_FAULT_STATUS.auto_sva_inst.check_reset_priority_over_wenb
+r_FAULT_STATUS.auto_sva_inst.check_write_loads_data
+r_FAULT_STATUS.auto_sva_inst.check_hold_when_wenb_high
+
+COVER PROPERTIES:
+r_FAULT_STATUS.auto_sva_inst.check_reset_clears_next:precondition1
+r_FAULT_STATUS.auto_sva_inst.check_reset_priority_over_wenb:precondition1
+r_FAULT_STATUS.auto_sva_inst.check_write_loads_data:precondition1
+r_FAULT_STATUS.auto_sva_inst.check_hold_when_wenb_high:precondition1

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+BusHold.auto_sva_inst.check_reset_clears_output
+BusHold.auto_sva_inst.check_capture_on_next_clock
+BusHold.auto_sva_inst.check_hold_when_input_unchanged
+BusHold.auto_sva_inst.check_output_change_requires_input_change
+
+COVER PROPERTIES:
+BusHold.auto_sva_inst.check_reset_clears_output:precondition1
+BusHold.auto_sva_inst.check_capture_on_next_clock:precondition1
+BusHold.auto_sva_inst.check_hold_when_input_unchanged:precondition1
+BusHold.auto_sva_inst.check_output_change_requires_input_change:precondition1

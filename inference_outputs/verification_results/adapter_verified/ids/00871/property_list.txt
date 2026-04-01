@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_reset_clears_x
+and_gate.auto_sva_inst.check_reset_release_clears_x
+and_gate.auto_sva_inst.check_and_update
+and_gate.auto_sva_inst.check_zero_when_a_zero
+and_gate.auto_sva_inst.check_zero_when_b_zero
+and_gate.auto_sva_inst.check_one_when_both_one
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_reset_clears_x:precondition1
+and_gate.auto_sva_inst.check_reset_release_clears_x:precondition1
+and_gate.auto_sva_inst.check_and_update:precondition1
+and_gate.auto_sva_inst.check_zero_when_a_zero:precondition1
+and_gate.auto_sva_inst.check_zero_when_b_zero:precondition1
+and_gate.auto_sva_inst.check_one_when_both_one:precondition1

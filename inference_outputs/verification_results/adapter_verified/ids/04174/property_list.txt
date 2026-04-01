@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+mux4.auto_sva_inst.check_functional_equivalence
+mux4.auto_sva_inst.check_select_low
+mux4.auto_sva_inst.check_select_high
+mux4.auto_sva_inst.check_select_low_low
+mux4.auto_sva_inst.check_select_low_high
+mux4.auto_sva_inst.check_select_high_low
+mux4.auto_sva_inst.check_select_high_high
+
+COVER PROPERTIES:
+mux4.auto_sva_inst.check_select_low:precondition1
+mux4.auto_sva_inst.check_select_high:precondition1
+mux4.auto_sva_inst.check_select_low_low:precondition1
+mux4.auto_sva_inst.check_select_low_high:precondition1
+mux4.auto_sva_inst.check_select_high_low:precondition1
+mux4.auto_sva_inst.check_select_high_high:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+mux4to1.auto_sva_inst.check_mux_equation
+mux4to1.auto_sva_inst.check_sel00_routes_in0
+mux4to1.auto_sva_inst.check_sel01_routes_in1
+mux4to1.auto_sva_inst.check_sel10_routes_in2
+mux4to1.auto_sva_inst.check_sel11_routes_in3
+mux4to1.auto_sva_inst.check_lower_pair_selection
+mux4to1.auto_sva_inst.check_upper_pair_selection
+
+COVER PROPERTIES:
+mux4to1.auto_sva_inst.check_sel00_routes_in0:precondition1
+mux4to1.auto_sva_inst.check_sel01_routes_in1:precondition1
+mux4to1.auto_sva_inst.check_sel10_routes_in2:precondition1
+mux4to1.auto_sva_inst.check_sel11_routes_in3:precondition1
+mux4to1.auto_sva_inst.check_lower_pair_selection:precondition1
+mux4to1.auto_sva_inst.check_upper_pair_selection:precondition1

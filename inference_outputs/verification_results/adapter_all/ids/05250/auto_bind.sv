@@ -1,0 +1,10 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_sel_00_routes_x_axis, assert, property, posedge, b00, check_sel_01_routes_y_axis, b01, check_sel_10_routes_z_axis, b10, check_sel_11_routes_zero_extended_temp, b11, h00, check_sel_00_stable_when_x_stable, stable, check_sel_01_stable_when_y_stable, check_sel_10_stable_when_z_stable, check_sel_11_stable_when_temp_stable, check_sel_00_tracks_x_axis, changed, check_sel_01_tracks_y_axis, check_sel_10_tracks_z_axis, check_sel_11_tracks_temp_data
+bind data_select data_select_sva auto_sva_inst (
+    .x_axis(x_axis),
+    .y_axis(y_axis),
+    .z_axis(z_axis),
+    .temp_data(temp_data),
+    .data(data),
+    .sel(sel)
+);

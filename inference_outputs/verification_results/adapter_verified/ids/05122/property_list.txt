@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+splitter.auto_sva_inst.check_out_matches_and
+splitter.auto_sva_inst.check_out_zero_when_msb_zero
+splitter.auto_sva_inst.check_out_zero_when_lsb_zero
+splitter.auto_sva_inst.check_out_one_when_both_ones
+splitter.auto_sva_inst.check_out_one_implies_inputs_one
+
+COVER PROPERTIES:
+splitter.auto_sva_inst.check_out_zero_when_msb_zero:precondition1
+splitter.auto_sva_inst.check_out_zero_when_lsb_zero:precondition1
+splitter.auto_sva_inst.check_out_one_when_both_ones:precondition1
+splitter.auto_sva_inst.check_out_one_implies_inputs_one:precondition1

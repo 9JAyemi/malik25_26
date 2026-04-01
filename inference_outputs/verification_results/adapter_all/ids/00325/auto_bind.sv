@@ -1,0 +1,8 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_reset_clears_outputs, assert, property, posedge, b0000, b0, check_count_increments, disable, iff, b1, past, d1, check_out_toggles, check_reset_release_state, fell, check_reset_release_first_increment, b0001
+bind up_counter up_counter_sva auto_sva_inst (
+    .clk(clk),
+    .reset(reset),
+    .count(count),
+    .out(out)
+);

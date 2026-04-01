@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+adder4.auto_sva_inst.check_sum_matches_addition
+adder4.auto_sva_inst.check_cout_matches_carry
+adder4.auto_sva_inst.check_zero_inputs
+adder4.auto_sva_inst.check_max_inputs
+adder4.auto_sva_inst.check_a_passthrough_when_b_zero
+adder4.auto_sva_inst.check_b_passthrough_when_a_zero
+adder4.auto_sva_inst.check_cin_increments_max
+adder4.auto_sva_inst.check_cin_with_b_one
+
+COVER PROPERTIES:
+adder4.auto_sva_inst.check_zero_inputs:precondition1
+adder4.auto_sva_inst.check_max_inputs:precondition1
+adder4.auto_sva_inst.check_a_passthrough_when_b_zero:precondition1
+adder4.auto_sva_inst.check_b_passthrough_when_a_zero:precondition1
+adder4.auto_sva_inst.check_cin_increments_max:precondition1
+adder4.auto_sva_inst.check_cin_with_b_one:precondition1

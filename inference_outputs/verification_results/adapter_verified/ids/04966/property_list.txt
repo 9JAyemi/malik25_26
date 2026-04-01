@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_function_equivalence
+my_module.auto_sva_inst.check_a_triplet_sets_x
+my_module.auto_sva_inst.check_b_pair_sets_x
+my_module.auto_sva_inst.check_x_low_implies_no_term
+my_module.auto_sva_inst.check_x_high_implies_some_term
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_a_triplet_sets_x:precondition1
+my_module.auto_sva_inst.check_b_pair_sets_x:precondition1
+my_module.auto_sva_inst.check_x_low_implies_no_term:precondition1
+my_module.auto_sva_inst.check_x_high_implies_some_term:precondition1

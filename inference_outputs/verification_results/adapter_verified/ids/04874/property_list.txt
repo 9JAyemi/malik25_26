@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_y_matches_and
+and_gate.auto_sva_inst.check_y_high_when_all_inputs_high
+and_gate.auto_sva_inst.check_y_low_when_a_low
+and_gate.auto_sva_inst.check_y_low_when_b_low
+and_gate.auto_sva_inst.check_y_low_when_c_low
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_y_high_when_all_inputs_high:precondition1
+and_gate.auto_sva_inst.check_y_low_when_a_low:precondition1
+and_gate.auto_sva_inst.check_y_low_when_b_low:precondition1
+and_gate.auto_sva_inst.check_y_low_when_c_low:precondition1

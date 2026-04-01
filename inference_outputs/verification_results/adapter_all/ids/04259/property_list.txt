@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_total_sum
+full_adder.auto_sva_inst.check_sum_bit0
+full_adder.auto_sva_inst.check_sum_bit1
+full_adder.auto_sva_inst.check_sum_bit2
+full_adder.auto_sva_inst.check_sum_bit3
+full_adder.auto_sva_inst.check_cout
+full_adder.auto_sva_inst.check_add_zero_b
+full_adder.auto_sva_inst.check_add_zero_a
+full_adder.auto_sva_inst.check_zero_plus_zero
+full_adder.auto_sva_inst.check_max_plus_one
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_add_zero_b:precondition1
+full_adder.auto_sva_inst.check_add_zero_a:precondition1
+full_adder.auto_sva_inst.check_zero_plus_zero:precondition1
+full_adder.auto_sva_inst.check_max_plus_one:precondition1

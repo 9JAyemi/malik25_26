@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_result_mux
+top_module.auto_sva_inst.check_add_mode_result
+top_module.auto_sva_inst.check_sub_mode_result
+top_module.auto_sva_inst.check_add_mode_upper_zero
+top_module.auto_sva_inst.check_sub_mode_lower_zero
+top_module.auto_sva_inst.check_result_stable_when_inputs_stable
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_add_mode_result:precondition1
+top_module.auto_sva_inst.check_sub_mode_result:precondition1
+top_module.auto_sva_inst.check_add_mode_upper_zero:precondition1
+top_module.auto_sva_inst.check_sub_mode_lower_zero:precondition1
+top_module.auto_sva_inst.check_result_stable_when_inputs_stable:precondition1

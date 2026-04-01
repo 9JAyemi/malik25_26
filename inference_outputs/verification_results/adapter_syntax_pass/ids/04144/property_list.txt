@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_sel_low_routes_a
+mux_2to1.auto_sva_inst.check_sel_high_routes_b
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_sel_low_routes_a:precondition1
+mux_2to1.auto_sva_inst.check_sel_high_routes_b:precondition1
+mux_2to1.auto_sva_inst.check_equal_inputs_passthrough:precondition1

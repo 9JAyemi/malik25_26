@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_output_matches_mux_tree
+mux_2to1.auto_sva_inst.check_sel_00_routes_data0
+mux_2to1.auto_sva_inst.check_sel_01_routes_data1
+mux_2to1.auto_sva_inst.check_sel_10_routes_data2
+mux_2to1.auto_sva_inst.check_sel_11_routes_data3
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_sel_00_routes_data0:precondition1
+mux_2to1.auto_sva_inst.check_sel_01_routes_data1:precondition1
+mux_2to1.auto_sva_inst.check_sel_10_routes_data2:precondition1
+mux_2to1.auto_sva_inst.check_sel_11_routes_data3:precondition1

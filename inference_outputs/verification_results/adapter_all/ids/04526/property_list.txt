@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_y_function
+my_module.auto_sva_inst.check_y_high_when_b1_low
+my_module.auto_sva_inst.check_y_high_when_c1_low
+my_module.auto_sva_inst.check_y_high_when_a_inputs_low
+my_module.auto_sva_inst.check_y_low_when_all_active
+my_module.auto_sva_inst.check_y_low_implies_all_active
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_y_high_when_b1_low:precondition1
+my_module.auto_sva_inst.check_y_high_when_c1_low:precondition1
+my_module.auto_sva_inst.check_y_high_when_a_inputs_low:precondition1
+my_module.auto_sva_inst.check_y_low_when_all_active:precondition1
+my_module.auto_sva_inst.check_y_low_implies_all_active:precondition1

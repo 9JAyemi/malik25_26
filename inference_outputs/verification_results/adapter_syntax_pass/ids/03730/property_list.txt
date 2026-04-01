@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+d_to_t_ff.auto_sva_inst.check_q_next_state
+d_to_t_ff.auto_sva_inst.check_d_high_sets_q
+d_to_t_ff.auto_sva_inst.check_q_low_forces_q_low
+d_to_t_ff.auto_sva_inst.check_d_low_with_q_high_clears_q
+
+COVER PROPERTIES:
+d_to_t_ff.auto_sva_inst.check_q_next_state:precondition1
+d_to_t_ff.auto_sva_inst.check_d_high_sets_q:precondition1
+d_to_t_ff.auto_sva_inst.check_q_low_forces_q_low:precondition1
+d_to_t_ff.auto_sva_inst.check_d_low_with_q_high_clears_q:precondition1

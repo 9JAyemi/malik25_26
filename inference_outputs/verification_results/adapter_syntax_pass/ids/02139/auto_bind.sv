@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_mux_out_onehot, assert, property, disable, iff, onehot, check_mux_subset_q, b0000, check_mux_nonzero, check_mux_decode_000, check_mux_decode_001, check_mux_decode_010, check_mux_decode_011, check_mux_decode_100, check_mux_decode_101, check_mux_decode_110, check_mux_decode_111, check_ff_reset_clears_q, check_ff_counter_111_clears_q, check_ff_loads_d_on_111, check_ff_holds_when_not_111, past, check_q_subset_ff_out, check_q_subset_mux_out, check_q_nonzero, check_q_onehot
+bind multiplexer top_module_sva auto_sva_inst (
+    .clk(clk),
+    .reset(reset),
+    .d(d),
+    .a(a),
+    .b(b),
+    .c(c),
+    .q(q),
+    .mux_out(mux_out),
+    .flip_flops_out(flip_flops_out),
+    .posedge(posedge),
+    .b000(b000),
+    .b0001(b0001),
+    .b001(b001),
+    .b0010(b0010),
+    .b010(b010),
+    .b0100(b0100),
+    .b011(b011),
+    .b1000(b1000),
+    .b100(b100),
+    .b0011(b0011),
+    .b101(b101),
+    .b0110(b0110),
+    .b110(b110),
+    .b1100(b1100),
+    .b111(b111),
+    .b1111(b1111),
+    .b00000000(b00000000)
+);

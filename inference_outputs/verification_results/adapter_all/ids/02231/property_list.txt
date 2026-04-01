@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+register.auto_sva_inst.check_reset_or_xclear_clears_output
+register.auto_sva_inst.check_hold_when_idle
+register.auto_sva_inst.check_load_when_enabled
+register.auto_sva_inst.check_hold_when_load_disabled
+
+COVER PROPERTIES:
+register.auto_sva_inst.check_reset_or_xclear_clears_output:precondition1
+register.auto_sva_inst.check_hold_when_idle:precondition1
+register.auto_sva_inst.check_load_when_enabled:precondition1
+register.auto_sva_inst.check_hold_when_load_disabled:precondition1

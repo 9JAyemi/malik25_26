@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+MUXCY.auto_sva_inst.check_sum_equation
+MUXCY.auto_sva_inst.check_carry_equation
+MUXCY.auto_sva_inst.check_cin_low_forces_outputs_low
+MUXCY.auto_sva_inst.check_cin_high_reduces_carry
+MUXCY.auto_sva_inst.check_select_low_behavior
+MUXCY.auto_sva_inst.check_select_high_behavior
+MUXCY.auto_sva_inst.check_select_low_di_low
+MUXCY.auto_sva_inst.check_select_low_di_high
+MUXCY.auto_sva_inst.check_select_high_ci_low
+MUXCY.auto_sva_inst.check_select_high_ci_high
+
+COVER PROPERTIES:
+MUXCY.auto_sva_inst.check_cin_low_forces_outputs_low:precondition1
+MUXCY.auto_sva_inst.check_cin_high_reduces_carry:precondition1
+MUXCY.auto_sva_inst.check_select_low_behavior:precondition1
+MUXCY.auto_sva_inst.check_select_high_behavior:precondition1
+MUXCY.auto_sva_inst.check_select_low_di_low:precondition1
+MUXCY.auto_sva_inst.check_select_low_di_high:precondition1
+MUXCY.auto_sva_inst.check_select_high_ci_low:precondition1
+MUXCY.auto_sva_inst.check_select_high_ci_high:precondition1

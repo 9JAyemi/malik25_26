@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+half_adder.auto_sva_inst.check_sum_xor
+half_adder.auto_sva_inst.check_carry_and
+half_adder.auto_sva_inst.check_outputs_complementary
+half_adder.auto_sva_inst.check_zero_inputs
+half_adder.auto_sva_inst.check_a_high_b_low
+half_adder.auto_sva_inst.check_a_low_b_high
+half_adder.auto_sva_inst.check_both_high
+
+COVER PROPERTIES:
+half_adder.auto_sva_inst.check_zero_inputs:precondition1
+half_adder.auto_sva_inst.check_a_high_b_low:precondition1
+half_adder.auto_sva_inst.check_a_low_b_high:precondition1
+half_adder.auto_sva_inst.check_both_high:precondition1

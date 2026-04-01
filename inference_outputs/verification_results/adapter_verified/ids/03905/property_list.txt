@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.check_shift_register_function
+shift_register.auto_sva_inst.check_upper_bits_preserved
+shift_register.auto_sva_inst.check_lower_bit_from_msb
+shift_register.auto_sva_inst.check_8_cycle_rotation
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.check_shift_register_function:precondition1
+shift_register.auto_sva_inst.check_upper_bits_preserved:precondition1
+shift_register.auto_sva_inst.check_lower_bit_from_msb:precondition1
+shift_register.auto_sva_inst.check_8_cycle_rotation:precondition1

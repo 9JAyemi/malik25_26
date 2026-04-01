@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_functional_equivalence
+xor_gate.auto_sva_inst.check_a_zero_pass_through
+xor_gate.auto_sva_inst.check_a_one_inverts_b
+xor_gate.auto_sva_inst.check_b_zero_pass_through
+xor_gate.auto_sva_inst.check_b_one_inverts_a
+xor_gate.auto_sva_inst.check_equal_inputs_low
+xor_gate.auto_sva_inst.check_different_inputs_high
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_a_zero_pass_through:precondition1
+xor_gate.auto_sva_inst.check_a_one_inverts_b:precondition1
+xor_gate.auto_sva_inst.check_b_zero_pass_through:precondition1
+xor_gate.auto_sva_inst.check_b_one_inverts_a:precondition1
+xor_gate.auto_sva_inst.check_equal_inputs_low:precondition1
+xor_gate.auto_sva_inst.check_different_inputs_high:precondition1

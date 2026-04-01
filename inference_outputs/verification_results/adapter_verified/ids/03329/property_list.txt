@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_reset_clears_enclk
+clock_gate.auto_sva_inst.check_enable_loads_high
+clock_gate.auto_sva_inst.check_enable_loads_low
+clock_gate.auto_sva_inst.check_hold_high_when_te_low
+clock_gate.auto_sva_inst.check_hold_low_when_te_low
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_reset_clears_enclk:precondition1
+clock_gate.auto_sva_inst.check_enable_loads_high:precondition1
+clock_gate.auto_sva_inst.check_enable_loads_low:precondition1
+clock_gate.auto_sva_inst.check_hold_high_when_te_low:precondition1
+clock_gate.auto_sva_inst.check_hold_low_when_te_low:precondition1

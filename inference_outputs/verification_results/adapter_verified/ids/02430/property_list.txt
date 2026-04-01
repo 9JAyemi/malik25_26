@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_state
+counter.auto_sva_inst.check_value_captures_upper_bits
+counter.auto_sva_inst.check_value_inverts_lsb
+counter.auto_sva_inst.check_counter_wraps_after_max
+counter.auto_sva_inst.check_value_upper_bits_stable
+counter.auto_sva_inst.check_value_lsb_stable
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_state:precondition1
+counter.auto_sva_inst.check_value_captures_upper_bits:precondition1
+counter.auto_sva_inst.check_value_inverts_lsb:precondition1
+counter.auto_sva_inst.check_counter_wraps_after_max:precondition1
+counter.auto_sva_inst.check_value_upper_bits_stable:precondition1
+counter.auto_sva_inst.check_value_lsb_stable:precondition1

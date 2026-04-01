@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+addsub.auto_sva_inst.check_subtract_result
+addsub.auto_sva_inst.check_add_result
+addsub.auto_sva_inst.check_b_zero_passthrough
+addsub.auto_sva_inst.check_a_zero_passthrough
+addsub.auto_sva_inst.check_equal_operands_zero
+addsub.auto_sva_inst.check_subtract_equal_operands_zero
+addsub.auto_sva_inst.check_add_equal_operands_double
+
+COVER PROPERTIES:
+addsub.auto_sva_inst.check_subtract_result:precondition1
+addsub.auto_sva_inst.check_add_result:precondition1
+addsub.auto_sva_inst.check_b_zero_passthrough:precondition1
+addsub.auto_sva_inst.check_a_zero_passthrough:precondition1
+addsub.auto_sva_inst.check_equal_operands_zero:precondition1
+addsub.auto_sva_inst.check_subtract_equal_operands_zero:precondition1
+addsub.auto_sva_inst.check_add_equal_operands_double:precondition1

@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+alu2.auto_sva_inst.check_aluresult_function
+alu2.auto_sva_inst.check_aluflags_sign
+alu2.auto_sva_inst.check_aluflags_zero
+alu2.auto_sva_inst.check_aluflags_carry
+alu2.auto_sva_inst.check_aluflags_overflow
+alu2.auto_sva_inst.check_carry_sets_carry_flag
+alu2.auto_sva_inst.check_no_carry_sets_overflow_flag
+alu2.auto_sva_inst.check_and_sets_carry_flag
+alu2.auto_sva_inst.check_or_sets_overflow_flag
+alu2.auto_sva_inst.check_zero_sets_zero_flag
+
+COVER PROPERTIES:
+alu2.auto_sva_inst.check_carry_sets_carry_flag:precondition1
+alu2.auto_sva_inst.check_no_carry_sets_overflow_flag:precondition1
+alu2.auto_sva_inst.check_and_sets_carry_flag:precondition1
+alu2.auto_sva_inst.check_or_sets_overflow_flag:precondition1
+alu2.auto_sva_inst.check_zero_sets_zero_flag:precondition1

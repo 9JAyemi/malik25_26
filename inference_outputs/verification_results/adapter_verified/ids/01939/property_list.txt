@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_functional_equivalence
+my_module.auto_sva_inst.check_x_requires_a_high
+my_module.auto_sva_inst.check_x_requires_b_low
+my_module.auto_sva_inst.check_a_high_b_low_sets_x
+my_module.auto_sva_inst.check_a_low_clears_x
+my_module.auto_sva_inst.check_b_high_clears_x
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_x_requires_a_high:precondition1
+my_module.auto_sva_inst.check_x_requires_b_low:precondition1
+my_module.auto_sva_inst.check_a_high_b_low_sets_x:precondition1
+my_module.auto_sva_inst.check_a_low_clears_x:precondition1
+my_module.auto_sva_inst.check_b_high_clears_x:precondition1

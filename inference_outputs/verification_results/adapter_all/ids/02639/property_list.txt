@@ -1,0 +1,23 @@
+ASSERT PROPERTIES:
+my_mac.auto_sva_inst.reset_clears_dout_next
+my_mac.auto_sva_inst.accumulate_on_ce
+my_mac.auto_sva_inst.hold_when_ce_low
+my_mac.auto_sva_inst.change_requires_reset_or_ce
+my_mac.auto_sva_inst.reset_overrides_ce
+my_mac.auto_sva_inst.zero_operand_keeps_dout
+my_mac.auto_sva_inst.increment_on_one_operands
+my_mac.auto_sva_inst.increment_on_max_operands
+my_mac.auto_sva_inst.decrement_on_min_operands
+my_mac.auto_sva_inst.zero_on_all_ones
+
+COVER PROPERTIES:
+my_mac.auto_sva_inst.reset_clears_dout_next:precondition1
+my_mac.auto_sva_inst.accumulate_on_ce:precondition1
+my_mac.auto_sva_inst.hold_when_ce_low:precondition1
+my_mac.auto_sva_inst.change_requires_reset_or_ce:precondition1
+my_mac.auto_sva_inst.reset_overrides_ce:precondition1
+my_mac.auto_sva_inst.zero_operand_keeps_dout:precondition1
+my_mac.auto_sva_inst.increment_on_one_operands:precondition1
+my_mac.auto_sva_inst.increment_on_max_operands:precondition1
+my_mac.auto_sva_inst.decrement_on_min_operands:precondition1
+my_mac.auto_sva_inst.zero_on_all_ones:precondition1

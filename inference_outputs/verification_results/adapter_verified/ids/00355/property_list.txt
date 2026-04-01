@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+m_pc_reg.auto_sva_inst.check_reset_clears_output
+m_pc_reg.auto_sva_inst.check_capture_on_no_reset
+m_pc_reg.auto_sva_inst.check_zero_held_when_reset_held
+m_pc_reg.auto_sva_inst.check_stable_output_when_input_stable
+
+COVER PROPERTIES:
+m_pc_reg.auto_sva_inst.check_reset_clears_output:precondition1
+m_pc_reg.auto_sva_inst.check_capture_on_no_reset:precondition1
+m_pc_reg.auto_sva_inst.check_zero_held_when_reset_held:precondition1
+m_pc_reg.auto_sva_inst.check_stable_output_when_input_stable:precondition1

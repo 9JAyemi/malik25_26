@@ -1,0 +1,7 @@
+ASSERT PROPERTIES:
+clk_gated_module.auto_sva_inst.check_clk_en_reg_captures_clk_en
+clk_gated_module.auto_sva_inst.check_gated_clk_low_before_src_clk_rise
+clk_gated_module.auto_sva_inst.check_gated_clk_matches_clk_en_reg_before_src_clk_fall
+
+COVER PROPERTIES:
+clk_gated_module.auto_sva_inst.check_clk_en_reg_captures_clk_en:precondition1

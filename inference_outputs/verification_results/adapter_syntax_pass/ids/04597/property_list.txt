@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+mux_2_1.auto_sva_inst.check_mux_equation
+mux_2_1.auto_sva_inst.check_sel_low_routes_in0
+mux_2_1.auto_sva_inst.check_sel_high_routes_in1
+mux_2_1.auto_sva_inst.check_out_low_requires_both_inputs_low
+mux_2_1.auto_sva_inst.check_out_high_requires_one_input_high
+
+COVER PROPERTIES:
+mux_2_1.auto_sva_inst.check_sel_low_routes_in0:precondition1
+mux_2_1.auto_sva_inst.check_sel_high_routes_in1:precondition1
+mux_2_1.auto_sva_inst.check_out_low_requires_both_inputs_low:precondition1
+mux_2_1.auto_sva_inst.check_out_high_requires_one_input_high:precondition1

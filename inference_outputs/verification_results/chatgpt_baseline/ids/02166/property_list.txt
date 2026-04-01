@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+accumulator.auto_sva_inst.reset_clears_out_on_next
+accumulator.auto_sva_inst.accumulate_updates
+accumulator.auto_sva_inst.hold_when_data_zero
+accumulator.auto_sva_inst.inc_by_one_when_data_one
+accumulator.auto_sva_inst.dec_by_one_when_data_ff
+accumulator.auto_sva_inst.wrap_ff_plus_one_to_zero
+
+COVER PROPERTIES:
+accumulator.auto_sva_inst.reset_clears_out_on_next:precondition1
+accumulator.auto_sva_inst.accumulate_updates:precondition1
+accumulator.auto_sva_inst.hold_when_data_zero:precondition1
+accumulator.auto_sva_inst.inc_by_one_when_data_one:precondition1
+accumulator.auto_sva_inst.dec_by_one_when_data_ff:precondition1
+accumulator.auto_sva_inst.wrap_ff_plus_one_to_zero:precondition1

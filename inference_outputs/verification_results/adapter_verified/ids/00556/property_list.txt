@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_select_a_when_te_b_low
+my_module.auto_sva_inst.check_te_b_forces_high
+my_module.auto_sva_inst.check_a_high_drives_z_high
+my_module.auto_sva_inst.check_a_low_drives_z_low
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_select_a_when_te_b_low:precondition1
+my_module.auto_sva_inst.check_te_b_forces_high:precondition1
+my_module.auto_sva_inst.check_a_high_drives_z_high:precondition1
+my_module.auto_sva_inst.check_a_low_drives_z_low:precondition1

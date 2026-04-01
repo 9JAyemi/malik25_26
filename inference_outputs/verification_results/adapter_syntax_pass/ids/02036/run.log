@@ -1,0 +1,716 @@
+JasperGold Apps 2021.03 FCS 64 bits 2021.03.23 02:50:43 UTC
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2021 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out license "jasper_fao".
+INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
+% # ============================================================
+% # JasperGold Assertion Verification Runner (env-driven)
+% # Output: verification_results/ids/<DESIGN_ID>/
+% #
+% # Env:
+% #   DESIGN_ID     : required (subfolder name)
+% #   JG_DESIGN     : required, space/colon-separated RTL file paths OR a directory
+% #   JG_SVA        : required, space/colon-separated SVA file paths OR a directory
+% #
+% # Optional:
+% #   JG_TOP        : top module name. If missing, inferred from RTL (default: infer)
+% #   JG_STD        : sv12 | sv11 | sv09 (default: sv12)
+% #   JG_INCDIRS    : colon/space-separated include dirs (optional)
+% #   JG_DEFINES    : space-separated defines NAME or NAME=VAL (optional)
+% #   JG_NO_CLOCK   : 1 to force combinational clocking (default: 0)
+% #   JG_RESET      : explicit reset signal name (optional)
+% #   JG_RESET_EXPR : explicit reset expression (optional)
+% # ============================================================
+% 
+% proc split_env_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " :"] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc split_space_list {s} {
+  if {$s eq ""} {return {}}
+  set out {}
+  foreach p [split $s " "] { if {$p ne ""} {lappend out $p} }
+  return $out
+}
+% 
+% proc collect_files_any {path} {
+  # If path is a file, return it. If directory, glob common HDL extensions.
+  if {[file isfile $path]} { return [list $path] }
+  if {![file isdirectory $path]} { error "Not a file or directory: $path" }
+
+  set patterns {*.sv *.svh *.v *.vh}
+  set flist {}
+  foreach p $patterns {
+    foreach f [glob -nocomplain -types f -directory $path -tails -- $p] {
+      lappend flist [file join $path $f]
+    }
+  }
+  if {[llength $flist] == 0} { error "No HDL files found in directory: $path" }
+  return $flist
+}
+% 
+% proc read_file_text {path} {
+  set fp [open $path "r"]
+  set data [read $fp]
+  close $fp
+  return $data
+}
+% 
+% proc strip_comments {text} {
+  set out $text
+  regsub -all {(?s)/\*.*?\*/} $out "" out
+  regsub -all {(?m)//.*$} $out "" out
+  return $out
+}
+% 
+% proc infer_top_from_file {f} {
+  if {![file isfile $f]} { return "" }
+  set txt [strip_comments [read_file_text $f]]
+  if {[regexp -nocase -line {^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt -> m]} {
+    return $m
+  }
+  return ""
+}
+% 
+% proc find_reset_signal {top files} {
+  set top_l [string tolower $top]
+  set keywords {input output inout wire reg logic signed unsigned integer parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${top_l}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _port_params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        lappend names $t
+      }
+      if {[llength $names] == 0} { continue }
+      set lower_map [dict create]
+      foreach n $names { dict set lower_map [string tolower $n] $n }
+      set exact_priority {reset_n rst_n resetb rstb resetn rstn areset_n arst_n reset rst areset arst}
+      foreach p $exact_priority {
+        if {[dict exists $lower_map $p]} { return [dict get $lower_map $p] }
+      }
+      foreach n $names {
+        set ln [string tolower $n]
+        if {[regexp {(^|_)reset(_|$)} $ln] || [regexp {(^|_)rst(_|$)} $ln]} {
+          return $n
+        }
+      }
+    }
+  }
+  return ""
+}
+% 
+% # ---- Auto-bind helpers ----
+% 
+% proc sva_files_have_bind {sva_files} {
+  # Return 1 if any SVA file already contains a bind statement.
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    if {[regexp -nocase {(?m)^\s*bind\s+} $txt]} { return 1 }
+  }
+  return 0
+}
+% 
+% proc extract_module_ports {mod_name files} {
+  # Extract port names for a given module from a list of files.
+  # Returns a list of port names (order preserved, keywords stripped).
+  set keywords {input output inout wire reg logic signed unsigned integer
+                parameter localparam bit tri supply0 supply1 tri0 tri1 wand wor}
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set re "(?s)\\mmodule\\s+${mod_name}\\M\\s*(#\\s*\\(.*?\\)\\s*)?\\((.*?)\\)\\s*;"
+    if {[regexp -nocase -- $re $txt -> _params portlist]} {
+      set tokens [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $portlist]
+      set names {}
+      foreach t $tokens {
+        set tl [string tolower $t]
+        if {[lsearch -exact $keywords $tl] >= 0} { continue }
+        if {[lsearch -exact $names $t] < 0} { lappend names $t }
+      }
+      return $names
+    }
+  }
+  return {}
+}
+% 
+% proc generate_auto_bind {top dut_files sva_files out_dir} {
+  # If SVA files lack a bind statement, generate one.
+  # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
+  if {[sva_files_have_bind $sva_files]} {
+    puts "INFO: SVA files already contain a bind statement"
+    return ""
+  }
+
+  # Find the SVA module name (first module in SVA files that is NOT the DUT)
+  set sva_mod ""
+  foreach f $sva_files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    set matches [regexp -all -inline -nocase {(?m)^\s*module\s+([A-Za-z_][A-Za-z0-9_]*)} $txt]
+    foreach {_ mname} $matches {
+      if {$mname ne $top} {
+        set sva_mod $mname
+        break
+      }
+    }
+    if {$sva_mod ne ""} { break }
+  }
+
+  if {$sva_mod eq ""} {
+    puts "WARN: Could not find SVA module name for auto-bind"
+    return ""
+  }
+
+  # Get port lists
+  set dut_ports [extract_module_ports $top $dut_files]
+  set sva_ports [extract_module_ports $sva_mod $sva_files]
+
+  if {[llength $sva_ports] == 0} {
+    puts "WARN: SVA module $sva_mod has no ports; cannot auto-bind"
+    return ""
+  }
+
+  # Build port connections: for each SVA port, connect to DUT port if name
+  # matches (case-insensitive), otherwise leave unconnected.
+  set dut_lower_map [dict create]
+  foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+
+  set connections {}
+  set unconnected {}
+  foreach sp $sva_ports {
+    set sp_lower [string tolower $sp]
+    if {[dict exists $dut_lower_map $sp_lower]} {
+      set dp [dict get $dut_lower_map $sp_lower]
+      lappend connections "    .${sp}(${dp})"
+    } else {
+      lappend unconnected $sp
+    }
+  }
+
+  if {[llength $connections] == 0} {
+    puts "WARN: No matching ports between DUT ($top) and SVA ($sva_mod); cannot auto-bind"
+    return ""
+  }
+
+  # Write the bind file
+  set bind_path [file join $out_dir "auto_bind.sv"]
+  set conn_str [join $connections ",\n"]
+  set fp [open $bind_path "w"]
+  puts $fp "// Auto-generated bind (no bind found in SVA files)"
+  if {[llength $unconnected] > 0} {
+    puts $fp "// NOTE: Unconnected SVA ports (not in DUT): [join $unconnected {, }]"
+  }
+  puts $fp "bind $top $sva_mod auto_sva_inst ("
+  puts $fp $conn_str
+  puts $fp ");"
+  close $fp
+
+  puts "INFO: Auto-generated bind: $bind_path"
+  puts "  DUT=$top  SVA=$sva_mod"
+  puts "  Connected ports: [llength $connections]"
+  if {[llength $unconnected] > 0} {
+    puts "  Unconnected SVA ports: [join $unconnected {, }]"
+  }
+  return $bind_path
+}
+% 
+% # ---- Read config from environment ----
+% if {![info exists ::env(DESIGN_ID)] || $::env(DESIGN_ID) eq ""} {
+  puts "ERROR: DESIGN_ID not set."
+  exit 2
+}
+% if {![info exists ::env(JG_DESIGN)] || $::env(JG_DESIGN) eq ""} {
+  puts "ERROR: JG_DESIGN not set."
+  exit 2
+}
+% if {![info exists ::env(JG_SVA)] || $::env(JG_SVA) eq ""} {
+  puts "ERROR: JG_SVA not set."
+  exit 2
+}
+% 
+% set DESIGN_ID $::env(DESIGN_ID)
+02036
+% 
+% # JG_TOP is optional: if missing, infer from RTL
+% set TOP ""
+% if {[info exists ::env(JG_TOP)] && $::env(JG_TOP) ne ""} {
+  set TOP $::env(JG_TOP)
+}
+% 
+% set STD      [expr {[info exists ::env(JG_STD)] ? $::env(JG_STD) : "sv12"}]
+sv12
+% set INCDIRS  [expr {[info exists ::env(JG_INCDIRS)] ? [split_env_list $::env(JG_INCDIRS)] : {}}]
+% # Defines should be space-separated (do NOT split on ':')
+% set DEFINES  [expr {[info exists ::env(JG_DEFINES)] ? [split_space_list $::env(JG_DEFINES)] : {}}]
+% set NO_CLOCK [expr {[info exists ::env(JG_NO_CLOCK)] ? $::env(JG_NO_CLOCK) : 0}]
+1
+% 
+% # JG_DESIGN/JG_SVA can be:
+% # - a directory
+% # - a single file
+% # - a list of files/dirs separated by spaces/colons
+% set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
+./02036/module.v
+% set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
+./02036/sva.sv
+% 
+% set DESIGN_FILES {}
+% foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
+% 
+% # Infer TOP if not provided
+% if {$TOP eq ""} {
+  foreach f $DESIGN_FILES {
+    set guess [infer_top_from_file $f]
+    if {$guess ne ""} { set TOP $guess; break }
+  }
+  if {$TOP eq ""} {
+    puts "ERROR: Could not infer TOP from design files; set JG_TOP explicitly."
+    exit 2
+  }
+}
+% puts "INFO: Using TOP = $TOP"
+INFO: Using TOP = mux_2to1_enable
+% 
+% set SVA_FILES {}
+% foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
+% 
+% # ---- Output dir ----
+% # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
+% if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
+  set OUT_DIR $::env(JG_OUT_DIR)
+} else {
+  set OUT_DIR [file join "verification_results" "ids" $DESIGN_ID]
+}
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036
+% file mkdir $OUT_DIR
+% set PROP_LIST_TXT [file join $OUT_DIR "property_list.txt"]
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/property_list.txt
+% set SUMMARY_TXT   [file join $OUT_DIR "summary.txt"]
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/summary.txt
+% 
+% # ---- Auto-bind detection ----
+% set AUTO_BIND 0
+0
+% set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
+INFO: Auto-generated bind: /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv
+  DUT=mux_2to1_enable  SVA=mux_2to1_enable_sva
+  Connected ports: 4
+  Unconnected SVA ports: clk, check_mux_function, assert, property, posedge, check_select_a_when_enabled, check_select_b_when_disabled
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv
+% if {$BIND_FILE ne ""} {
+  set AUTO_BIND 1
+  lappend SVA_FILES $BIND_FILE
+}
+./02036/sva.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv
+% 
+% puts "INFO: Verification run starting"
+INFO: Verification run starting
+% puts "  DESIGN_ID : $DESIGN_ID"
+  DESIGN_ID : 02036
+% puts "  TOP       : $TOP"
+  TOP       : mux_2to1_enable
+% puts "  STD       : $STD"
+  STD       : sv12
+% puts "  INCDIRS   : $INCDIRS"
+  INCDIRS   : 
+% puts "  DEFINES   : $DEFINES"
+  DEFINES   : 
+% puts "  NO_CLOCK  : $NO_CLOCK"
+  NO_CLOCK  : 1
+% puts "  AUTO_BIND : $AUTO_BIND"
+  AUTO_BIND : 1
+% puts "  N_DESIGN  : [llength $DESIGN_FILES]"
+  N_DESIGN  : 1
+% puts "  N_SVA     : [llength $SVA_FILES]"
+  N_SVA     : 2
+% puts "  OUT_DIR   : $OUT_DIR"
+  OUT_DIR   : /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036
+% 
+% # Optional: promote common message groups to errors (best-effort)
+% if {[llength [info commands set_msg_config]]} {
+  set_msg_config -id COMP*  -severity error
+  set_msg_config -id PARSE* -severity error
+  set_msg_config -id ELAB*  -severity error
+}
+% 
+% # ---- Build analyze options ----
+% set analyze_opts [list analyze -$STD]
+analyze -sv12
+% if {[llength $INCDIRS] > 0} { lappend analyze_opts -incdir $INCDIRS }
+% if {[llength $DEFINES] > 0} {
+  foreach d $DEFINES { lappend analyze_opts -define $d }
+}
+% 
+% # ---- Analyze + Elaborate ----
+% set err 0
+0
+% puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
+DEBUG: DESIGN_FILES = ./02036/module.v
+% puts "DEBUG: SVA_FILES    = $SVA_FILES"
+DEBUG: SVA_FILES    = ./02036/sva.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv
+% 
+% if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
+  puts "ERROR: analyze design failed:\n$msg"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file './02036/module.v'
+% if {!$err && [catch {eval $analyze_opts $SVA_FILES} msg2]} {
+  puts "ERROR: analyze SVA failed:\n$msg2"
+  set err 1
+}
+[-- (VERI-1482)] Analyzing Verilog file './02036/sva.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv'
+% 
+% puts "DEBUG: Elaborating TOP='$TOP'"
+DEBUG: Elaborating TOP='mux_2to1_enable'
+% if {!$err && [catch {elaborate -top $TOP} emsg]} {
+  puts "ERROR: elaborate failed:\n$emsg"
+  set err 1
+}
+INFO (ISW003): Top module name is "mux_2to1_enable".
+[INFO (HIER-8002)] ./02036/module.v(10): Disabling old hierarchical reference handler
+[WARN (VERI-2435)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv(8): port 'clk' is not connected on this instance
+[INFO (VERI-1018)] ./02036/sva.sv(1): compiling module 'mux_2to1_enable_sva'
+[INFO (VERI-1018)] ./02036/module.v(1): compiling module 'mux_2to1_enable'
+[WARN (VERI-9028)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv(3): missing/open ports on instance auto_sva_inst of module mux_2to1_enable_sva
+[WARN (VDB-1013)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/auto_bind.sv(8): input port 'clk' is not connected on this instance
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
+  catch { clock -none }
+}
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
+  puts "\n❌ FAILED: compile/elab errors"
+  exit 1
+}
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: No reset signal found; using reset -none
+INFO (IPM031): Clearing proof results of all properties.
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 3 asserts, 2 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 300 seconds = 5 minute timeout per property
+[<embedded>] % set_prove_time_limit 300
+[<embedded>] % 
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 5 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 3 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned values for 0 of 0 design flops, 0 of 0 design latches, 5 of 5 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 300s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property "mux_2to1_enable.auto_sva_inst.check_mux_function" was proven in 0.00 s.
+0: Found proofs for 1 properties in preprocessing
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: Proof Simplification completed in 0.00 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 4
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 2067819@della-i13n8(local) jg_2067747_della-i13n8_1
+0.0.N: Proofgrid shell started at 2067818@della-i13n8(local) jg_2067747_della-i13n8_1
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.N: The property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled" was proven in 0.00 s.
+0.0.N: Stopped processing property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled"	[0.00 s].
+0.0.N: Starting proof for property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: Lemmas used(1): ?1
+0.0.Hp: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.Hp: The property "mux_2to1_enable.auto_sva_inst.check_select_b_when_disabled" was proven in 0.01 s.
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "mux_2to1_enable.auto_sva_inst.check_select_b_when_disabled:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: All properties determined. [0.00 s]
+0.0.N: Stopped processing property "mux_2to1_enable.auto_sva_inst.check_select_a_when_enabled:precondition1"	[0.01 s].
+0.0.N: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.04 s)
+0: ProofGrid usable level: 0
+0.0.Ht: Proofgrid shell started at 2067832@della-i13n8(local) jg_2067747_della-i13n8_1
+0.0.Ht: Requesting engine job to terminate
+0.0.N: Exited with Success (@ 0.04 s)
+0.0.Ht: Interrupted. [0.00 s]
+0.0.B: Proofgrid shell started at 2067833@della-i13n8(local) jg_2067747_della-i13n8_1
+0.0.B: Requesting engine job to terminate
+0.0.B: Interrupted. [0.00 s]
+0.0.Ht: Exited with Success (@ 0.04 s)
+0.0.B: Exited with Success (@ 0.04 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.95 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
+
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.05        0.00        0.00        1.80 %
+     Hp        0.04        0.00        0.00        1.93 %
+     Ht        0.04        0.00        0.00        0.00 %
+      B        0.04        0.00        0.00        0.00 %
+    all        0.04        0.00        0.00        0.95 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.18        0.00        0.00
+
+    Data read    : 1.94 kiB
+    Data written : 1.38 kiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 5
+                 assertions                   : 3
+                  - proven                    : 3 (100%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 0 (0%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 2
+                  - unreachable               : 0 (0%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 2 (100%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Collect CEX details ----
+[<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/cex_details.txt
+[<embedded>] % set cex_props {}
+[<embedded>] % catch { set cex_props [get_property_list -include {status cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % set ar_cex_props {}
+[<embedded>] % catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_cex [open $CEX_TXT "w"]
+file43
+[<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
+[<embedded>] % puts $fp_cex ""
+[<embedded>] % 
+[<embedded>] % foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+[<embedded>] % foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+[<embedded>] % close $fp_cex
+[<embedded>] % 
+[<embedded>] % set n_cex    [llength $cex_props]
+0
+[<embedded>] % set n_ar_cex [llength $ar_cex_props]
+0
+[<embedded>] % puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+INFO: CEX properties: 0 cex, 0 ar_cex
+[<embedded>] % puts "INFO: Wrote $CEX_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/cex_details.txt
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file43
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "CEX_COUNT=$n_cex"
+[<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_syntax_pass/ids/02036/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
+INFO (IPL014): Waiting for the Tcl-thread to exit.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 0.308 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

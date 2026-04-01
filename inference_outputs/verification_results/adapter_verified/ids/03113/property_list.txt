@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+addition_module.auto_sva_inst.check_sum_low_byte
+addition_module.auto_sva_inst.check_sum_msb_carry
+addition_module.auto_sva_inst.check_carry_definition
+addition_module.auto_sva_inst.check_sum_vector
+addition_module.auto_sva_inst.check_no_carry_case
+addition_module.auto_sva_inst.check_carry_case
+addition_module.auto_sva_inst.check_overflow_case
+addition_module.auto_sva_inst.check_zero_a_case
+addition_module.auto_sva_inst.check_zero_b_case
+
+COVER PROPERTIES:
+addition_module.auto_sva_inst.check_no_carry_case:precondition1
+addition_module.auto_sva_inst.check_carry_case:precondition1
+addition_module.auto_sva_inst.check_overflow_case:precondition1
+addition_module.auto_sva_inst.check_zero_a_case:precondition1
+addition_module.auto_sva_inst.check_zero_b_case:precondition1

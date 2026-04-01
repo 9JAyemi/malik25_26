@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+subtractor.auto_sva_inst.check_subtract_function
+subtractor.auto_sva_inst.check_add_back_recovers_a
+subtractor.auto_sva_inst.check_equal_inputs_zero
+subtractor.auto_sva_inst.check_zero_subtrahend_passthrough
+subtractor.auto_sva_inst.check_zero_minuend_wrap
+
+COVER PROPERTIES:
+subtractor.auto_sva_inst.check_equal_inputs_zero:precondition1
+subtractor.auto_sva_inst.check_zero_subtrahend_passthrough:precondition1
+subtractor.auto_sva_inst.check_zero_minuend_wrap:precondition1

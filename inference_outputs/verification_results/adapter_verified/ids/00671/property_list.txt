@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_out_matches_rtl_expr
+xor_gate.auto_sva_inst.check_a0_b1_sets_out
+xor_gate.auto_sva_inst.check_a1_b0_sets_out
+xor_gate.auto_sva_inst.check_equal_inputs_clear_out
+xor_gate.auto_sva_inst.check_a1_b1_clears_out
+xor_gate.auto_sva_inst.check_a0_b0_clears_out
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_a0_b1_sets_out:precondition1
+xor_gate.auto_sva_inst.check_a1_b0_sets_out:precondition1
+xor_gate.auto_sva_inst.check_equal_inputs_clear_out:precondition1
+xor_gate.auto_sva_inst.check_a1_b1_clears_out:precondition1
+xor_gate.auto_sva_inst.check_a0_b0_clears_out:precondition1

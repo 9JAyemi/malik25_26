@@ -2,7 +2,7 @@
 #SBATCH --job-name=jg_check
 #SBATCH --output=jg_check.%j.out
 #SBATCH --error=jg_check.%j.err
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
 
@@ -10,13 +10,15 @@
 # Generic SLURM wrapper for check_all.sh
 #
 # Usage:
-#   sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <dataset_dir>
+#   sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <parent_dir>
+#
+# Iterates over every subdirectory in <parent_dir> and runs
+# check_all.sh on each one as a separate dataset.
 #
 # Examples:
-#   sbatch scripts/run_check_all.sbatch verif  metrex/dataset/version_1
-#   sbatch scripts/run_check_all.sbatch syntax metrex/dataset/version_1
-#   sbatch scripts/run_check_all.sbatch verif  veri_thoughts/dataset/version_1
-#   sbatch scripts/run_check_all.sbatch --force verif veri_thoughts/dataset/version_2
+#   sbatch scripts/run_check_all.sbatch verif  inference_outputs
+#   sbatch scripts/run_check_all.sbatch syntax inference_outputs
+#   sbatch scripts/run_check_all.sbatch --force verif inference_outputs
 # ============================================================
 
 set -euo pipefail
@@ -29,20 +31,21 @@ if [[ "${1:-}" == "--force" ]]; then
 fi
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <dataset_dir>"
+  echo "Usage: sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <parent_dir>"
   echo ""
-  echo "  --force  Re-run all IDs even if DONE marker exists"
-  echo "  syntax   Compile/syntax check only"
-  echo "  verif    Full assertion verification"
+  echo "  --force      Re-run all IDs even if DONE marker exists"
+  echo "  syntax       Compile/syntax check only"
+  echo "  verif        Full assertion verification"
+  echo "  parent_dir   Directory containing dataset subdirectories"
   echo ""
   echo "Examples:"
-  echo "  sbatch scripts/run_check_all.sbatch verif  metrex/dataset/version_1"
-  echo "  sbatch scripts/run_check_all.sbatch verif  veri_thoughts/dataset/version_1"
+  echo "  sbatch scripts/run_check_all.sbatch verif  inference_outputs"
+  echo "  sbatch scripts/run_check_all.sbatch syntax inference_outputs"
   exit 1
 fi
 
 MODE="$1"
-DATASET_DIR="$2"
+PARENT_DIR="$2"
 
 # ── Info ─────────────────────────────────────────────────────
 echo "Host: $(hostname)"
@@ -51,7 +54,7 @@ echo "PWD: $(pwd)"
 echo "JobID: ${SLURM_JOB_ID:-unknown}"
 echo "Mode: $MODE"
 echo "Force: ${FORCE_FLAG:-off}"
-echo "Dataset: $DATASET_DIR"
+echo "Parent dir: $PARENT_DIR"
 
 # ── Environment setup ────────────────────────────────────────
 module purge
@@ -77,6 +80,33 @@ jaspergold -version || true
 # SLURM copies the batch script to a spool dir, so BASH_SOURCE
 # won't point back to scripts/.  Use SLURM_SUBMIT_DIR instead.
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}/scripts"
-stdbuf -oL -eL bash "$SCRIPT_DIR/check_all.sh" $FORCE_FLAG "$MODE" "$DATASET_DIR"
 
+PARENT_ABS="$(cd "$PARENT_DIR" && pwd)"
+echo "Resolved parent dir: $PARENT_ABS"
+
+FAIL_COUNT=0
+TOTAL_COUNT=0
+
+for DATASET_DIR in "$PARENT_ABS"/*/; do
+  [[ -d "$DATASET_DIR" ]] || continue
+  SUBDIR_NAME="$(basename "$DATASET_DIR")"
+
+  # Skip result directories that may have been created by previous runs
+  [[ "$SUBDIR_NAME" == "syntax_results" || "$SUBDIR_NAME" == "verification_results" ]] && continue
+
+  TOTAL_COUNT=$((TOTAL_COUNT + 1))
+  echo ""
+  echo "=========================================="
+  echo "  Processing: $SUBDIR_NAME"
+  echo "=========================================="
+
+  stdbuf -oL -eL bash "$SCRIPT_DIR/check_all.sh" $FORCE_FLAG "$MODE" "$DATASET_DIR" || {
+    echo "⚠️  check_all.sh returned non-zero for $SUBDIR_NAME"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+  }
+done
+
+echo ""
+echo "=========================================="
+echo "All subdirectories processed: $TOTAL_COUNT total, $FAIL_COUNT had errors"
 echo "End: $(date)"

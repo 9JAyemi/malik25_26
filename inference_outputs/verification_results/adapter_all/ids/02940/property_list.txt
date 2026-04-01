@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+add_sub.auto_sva_inst.check_reset_clears_result
+add_sub.auto_sva_inst.check_add_mode_updates_result
+add_sub.auto_sva_inst.check_sub_mode_updates_result
+add_sub.auto_sva_inst.check_result_stable_when_inputs_stable
+
+COVER PROPERTIES:
+add_sub.auto_sva_inst.check_reset_clears_result:precondition1
+add_sub.auto_sva_inst.check_add_mode_updates_result:precondition1
+add_sub.auto_sva_inst.check_sub_mode_updates_result:precondition1
+add_sub.auto_sva_inst.check_result_stable_when_inputs_stable:precondition1

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_out_sum
+top_module.auto_sva_inst.check_max_out_function
+top_module.auto_sva_inst.check_max_out_matches_inputs
+top_module.auto_sva_inst.check_max_out_ge_in1
+top_module.auto_sva_inst.check_max_out_ge_in2
+top_module.auto_sva_inst.check_max_when_in1_ge_in2
+top_module.auto_sva_inst.check_max_when_in1_lt_in2
+top_module.auto_sva_inst.check_max_when_equal
+top_module.auto_sva_inst.check_max_out_ge_in1_direct
+top_module.auto_sva_inst.check_max_out_ge_in2_direct
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_max_when_in1_ge_in2:precondition1
+top_module.auto_sva_inst.check_max_when_in1_lt_in2:precondition1
+top_module.auto_sva_inst.check_max_when_equal:precondition1

@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+logical_and.auto_sva_inst.check_y_matches_and
+logical_and.auto_sva_inst.check_y_high_requires_all_inputs_high
+logical_and.auto_sva_inst.check_any_input_low_forces_y_low
+logical_and.auto_sva_inst.check_all_inputs_high_forces_y_high
+
+COVER PROPERTIES:
+logical_and.auto_sva_inst.check_y_high_requires_all_inputs_high:precondition1
+logical_and.auto_sva_inst.check_any_input_low_forces_y_low:precondition1
+logical_and.auto_sva_inst.check_all_inputs_high_forces_y_high:precondition1

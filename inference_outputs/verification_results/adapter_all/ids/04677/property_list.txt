@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+xor_gate.auto_sva_inst.check_xor_function
+xor_gate.auto_sva_inst.check_a_low_passes_b
+xor_gate.auto_sva_inst.check_a_high_inverts_b
+xor_gate.auto_sva_inst.check_b_low_passes_a
+xor_gate.auto_sva_inst.check_b_high_inverts_a
+xor_gate.auto_sva_inst.check_equal_inputs_drive_low
+xor_gate.auto_sva_inst.check_different_inputs_drive_high
+
+COVER PROPERTIES:
+xor_gate.auto_sva_inst.check_a_low_passes_b:precondition1
+xor_gate.auto_sva_inst.check_a_high_inverts_b:precondition1
+xor_gate.auto_sva_inst.check_b_low_passes_a:precondition1
+xor_gate.auto_sva_inst.check_b_high_inverts_a:precondition1
+xor_gate.auto_sva_inst.check_equal_inputs_drive_low:precondition1
+xor_gate.auto_sva_inst.check_different_inputs_drive_high:precondition1

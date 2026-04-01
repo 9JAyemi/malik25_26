@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_reset_clears_x
+and_gate.auto_sva_inst.check_and_low_when_inputs_low
+and_gate.auto_sva_inst.check_and_high_when_inputs_high
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_reset_clears_x:precondition1
+and_gate.auto_sva_inst.check_and_low_when_inputs_low:precondition1
+and_gate.auto_sva_inst.check_and_high_when_inputs_high:precondition1

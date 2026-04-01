@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.check_q_two_cycle_latency
+shift_register.auto_sva_inst.check_q_two_highs
+shift_register.auto_sva_inst.check_q_two_lows
+shift_register.auto_sva_inst.check_q_high_then_low
+shift_register.auto_sva_inst.check_q_low_then_high
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.check_q_two_highs:precondition1
+shift_register.auto_sva_inst.check_q_two_lows:precondition1
+shift_register.auto_sva_inst.check_q_high_then_low:precondition1
+shift_register.auto_sva_inst.check_q_low_then_high:precondition1

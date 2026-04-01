@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+mux2.auto_sva_inst.check_mux_equation
+mux2.auto_sva_inst.check_select_low_routes_a0
+mux2.auto_sva_inst.check_select_high_routes_a1
+mux2.auto_sva_inst.check_equal_inputs_force_x
+
+COVER PROPERTIES:
+mux2.auto_sva_inst.check_select_low_routes_a0:precondition1
+mux2.auto_sva_inst.check_select_high_routes_a1:precondition1
+mux2.auto_sva_inst.check_equal_inputs_force_x:precondition1

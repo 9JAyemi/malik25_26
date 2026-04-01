@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux.auto_sva_inst.en_low_forces_y_zero
+mux.auto_sva_inst.sel_00_routes_bit0
+mux.auto_sva_inst.sel_01_routes_bit1
+mux.auto_sva_inst.sel_10_routes_bit2
+mux.auto_sva_inst.sel_11_routes_bit3
+mux.auto_sva_inst.unknown_sel_drives_x_when_en
+
+COVER PROPERTIES:
+mux.auto_sva_inst.en_low_forces_y_zero:precondition1
+mux.auto_sva_inst.sel_00_routes_bit0:precondition1
+mux.auto_sva_inst.sel_01_routes_bit1:precondition1
+mux.auto_sva_inst.sel_10_routes_bit2:precondition1
+mux.auto_sva_inst.sel_11_routes_bit3:precondition1

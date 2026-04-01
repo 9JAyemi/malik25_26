@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+mux2.auto_sva_inst.check_sel0_captures_in1
+mux2.auto_sva_inst.check_sel1_captures_in2
+mux2.auto_sva_inst.check_equal_inputs_match
+mux2.auto_sva_inst.check_toggle_follows_sel
+
+COVER PROPERTIES:
+mux2.auto_sva_inst.check_sel0_captures_in1:precondition1
+mux2.auto_sva_inst.check_sel1_captures_in2:precondition1
+mux2.auto_sva_inst.check_equal_inputs_match:precondition1
+mux2.auto_sva_inst.check_toggle_follows_sel:precondition1

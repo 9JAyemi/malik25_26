@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+four_bit_counter.auto_sva_inst.reset_clears_next
+four_bit_counter.auto_sva_inst.count_increments
+four_bit_counter.auto_sva_inst.count_wraps_from_max
+
+COVER PROPERTIES:
+four_bit_counter.auto_sva_inst.reset_clears_next:precondition1
+four_bit_counter.auto_sva_inst.count_increments:precondition1
+four_bit_counter.auto_sva_inst.count_wraps_from_max:precondition1

@@ -1,0 +1,10 @@
+# Counter-example details for DESIGN_ID=02185
+# Format: property_name | cex_type | cex_length
+
+<embedded>::counter.auto_sva_inst.change_requires_enable | cex | 
+<embedded>::counter.auto_sva_inst.zero_implies_prev_reset_or_hold | cex | 
+<embedded>::counter.auto_sva_inst.max_implies_prev_reset_or_enable | cex | 
+<embedded>::counter.auto_sva_inst.no_change_when_prev_disabled | cex | 
+<embedded>::counter.auto_sva_inst.increment_when_prev_enabled | cex | 
+<embedded>::counter.auto_sva_inst.zero_after_prev_reset | cex | 
+<embedded>::counter.auto_sva_inst.non_zero_after_prev_enable | cex | 

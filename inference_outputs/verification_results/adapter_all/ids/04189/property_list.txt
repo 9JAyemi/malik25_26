@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+shift_reg.auto_sva_inst.check_reset_clears_chain
+shift_reg.auto_sva_inst.check_load_captures_chain
+shift_reg.auto_sva_inst.check_shift_updates_chain
+shift_reg.auto_sva_inst.check_reset_priority_over_load
+shift_reg.auto_sva_inst.check_load_priority_over_shift
+
+COVER PROPERTIES:
+shift_reg.auto_sva_inst.check_reset_clears_chain:precondition1
+shift_reg.auto_sva_inst.check_load_captures_chain:precondition1
+shift_reg.auto_sva_inst.check_shift_updates_chain:precondition1
+shift_reg.auto_sva_inst.check_reset_priority_over_load:precondition1
+shift_reg.auto_sva_inst.check_load_priority_over_shift:precondition1

@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+and_gate.auto_sva_inst.check_and_function
+and_gate.auto_sva_inst.check_or_function
+and_gate.auto_sva_inst.check_xor_function
+and_gate.auto_sva_inst.check_and_or_mutex
+and_gate.auto_sva_inst.check_zero_input_behavior
+and_gate.auto_sva_inst.check_all_ones_input_behavior
+and_gate.auto_sva_inst.check_single_one_input_behavior
+and_gate.auto_sva_inst.check_two_ones_input_behavior
+
+COVER PROPERTIES:
+and_gate.auto_sva_inst.check_zero_input_behavior:precondition1
+and_gate.auto_sva_inst.check_all_ones_input_behavior:precondition1
+and_gate.auto_sva_inst.check_single_one_input_behavior:precondition1
+and_gate.auto_sva_inst.check_two_ones_input_behavior:precondition1

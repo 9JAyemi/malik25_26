@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+address_to_signal.auto_sva_inst.check_q_shift_and_zero
+address_to_signal.auto_sva_inst.check_q_lsb_zero
+address_to_signal.auto_sva_inst.check_q_upper_matches_address
+address_to_signal.auto_sva_inst.check_q_when_clock_low
+address_to_signal.auto_sva_inst.check_q_when_clock_high
+
+COVER PROPERTIES:
+address_to_signal.auto_sva_inst.check_q_when_clock_low:precondition1
+address_to_signal.auto_sva_inst.check_q_when_clock_high:precondition1

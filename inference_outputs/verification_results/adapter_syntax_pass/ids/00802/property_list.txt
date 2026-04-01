@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+my_or4b.auto_sva_inst.check_function_equivalence
+my_or4b.auto_sva_inst.check_a_forces_x_high
+my_or4b.auto_sva_inst.check_b_forces_x_high
+my_or4b.auto_sva_inst.check_c_forces_x_high
+my_or4b.auto_sva_inst.check_dn_low_forces_x_high
+my_or4b.auto_sva_inst.check_all_inputs_low_drive_x_low
+my_or4b.auto_sva_inst.check_x_low_implies_inputs_low
+
+COVER PROPERTIES:
+my_or4b.auto_sva_inst.check_a_forces_x_high:precondition1
+my_or4b.auto_sva_inst.check_b_forces_x_high:precondition1
+my_or4b.auto_sva_inst.check_c_forces_x_high:precondition1
+my_or4b.auto_sva_inst.check_dn_low_forces_x_high:precondition1
+my_or4b.auto_sva_inst.check_all_inputs_low_drive_x_low:precondition1
+my_or4b.auto_sva_inst.check_x_low_implies_inputs_low:precondition1

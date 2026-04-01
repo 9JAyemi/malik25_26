@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.check_load_captures_data
+shift_register.auto_sva_inst.check_shift_left_when_not_loading
+shift_register.auto_sva_inst.check_lsb_captures_msb
+shift_register.auto_sva_inst.check_upper_bits_shift_left
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.check_load_captures_data:precondition1
+shift_register.auto_sva_inst.check_shift_left_when_not_loading:precondition1
+shift_register.auto_sva_inst.check_lsb_captures_msb:precondition1
+shift_register.auto_sva_inst.check_upper_bits_shift_left:precondition1

@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+AND3.auto_sva_inst.check_and_function
+AND3.auto_sva_inst.check_all_high_drives_z_high
+AND3.auto_sva_inst.check_a_low_forces_z_low
+AND3.auto_sva_inst.check_b_low_forces_z_low
+AND3.auto_sva_inst.check_c_low_forces_z_low
+AND3.auto_sva_inst.check_z_high_requires_all_high
+
+COVER PROPERTIES:
+AND3.auto_sva_inst.check_all_high_drives_z_high:precondition1
+AND3.auto_sva_inst.check_a_low_forces_z_low:precondition1
+AND3.auto_sva_inst.check_b_low_forces_z_low:precondition1
+AND3.auto_sva_inst.check_c_low_forces_z_low:precondition1
+AND3.auto_sva_inst.check_z_high_requires_all_high:precondition1

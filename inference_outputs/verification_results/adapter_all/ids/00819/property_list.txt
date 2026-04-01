@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+and4.auto_sva_inst.check_x_matches_and4
+and4.auto_sva_inst.check_all_inputs_high_drive_x_high
+and4.auto_sva_inst.check_x_high_requires_all_inputs_high
+and4.auto_sva_inst.check_a_low_forces_x_low
+and4.auto_sva_inst.check_b_low_forces_x_low
+and4.auto_sva_inst.check_c_low_forces_x_low
+and4.auto_sva_inst.check_d_low_forces_x_low
+
+COVER PROPERTIES:
+and4.auto_sva_inst.check_all_inputs_high_drive_x_high:precondition1
+and4.auto_sva_inst.check_x_high_requires_all_inputs_high:precondition1
+and4.auto_sva_inst.check_a_low_forces_x_low:precondition1
+and4.auto_sva_inst.check_b_low_forces_x_low:precondition1
+and4.auto_sva_inst.check_c_low_forces_x_low:precondition1
+and4.auto_sva_inst.check_d_low_forces_x_low:precondition1

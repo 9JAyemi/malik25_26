@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+inverter.auto_sva_inst.check_clear_forces_low
+inverter.auto_sva_inst.check_capture_inverts_input
+inverter.auto_sva_inst.check_hold_when_ce_low
+inverter.auto_sva_inst.check_output_change_has_valid_cause
+inverter.auto_sva_inst.check_capture_ignores_stable_input
+
+COVER PROPERTIES:
+inverter.auto_sva_inst.check_clear_forces_low:precondition1
+inverter.auto_sva_inst.check_capture_inverts_input:precondition1
+inverter.auto_sva_inst.check_hold_when_ce_low:precondition1
+inverter.auto_sva_inst.check_output_change_has_valid_cause:precondition1
+inverter.auto_sva_inst.check_capture_ignores_stable_input:precondition1

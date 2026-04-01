@@ -1,0 +1,8 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_add_result, assert, property, global_clock, b000, check_sub_result, b001, check_and_result, b010, check_or_result, b011, check_xor_result, b100, check_shift_left_result, b101, b0, check_default_zero, inside, b110, b111, b0000
+bind alu alu_sva auto_sva_inst (
+    .a(a),
+    .b(b),
+    .op(op),
+    .out(out)
+);

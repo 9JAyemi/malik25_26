@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_function_equivalence
+top_module.auto_sva_inst.check_when_a_eq_b
+top_module.auto_sva_inst.check_when_c_eq_d
+top_module.auto_sva_inst.check_when_ab_xor0
+top_module.auto_sva_inst.check_when_cd_xor0
+top_module.auto_sva_inst.check_when_ab_cd_xor1
+top_module.auto_sva_inst.check_when_ab_xor1_cd0
+top_module.auto_sva_inst.check_when_ab0_cd_xor1
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_when_a_eq_b:precondition1
+top_module.auto_sva_inst.check_when_c_eq_d:precondition1
+top_module.auto_sva_inst.check_when_ab_xor0:precondition1
+top_module.auto_sva_inst.check_when_cd_xor0:precondition1
+top_module.auto_sva_inst.check_when_ab_cd_xor1:precondition1
+top_module.auto_sva_inst.check_when_ab_xor1_cd0:precondition1
+top_module.auto_sva_inst.check_when_ab0_cd_xor1:precondition1

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+accumulator.auto_sva_inst.check_reset_clears_out
+accumulator.auto_sva_inst.check_accumulation
+accumulator.auto_sva_inst.check_zero_input_holds_value
+accumulator.auto_sva_inst.check_ff_input_wraps_value
+
+COVER PROPERTIES:
+accumulator.auto_sva_inst.check_reset_clears_out:precondition1
+accumulator.auto_sva_inst.check_accumulation:precondition1
+accumulator.auto_sva_inst.check_zero_input_holds_value:precondition1
+accumulator.auto_sva_inst.check_ff_input_wraps_value:precondition1

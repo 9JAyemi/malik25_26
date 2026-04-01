@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_logic
+full_adder.auto_sva_inst.check_cout_logic
+full_adder.auto_sva_inst.check_add_result_vector
+full_adder.auto_sva_inst.truth_000
+full_adder.auto_sva_inst.truth_111
+full_adder.auto_sva_inst.onehot_sum_only
+full_adder.auto_sva_inst.two_ones_cout_only
+full_adder.auto_sva_inst.sum_and_cout_imply_three_ones
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.truth_000:precondition1
+full_adder.auto_sva_inst.truth_111:precondition1
+full_adder.auto_sva_inst.onehot_sum_only:precondition1
+full_adder.auto_sva_inst.two_ones_cout_only:precondition1
+full_adder.auto_sva_inst.sum_and_cout_imply_three_ones:precondition1

@@ -1,0 +1,34 @@
+ASSERT PROPERTIES:
+mm.auto_sva_inst.check_mod_decode_function
+mm.auto_sva_inst.check_mod_value_set
+mm.auto_sva_inst.decode_000_to_0
+mm.auto_sva_inst.decode_10_to_1
+mm.auto_sva_inst.decode_f00_to_2
+mm.auto_sva_inst.decode_f06_to_8
+mm.auto_sva_inst.decode_f07_to_10
+mm.auto_sva_inst.decode_f08_to_11
+mm.auto_sva_inst.decode_f0a_to_9
+mm.auto_sva_inst.decode_default_to_0
+mm.auto_sva_inst.mod1_implies_10
+mm.auto_sva_inst.mod10_implies_f07
+mm.auto_sva_inst.mod11_implies_f08
+mm.auto_sva_inst.mod9_implies_f0a
+mm.auto_sva_inst.check_eff_addr_function
+mm.auto_sva_inst.eff_addr_when_mod1
+mm.auto_sva_inst.eff_addr_when_not_mod1
+
+COVER PROPERTIES:
+mm.auto_sva_inst.decode_000_to_0:precondition1
+mm.auto_sva_inst.decode_10_to_1:precondition1
+mm.auto_sva_inst.decode_f00_to_2:precondition1
+mm.auto_sva_inst.decode_f06_to_8:precondition1
+mm.auto_sva_inst.decode_f07_to_10:precondition1
+mm.auto_sva_inst.decode_f08_to_11:precondition1
+mm.auto_sva_inst.decode_f0a_to_9:precondition1
+mm.auto_sva_inst.decode_default_to_0:precondition1
+mm.auto_sva_inst.mod1_implies_10:precondition1
+mm.auto_sva_inst.mod10_implies_f07:precondition1
+mm.auto_sva_inst.mod11_implies_f08:precondition1
+mm.auto_sva_inst.mod9_implies_f0a:precondition1
+mm.auto_sva_inst.eff_addr_when_mod1:precondition1
+mm.auto_sva_inst.eff_addr_when_not_mod1:precondition1

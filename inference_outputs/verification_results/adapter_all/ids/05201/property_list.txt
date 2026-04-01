@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+binary_adder.auto_sva_inst.check_s_zero_when_disabled
+binary_adder.auto_sva_inst.check_s_sum_when_enabled
+binary_adder.auto_sva_inst.check_cout_always_low
+binary_adder.auto_sva_inst.check_full_output_when_enabled
+binary_adder.auto_sva_inst.check_full_output_when_disabled
+
+COVER PROPERTIES:
+binary_adder.auto_sva_inst.check_s_zero_when_disabled:precondition1
+binary_adder.auto_sva_inst.check_s_sum_when_enabled:precondition1
+binary_adder.auto_sva_inst.check_full_output_when_enabled:precondition1
+binary_adder.auto_sva_inst.check_full_output_when_disabled:precondition1

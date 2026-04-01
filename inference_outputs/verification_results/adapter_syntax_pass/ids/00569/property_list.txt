@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+RegisterAdd.auto_sva_inst.check_clear_on_selector
+RegisterAdd.auto_sva_inst.check_increment_on_ar
+RegisterAdd.auto_sva_inst.check_upper_bit_zero
+RegisterAdd.auto_sva_inst.check_zero_increment_holds
+RegisterAdd.auto_sva_inst.check_one_increment_wraps
+
+COVER PROPERTIES:
+RegisterAdd.auto_sva_inst.check_clear_on_selector:precondition1
+RegisterAdd.auto_sva_inst.check_increment_on_ar:precondition1
+RegisterAdd.auto_sva_inst.check_upper_bit_zero:precondition1
+RegisterAdd.auto_sva_inst.check_zero_increment_holds:precondition1
+RegisterAdd.auto_sva_inst.check_one_increment_wraps:precondition1

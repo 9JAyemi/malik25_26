@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+counter_4bit_sync_reset.auto_sva_inst.check_reset_clears_q
+counter_4bit_sync_reset.auto_sva_inst.check_increment_when_not_reset
+counter_4bit_sync_reset.auto_sva_inst.check_wrap_from_max
+
+COVER PROPERTIES:
+counter_4bit_sync_reset.auto_sva_inst.check_reset_clears_q:precondition1
+counter_4bit_sync_reset.auto_sva_inst.check_increment_when_not_reset:precondition1
+counter_4bit_sync_reset.auto_sva_inst.check_wrap_from_max:precondition1

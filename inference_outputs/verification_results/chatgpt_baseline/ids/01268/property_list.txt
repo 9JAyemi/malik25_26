@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+half_adder.auto_sva_inst.check_sum_is_xor
+half_adder.auto_sva_inst.check_carry_is_and
+half_adder.auto_sva_inst.check_sum_carry_mutex
+half_adder.auto_sva_inst.check_or_equivalence
+half_adder.auto_sva_inst.check_tt_00
+half_adder.auto_sva_inst.check_tt_11
+half_adder.auto_sva_inst.check_carry_implies_inputs_high
+half_adder.auto_sva_inst.check_sum_implies_inputs_differ
+half_adder.auto_sva_inst.check_addition_identity
+
+COVER PROPERTIES:
+half_adder.auto_sva_inst.check_tt_00:precondition1
+half_adder.auto_sva_inst.check_tt_11:precondition1
+half_adder.auto_sva_inst.check_carry_implies_inputs_high:precondition1
+half_adder.auto_sva_inst.check_sum_implies_inputs_differ:precondition1

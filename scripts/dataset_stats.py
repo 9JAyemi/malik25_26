@@ -1536,6 +1536,109 @@ def process_single_dataset(dataset_dir, label):
         _process_version(vpath, dataset_dir, label, vdir, verif_stats)
 
 
+def process_inference_outputs(io_dir):
+    """Process inference_outputs/ directory where subdirs are model names.
+    Structure:
+        io_dir/{model}/{id}/module.v, sva.sv
+        io_dir/verification_results/{model}/ids/{id}/...
+        io_dir/verification_results/{model}/visual_data/
+    """
+    verif_base = os.path.join(io_dir, "verification_results")
+
+    # Find model dirs: everything in io_dir that isn't syntax_results/verification_results
+    model_dirs = sorted(
+        d for d in os.listdir(io_dir)
+        if os.path.isdir(os.path.join(io_dir, d))
+        and d not in ("syntax_results", "verification_results")
+    )
+    if not model_dirs:
+        print(f"WARNING: no model subdirectories found in {io_dir}")
+        return
+
+    for model_name in model_dirs:
+        data_dir = os.path.join(io_dir, model_name)
+        label = model_name
+
+        # Collect verification stats for this model
+        verif_stats = {}
+        model_verif_dir = os.path.join(verif_base, model_name)
+        if os.path.isdir(model_verif_dir):
+            verif_stats = parse_verif_summary(model_verif_dir)
+
+        print(f"\nScanning {label} …")
+        records = scan_dataset(data_dir, label, verif_stats)
+        print(f"  Found {len(records)} design IDs")
+
+        if not records:
+            print(f"  Nothing to do for {label}.\n")
+            continue
+
+        print_summary(records, label)
+
+        # Output to io_dir/dataset_stats/{model_name}/
+        out_dir = os.path.join(io_dir, "dataset_stats", model_name)
+        os.makedirs(out_dir, exist_ok=True)
+
+        # Write CSV
+        csv_path = os.path.join(out_dir, "dataset_stats.csv")
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=[
+                "id", "module_name",
+                "module_loc", "module_total_lines", "module_bytes",
+                "sva_loc", "sva_total_lines", "sva_bytes",
+                "sva_asserts", "sva_covers", "sva_assumes", "sva_total_props",
+                "has_bind",
+            ])
+            w.writeheader()
+            for r in sorted(records, key=lambda x: x["id"]):
+                w.writerow({
+                    "id": r["id"],
+                    "module_name": r["module_name"],
+                    "module_loc": r["module_loc"],
+                    "module_total_lines": r["module_total_lines"],
+                    "module_bytes": r["module_bytes"],
+                    "sva_loc": r["sva_loc"],
+                    "sva_total_lines": r["sva_total_lines"],
+                    "sva_bytes": r["sva_bytes"],
+                    "sva_asserts": r["sva_asserts"],
+                    "sva_covers": r["sva_covers"],
+                    "sva_assumes": r["sva_assumes"],
+                    "sva_total_props": r["sva_total_props"],
+                    "has_bind": r["has_bind"],
+                })
+        print(f"\nWrote {len(records)} rows to {csv_path}")
+
+        # Generate charts
+        generate_charts_for_dataset(records, label, out_dir)
+
+        # Verification summary and plots
+        print_verification_summary(records, label, out_dir)
+
+        # Interactive pie chart from id_summary.csv
+        if os.path.isdir(model_verif_dir):
+            id_summary_csv = os.path.join(model_verif_dir, "visual_data", "id_summary.csv")
+            id_rows = parse_id_summary_csv(id_summary_csv)
+            if id_rows:
+                html_path = os.path.join(out_dir, "interactive_pie_per_id.html")
+                generate_interactive_pie_html(id_rows, label, html_path)
+
+            # Interactive assertion detail chart from property_results.csv
+            prop_csv = os.path.join(model_verif_dir, "visual_data", "property_results.csv")
+            prop_by_id = parse_property_results_csv(prop_csv)
+            if prop_by_id:
+                ids_dir = os.path.join(model_verif_dir, "ids")
+                cex_by_id = {}
+                if os.path.isdir(ids_dir):
+                    for sid_dir in os.listdir(ids_dir):
+                        cex = parse_cex_details(os.path.join(ids_dir, sid_dir, "cex_details.txt"))
+                        if cex:
+                            cex_by_id[sid_dir] = cex
+                html_path2 = os.path.join(out_dir, "interactive_assertion_detail.html")
+                generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, label, html_path2)
+
+        print(f"\nAll {label} outputs saved to {out_dir}")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
@@ -1546,6 +1649,11 @@ def main():
     _default_base = os.path.dirname(_script_dir)
 
     parser.add_argument(
+        "target", nargs="?", default=None,
+        help="Optional path to a directory like inference_outputs/ to process directly. "
+             "If omitted, processes metrex and veri_thoughts under --base-dir.",
+    )
+    parser.add_argument(
         "--base-dir", "-b", default=_default_base,
         help="Workspace root containing metrex/ and veri_thoughts/ subdirs "
              f"(default: {_default_base})",
@@ -1554,27 +1662,34 @@ def main():
 
     base = os.path.abspath(args.base_dir)
 
-    metrex_dir = os.path.join(base, "metrex", "dataset")
-    vt_dir = os.path.join(base, "veri_thoughts", "dataset")
+    if args.target:
+        target = os.path.abspath(args.target)
+        if not os.path.isdir(target):
+            print(f"ERROR: {target} is not a directory")
+            sys.exit(1)
+        process_inference_outputs(target)
+    else:
+        metrex_dir = os.path.join(base, "metrex", "dataset")
+        vt_dir = os.path.join(base, "veri_thoughts", "dataset")
 
-    process_single_dataset(metrex_dir, "metrex")
-    process_single_dataset(vt_dir, "veri_thoughts")
+        process_single_dataset(metrex_dir, "metrex")
+        process_single_dataset(vt_dir, "veri_thoughts")
 
-    # ── Combined interactive pie charts (all versions merged, one per dataset) ──
-    for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
-        combined_rows = collect_id_summaries(ddir)
-        if combined_rows:
-            html_out = os.path.join(ddir, "dataset_stats",
-                                    f"interactive_pie_per_id_{lbl}.html")
-            generate_interactive_pie_html(combined_rows, lbl, html_out)
+        # ── Combined interactive pie charts (all versions merged, one per dataset) ──
+        for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
+            combined_rows = collect_id_summaries(ddir)
+            if combined_rows:
+                html_out = os.path.join(ddir, "dataset_stats",
+                                        f"interactive_pie_per_id_{lbl}.html")
+                generate_interactive_pie_html(combined_rows, lbl, html_out)
 
-    # ── Combined interactive assertion detail charts ──
-    for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
-        prop_by_id, cex_by_id = collect_property_data(ddir)
-        if prop_by_id:
-            html_out = os.path.join(ddir, "dataset_stats",
-                                    f"interactive_assertion_detail_{lbl}.html")
-            generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, lbl, html_out)
+        # ── Combined interactive assertion detail charts ──
+        for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
+            prop_by_id, cex_by_id = collect_property_data(ddir)
+            if prop_by_id:
+                html_out = os.path.join(ddir, "dataset_stats",
+                                        f"interactive_assertion_detail_{lbl}.html")
+                generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, lbl, html_out)
 
     print("Done!")
 

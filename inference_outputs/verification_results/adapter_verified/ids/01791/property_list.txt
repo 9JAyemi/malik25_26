@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+power_good.auto_sva_inst.check_out_matches_and9
+power_good.auto_sva_inst.check_zero_if_any_input_zero
+power_good.auto_sva_inst.check_one_if_all_inputs_one
+power_good.auto_sva_inst.check_all_inputs_one_if_out_one
+power_good.auto_sva_inst.check_any_input_zero_if_out_zero
+
+COVER PROPERTIES:
+power_good.auto_sva_inst.check_zero_if_any_input_zero:precondition1
+power_good.auto_sva_inst.check_one_if_all_inputs_one:precondition1
+power_good.auto_sva_inst.check_all_inputs_one_if_out_one:precondition1
+power_good.auto_sva_inst.check_any_input_zero_if_out_zero:precondition1

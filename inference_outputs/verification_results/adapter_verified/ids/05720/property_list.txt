@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_function_equivalence
+my_module.auto_sva_inst.check_b1_forces_x_high
+my_module.auto_sva_inst.check_c1_forces_x_high
+my_module.auto_sva_inst.check_a1_a2_force_x_high
+my_module.auto_sva_inst.check_no_active_input_means_x_low
+my_module.auto_sva_inst.check_x_low_implies_inputs_low
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_b1_forces_x_high:precondition1
+my_module.auto_sva_inst.check_c1_forces_x_high:precondition1
+my_module.auto_sva_inst.check_a1_a2_force_x_high:precondition1
+my_module.auto_sva_inst.check_no_active_input_means_x_low:precondition1
+my_module.auto_sva_inst.check_x_low_implies_inputs_low:precondition1

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+and_or_module.auto_sva_inst.check_g_out_and
+and_or_module.auto_sva_inst.check_p_out_or
+and_or_module.auto_sva_inst.check_both_high
+and_or_module.auto_sva_inst.check_g_out_zero_when_any_zero
+and_or_module.auto_sva_inst.check_p_out_one_when_any_one
+and_or_module.auto_sva_inst.check_both_low
+
+COVER PROPERTIES:
+and_or_module.auto_sva_inst.check_both_high:precondition1
+and_or_module.auto_sva_inst.check_g_out_zero_when_any_zero:precondition1
+and_or_module.auto_sva_inst.check_p_out_one_when_any_one:precondition1
+and_or_module.auto_sva_inst.check_both_low:precondition1

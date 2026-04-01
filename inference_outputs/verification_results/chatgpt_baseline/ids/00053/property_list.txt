@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+adder_4bit_carry.auto_sva_inst.check_full_addition
+adder_4bit_carry.auto_sva_inst.check_no_overflow_behavior
+adder_4bit_carry.auto_sva_inst.check_overflow_behavior
+adder_4bit_carry.auto_sva_inst.check_zero_inputs
+adder_4bit_carry.auto_sva_inst.check_max_inputs
+
+COVER PROPERTIES:
+adder_4bit_carry.auto_sva_inst.check_no_overflow_behavior:precondition1
+adder_4bit_carry.auto_sva_inst.check_overflow_behavior:precondition1
+adder_4bit_carry.auto_sva_inst.check_zero_inputs:precondition1
+adder_4bit_carry.auto_sva_inst.check_max_inputs:precondition1

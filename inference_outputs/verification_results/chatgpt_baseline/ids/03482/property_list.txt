@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+TLU.auto_sva_inst.check_capture_when_enabled
+TLU.auto_sva_inst.check_hold_when_disabled
+TLU.auto_sva_inst.check_enabled_new_data_updates_q
+TLU.auto_sva_inst.check_enabled_same_data_keeps_q
+
+COVER PROPERTIES:
+TLU.auto_sva_inst.check_capture_when_enabled:precondition1
+TLU.auto_sva_inst.check_hold_when_disabled:precondition1
+TLU.auto_sva_inst.check_enabled_new_data_updates_q:precondition1
+TLU.auto_sva_inst.check_enabled_same_data_keeps_q:precondition1
