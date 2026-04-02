@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
   input signed [7:0] a,
   input signed [7:0] b,
@@ -33,4 +32,3 @@ module calculator_sva (
   );
 
 endmodule
-```

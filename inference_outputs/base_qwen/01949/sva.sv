@@ -1,4 +1,3 @@
-```systemverilog
 module velocityControlHdl_Reset_Delay_sva (
     input logic CLK_IN,
     input logic reset,
@@ -57,4 +56,3 @@ module velocityControlHdl_Reset_Delay_sva (
         @(posedge CLK_IN) disable iff (!reset) $rose(reset) |-> Out == Out
     );
 endmodule
-```

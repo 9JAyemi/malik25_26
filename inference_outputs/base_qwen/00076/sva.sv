@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic rst_n,
@@ -67,4 +66,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!rst_n) (enable && !shift_dir && shift_amount == 2'b11) |-> (out == {16'b0, {3'b000, A[3]}})
     );
 endmodule
-```

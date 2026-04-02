@@ -1,4 +1,3 @@
-```systemverilog
 module demux_3to8_sva (
   input logic CLK,
   input logic in,
@@ -36,4 +35,3 @@ module demux_3to8_sva (
   assert property (p_correct_output) else $error("Incorrect output selected");
 
 endmodule
-```

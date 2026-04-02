@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ls__o21a_sva (
     input logic CLK,
     input logic A1,

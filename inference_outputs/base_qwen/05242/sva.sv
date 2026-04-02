@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_operators_sva #(
   parameter n = 8 // number of bits in each input signal and output signal
 ) (
@@ -33,4 +32,3 @@ module bitwise_operators_sva #(
   );
 
 endmodule
-```

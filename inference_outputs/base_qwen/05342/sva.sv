@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input wire [3:0] in1,
     input wire [3:0] in2,
@@ -25,4 +24,3 @@ module top_module_sva (
 
     // No sequential logic or clocked assertions are needed for this combinational design
 endmodule
-```

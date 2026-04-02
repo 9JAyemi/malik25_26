@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input wire clk,
     input wire rst_n,
@@ -55,4 +54,3 @@ module top_module_sva (
     assert property (p_addition) else $error("Addition mismatch");
 
 endmodule
-```

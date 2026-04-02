@@ -1,4 +1,3 @@
-```systemverilog
 module clock_gate_en_sva (
     input logic clk,
     input logic en,
@@ -15,4 +14,3 @@ module clock_gate_en_sva (
         @(posedge clk) disable iff (!clk) (en == 1'b0) |-> data_out == 1'b0
     );
 endmodule
-```

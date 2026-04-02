@@ -1,4 +1,3 @@
-```systemverilog
 module my_module_sva (
     input logic clk,
     input logic rst_n,
@@ -79,4 +78,3 @@ module my_module_sva (
     a_output_low_at_reset: assert property (p_output_low_at_reset) else $error("Output X should be low at reset");
 
 endmodule
-```

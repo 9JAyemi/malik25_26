@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic [3:0] in1,
     input logic [3:0] in2,
@@ -20,4 +19,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!reset_n) (out_xor == (in1 ^ in2 ^ in3 ^ in4))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module ClockGating_sva (
     input logic CLK,
     input logic EN,
@@ -24,4 +23,3 @@ module ClockGating_sva (
         @(posedge CLK) disable iff (!RESET) EN && TE |-> (ENCLK == 1'b0)
     );
 endmodule
-```

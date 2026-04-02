@@ -1,4 +1,3 @@
-```systemverilog
 module comparator_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -25,4 +24,3 @@ module comparator_sva (
         @(posedge clk) disable iff (!reset_n) (A == B) |-> !(greater || less)
     );
 endmodule
-```

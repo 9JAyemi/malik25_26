@@ -1,4 +1,3 @@
-```systemverilog
 module up_counter_sva(clk, rst_n, count);
     input logic clk, rst_n;
     input logic [15:0] count;
@@ -13,4 +12,3 @@ module up_counter_sva(clk, rst_n, count);
         @(posedge clk) disable iff (!rst_n) count == count + 1'b1
     );
 endmodule
-```

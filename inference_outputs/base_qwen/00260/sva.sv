@@ -1,4 +1,3 @@
-```systemverilog
 module system_auto_cc_0_wr_status_flags_as_16_sva (
     input logic s_aclk,
     input logic out,
@@ -27,4 +26,3 @@ module system_auto_cc_0_wr_status_flags_as_16_sva (
         @(posedge s_aclk) disable iff (!out) ram_full_fb_i_reg_0 |-> ram_full_fb_i_reg_1
     );
 endmodule
-```

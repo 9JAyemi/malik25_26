@@ -1,4 +1,3 @@
-```systemverilog
 module alu_sva (
     input logic CLK,
     input logic RESETn,
@@ -75,4 +74,3 @@ module alu_sva (
         @(posedge CLK) disable iff (!RESETn) (ALU_MODE == 4'b1101) |-> (COUT == (I0 & I1))
     );
 endmodule
-```

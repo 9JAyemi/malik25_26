@@ -1,4 +1,3 @@
-```systemverilog
 module or3_2_sva (
     input logic A,
     input logic B,
@@ -22,4 +21,3 @@ module or3_2_sva (
     ) else $error("OR3_2 output X is incorrect");
 
 endmodule
-```

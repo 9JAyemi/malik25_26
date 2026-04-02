@@ -1,4 +1,3 @@
-```systemverilog
 module fourBitAdder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -12,4 +11,3 @@ module fourBitAdder_sva (
         @(posedge CLK) disable iff (!RESETn) (Sum == A + B + Cin) && (Cout == (A + B + Cin)[4])
     );
 endmodule
-```

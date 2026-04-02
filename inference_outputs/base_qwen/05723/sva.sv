@@ -1,4 +1,3 @@
-```systemverilog
 module mux_add_sub_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -25,4 +24,3 @@ module mux_add_sub_sva (
         @(posedge clk) disable iff (!RESETn) add_sub_ctrl == mux_enable
     );
 endmodule
-```

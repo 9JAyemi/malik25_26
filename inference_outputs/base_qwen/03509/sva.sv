@@ -1,4 +1,3 @@
-```systemverilog
 module EHRU_3_assertions (
     input logic CLK,
     input logic RESETn,
@@ -74,4 +73,3 @@ module EHRU_3_assertions (
         @(posedge CLK) !RESETn |-> (read_0 == RESET_VAL) && (read_1 == RESET_VAL) && (read_2 == RESET_VAL)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mux_4to1_sva (
     input logic [3:0] in0,
     input logic [3:0] in1,
@@ -25,4 +24,3 @@ module mux_4to1_sva (
         @(posedge CLK) disable iff (!RESETn) (sel != 2'b00 && sel != 2'b01 && sel != 2'b10 && sel != 2'b11) |-> (out == 4'b0)
     );
 endmodule
-```

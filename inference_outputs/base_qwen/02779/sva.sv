@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__a32o_sva (
     input logic A1,
     input logic A2,
@@ -17,4 +16,3 @@ module sky130_fd_sc_lp__a32o_sva (
         @(posedge VPB) disable iff (!VGND) X == (A1 & ~A2 & ~A3 & ~B1 & ~B2 & ~VPWR & ~VGND & ~VPB & ~VNB)
     );
 endmodule
-```

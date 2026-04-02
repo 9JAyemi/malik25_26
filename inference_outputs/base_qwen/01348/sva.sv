@@ -1,4 +1,3 @@
-```systemverilog
 module karnaugh_map_assertions(
     input wire A, B, C, D, E,
     output reg F
@@ -36,4 +35,3 @@ module karnaugh_map_assertions(
         @(posedge clk) disable iff (!reset_n) (A == 1'b1 && B == 1'b1 && C == 1'b0 && D == 1'b0 && E == 1'b1) |-> (F == 1'b0)
     );
 endmodule
-```

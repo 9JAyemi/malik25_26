@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -26,4 +25,3 @@ module calculator_sva (
         @(posedge clk) !rst_n |-> (result == 8'b0)
     );
 endmodule
-```

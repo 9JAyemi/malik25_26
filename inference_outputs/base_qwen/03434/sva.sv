@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic [2:0] sel, 
@@ -59,4 +58,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!clk) (carry_out == 1'b0)
     );
 endmodule
-```

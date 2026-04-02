@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic clk,
     input logic rst_n,
@@ -28,4 +27,3 @@ module barrel_shifter_sva (
         @(posedge clk) !rst_n |-> (out == 16'b0)
     );
 endmodule
-```

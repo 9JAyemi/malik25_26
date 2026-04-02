@@ -1,4 +1,3 @@
-```systemverilog
 module SNPS_CLOCK_GATE_HIGH_RegisterAdd_W32_1_1_assertions (
     input logic CLK,
     input logic EN,
@@ -65,4 +64,3 @@ module SNPS_CLOCK_GATE_HIGH_RegisterAdd_W32_1_1_assertions (
     endproperty
     assert property (p_ck_assignment_clk_edge) else $error("CK assignment violated on clock edge");
 endmodule
-```

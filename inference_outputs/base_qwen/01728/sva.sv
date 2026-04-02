@@ -1,4 +1,3 @@
-```systemverilog
 module mult_select_sva (
     input logic A1,
     input logic A2,
@@ -20,4 +19,3 @@ module mult_select_sva (
     ) else $error("Output X does not match expected value.");
 
 endmodule
-```

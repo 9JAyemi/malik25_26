@@ -318,6 +318,43 @@ INFO: Using TOP = sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,54 +441,53 @@ DEBUG: SVA_FILES    = ./00172/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './00172/sva.sv'
-[ERROR (VERI-1068)] ./00172/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./00172/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-9011)] ./00172/sva.sv(28): block id 'sleep_active_low' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(11): previous declaration of 'sleep_active_low' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(33): block id 'sleep_driven_by_not_sleep' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(21): previous declaration of 'sleep_driven_by_not_sleep' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(38): block id 'sleep_active_low' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(11): previous declaration of 'sleep_active_low' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(43): block id 'sleep_driven_by_not_sleep' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(21): previous declaration of 'sleep_driven_by_not_sleep' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(48): block id 'sleep_active_low' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(11): previous declaration of 'sleep_active_low' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(53): block id 'sleep_driven_by_not_sleep' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(21): previous declaration of 'sleep_driven_by_not_sleep' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(58): block id 'sleep_active_low' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(11): previous declaration of 'sleep_active_low' is from here
-[ERROR (VERI-9011)] ./00172/sva.sv(63): block id 'sleep_driven_by_not_sleep' is already declared
-[INFO (VERI-1967)] ./00172/sva.sv(21): previous declaration of 'sleep_driven_by_not_sleep' is from here
-[ERROR (VERI-1128)] ./00172/sva.sv(17): 'A' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(22): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(27): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(32): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(37): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(42): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(47): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(52): 'SLEEP' is not declared
-[ERROR (VERI-1128)] ./00172/sva.sv(57): 'SLEEP' is not declared
-[INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
+[ERROR (VERI-9011)] ./00172/sva.sv(27): block id 'sleep_active_low' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(10): previous declaration of 'sleep_active_low' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(32): block id 'sleep_driven_by_not_sleep' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(20): previous declaration of 'sleep_driven_by_not_sleep' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(37): block id 'sleep_active_low' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(10): previous declaration of 'sleep_active_low' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(42): block id 'sleep_driven_by_not_sleep' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(20): previous declaration of 'sleep_driven_by_not_sleep' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(47): block id 'sleep_active_low' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(10): previous declaration of 'sleep_active_low' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(52): block id 'sleep_driven_by_not_sleep' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(20): previous declaration of 'sleep_driven_by_not_sleep' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(57): block id 'sleep_active_low' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(10): previous declaration of 'sleep_active_low' is from here
+[ERROR (VERI-9011)] ./00172/sva.sv(62): block id 'sleep_driven_by_not_sleep' is already declared
+[INFO (VERI-1967)] ./00172/sva.sv(20): previous declaration of 'sleep_driven_by_not_sleep' is from here
+[ERROR (VERI-1128)] ./00172/sva.sv(16): 'A' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(21): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(26): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(31): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(36): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(41): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(46): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(51): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(56): 'SLEEP' is not declared
+[ERROR (VERI-1128)] ./00172/sva.sv(61): 'SLEEP' is not declared
+[ERROR (VERI-1072)] ./00172/sva.sv(64): module 'sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./00172/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./00172/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-9011)] ./00172/sva.sv(28): block id 'sleep_active_low' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(33): block id 'sleep_driven_by_not_sleep' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(38): block id 'sleep_active_low' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(43): block id 'sleep_driven_by_not_sleep' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(48): block id 'sleep_active_low' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(53): block id 'sleep_driven_by_not_sleep' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(58): block id 'sleep_active_low' is already declared
-	[ERROR (VERI-9011)] ./00172/sva.sv(63): block id 'sleep_driven_by_not_sleep' is already declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(17): 'A' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(22): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(27): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(32): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(37): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(42): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(47): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(52): 'SLEEP' is not declared
-	[ERROR (VERI-1128)] ./00172/sva.sv(57): 'SLEEP' is not declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(27): block id 'sleep_active_low' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(32): block id 'sleep_driven_by_not_sleep' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(37): block id 'sleep_active_low' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(42): block id 'sleep_driven_by_not_sleep' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(47): block id 'sleep_active_low' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(52): block id 'sleep_driven_by_not_sleep' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(57): block id 'sleep_active_low' is already declared
+	[ERROR (VERI-9011)] ./00172/sva.sv(62): block id 'sleep_driven_by_not_sleep' is already declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(16): 'A' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(21): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(26): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(31): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(36): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(41): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(46): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(51): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(56): 'SLEEP' is not declared
+	[ERROR (VERI-1128)] ./00172/sva.sv(61): 'SLEEP' is not declared
+	[ERROR (VERI-1072)] ./00172/sva.sv(64): module 'sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg_sva' ignored due to previous errors
 ERROR: analyze SVA failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

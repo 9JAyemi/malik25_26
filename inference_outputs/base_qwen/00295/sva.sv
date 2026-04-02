@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic CLK,
     input logic [3:0] A,
@@ -40,4 +39,3 @@ module top_module_sva (
         @(posedge CLK) $rose(opcode == 3'b011) |-> (A | B == top_module.out)
     );
 endmodule
-```

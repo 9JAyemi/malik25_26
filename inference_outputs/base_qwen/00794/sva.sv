@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_assertions (
     input logic clk,
     input logic [15:0] in,
@@ -21,4 +20,3 @@ module top_module_assertions (
     assert property (p_out_lo) else $error("out_lo is not correctly set to the lower 8 bits of in");
 
 endmodule
-```

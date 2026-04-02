@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic clk,
     input logic [3:0] data_in,
@@ -44,4 +43,3 @@ module shift_register_sva (
         @(posedge clk) disable iff (!clk) (data_out == stage4)
     );
 endmodule
-```

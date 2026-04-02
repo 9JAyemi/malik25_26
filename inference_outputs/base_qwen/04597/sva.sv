@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2_1_assertions(
     input logic CLK,
     input logic RSTn,
@@ -59,4 +58,3 @@ module mux_2_1_assertions(
         @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) && (in1 == 1'b1) |-> (out == 1'b1)
     );
 endmodule
-```

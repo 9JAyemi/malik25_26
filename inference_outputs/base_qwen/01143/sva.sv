@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic d,
@@ -20,4 +19,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!clk) q == ff.q1
     );
 endmodule
-```

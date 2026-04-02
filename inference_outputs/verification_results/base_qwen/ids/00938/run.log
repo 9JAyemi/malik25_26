@@ -318,6 +318,43 @@ INFO: Using TOP = four_bit_adder
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,46 +441,46 @@ DEBUG: SVA_FILES    = ./00938/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './00938/sva.sv'
-[ERROR (VERI-1068)] ./00938/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./00938/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./00938/sva.sv(15): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(18): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(21): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(24): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(29): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(32): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(35): 'clk' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(38): 'carry' is not declared
-[ERROR (VERI-1128)] ./00938/sva.sv(38): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(14): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(17): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(20): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(23): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(28): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(31): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(34): 'clk' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./00938/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./00938/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./00938/sva.sv(15): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(18): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(21): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(24): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(29): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(32): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(32): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(35): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(35): 'clk' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(38): 'carry' is not declared
-	[ERROR (VERI-1128)] ./00938/sva.sv(38): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(14): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(17): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(20): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(23): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(28): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(31): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(31): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(34): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(34): 'clk' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
+	[ERROR (VERI-1128)] ./00938/sva.sv(37): 'carry' is not declared
 ERROR: analyze SVA failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

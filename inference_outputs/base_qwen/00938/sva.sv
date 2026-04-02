@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -57,4 +56,3 @@ module four_bit_adder_sva (
         @(posedge clk) $rose(Cout) |-> (Cout == (A[3] & B[3]) | (A[3] & carry[2]) | (B[3] & carry[2]))
     );
 endmodule
-```

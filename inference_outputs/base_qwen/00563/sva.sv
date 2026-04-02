@@ -1,4 +1,3 @@
-```systemverilog
 module comparator_block_sva #(
   parameter n = 8 // number of bits in input signals
 )(
@@ -88,4 +87,3 @@ module comparator_block_sva #(
   );
 
 endmodule
-```

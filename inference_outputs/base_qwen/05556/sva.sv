@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic reset,
@@ -63,4 +62,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!reset) (final_out == (seq_out | change_out))
     ) else $error("Functional module combinational logic failed");
 endmodule
-```

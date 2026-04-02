@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -82,4 +81,3 @@ module top_module_sva (
     ) else $error("Output is not set correctly when signed smaller");
 
 endmodule
-```

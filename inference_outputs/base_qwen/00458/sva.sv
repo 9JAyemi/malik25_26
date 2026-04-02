@@ -1,4 +1,3 @@
-```systemverilog
 module mux4to1_sva (
     input logic in0,
     input logic in1,
@@ -33,4 +32,3 @@ module mux4to1_sva (
     );
 
 endmodule
-```

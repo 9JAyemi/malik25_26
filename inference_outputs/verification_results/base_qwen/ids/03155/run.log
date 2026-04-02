@@ -318,6 +318,43 @@ INFO: Using TOP = math_ops
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,47 +441,39 @@ DEBUG: SVA_FILES    = ./03155/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './03155/sva.sv'
-[ERROR (VERI-1068)] ./03155/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03155/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./03155/sva.sv(16): 'x2' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(16): 'x3' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(21): 'x6' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(21): 'x7' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(26): 'x2' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(30): 'x3' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(35): 'x6' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(39): 'x7' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(55): 'add1' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(59): 'sub5' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(64): 'x2' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(68): 'x3' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(72): 'x6' is not declared
-[ERROR (VERI-1128)] ./03155/sva.sv(76): 'x7' is not declared
-[ERROR (VERI-1072)] ./03155/sva.sv(78): module 'math_ops_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./03155/sva.sv(79): missing compiler directive
-[ERROR (VERI-1137)] ./03155/sva.sv(79): syntax error near '`'
+[ERROR (VERI-1128)] ./03155/sva.sv(15): 'x2' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(15): 'x3' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(20): 'x6' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(20): 'x7' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(25): 'x2' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(29): 'x3' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(34): 'x6' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(38): 'x7' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(54): 'add1' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(58): 'sub5' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(63): 'x2' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(67): 'x3' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(71): 'x6' is not declared
+[ERROR (VERI-1128)] ./03155/sva.sv(75): 'x7' is not declared
+[ERROR (VERI-1072)] ./03155/sva.sv(77): module 'math_ops_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./03155/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03155/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./03155/sva.sv(16): 'x2' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(16): 'x3' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(21): 'x6' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(21): 'x7' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(26): 'x2' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(30): 'x3' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(35): 'x6' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(39): 'x7' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(55): 'add1' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(59): 'sub5' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(64): 'x2' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(68): 'x3' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(72): 'x6' is not declared
-	[ERROR (VERI-1128)] ./03155/sva.sv(76): 'x7' is not declared
-	[ERROR (VERI-1072)] ./03155/sva.sv(78): module 'math_ops_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./03155/sva.sv(79): missing compiler directive
-	[ERROR (VERI-1137)] ./03155/sva.sv(79): syntax error near '`'
+	[ERROR (VERI-1128)] ./03155/sva.sv(15): 'x2' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(15): 'x3' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(20): 'x6' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(20): 'x7' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(25): 'x2' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(29): 'x3' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(34): 'x6' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(38): 'x7' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(54): 'add1' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(58): 'sub5' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(63): 'x2' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(67): 'x3' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(71): 'x6' is not declared
+	[ERROR (VERI-1128)] ./03155/sva.sv(75): 'x7' is not declared
+	[ERROR (VERI-1072)] ./03155/sva.sv(77): module 'math_ops_sva' ignored due to previous errors
 ERROR: analyze SVA failed:
-ERROR (ENL034): 19 errors detected in the design file(s).
+ERROR (ENL034): 15 errors detected in the design file(s).
 
 1
 % 

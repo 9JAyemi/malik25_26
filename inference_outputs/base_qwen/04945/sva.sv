@@ -1,4 +1,3 @@
-```systemverilog
 module Span12Mux_s5_v_assertions (
     input logic CLK,
     input logic [11:0] I,
@@ -57,4 +56,3 @@ module Span12Mux_s5_v_assertions (
         @(posedge CLK) $rose(I != 12'b000000000001) && $rose(I != 12'b000000000010) && $rose(I != 12'b000000000100) && $rose(I != 12'b000000001000) && $rose(I != 12'b000000010000) && $rose(I != 12'b000000100000) && $rose(I != 12'b000001000000) && $rose(I != 12'b000010000000) && $rose(I != 12'b000100000000) && $rose(I != 12'b001000000000) && $rose(I != 12'b010000000000) && $rose(I != 12'b100000000000) |-> O == 1'b0
     );
 endmodule
-```

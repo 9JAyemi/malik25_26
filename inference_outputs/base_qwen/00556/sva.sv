@@ -1,4 +1,3 @@
-```systemverilog
 module my_module_sva (
     input logic CLK,
     input logic RESETn,
@@ -12,4 +11,3 @@ module my_module_sva (
         @(posedge CLK) disable iff (!RESETn) (Z == (TE_B ? 1'b1 : A))
     );
 endmodule
-```

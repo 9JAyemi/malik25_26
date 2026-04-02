@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2_to_1_sva (
     input logic a,
     input logic b,
@@ -17,4 +16,3 @@ module mux_2_to_1_sva (
         @(posedge clk) $rose(~sel) |-> (out == b)
     ) else $error("mux_2_to_1: Output 'out' should be equal to 'b' when 'sel' is 1.");
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module if_stage_sva (
     input logic clk,
     input logic rst,
@@ -54,4 +53,3 @@ module if_stage_sva (
     ) else $error("Reset should drive all registers to 0");
 
 endmodule
-```

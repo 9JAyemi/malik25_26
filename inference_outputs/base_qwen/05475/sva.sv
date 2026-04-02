@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic clk,
     input logic rst_n,
@@ -27,4 +26,3 @@ module barrel_shifter_sva (
     assert property (p_reset) else $error("Output is driven during reset.");
 
 endmodule
-```

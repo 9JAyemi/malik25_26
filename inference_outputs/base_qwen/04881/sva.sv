@@ -1,4 +1,3 @@
-```systemverilog
 module up_down_counter_4bit_sva (
     input logic clk,
     input logic Up,
@@ -43,4 +42,3 @@ module up_down_counter_4bit_sva (
         @(posedge clk) disable iff (!clk) (!(Up || Down)) |-> (Q == $past(Q))
     );
 endmodule
-```

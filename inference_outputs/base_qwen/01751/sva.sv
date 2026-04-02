@@ -1,4 +1,3 @@
-```systemverilog
 module c_clkgate_sva (
     input logic clk,
     input logic active,
@@ -54,4 +53,3 @@ module c_clkgate_sva (
         @(posedge clk) disable iff (!active) (clk == 1'b1) && (active == 1'b1)
     );
 endmodule
-```

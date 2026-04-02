@@ -1,4 +1,3 @@
-```systemverilog
 module binary_decoder_3to8_sva (
     input logic clk,
     input logic rst_n,
@@ -33,4 +32,3 @@ module binary_decoder_3to8_sva (
     );
 
 endmodule
-```

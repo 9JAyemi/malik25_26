@@ -1,4 +1,3 @@
-```systemverilog
 module priority_encoder_sva #(
   parameter n=4,
   parameter m=2
@@ -37,4 +36,3 @@ module priority_encoder_sva #(
   );
 
 endmodule
-```

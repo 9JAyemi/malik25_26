@@ -1,4 +1,3 @@
-```systemverilog
 module and3_not_A_sva (
     input logic A,
     input logic B,
@@ -17,4 +16,3 @@ module and3_not_A_sva (
     ) else $error("Combinational logic error detected");
 
 endmodule
-```

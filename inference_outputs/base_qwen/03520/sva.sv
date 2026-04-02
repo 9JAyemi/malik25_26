@@ -1,4 +1,3 @@
-```systemverilog
 module counter_sva (
     input logic clk,
     input logic rst,
@@ -16,4 +15,3 @@ module counter_sva (
         @(posedge clk) disable iff (!rst) count == count + 1
     );
 endmodule
-```

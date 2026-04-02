@@ -1,4 +1,3 @@
-```systemverilog
 module nor_and_sva (
     input logic VPWR,
     input logic VGND,
@@ -38,4 +37,3 @@ module nor_and_sva (
     );
 
 endmodule
-```

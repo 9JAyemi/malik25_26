@@ -1,4 +1,3 @@
-```systemverilog
 module signal_converter_sva (
     input logic A1,
     input logic A2,
@@ -105,4 +104,3 @@ module signal_converter_sva (
         ) else $error("X is 1 when C1 is 0 and none of the other conditions are met");
     end
 endmodule
-```

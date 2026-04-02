@@ -1,4 +1,3 @@
-```systemverilog
 module LedOutput_sva (
     input logic [8:0] key_input,
     output logic [4:0] led_output
@@ -15,4 +14,3 @@ module LedOutput_sva (
         @(posedge CLK) disable iff (!RESETn) (key_input inside {[0:127]}) |-> (led_output == {key_input[4:0], key_input[7:5], key_input[3:0]})
     );
 endmodule
-```

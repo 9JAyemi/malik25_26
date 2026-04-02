@@ -1,4 +1,3 @@
-```systemverilog
 module FFType_assertions (
   input logic clock,
   input logic reset,
@@ -57,4 +56,3 @@ module FFType_assertions (
     @(posedge clock) disable iff (!reset) io_init == io_init |-> io_out == io_out
   );
 endmodule
-```

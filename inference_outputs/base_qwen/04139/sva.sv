@@ -1,4 +1,3 @@
-```systemverilog
 module ZigbeeReceiver_sva (
     input wire carrier,
     input wire modulated,
@@ -19,4 +18,3 @@ module ZigbeeReceiver_sva (
     );
 
 endmodule
-```

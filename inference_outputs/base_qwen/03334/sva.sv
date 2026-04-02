@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva (
     input logic Clock,
     input logic [3:0] A,
@@ -16,4 +15,3 @@ module four_bit_adder_sva (
         @(posedge Clock) disable iff (!Clock) (Cout == (A + B + Cin) >> 4)
     );
 endmodule
-```

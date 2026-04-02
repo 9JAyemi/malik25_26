@@ -1,4 +1,3 @@
-```systemverilog
 module my_module_sva (
     input logic Y,
     input logic A1,
@@ -31,4 +30,3 @@ module my_module_sva (
         @(posedge clk) disable iff (!RESETn) (Y == and1_out_Y)
     );
 endmodule
-```

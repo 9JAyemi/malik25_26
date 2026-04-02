@@ -1,4 +1,3 @@
-```systemverilog
 module wkg_sva (
     input logic CLK,
     input logic RESETn,
@@ -20,4 +19,3 @@ module wkg_sva (
                                              (o_wk0_4 == (i_op ^ i_wf_post_pre) ? i_mk15to12[7:0]   : i_mk3to0[7:0])
     );
 endmodule
-```

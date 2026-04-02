@@ -1,4 +1,3 @@
-```systemverilog
 module mux4_sva (
     input logic A0,
     input logic A1,
@@ -14,4 +13,3 @@ module mux4_sva (
         @(posedge clk) disable iff (!reset_n) (X == (A0 & ~S0 & ~S1) | (A1 & S0 & ~S1) | (A2 & ~S0 & S1) | (A3 & S0 & S1))
     );
 endmodule
-```

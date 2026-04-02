@@ -1,4 +1,3 @@
-```systemverilog
 module adder_sva(
     input logic clk,
     input logic [7:0] A,
@@ -15,4 +14,3 @@ module adder_sva(
         @(posedge clk) $rose(C_out) |-> (C_out == (A + B)[8])
     );
 endmodule
-```

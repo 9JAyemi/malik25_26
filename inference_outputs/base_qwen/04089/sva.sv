@@ -1,4 +1,3 @@
-```systemverilog
 module binary_adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -59,4 +58,3 @@ module binary_adder_sva (
         @(posedge clk) disable iff (1'b0) (COUT == 1'b0) |-> !(A[3] & B[3] & CIN)
     );
 endmodule
-```

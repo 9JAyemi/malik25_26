@@ -1,4 +1,3 @@
-```systemverilog
 module binary_multiplier_sva (
     input logic [3:0] a,
     input logic [3:0] b,
@@ -15,4 +14,3 @@ module binary_multiplier_sva (
     ) else $error("Output does not match the expected result of the binary multiplication");
 
 endmodule
-```

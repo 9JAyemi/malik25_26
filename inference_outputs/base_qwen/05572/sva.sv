@@ -1,4 +1,3 @@
-```systemverilog
 module hexledx_sva (
     input wire [3:0] value,
     input wire blank,
@@ -103,4 +102,3 @@ module hexledx_sva (
         @(posedge clk) disable iff (!rst_n) (value == 4'hF |-> s7 == 7'b1110001)
     );
 endmodule
-```

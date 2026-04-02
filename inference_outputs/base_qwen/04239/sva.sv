@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__xor2_sva (
     input logic CLK,
     input logic VPWR,
@@ -14,4 +13,3 @@ module sky130_fd_sc_hd__xor2_sva (
         @(posedge CLK) disable iff (!VPWR || !VGND) (X == A ^ B)
     );
 endmodule
-```

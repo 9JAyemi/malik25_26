@@ -1,4 +1,3 @@
-```systemverilog
 module my_mac_sva (
     input logic clk,
     input logic reset,
@@ -17,4 +16,3 @@ module my_mac_sva (
         @(posedge clk) disable iff (!reset) ce |-> (dout == dout + din0 * din1)
     );
 endmodule
-```

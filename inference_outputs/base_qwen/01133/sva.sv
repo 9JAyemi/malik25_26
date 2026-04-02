@@ -1,4 +1,3 @@
-```systemverilog
 module address_to_signal_sva (
   input logic [9:0] address,
   input logic clock,
@@ -14,4 +13,3 @@ module address_to_signal_sva (
     @(posedge clock) $stable(address) |-> q == {address, 2'b00}
   );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module Comparator_assertions (
   input logic [3:0] in1,
   input logic [3:0] in2,
@@ -18,4 +17,3 @@ module Comparator_assertions (
         @(posedge clk) disable iff (!rst_n) (in1 < in2) |-> (out == 2'b10)
     );
 endmodule
-```

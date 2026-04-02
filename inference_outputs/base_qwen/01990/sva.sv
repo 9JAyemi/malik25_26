@@ -1,4 +1,3 @@
-```systemverilog
 module Adder4bit_assertions (
     input logic CLK,
     input logic [3:0] A,
@@ -36,4 +35,3 @@ module Adder4bit_assertions (
         @(posedge CLK) disable iff (!CLK) |-> (Out == (Sel ? A : B))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module simple_calculator_sva (
     input signed [7:0] a,
     input signed [7:0] b,
@@ -33,4 +32,3 @@ module simple_calculator_sva (
         @(posedge clk) disable iff (!reset_n) (reset_n == 1'b0) |-> (add_out == 0 && sub_out == 0 && mul_out == 0 && div_out == 0)
     );
 endmodule
-```

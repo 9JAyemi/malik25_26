@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic a,
@@ -51,4 +50,3 @@ module top_module_sva (
         @(posedge clk) $stable({xor_out, xnor_out}) |-> f == mux_in[{xor_out, xnor_out}]
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module dffl_64_sva (
     input logic clk,
     input logic ld,
@@ -21,4 +20,3 @@ module dffl_64_sva (
         @(posedge clk) disable iff (!rst) (ld == 1'b0) |-> q == q
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mux_4to1_enable_sva (
     input logic CLK,
     input logic EN,
@@ -27,4 +26,3 @@ module mux_4to1_enable_sva (
                                       (SEL == 2'b11) |-> (Y == D3)
     );
 endmodule
-```

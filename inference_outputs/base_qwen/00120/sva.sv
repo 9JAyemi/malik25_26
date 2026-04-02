@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__a2111oi_sva (
     input logic Y   ,
     input logic A1  ,
@@ -29,4 +28,3 @@ module sky130_fd_sc_ms__a2111oi_sva (
         @(posedge VPWR) disable iff (!VGND) (Y == 1'b0) |-> (!A1 & !A2 & !B1 & !C1 & !D1)
     );
 endmodule
-```

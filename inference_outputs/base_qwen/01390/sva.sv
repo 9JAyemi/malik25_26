@@ -1,4 +1,3 @@
-```systemverilog
 module csa_generate_adder_32bit_sva (
     input logic CLK,
     input logic [31:0] A,
@@ -50,4 +49,3 @@ module csa_generate_adder_32bit_sva (
     );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module clock_gate_sva (
   input logic CLK,
   input logic EN,
@@ -21,4 +20,3 @@ module clock_gate_sva (
     @(posedge CLK) disable iff (RST) !TE |-> (ENCLK == ENCLK)
   );
 endmodule
-```

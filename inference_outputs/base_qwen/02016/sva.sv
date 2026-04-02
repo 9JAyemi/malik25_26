@@ -1,4 +1,3 @@
-```systemverilog
 module hpdmc_banktimer_sva (
     input logic sys_clk,
     input logic sdram_rst,
@@ -68,4 +67,3 @@ module hpdmc_banktimer_sva (
         @(posedge sys_clk) disable iff (!sdram_rst) tim_cas |-> (precharge_safe == precharge_safe)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic in,
     input logic shift,
@@ -65,4 +64,3 @@ module shift_register_sva (
         @(posedge shift) $stable(out) |-> out == out
     );
 endmodule
-```

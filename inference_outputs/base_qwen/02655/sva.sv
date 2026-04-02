@@ -1,4 +1,3 @@
-```systemverilog
 module or4_sva (
     input logic A,
     input logic B,
@@ -16,4 +15,3 @@ module or4_sva (
         @(posedge VPB) disable iff (!VGND) (X == (A | B | C | D))
     );
 endmodule
-```

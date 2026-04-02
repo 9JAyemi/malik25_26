@@ -1,4 +1,3 @@
-```systemverilog
 module manual (
     input logic clk,
     input logic rst,
@@ -64,4 +63,3 @@ module manual (
         @(posedge clk) disable iff (!rst) (!rst |-> (q == d))
     ) else $error("Output is not always equal to the input when reset and enable are inactive");
 endmodule
-```

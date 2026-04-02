@@ -1,4 +1,3 @@
-```systemverilog
 module mm_sva (
     input logic clk,
     input logic rst_n,
@@ -29,4 +28,3 @@ module mm_sva (
         @(posedge clk) disable iff (!rst_n) (eff_addr == (mod == 8'h01) ? {8'h00, addr[23:0]} : {12'h000, addr[19:0]})
     );
 endmodule
-```

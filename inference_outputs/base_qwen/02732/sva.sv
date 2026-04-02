@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic rst_n,
@@ -36,4 +35,3 @@ module top_module_sva (
     ) else $error("Result did not reset to zero");
 
 endmodule
-```

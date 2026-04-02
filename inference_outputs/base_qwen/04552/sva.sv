@@ -1,4 +1,3 @@
-```systemverilog
 module logic_function_sva (
     input logic Y,
     input logic A1,
@@ -15,4 +14,3 @@ module logic_function_sva (
         @(posedge clk) disable iff (!resetn) Y == (A2 | A1) & ~(B2 | B1) & C1
     );
 endmodule
-```

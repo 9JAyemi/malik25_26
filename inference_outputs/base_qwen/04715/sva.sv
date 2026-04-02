@@ -1,4 +1,3 @@
-```systemverilog
 module counter_4bit_sva (
     input logic clk,
     input logic reset,
@@ -59,4 +58,3 @@ module counter_4bit_sva (
         @(posedge clk) disable iff (!reset) (enable == 1'b0) |-> count == count
     );
 endmodule
-```

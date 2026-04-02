@@ -1,4 +1,3 @@
-```systemverilog
 module counter_4bit_sync_reset_load_sva (
   input logic clk,
   input logic reset,
@@ -24,4 +23,3 @@ module counter_4bit_sync_reset_load_sva (
     @(posedge clk) disable iff (!reset) !(reset | load) |-> count == count + 4'b1
   );
 endmodule
-```

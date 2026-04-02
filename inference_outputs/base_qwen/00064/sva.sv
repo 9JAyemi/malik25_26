@@ -1,4 +1,3 @@
-```systemverilog
 module and_gate_sva (
     input logic A1,
     input logic A2,
@@ -14,4 +13,3 @@ module and_gate_sva (
         @(posedge VPWR) $stable(A1) && $stable(A2) && $stable(B1) |-> X == (A1 & A2 & B1)
     );
 endmodule
-```

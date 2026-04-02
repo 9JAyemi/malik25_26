@@ -1,4 +1,3 @@
-```systemverilog
 module binary_add_sub_sva (
   input logic [3:0] A,
   input logic [3:0] B,
@@ -15,4 +14,3 @@ module binary_add_sub_sva (
     @(posedge clk) disable iff (!reset_n) (mode == 1) |-> (Y == A + (~B + 1))
   );
 endmodule
-```

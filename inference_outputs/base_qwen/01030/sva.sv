@@ -1,4 +1,3 @@
-```systemverilog
 module constant_generator_sva (
   input logic clk,
   input logic ce,
@@ -55,4 +54,3 @@ module constant_generator_sva (
     @(posedge clk) disable iff (!clr) (ce == 1'b0) |-> op_reg == 1'b0
   );
 endmodule
-```

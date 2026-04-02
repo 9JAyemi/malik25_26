@@ -1,4 +1,3 @@
-```systemverilog
 module dffre_sva (
     input logic CLK,
     input logic RST,
@@ -42,4 +41,3 @@ module dffre_sva (
         @(posedge CLK) disable iff (!RST) SO == Q
     );
 endmodule
-```

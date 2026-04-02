@@ -1,4 +1,3 @@
-```systemverilog
 module my_or2_8_sva (
     input logic X,
     input logic A,
@@ -38,4 +37,3 @@ module my_or2_8_sva (
     );
 
 endmodule
-```

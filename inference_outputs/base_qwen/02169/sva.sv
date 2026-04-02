@@ -1,4 +1,3 @@
-```systemverilog
 module arithmetic_op_sva (
    input logic clk,
    input logic rst_n,
@@ -29,4 +28,3 @@ module arithmetic_op_sva (
    );
 
 endmodule
-```

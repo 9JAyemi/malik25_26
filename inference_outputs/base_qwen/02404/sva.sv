@@ -1,4 +1,3 @@
-```systemverilog
 module mux_dff_sva (
     input logic CLK,
     input logic Q,
@@ -85,4 +84,3 @@ module mux_dff_sva (
         @(posedge CLK) disable iff (!CLK) Q == buf_mux_out
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_2to4_with_enable_sva (
     input logic A,
     input logic B,
@@ -15,4 +14,3 @@ module decoder_2to4_with_enable_sva (
         @(posedge clk) disable iff (!EN) (Y == (A ? (B ? 4'b1000 : 4'b0100) : (B ? 4'b0010 : 4'b0001)))
     );
 endmodule
-```

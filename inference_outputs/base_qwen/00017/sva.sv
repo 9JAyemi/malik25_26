@@ -1,4 +1,3 @@
-```systemverilog
 module section2_schematic_sva (
     input logic n63,
     input logic Z_B,
@@ -55,4 +54,3 @@ module section2_schematic_sva (
         @(posedge Z_B) disable iff (!Z_B) N_8 == ~Z_B
     );
 endmodule
-```

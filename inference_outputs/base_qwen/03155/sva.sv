@@ -1,4 +1,3 @@
-```systemverilog
 module math_ops_sva(
     input logic clk,
     input logic reset,
@@ -76,4 +75,3 @@ module math_ops_sva(
         @(posedge clk) disable iff (!reset) x7 == (cos * s2)
     );
 endmodule
-```

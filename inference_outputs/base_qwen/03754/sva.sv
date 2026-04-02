@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__nand2b_sva (
     input logic Y,
     input logic A_N,
@@ -14,4 +13,3 @@ module sky130_fd_sc_ms__nand2b_sva (
     ) else $error("NAND2B logic violation");
 
 endmodule
-```

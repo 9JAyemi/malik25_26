@@ -1,4 +1,3 @@
-```systemverilog
 module fifo_controller_sva (
   input wire ge2_free,
   input wire ge3_free,
@@ -38,4 +37,3 @@ module fifo_controller_sva (
   assert property (p_fifo_wrptr_inc_0) else $error("fifo_wrptr_inc should be 0 when input_tm_cnt is less than 1");
 
 endmodule
-```

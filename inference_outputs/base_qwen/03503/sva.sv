@@ -1,4 +1,3 @@
-```systemverilog
 module jt51_mod_sva (
     input logic m1_enters,
     input logic m2_enters,
@@ -50,4 +49,3 @@ module jt51_mod_sva (
     );
 
 endmodule
-```

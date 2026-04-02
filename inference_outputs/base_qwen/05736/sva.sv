@@ -1,4 +1,3 @@
-```systemverilog
 module xnor2_sva (
     input logic Y,
     input logic A,
@@ -12,4 +11,3 @@ module xnor2_sva (
         @(posedge clk) disable iff (!reset_n) (Y == ~(A ^ B))
     );
 endmodule
-```

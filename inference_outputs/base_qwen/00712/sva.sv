@@ -1,4 +1,3 @@
-```systemverilog
 module adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -9,4 +8,3 @@ module adder_sva (
         @(posedge clk) disable iff (!RESETn) C == A + B
     );
 endmodule
-```

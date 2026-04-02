@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva (
     input logic CLK,
     input logic [3:0] A,
@@ -39,4 +38,3 @@ module four_bit_adder_sva (
         @(posedge CLK) disable iff (!CLK) Co == (A[3] & B[3] | A[3] & S[2] | B[3] & S[2])
     );
 endmodule
-```

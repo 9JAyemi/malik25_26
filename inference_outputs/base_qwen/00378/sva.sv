@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_4to16_sva (
     input logic clk,
     input logic rst_n,
@@ -56,4 +55,3 @@ module decoder_4to16_sva (
         @(posedge clk) disable iff (!rst_n) (ena |-> (out == (16'b1 << in) | 16'b1))
     );
 endmodule
-```

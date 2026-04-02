@@ -1,4 +1,3 @@
-```systemverilog
 module threshold_module_sva(
     input logic [3:0] input_value,
     input logic [1:0] output_value
@@ -21,4 +20,3 @@ module threshold_module_sva(
         @(posedge clk) (input_value > 5) && (input_value < 10) |-> (output_value == 2'b01)
     ) else $error("output_value should be 01 when input_value is between 6 and 9");
 endmodule
-```

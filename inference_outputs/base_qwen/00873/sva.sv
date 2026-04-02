@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__a211oi_sva (
     input logic A1,
     input logic A2,
@@ -66,4 +65,3 @@ module sky130_fd_sc_hd__a211oi_sva (
     endproperty
     assert property (p_nor0_2) else $error("B1 or C1 must be 1 for Y to be 0");
 endmodule
-```

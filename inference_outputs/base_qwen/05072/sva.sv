@@ -1,4 +1,3 @@
-```systemverilog
 module fifo_wp_inc_sva (
     input logic clk,
     input logic rst_n,
@@ -35,4 +34,3 @@ module fifo_wp_inc_sva (
     );
 
 endmodule
-```

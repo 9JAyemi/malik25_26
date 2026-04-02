@@ -1,4 +1,3 @@
-```systemverilog
 module digital_circuit_sva (
     input logic Y,
     input logic A1,
@@ -26,4 +25,3 @@ module digital_circuit_sva (
         @(posedge clk) disable iff (!RESETn) (Y == ~(~B1_N & A1 & A2))
     ) else $error("Combinational logic assertion failed");
 endmodule
-```

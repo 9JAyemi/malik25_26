@@ -1,4 +1,3 @@
-```systemverilog
 module and_gate_sva (
     input logic A,
     input logic B,
@@ -16,4 +15,3 @@ module and_gate_sva (
         @(posedge clk) disable iff (!reset) X == (A & B)
     );
 endmodule
-```

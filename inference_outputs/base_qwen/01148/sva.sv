@@ -1,4 +1,3 @@
-```systemverilog
 module and3b_sva (
     input wire A_N,
     input wire B,
@@ -19,4 +18,3 @@ module and3b_sva (
                                            1'bx)
     );
 endmodule
-```

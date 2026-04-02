@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hvl__a22o_sva (
     input logic A1,
     input logic A2,
@@ -58,4 +57,3 @@ module sky130_fd_sc_hvl__a22o_sva (
         @(posedge clk) disable iff (!RESETn) ((A1 == 1'b1) || (A2 == 1'b1)) |-> (B1 == 1'b1) && (B2 == 1'b1)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input wire [15:0] in,
     output wire out
@@ -63,4 +62,3 @@ module top_module_sva (
     endproperty
     assert property (p_out_reset_active) else $error("out is not 0 when reset is active");
 endmodule
-```

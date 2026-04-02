@@ -1,4 +1,3 @@
-```systemverilog
 module reverse_bit_order_sva (
     input logic clk,
     input logic [99:0] in,
@@ -47,4 +46,3 @@ module reverse_bit_order_sva (
 
     // Additional properties can be added here as needed.
 endmodule
-```

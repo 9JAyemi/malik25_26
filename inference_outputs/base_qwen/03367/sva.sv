@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic [3:0] num1,
     input logic [3:0] num2,
@@ -21,4 +20,3 @@ module calculator_sva (
         @(posedge clk) disable iff (!reset) (!op |-> result == num1 + num2)
     );
 endmodule
-```

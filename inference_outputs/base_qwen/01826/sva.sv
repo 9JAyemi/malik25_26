@@ -1,4 +1,3 @@
-```systemverilog
 module hls_contrast_streibs_sva (
     input logic clk,
     input logic rst_n,

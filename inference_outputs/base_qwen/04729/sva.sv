@@ -1,4 +1,3 @@
-```systemverilog
 module binary_to_gray_sva (
     input logic clk,
     input logic [3:0] binary_in,
@@ -12,4 +11,3 @@ module binary_to_gray_sva (
         (gray_out[0] == binary_in[1] ^ binary_in[0])
     );
 endmodule
-```

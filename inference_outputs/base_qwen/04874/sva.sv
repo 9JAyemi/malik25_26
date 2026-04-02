@@ -1,4 +1,3 @@
-```systemverilog
 module and_gate_sva (
     input logic A,
     input logic B,

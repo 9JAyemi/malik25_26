@@ -1,4 +1,3 @@
-```systemverilog
 module mode_selector_sva (
     input wire [1:0] mode,
     input wire [3:0] in,
@@ -29,4 +28,3 @@ module mode_selector_sva (
         @(posedge CLK) disable iff (!RESETn) (mode != 2'b00 && mode != 2'b01 && mode != 2'b10 && mode != 2'b11) |-> (out == 4'b0)
     );
 endmodule
-```

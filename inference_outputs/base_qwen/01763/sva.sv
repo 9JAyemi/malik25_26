@@ -1,4 +1,3 @@
-```systemverilog
 module mdio_1to2_sva
     (input logic mdio_mdc,
      input logic mdio_o,
@@ -30,4 +29,3 @@ module mdio_1to2_sva
     );
 
 endmodule
-```

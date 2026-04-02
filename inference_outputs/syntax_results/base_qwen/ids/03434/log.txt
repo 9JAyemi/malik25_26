@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./03434/sva.sv ./03434/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./03434/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,29 +163,21 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './03434/sva.sv'
-[ERROR (VERI-1068)] ./03434/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03434/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./03434/sva.sv(49): 'carry_out' is not declared
-[ERROR (VERI-1128)] ./03434/sva.sv(49): 'add_out' is not declared
-[ERROR (VERI-1128)] ./03434/sva.sv(54): 'add_out' is not declared
-[ERROR (VERI-1128)] ./03434/sva.sv(54): 'mux_out' is not declared
-[ERROR (VERI-1128)] ./03434/sva.sv(59): 'carry_out' is not declared
-[ERROR (VERI-1072)] ./03434/sva.sv(61): module 'top_module_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./03434/sva.sv(62): missing compiler directive
-[ERROR (VERI-1137)] ./03434/sva.sv(62): syntax error near '`'
+[ERROR (VERI-1128)] ./03434/sva.sv(48): 'carry_out' is not declared
+[ERROR (VERI-1128)] ./03434/sva.sv(48): 'add_out' is not declared
+[ERROR (VERI-1128)] ./03434/sva.sv(53): 'add_out' is not declared
+[ERROR (VERI-1128)] ./03434/sva.sv(53): 'mux_out' is not declared
+[ERROR (VERI-1128)] ./03434/sva.sv(58): 'carry_out' is not declared
+[ERROR (VERI-1072)] ./03434/sva.sv(60): module 'top_module_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./03434/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03434/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./03434/sva.sv(49): 'carry_out' is not declared
-	[ERROR (VERI-1128)] ./03434/sva.sv(49): 'add_out' is not declared
-	[ERROR (VERI-1128)] ./03434/sva.sv(54): 'add_out' is not declared
-	[ERROR (VERI-1128)] ./03434/sva.sv(54): 'mux_out' is not declared
-	[ERROR (VERI-1128)] ./03434/sva.sv(59): 'carry_out' is not declared
-	[ERROR (VERI-1072)] ./03434/sva.sv(61): module 'top_module_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./03434/sva.sv(62): missing compiler directive
-	[ERROR (VERI-1137)] ./03434/sva.sv(62): syntax error near '`'
+	[ERROR (VERI-1128)] ./03434/sva.sv(48): 'carry_out' is not declared
+	[ERROR (VERI-1128)] ./03434/sva.sv(48): 'add_out' is not declared
+	[ERROR (VERI-1128)] ./03434/sva.sv(53): 'add_out' is not declared
+	[ERROR (VERI-1128)] ./03434/sva.sv(53): 'mux_out' is not declared
+	[ERROR (VERI-1128)] ./03434/sva.sv(58): 'carry_out' is not declared
+	[ERROR (VERI-1072)] ./03434/sva.sv(60): module 'top_module_sva' ignored due to previous errors
 ERROR: analyze failed:
-ERROR (ENL034): 10 errors detected in the design file(s).
+ERROR (ENL034): 6 errors detected in the design file(s).
 
 1
 % 

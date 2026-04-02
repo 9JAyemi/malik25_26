@@ -1,4 +1,3 @@
-```systemverilog
 module xor_module_sva(
     input logic a,
     input logic b,
@@ -9,4 +8,3 @@ module xor_module_sva(
         @(posedge clk) disable iff (!reset_n) (out_comb_logic == (a ^ b))
     );
 endmodule
-```

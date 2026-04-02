@@ -1,4 +1,3 @@
-```systemverilog
 module Mux_3x1_bv2_sva #(parameter W=32)
 (
     input wire [1:0] select,
@@ -21,4 +20,3 @@ module Mux_3x1_bv2_sva #(parameter W=32)
         @(posedge clk) disable iff (!reset_n) (select == 2'b11) |-> (data_out == ch_2)
     );
 endmodule
-```

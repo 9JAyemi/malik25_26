@@ -318,6 +318,43 @@ INFO: Using TOP = bitwise_operations
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,42 +441,34 @@ DEBUG: SVA_FILES    = ./03273/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './03273/sva.sv'
-[ERROR (VERI-1068)] ./03273/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03273/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1137)] ./03273/sva.sv(92): syntax error near ';'
-[ERROR (VERI-1137)] ./03273/sva.sv(94): syntax error near 'else'
-[ERROR (VERI-2344)] ./03273/sva.sv(94): SystemVerilog keyword else used in incorrect context
-[ERROR (VERI-1620)] ./03273/sva.sv(94): invalid use of system task '$error' in expression, expected a system function
-[ERROR (VERI-1137)] ./03273/sva.sv(97): syntax error near 'property'
-[ERROR (VERI-2344)] ./03273/sva.sv(97): SystemVerilog keyword property used in incorrect context
-[ERROR (VERI-1128)] ./03273/sva.sv(22): 'and_result' is not declared
-[ERROR (VERI-1128)] ./03273/sva.sv(28): 'or_result' is not declared
-[ERROR (VERI-1128)] ./03273/sva.sv(34): 'xor_result' is not declared
-[ERROR (VERI-1128)] ./03273/sva.sv(40): 'shift_result' is not declared
-[ERROR (VERI-1128)] ./03273/sva.sv(100): 'p_a' is not declared
-[WARN (VERI-1763)] ./03273/sva.sv(100): the sva directive is not sensitive to clock. The directive will be sampled on the posedge of the fastest clock.
-[ERROR (VERI-1072)] ./03273/sva.sv(107): module 'bitwise_operations_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./03273/sva.sv(108): missing compiler directive
-[ERROR (VERI-1137)] ./03273/sva.sv(108): syntax error near '`'
+[ERROR (VERI-1137)] ./03273/sva.sv(91): syntax error near ';'
+[ERROR (VERI-1137)] ./03273/sva.sv(93): syntax error near 'else'
+[ERROR (VERI-2344)] ./03273/sva.sv(93): SystemVerilog keyword else used in incorrect context
+[ERROR (VERI-1620)] ./03273/sva.sv(93): invalid use of system task '$error' in expression, expected a system function
+[ERROR (VERI-1137)] ./03273/sva.sv(96): syntax error near 'property'
+[ERROR (VERI-2344)] ./03273/sva.sv(96): SystemVerilog keyword property used in incorrect context
+[ERROR (VERI-1128)] ./03273/sva.sv(21): 'and_result' is not declared
+[ERROR (VERI-1128)] ./03273/sva.sv(27): 'or_result' is not declared
+[ERROR (VERI-1128)] ./03273/sva.sv(33): 'xor_result' is not declared
+[ERROR (VERI-1128)] ./03273/sva.sv(39): 'shift_result' is not declared
+[ERROR (VERI-1128)] ./03273/sva.sv(99): 'p_a' is not declared
+[WARN (VERI-1763)] ./03273/sva.sv(99): the sva directive is not sensitive to clock. The directive will be sampled on the posedge of the fastest clock.
+[ERROR (VERI-1072)] ./03273/sva.sv(106): module 'bitwise_operations_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./03273/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03273/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1137)] ./03273/sva.sv(92): syntax error near ';'
-	[ERROR (VERI-1137)] ./03273/sva.sv(94): syntax error near 'else'
-	[ERROR (VERI-2344)] ./03273/sva.sv(94): SystemVerilog keyword else used in incorrect context
-	[ERROR (VERI-1620)] ./03273/sva.sv(94): invalid use of system task '$error' in expression, expected a system function
-	[ERROR (VERI-1137)] ./03273/sva.sv(97): syntax error near 'property'
-	[ERROR (VERI-2344)] ./03273/sva.sv(97): SystemVerilog keyword property used in incorrect context
-	[ERROR (VERI-1128)] ./03273/sva.sv(22): 'and_result' is not declared
-	[ERROR (VERI-1128)] ./03273/sva.sv(28): 'or_result' is not declared
-	[ERROR (VERI-1128)] ./03273/sva.sv(34): 'xor_result' is not declared
-	[ERROR (VERI-1128)] ./03273/sva.sv(40): 'shift_result' is not declared
-	[ERROR (VERI-1128)] ./03273/sva.sv(100): 'p_a' is not declared
-	[ERROR (VERI-1072)] ./03273/sva.sv(107): module 'bitwise_operations_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./03273/sva.sv(108): missing compiler directive
-	[ERROR (VERI-1137)] ./03273/sva.sv(108): syntax error near '`'
+	[ERROR (VERI-1137)] ./03273/sva.sv(91): syntax error near ';'
+	[ERROR (VERI-1137)] ./03273/sva.sv(93): syntax error near 'else'
+	[ERROR (VERI-2344)] ./03273/sva.sv(93): SystemVerilog keyword else used in incorrect context
+	[ERROR (VERI-1620)] ./03273/sva.sv(93): invalid use of system task '$error' in expression, expected a system function
+	[ERROR (VERI-1137)] ./03273/sva.sv(96): syntax error near 'property'
+	[ERROR (VERI-2344)] ./03273/sva.sv(96): SystemVerilog keyword property used in incorrect context
+	[ERROR (VERI-1128)] ./03273/sva.sv(21): 'and_result' is not declared
+	[ERROR (VERI-1128)] ./03273/sva.sv(27): 'or_result' is not declared
+	[ERROR (VERI-1128)] ./03273/sva.sv(33): 'xor_result' is not declared
+	[ERROR (VERI-1128)] ./03273/sva.sv(39): 'shift_result' is not declared
+	[ERROR (VERI-1128)] ./03273/sva.sv(99): 'p_a' is not declared
+	[ERROR (VERI-1072)] ./03273/sva.sv(106): module 'bitwise_operations_sva' ignored due to previous errors
 ERROR: analyze SVA failed:
-ERROR (ENL034): 16 errors detected in the design file(s).
+ERROR (ENL034): 12 errors detected in the design file(s).
 
 1
 % 

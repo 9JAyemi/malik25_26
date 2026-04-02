@@ -1,4 +1,3 @@
-```systemverilog
 module binary_multiplier_sva (
     input logic clk,
     input logic reset,
@@ -18,4 +17,3 @@ module binary_multiplier_sva (
         @(posedge clk) disable iff (!reset) result == a * b
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic reset,
@@ -19,4 +18,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!reset) q == 4'b1111 |-> q + 1 == 4'b0000
     );
 endmodule
-```

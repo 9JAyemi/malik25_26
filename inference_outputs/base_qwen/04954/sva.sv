@@ -1,4 +1,3 @@
-```systemverilog
 module pipelined_adder_sva (
     input logic clk,
     input logic [3:0] A,
@@ -16,4 +15,3 @@ module pipelined_adder_sva (
         @(posedge clk) $rose(OUT) |-> (OUT == sum_reg3)
     );
 endmodule
-```

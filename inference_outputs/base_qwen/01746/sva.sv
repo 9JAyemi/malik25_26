@@ -1,4 +1,3 @@
-```systemverilog
 module vending_machine_sva (
     input logic [1:0] coin,
     input logic [1:0] item,
@@ -20,4 +19,3 @@ module vending_machine_sva (
         @(posedge CLK) !RESETn |-> !vend
     );
 endmodule
-```

@@ -318,6 +318,43 @@ INFO: Using TOP = min_max
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,48 +441,48 @@ DEBUG: SVA_FILES    = ./03133/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './03133/sva.sv'
-[ERROR (VERI-1068)] ./03133/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03133/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1137)] ./03133/sva.sv(11): syntax error near 'clk'
-[ERROR (VERI-1137)] ./03133/sva.sv(13): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(10): syntax error near 'clk'
+[ERROR (VERI-1137)] ./03133/sva.sv(12): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(12): syntax error near ';'
 [ERROR (VERI-1137)] ./03133/sva.sv(13): syntax error near ';'
-[ERROR (VERI-1137)] ./03133/sva.sv(14): syntax error near ';'
-[ERROR (VERI-1137)] ./03133/sva.sv(16): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(15): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(15): syntax error near ';'
 [ERROR (VERI-1137)] ./03133/sva.sv(16): syntax error near ';'
-[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near ';'
-[ERROR (VERI-1137)] ./03133/sva.sv(18): syntax error near 'integer'
-[ERROR (VERI-2344)] ./03133/sva.sv(18): SystemVerilog keyword integer used in incorrect context
-[ERROR (VERI-1137)] ./03133/sva.sv(18): syntax error near '<'
-[ERROR (VERI-1137)] ./03133/sva.sv(20): syntax error near '<='
-[ERROR (VERI-1137)] ./03133/sva.sv(20): syntax error near ';'
-[ERROR (VERI-1137)] ./03133/sva.sv(23): syntax error near '<='
-[ERROR (VERI-1137)] ./03133/sva.sv(23): syntax error near ';'
-[WARN (VERI-2387)] ./03133/sva.sv(27): this design contains a SystemVerilog implicit generate region
-[WARN (VERI-2365)] ./03133/sva.sv(27): generate block is allowed only inside loop and conditional generate in SystemVerilog mode
-[ERROR (VERI-1128)] ./03133/sva.sv(12): 'reset_n' is not declared
+[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near 'integer'
+[ERROR (VERI-2344)] ./03133/sva.sv(17): SystemVerilog keyword integer used in incorrect context
+[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near '<'
+[ERROR (VERI-1137)] ./03133/sva.sv(19): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(19): syntax error near ';'
+[ERROR (VERI-1137)] ./03133/sva.sv(22): syntax error near '<='
+[ERROR (VERI-1137)] ./03133/sva.sv(22): syntax error near ';'
+[WARN (VERI-2387)] ./03133/sva.sv(26): this design contains a SystemVerilog implicit generate region
+[WARN (VERI-2365)] ./03133/sva.sv(26): generate block is allowed only inside loop and conditional generate in SystemVerilog mode
+[ERROR (VERI-1128)] ./03133/sva.sv(11): 'reset_n' is not declared
+[ERROR (VERI-1281)] ./03133/sva.sv(12): 'in' is not a type
+[ERROR (VERI-2079)] ./03133/sva.sv(12): single value range is not allowed in packed dimension
+[ERROR (VERI-1343)] ./03133/sva.sv(12): zero or negative value for size
 [ERROR (VERI-1281)] ./03133/sva.sv(13): 'in' is not a type
-[ERROR (VERI-2079)] ./03133/sva.sv(13): single value range is not allowed in packed dimension
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./03133/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03133/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1137)] ./03133/sva.sv(11): syntax error near 'clk'
-	[ERROR (VERI-1137)] ./03133/sva.sv(13): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(10): syntax error near 'clk'
+	[ERROR (VERI-1137)] ./03133/sva.sv(12): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(12): syntax error near ';'
 	[ERROR (VERI-1137)] ./03133/sva.sv(13): syntax error near ';'
-	[ERROR (VERI-1137)] ./03133/sva.sv(14): syntax error near ';'
-	[ERROR (VERI-1137)] ./03133/sva.sv(16): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(15): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(15): syntax error near ';'
 	[ERROR (VERI-1137)] ./03133/sva.sv(16): syntax error near ';'
-	[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near ';'
-	[ERROR (VERI-1137)] ./03133/sva.sv(18): syntax error near 'integer'
-	[ERROR (VERI-2344)] ./03133/sva.sv(18): SystemVerilog keyword integer used in incorrect context
-	[ERROR (VERI-1137)] ./03133/sva.sv(18): syntax error near '<'
-	[ERROR (VERI-1137)] ./03133/sva.sv(20): syntax error near '<='
-	[ERROR (VERI-1137)] ./03133/sva.sv(20): syntax error near ';'
-	[ERROR (VERI-1137)] ./03133/sva.sv(23): syntax error near '<='
-	[ERROR (VERI-1137)] ./03133/sva.sv(23): syntax error near ';'
-	[ERROR (VERI-1128)] ./03133/sva.sv(12): 'reset_n' is not declared
+	[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near 'integer'
+	[ERROR (VERI-2344)] ./03133/sva.sv(17): SystemVerilog keyword integer used in incorrect context
+	[ERROR (VERI-1137)] ./03133/sva.sv(17): syntax error near '<'
+	[ERROR (VERI-1137)] ./03133/sva.sv(19): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(19): syntax error near ';'
+	[ERROR (VERI-1137)] ./03133/sva.sv(22): syntax error near '<='
+	[ERROR (VERI-1137)] ./03133/sva.sv(22): syntax error near ';'
+	[ERROR (VERI-1128)] ./03133/sva.sv(11): 'reset_n' is not declared
+	[ERROR (VERI-1281)] ./03133/sva.sv(12): 'in' is not a type
+	[ERROR (VERI-2079)] ./03133/sva.sv(12): single value range is not allowed in packed dimension
+	[ERROR (VERI-1343)] ./03133/sva.sv(12): zero or negative value for size
 	[ERROR (VERI-1281)] ./03133/sva.sv(13): 'in' is not a type
-	[ERROR (VERI-2079)] ./03133/sva.sv(13): single value range is not allowed in packed dimension
 ERROR: analyze SVA failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

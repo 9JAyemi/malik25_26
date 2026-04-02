@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva (
   input logic clk,
   input logic rst,
@@ -15,4 +14,3 @@ module binary_counter_sva (
   );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module pcidec_new_sva (
     input logic clk_i,
     input logic nrst_i,
@@ -101,4 +100,3 @@ module pcidec_new_sva (
         @(posedge clk_i) disable iff (!nrst_i) (a1 == ~ (cbe_i[3] && cbe_i[2]))
     );
 endmodule
-```

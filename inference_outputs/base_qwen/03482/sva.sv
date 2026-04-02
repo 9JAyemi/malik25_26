@@ -1,4 +1,3 @@
-```systemverilog
 module TLU_assertions (
     input logic EN,
     input logic SE,
@@ -25,4 +24,3 @@ module TLU_assertions (
         @(posedge CK) disable iff (EN) Q == 1'b0
     );
 endmodule
-```

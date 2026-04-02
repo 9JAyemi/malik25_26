@@ -1,4 +1,3 @@
-```systemverilog
 module memory_module_sva (
     input logic CLK1,
     input logic A1EN,
@@ -91,4 +90,3 @@ module memory_module_sva (
         @(posedge CLK1) disable iff (!A1EN) $rose(A1EN) |-> B1DATA == mem[B1ADDR]
     );
 endmodule
-```

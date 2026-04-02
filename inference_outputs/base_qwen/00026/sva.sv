@@ -1,4 +1,3 @@
-```systemverilog
 module bin2gray_sva (
     input wire [3:0] bin,
     output reg [3:0] gray
@@ -13,4 +12,3 @@ module bin2gray_sva (
     // Assert the property to ensure the gray output is correct
     a_gray_calculation: assert property (p_gray_calculation) else $error("Gray output calculation is incorrect");
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module ternary_add_sva (
     input logic clk,
     input logic [WIDTH-1:0] a,
@@ -21,4 +20,3 @@ module ternary_add_sva (
         @(posedge clk) disable iff (SIGN_EXT) (o == {a[WIDTH-1],a[WIDTH-1],a} + {b[WIDTH-1],b[WIDTH-1],b} + {c[WIDTH-1],c[WIDTH-1],c})
     ) else $error("Combinational logic error when SIGN_EXT is 1");
 endmodule
-```

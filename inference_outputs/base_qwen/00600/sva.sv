@@ -1,4 +1,3 @@
-```systemverilog
 module test_in_sva (
     input logic clk,
     input logic rst,
@@ -64,4 +63,3 @@ module test_in_sva (
         @(posedge clk) disable iff (!rst) (activate |-> (activate != 0))
     );
 endmodule
-```

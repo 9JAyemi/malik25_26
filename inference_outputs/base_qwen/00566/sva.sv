@@ -1,4 +1,3 @@
-```systemverilog
 module oai21x1_sva (
     input logic A,
     input logic B,
@@ -10,4 +9,3 @@ module oai21x1_sva (
         @(posedge clk) disable iff (!reset_n) Y == ~((A | B) & C)
     );
 endmodule
-```

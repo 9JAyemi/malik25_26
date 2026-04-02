@@ -1,4 +1,3 @@
-```systemverilog
 module sync_signal_sva (
     input logic clk,
     input logic in,
@@ -61,4 +60,3 @@ module sync_signal_sva (
         @(posedge clk) disable iff (!clk) rising == 0
     );
 endmodule
-```

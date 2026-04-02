@@ -1,4 +1,3 @@
-```systemverilog
 module SimpleCalculator_assertions (
     input logic [3:0] a,
     input logic [3:0] b,
@@ -14,4 +13,3 @@ module SimpleCalculator_assertions (
         @(posedge clk) disable iff (!resetn) (op == 1) |-> (result == a - b)
     );
 endmodule
-```

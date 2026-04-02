@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva (
     input logic CLK,
     input logic [3:0] A,
@@ -41,4 +40,3 @@ module four_bit_adder_sva (
     endproperty
     assert property (p_final_carry_out) else $error("Final carry out error");
 endmodule
-```

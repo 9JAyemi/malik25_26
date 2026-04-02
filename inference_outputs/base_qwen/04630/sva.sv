@@ -1,4 +1,3 @@
-```systemverilog
 module timer_sva (
     input logic wb_clk_i,
     input logic wb_rst_i,
@@ -54,4 +53,3 @@ module timer_sva (
         @(posedge wb_clk_i) disable iff (!wb_rst_i) old_clk2 == 1'b1 && clk2 == 1'b0 |-> wb_tgc_o == 1'b0
     );
 endmodule
-```

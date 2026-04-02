@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic clk,
     input logic load,
@@ -72,4 +71,3 @@ module shift_register_sva (
         @(posedge clk) disable iff (!load) (data_out[0] == data_in[0])
     ) else $error("Shift register did not shift right as expected");
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic reset,
@@ -43,4 +42,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!reset) (q == (mux_out & flip_flops_out))
     );
 endmodule
-```

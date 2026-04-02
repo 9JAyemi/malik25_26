@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__o21bai_sva (
     input logic Y,
     input logic A1,
@@ -29,4 +28,3 @@ module sky130_fd_sc_hd__o21bai_sva (
     ) else $error("Combinational logic behavior violated");
 
 endmodule
-```

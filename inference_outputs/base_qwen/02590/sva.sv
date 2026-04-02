@@ -1,4 +1,3 @@
-```systemverilog
 module d_flip_flop_mux_sva (
     input logic clk,
     input logic [7:0] d1,
@@ -21,4 +20,3 @@ module d_flip_flop_mux_sva (
         @(posedge clk) disable iff (!clk) d_in == (sel ? d2 : d1)
     );
 endmodule
-```

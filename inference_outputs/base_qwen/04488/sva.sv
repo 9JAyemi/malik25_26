@@ -1,4 +1,3 @@
-```systemverilog
 module bcd_converter_sva (
     input logic [3:0] D,
     output logic [7:0] BCD
@@ -72,4 +71,3 @@ module bcd_converter_sva (
         @(posedge CLK) disable iff (!RESETn) (D == 4'b1111) |-> (BCD == 8'b00010101)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module four_input_and_sva (
     input logic A1,
     input logic A2,
@@ -19,4 +18,3 @@ module four_input_and_sva (
     ) else $error("X is driven by C1");
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module two_bit_comparator_sva (
     input logic [1:0] A,
     input logic [1:0] B,
@@ -17,4 +16,3 @@ module two_bit_comparator_sva (
         @(posedge CLK) disable iff (!RESETn) (A < B) |-> (C == 2'b10)
     );
 endmodule
-```

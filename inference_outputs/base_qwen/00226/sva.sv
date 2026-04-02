@@ -1,4 +1,3 @@
-```systemverilog
 module desxor1_assertions(
     input logic CLK,
     input logic RESETn,
@@ -60,4 +59,3 @@ module desxor1_assertions(
         @(posedge CLK) disable iff (!RESETn) b8x == XX[47:42]
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module counter_mod_sva (
   input logic clk,
   input logic rst,
@@ -54,4 +53,3 @@ module counter_mod_sva (
   );
 
 endmodule
-```

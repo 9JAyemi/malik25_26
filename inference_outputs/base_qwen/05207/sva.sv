@@ -1,4 +1,3 @@
-```systemverilog
 module sync_reset_counter_sva (
     input logic clk,
     input logic rst,
@@ -14,4 +13,3 @@ module sync_reset_counter_sva (
         @(posedge clk) disable iff (!rst) (count == $past(count) + 1)
     );
 endmodule
-```

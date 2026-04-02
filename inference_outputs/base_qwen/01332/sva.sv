@@ -1,4 +1,3 @@
-```systemverilog
 module add_sub_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -17,4 +16,3 @@ module add_sub_sva (
         @(posedge clk) $fell(SUB) |-> (OUT == B - A)
     );
 endmodule
-```

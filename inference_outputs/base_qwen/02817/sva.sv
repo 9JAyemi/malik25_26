@@ -1,4 +1,3 @@
-```systemverilog
 module altera_tse_xcvr_resync_sva (
     input logic clk,
     input logic [WIDTH-1:0] d,
@@ -119,4 +118,3 @@ module altera_tse_xcvr_resync_sva (
         @(posedge clk) disable iff (!clk) $stable(clr_n)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_or_sva (
     input logic clock,
     input logic [`BITS-1:0] a_in,
@@ -10,4 +9,3 @@ module bitwise_or_sva (
         @(posedge clock) out == (a_in | b_in)
     );
 endmodule
-```

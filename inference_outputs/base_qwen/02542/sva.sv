@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hs__nand2b_sva (
     input logic A_N,
     input logic B,
@@ -17,4 +16,3 @@ module sky130_fd_sc_hs__nand2b_sva (
         @(posedge VPWR) disable iff (!VGND) !(A_N == 1'b1 && B == 1'b1) |-> (Y == 1'b1)
     );
 endmodule
-```

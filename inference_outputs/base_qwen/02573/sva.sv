@@ -1,4 +1,3 @@
-```systemverilog
 module ripple_carry_adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -23,4 +22,3 @@ module ripple_carry_adder_sva (
     assert property (p_cout) else $error("COUT calculation is incorrect");
 
 endmodule
-```

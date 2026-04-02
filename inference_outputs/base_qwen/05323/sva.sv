@@ -1,4 +1,3 @@
-```systemverilog
 module CounterAssertions (
     input logic Clock,
     input logic Reset,
@@ -60,4 +59,3 @@ parameter Width = 32;
     );
 
 endmodule
-```

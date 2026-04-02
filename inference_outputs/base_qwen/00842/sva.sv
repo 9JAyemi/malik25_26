@@ -1,4 +1,3 @@
-```systemverilog
 module ripple_carry_adder_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -34,4 +33,3 @@ module ripple_carry_adder_sva (
         @(posedge clk) !reset_n |-> (sum == 8'b0)
     );
 endmodule
-```

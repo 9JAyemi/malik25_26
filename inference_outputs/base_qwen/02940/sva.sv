@@ -1,4 +1,3 @@
-```systemverilog
 module add_sub_sva (
   input logic clk,
   input logic reset,
@@ -24,4 +23,3 @@ module add_sub_sva (
   );
 
 endmodule
-```

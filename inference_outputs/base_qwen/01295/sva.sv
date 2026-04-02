@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_or_twos_complement_sva (
     input logic [3:0] a,
     input logic [3:0] b,

@@ -1,4 +1,3 @@
-```systemverilog
 module system_axi_ethernetlite_0_0_synchronizer_ff_9_sva (
     input logic phy_tx_clk,
     input logic [0:0] in0,
@@ -21,4 +20,3 @@ module system_axi_ethernetlite_0_0_synchronizer_ff_9_sva (
     );
 
 endmodule
-```

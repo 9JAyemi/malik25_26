@@ -1,4 +1,3 @@
-```systemverilog
 module Test6_assertions(
     input logic OE,
     inout logic [3:0] Z10
@@ -67,4 +66,3 @@ module Test6_assertions(
         @(posedge OE) disable iff (!OE) OE |-> (Z10[3] == 1'b1) && (Z10[2] == 1'b0)
     );
 endmodule
-```

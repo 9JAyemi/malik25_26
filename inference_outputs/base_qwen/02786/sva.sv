@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2_1_sva (
     input logic a,
     input logic b,
@@ -14,4 +13,3 @@ module mux_2_1_sva (
         @(posedge clk) disable iff (!reset_n) (sel == 1'b1) |-> (out == b)
     );
 endmodule
-```

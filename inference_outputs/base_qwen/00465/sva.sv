@@ -1,4 +1,3 @@
-```systemverilog
 module up_counter_2bit_sva (
     input logic clk,
     input logic reset,
@@ -29,4 +28,3 @@ module up_counter_2bit_sva (
         @(posedge clk) disable iff (reset) (!enable |-> count == count)
     );
 endmodule
-```

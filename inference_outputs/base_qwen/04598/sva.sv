@@ -1,4 +1,3 @@
-```systemverilog
 module adder4_sva (
   input logic [3:0] a,
   input logic [3:0] b,
@@ -41,4 +40,3 @@ module adder4_sva (
   assert property (p_cout) else $error("Carry out calculation error");
 
 endmodule
-```

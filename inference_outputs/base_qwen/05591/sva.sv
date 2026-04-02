@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic CLK,
     input logic [15:0] in,
@@ -51,4 +50,3 @@ module barrel_shifter_sva (
         @(posedge CLK) disable iff (!CLK) (dir == dir)
     );
 endmodule
-```

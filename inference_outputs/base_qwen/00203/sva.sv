@@ -1,4 +1,3 @@
-```systemverilog
 module BusHold_sva (
   input logic [7:0] in,
   input logic clk,
@@ -15,4 +14,3 @@ module BusHold_sva (
         @(posedge clk) disable iff (!rst) hold == 8'b0
     );
 endmodule
-```

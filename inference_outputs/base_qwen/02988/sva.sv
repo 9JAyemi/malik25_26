@@ -1,4 +1,3 @@
-```systemverilog
 module RegisterAdd_4_sva (
     input logic CLK,
     input logic reset,
@@ -16,4 +15,3 @@ module RegisterAdd_4_sva (
         @(posedge CLK) disable iff (!reset) (!reset |-> out == in1 + in2)
     );
 endmodule
-```

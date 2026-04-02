@@ -1,4 +1,3 @@
-```systemverilog
 module bw_clk_gclk_inv_r90_192x_sva (
     input logic clk,
     input logic clkin,
@@ -9,4 +8,3 @@ module bw_clk_gclk_inv_r90_192x_sva (
         @(posedge clk) disable iff (!clk) clkout == ~clkin
     );
 endmodule
-```

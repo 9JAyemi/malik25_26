@@ -1,4 +1,3 @@
-```systemverilog
 module parity_check_sva (
   input logic [7:0] data,
   input logic parity_error
@@ -8,4 +7,3 @@ module parity_check_sva (
     @(posedge CLK) disable iff (!RESETn) (parity_error == (^data != 1))
   );
 endmodule
-```

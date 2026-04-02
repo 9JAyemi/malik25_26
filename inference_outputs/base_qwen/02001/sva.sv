@@ -1,4 +1,3 @@
-```systemverilog
 module nor4b_sva (
     input logic Y,
     input logic A,
@@ -18,4 +17,3 @@ module nor4b_sva (
         @(posedge VPWR) disable iff (!VGND) (Y == ~(A | B | C | D_N))
     );
 endmodule
-```

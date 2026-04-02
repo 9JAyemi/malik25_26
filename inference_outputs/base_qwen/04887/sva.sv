@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic clk,
     input logic rst_n,
@@ -44,4 +43,3 @@ module calculator_sva (
     reset_check: assert property (p_reset) else $error("Result not reset to 0");
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mips_shifter_assertions (
     input logic CLK,
     input logic [31:0] Data_in,
@@ -48,4 +47,3 @@ module mips_shifter_assertions (
     );
 
 endmodule
-```

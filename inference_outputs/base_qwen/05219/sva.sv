@@ -1,4 +1,3 @@
-```systemverilog
 module xor_gate_sva (
     input logic A,
     input logic B,
@@ -15,4 +14,3 @@ module xor_gate_sva (
         @(posedge VPWR) disable iff (!VGND) (A == B) |-> X == 1'b0
     ) else $error("XOR gate output is incorrect when A and B are the same.");
 endmodule
-```

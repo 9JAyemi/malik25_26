@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic [3:0] D,
     input logic [1:0] A,
@@ -38,4 +37,3 @@ module barrel_shifter_sva (
     );
 
 endmodule
-```

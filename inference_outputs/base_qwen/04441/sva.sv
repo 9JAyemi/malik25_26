@@ -1,4 +1,3 @@
-```systemverilog
 module infrared_control_sva (
     input logic clk,
     input logic reset,

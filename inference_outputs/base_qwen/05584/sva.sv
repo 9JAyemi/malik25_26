@@ -1,4 +1,3 @@
-```systemverilog
 module ClockDivider_assertions (
     input logic clk,
     input logic rst,
@@ -70,4 +69,3 @@ module ClockDivider_assertions (
         @(posedge clk) disable iff (!rst) |-> (clkOut_i == 0)
     );
 endmodule
-```

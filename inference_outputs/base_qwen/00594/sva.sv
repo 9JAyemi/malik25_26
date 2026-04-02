@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input  [31:0] a,
     input  [31:0] b,
@@ -49,4 +48,3 @@ assign sum = (select == 1'b1) ? adder_out : {31'b0, mux_out};
     );
 
 endmodule
-```

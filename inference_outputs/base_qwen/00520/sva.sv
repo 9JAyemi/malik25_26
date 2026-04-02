@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_2to4_sva (
     input logic [1:0] in,
     output logic out0,
@@ -38,4 +37,3 @@ module decoder_2to4_sva (
         @(posedge clk) disable iff (!reset) (out0 == 1) && (out1 == 1) && (out2 == 1) && (out3 == 1) |-> 0
     );
 endmodule
-```

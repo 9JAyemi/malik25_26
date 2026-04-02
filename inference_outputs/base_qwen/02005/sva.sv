@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__iso0p_sva (
     input logic CLK,
     input logic RESETn,
@@ -39,4 +38,3 @@ module sky130_fd_sc_lp__iso0p_sva (
         @(posedge CLK) !RESETn |-> (X == 1'b0)
     );
 endmodule
-```

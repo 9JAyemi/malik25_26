@@ -1,4 +1,3 @@
-```systemverilog
 module Multiplexer_assertions #(parameter N=1)
    (clk,
     rst_n,
@@ -29,4 +28,3 @@ module Multiplexer_assertions #(parameter N=1)
   );
 
 endmodule
-```

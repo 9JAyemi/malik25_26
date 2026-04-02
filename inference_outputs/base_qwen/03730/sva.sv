@@ -1,4 +1,3 @@
-```systemverilog
 module d_to_t_ff_sva (
     input logic clk,
     input logic d,
@@ -14,4 +13,3 @@ module d_to_t_ff_sva (
         @(posedge clk) disable iff (!clk) (q == (t & q))
     );
 endmodule
-```

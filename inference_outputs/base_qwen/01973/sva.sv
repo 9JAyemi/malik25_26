@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__o31a_sva (
     input logic A1,
     input logic A2,
@@ -24,4 +23,3 @@ module sky130_fd_sc_lp__o31a_sva (
     ) else $error("Combinational logic error detected");
 
 endmodule
-```

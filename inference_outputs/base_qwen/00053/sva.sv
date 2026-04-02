@@ -1,4 +1,3 @@
-```systemverilog
 module adder_4bit_carry_sva (
     input logic [3:0] a,
     input logic [3:0] b,
@@ -64,4 +63,3 @@ module adder_4bit_carry_sva (
         @(posedge clk) disable iff (!resetn) !(a == 4'b0000 && b == 4'b0000 && cin == 1'b0 && sum == 4'b1111 && cout == 1'b1)
     );
 endmodule
-```

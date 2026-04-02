@@ -1,4 +1,3 @@
-```systemverilog
 module ssio_sdr_in_sva (
     input logic input_clk,
     input logic [WIDTH-1:0] input_d,
@@ -146,4 +145,3 @@ module ssio_sdr_in_sva (
     endproperty
     a_output_q_valid: assert property (p_output_q_valid) else $error("output_q is not a valid output");
 endmodule
-```

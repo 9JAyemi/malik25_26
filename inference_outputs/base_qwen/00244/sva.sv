@@ -1,4 +1,3 @@
-```systemverilog
 module ripple_carry_adder_sva (
   input logic CLK,
   input logic [3:0] A,
@@ -23,4 +22,3 @@ module ripple_carry_adder_sva (
   );
 
 endmodule
-```

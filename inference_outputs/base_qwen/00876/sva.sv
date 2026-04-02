@@ -1,4 +1,3 @@
-```systemverilog
 module three_to_one_sva (
     input logic A1,
     input logic A2,
@@ -11,4 +10,3 @@ module three_to_one_sva (
         @(posedge clk) disable iff (!RESETn) Y == ((A1 & A2) | B1)
     );
 endmodule
-```

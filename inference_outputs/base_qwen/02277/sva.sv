@@ -1,4 +1,3 @@
-```systemverilog
 module EX_MEM_Seg_assertions (
     input logic Clk,
     input logic stall,
@@ -36,4 +35,3 @@ module EX_MEM_Seg_assertions (
     );
 
 endmodule
-```

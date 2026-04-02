@@ -1,4 +1,3 @@
-```systemverilog
 module magnitude_comparator_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -16,4 +15,3 @@ module magnitude_comparator_sva (
         @(posedge clk) |A <= |B |-> out == 0
     ) else $error("Magnitude of A is not greater than B, but output is set.");
 endmodule
-```

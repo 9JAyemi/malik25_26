@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__o21ai_sva (
     input logic Y,
     input logic A1,
@@ -27,4 +26,3 @@ module sky130_fd_sc_ms__o21ai_sva (
     ) else $error("Combinational logic error: Y does not match the expected value");
 
 endmodule
-```

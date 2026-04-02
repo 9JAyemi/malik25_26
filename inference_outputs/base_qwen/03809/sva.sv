@@ -1,4 +1,3 @@
-```systemverilog
 module adder_subtractor_4bit_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -43,4 +42,3 @@ module adder_subtractor_4bit_sva (
         @(posedge clk) disable iff (!reset_n) (result[3] == 1) |-> (result[2:0] == 3'b000)
     );
 endmodule
-```

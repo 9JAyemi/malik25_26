@@ -1,4 +1,3 @@
-```systemverilog
 module mult_assertions (
     input wire [15:0] A_16x16,
     input wire [15:0] B_16x16,
@@ -39,4 +38,3 @@ module mult_assertions (
     );
 
 endmodule
-```

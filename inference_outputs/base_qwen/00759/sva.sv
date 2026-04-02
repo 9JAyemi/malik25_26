@@ -1,4 +1,3 @@
-```systemverilog
 module robotic_arm_controller_sva (
     input logic [7:0] servo1_angle,
     input logic [7:0] servo2_angle,
@@ -35,4 +34,3 @@ module robotic_arm_controller_sva (
     );
 
 endmodule
-```

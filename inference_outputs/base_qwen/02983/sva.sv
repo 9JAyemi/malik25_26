@@ -1,4 +1,3 @@
-```systemverilog
 module adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -39,4 +38,3 @@ module adder_sva (
     );
 
 endmodule
-```

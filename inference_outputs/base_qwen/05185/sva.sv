@@ -1,4 +1,3 @@
-```systemverilog
 module FP16RAddSubS2Of5_sva (
     input logic clk,
     input logic rst,
@@ -71,4 +70,3 @@ module FP16RAddSubS2Of5_sva (
         @(posedge clk) !rst |-> (xn == 0) && (yn == 0) && (diff_sign == 0) && (rxy == 0) && (r_final == 0) && (ret_0 == 0) && (ret_1 == 0) && (ret_2 == 0) && (ret_3 == 0) && (ret_4 == 0) && (ret_5 == 0)
     );
 endmodule
-```

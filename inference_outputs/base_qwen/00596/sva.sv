@@ -1,4 +1,3 @@
-```systemverilog
 module inverter_sva (
   input logic ip,
   input logic op,
@@ -27,4 +26,3 @@ module inverter_sva (
   );
 
 endmodule
-```

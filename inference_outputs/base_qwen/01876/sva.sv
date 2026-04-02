@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__a21boi_sva (
     input logic Y,
     input logic A1,
@@ -27,4 +26,3 @@ module sky130_fd_sc_lp__a21boi_sva (
     );
 
 endmodule
-```

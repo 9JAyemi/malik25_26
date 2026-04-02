@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ls__or4b_sva (
     input logic CLK,
     input logic D_N,
@@ -16,4 +15,3 @@ module sky130_fd_sc_ls__or4b_sva (
         @(posedge CLK) disable iff (!CLK) (X == (A | B | C | ~D_N))
     );
 endmodule
-```

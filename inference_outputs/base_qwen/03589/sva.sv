@@ -1,4 +1,3 @@
-```systemverilog
 module addsub_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -46,4 +45,3 @@ module addsub_sva (
     ) else $error("SUB_NEG is not the sign bit of ADD");
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module fsm_rising_edge_counter_sva (
   input logic clk,
   input logic in,
@@ -58,4 +57,3 @@ module fsm_rising_edge_counter_sva (
   );
 
 endmodule
-```

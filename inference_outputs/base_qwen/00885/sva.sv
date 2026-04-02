@@ -1,4 +1,3 @@
-```systemverilog
 module chacha_qr_sva (
     input wire [31 : 0] a,
     input wire [31 : 0] b,
@@ -98,4 +97,3 @@ module chacha_qr_sva (
     ) else $error("b3 is not correctly calculated");
 
 endmodule
-```

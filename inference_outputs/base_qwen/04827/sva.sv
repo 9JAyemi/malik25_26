@@ -1,4 +1,3 @@
-```systemverilog
 module mux4to1_sva (
   input logic clk,
   input logic rst_n,
@@ -30,4 +29,3 @@ module mux4to1_sva (
   ) else $error("Mux2to1 output is incorrect");
 
 endmodule
-```

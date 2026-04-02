@@ -1,4 +1,3 @@
-```systemverilog
 module vending_machine_sva (
     input logic CLK,
     input logic RESETn,
@@ -48,4 +47,3 @@ module vending_machine_sva (
     reset_check: assert property (reset_prop) else $error("Outputs are not correctly reset at reset");
 
 endmodule
-```

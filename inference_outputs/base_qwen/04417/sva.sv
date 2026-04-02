@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic [3:0] data,
     input logic [1:0] shift_amount,
@@ -67,4 +66,3 @@ module barrel_shifter_sva (
         @(posedge clk) disable iff (!reset) (!(data == 4'b0011 && shift_amount == 2'b00))
     ) else $error("Shift amount 2'b00 is not allowed when data is 4'b0011.");
 endmodule
-```

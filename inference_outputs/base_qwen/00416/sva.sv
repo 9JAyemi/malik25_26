@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_assertions (
     input logic clk,
     input logic d,
@@ -9,4 +8,3 @@ module shift_register_assertions (
         @(posedge clk) disable iff (!clk) q == reg_data[0]
     );
 endmodule
-```

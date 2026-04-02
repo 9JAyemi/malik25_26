@@ -1,4 +1,3 @@
-```systemverilog
 module my_nand2b_sva (
     input logic Y,
     input logic A_N,
@@ -16,4 +15,3 @@ module my_nand2b_sva (
         @(posedge VPWR) disable iff (VGND) (Y == ~(~B & ~A_N))
     );
 endmodule
-```

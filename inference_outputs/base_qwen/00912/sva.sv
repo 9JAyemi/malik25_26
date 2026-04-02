@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_4bit_sva (
     input CLK,
     input LOAD,
@@ -49,4 +48,3 @@ module shift_register_4bit_sva (
         @(posedge CLK) disable iff (!CLR) (LOAD == 1'b0) |-> Q_next == Q_next
     );
 endmodule
-```

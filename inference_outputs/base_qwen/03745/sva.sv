@@ -1,4 +1,3 @@
-```systemverilog
 module counter_4bit_sync_reset_sva (
     input wire CK,
     input wire RST,
@@ -13,4 +12,3 @@ module counter_4bit_sync_reset_sva (
         @(posedge CK) disable iff (RST) Q == 4'b0
     );
 endmodule
-```

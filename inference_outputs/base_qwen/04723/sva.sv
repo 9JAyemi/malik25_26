@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic areset,
@@ -57,4 +56,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!areset) (!load && !ena |-> (q == shifted_value))
     );
 endmodule
-```

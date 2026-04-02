@@ -1,4 +1,3 @@
-```systemverilog
 module ripple_adder_32_assertions(
     input logic CLK,
     input logic RESETn,
@@ -41,4 +40,3 @@ module ripple_adder_32_assertions(
     assert property (p_reset_output) else $error("Reset output is incorrect");
 
 endmodule
-```

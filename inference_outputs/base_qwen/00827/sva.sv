@@ -1,4 +1,3 @@
-```systemverilog
 module Test_assertions (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -21,4 +20,3 @@ module Test_assertions (
         @(posedge clk) disable iff (!RESETn) (a == b) |-> (out == 0)
     );
 endmodule
-```

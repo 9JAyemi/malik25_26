@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic CLK,
     input logic [31:0] a,
@@ -36,4 +35,3 @@ module top_module_sva (
         @(posedge CLK) $rose(sum) |-> (sum[31:16] == (a[15] + b[15] >= 16'b10000) ? a[31:16] + b[31:16] + 16'b1 : a[31:16] + b[31:16])
     ) else $error("Carry select adder selection is incorrect");
 endmodule
-```

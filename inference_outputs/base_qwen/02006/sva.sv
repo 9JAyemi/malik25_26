@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva (
     input logic clk,
     input logic rst,
@@ -19,4 +18,3 @@ module binary_counter_sva (
         @(posedge clk) disable iff (!rst) (mux_out == (count[0] ? 1'b0 : count[0]))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_4to16_sva (
     input logic [255:0] in,
     input logic [3:0] sel,
@@ -21,4 +20,3 @@ module decoder_4to16_sva (
     ) else $error("Input in is driving the output, which should not happen.");
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module EX_ME_assertions (
     input logic clk,
     input logic rst,
@@ -20,4 +19,3 @@ module EX_ME_assertions (
     );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module alu2_sva(
     input wire clk,
     input wire rst_n,
@@ -92,4 +91,3 @@ module alu2_sva(
         @(posedge clk) disable iff (!rst_n) alucontrol == 2'b00 | alucontrol == 2'b01 |-> (srca[31] != srcb[31] && aluresult[31] == srca[31]) |-> aluflags[0] == 1'b0
     );
 endmodule
-```

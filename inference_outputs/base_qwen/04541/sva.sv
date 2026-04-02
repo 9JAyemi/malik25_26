@@ -1,4 +1,3 @@
-```systemverilog
 module twos_complement_sva (
     input logic CLK,
     input logic RESETn,
@@ -77,4 +76,3 @@ module twos_complement_sva (
         @(posedge CLK) disable iff (!RESETn) twos_comp inside {[0:15]}
     ) else $error("twos_comp is not driven to an invalid value");
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module data_storage_sva (
     input logic clk,
     input logic reset,
@@ -57,4 +56,3 @@ module data_storage_sva (
         @(posedge clk) disable iff (!reset) (out_valid == 1'b1) |-> out_data == stored_data
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module adc_transformer_sva (
     input logic adc_clk,
     input logic adc_rst_i,
@@ -35,4 +34,3 @@ module adc_transformer_sva (
     );
 
 endmodule
-```

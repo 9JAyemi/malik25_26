@@ -1,4 +1,3 @@
-```systemverilog
 module four_to_one_sva (
     input logic input1,
     input logic input2,
@@ -11,4 +10,3 @@ module four_to_one_sva (
         @(posedge CLK) disable iff (!RESETn) (output1 == (input1 | input2 | input3 | input4))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module pwm_out_sva (
     input logic clk,
     input logic reset_n,
@@ -58,4 +57,3 @@ module pwm_out_sva (
         @(posedge clk) disable iff (!reset_n) data_rdy |-> !data_rdy
     );
 endmodule
-```

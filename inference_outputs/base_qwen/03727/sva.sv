@@ -1,4 +1,3 @@
-```systemverilog
 module mdc_mdio_sva (
     input logic mdio_mdc,
     input logic mdio_in_w,
@@ -123,4 +122,3 @@ module mdc_mdio_sva (
         @(posedge mdio_mdc) disable iff (!mdio_mdc) (current_state == IDLE) |-> (data_counter == 0)
     );
 endmodule
-```

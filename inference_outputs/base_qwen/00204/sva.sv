@@ -1,4 +1,3 @@
-```systemverilog
 module debounce_sva (
     input logic pb_debounced,
     input logic pb,
@@ -13,4 +12,3 @@ module debounce_sva (
         @(posedge clk) disable iff (!clk) (shift_reg != 4'b0000) |-> (pb_debounced == 1'b1)
     );
 endmodule
-```

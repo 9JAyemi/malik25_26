@@ -1,4 +1,3 @@
-```systemverilog
 module assertions (
     input logic clk,
     input logic rstn,
@@ -32,4 +31,3 @@ module assertions (
     );
 
 endmodule
-```

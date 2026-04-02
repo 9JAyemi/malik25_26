@@ -1,4 +1,3 @@
-```systemverilog
 module multiplier_sva (
     input logic clk,
     input logic reset,
@@ -29,4 +28,3 @@ module multiplier_sva (
     );
 
 endmodule
-```

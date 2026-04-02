@@ -1,4 +1,3 @@
-```systemverilog
 module accumulator_sva (
   input logic clk,
   input logic rst,
@@ -22,4 +21,3 @@ module accumulator_sva (
   );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module lfsr_counter_sva (
     input logic clk,
     input logic reset,
@@ -25,4 +24,3 @@ module lfsr_counter_sva (
         @(posedge clk) disable iff (!reset) out inside {[0:15]}
     );
 endmodule
-```

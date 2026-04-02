@@ -1,4 +1,3 @@
-```systemverilog
 module Video_System_CPU_nios2_oci_td_mode_sva (
     input logic clk,
     input logic rst_n,
@@ -73,4 +72,3 @@ module Video_System_CPU_nios2_oci_td_mode_sva (
     );
 
 endmodule
-```

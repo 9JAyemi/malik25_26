@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./03345/sva.sv ./03345/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./03345/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,21 +163,8 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './03345/sva.sv'
-[ERROR (VERI-1068)] ./03345/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03345/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1072)] ./03345/sva.sv(20): module 'sky130_fd_sc_hvl__a21oi_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./03345/sva.sv(21): missing compiler directive
-[ERROR (VERI-1137)] ./03345/sva.sv(21): syntax error near '`'
-Summary of errors detected:
-	[ERROR (VERI-1068)] ./03345/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03345/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1072)] ./03345/sva.sv(20): module 'sky130_fd_sc_hvl__a21oi_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./03345/sva.sv(21): missing compiler directive
-	[ERROR (VERI-1137)] ./03345/sva.sv(21): syntax error near '`'
-ERROR: analyze failed:
-ERROR (ENL034): 5 errors detected in the design file(s).
-
-1
+[-- (VERI-1482)] Analyzing Verilog file './03345/module.v'
+INFO: analyze completed.
 % 
 % # ---- Elaborate (optional) ----
 % if {!$err && $TOP ne ""} {
@@ -169,10 +189,17 @@ ERROR (ENL034): 5 errors detected in the design file(s).
   puts "\n❌ FAILED: Syntax/elaboration errors detected"
   exit 1
 }
+% if {$HALT_ON_WARN && $warn_count > 0} {
+  puts "\n⚠️  FAILED: $warn_count warnings detected (HALT_ON_WARN=1)"
+  exit 1
+}
+% 
+% puts "\n✅ PASSED: Syntax check successful"
 
-❌ FAILED: Syntax/elaboration errors detected
+✅ PASSED: Syntax check successful
+% exit 0
 % INFO (IPL005): Received request to exit from the console.
 INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
-INFO (IPL015): The Tcl-thread exited with status 1.
-INFO (IPL016): Exiting the analysis session with status 1.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

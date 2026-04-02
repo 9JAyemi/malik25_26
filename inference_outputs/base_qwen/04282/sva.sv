@@ -1,4 +1,3 @@
-```systemverilog
 module my_module_sva (
     input logic A1,
     input logic A2,

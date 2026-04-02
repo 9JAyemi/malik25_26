@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__a21o_sva (
     input logic A1,
     input logic A2,
@@ -19,4 +18,3 @@ module sky130_fd_sc_ms__a21o_sva (
         @(posedge VPB) disable iff (!VPWR) (X == ((~(A1 & A2)) & (A1 ^ B1)) | ((~B1) & A1))
     );
 endmodule
-```

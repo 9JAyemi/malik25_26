@@ -1,4 +1,3 @@
-```systemverilog
 module xor_shift_register_sva (
     input logic clk,
     input logic load,
@@ -29,4 +28,3 @@ module xor_shift_register_sva (
         @(posedge clk) disable iff (!ena) q == shift_reg
     );
 endmodule
-```

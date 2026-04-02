@@ -1,4 +1,3 @@
-```systemverilog
 module split_16bit_to_8bit_sva (
     input wire [15:0] in,
     input wire [7:0] out_hi,
@@ -58,4 +57,3 @@ module split_16bit_to_8bit_sva (
     endproperty
     assert property (p_lo_byte) else $error("lo_byte is not correctly set based on in[7:0]");
 endmodule
-```

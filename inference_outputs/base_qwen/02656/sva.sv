@@ -1,4 +1,3 @@
-```systemverilog
 module wireless_communication_block_sva (
   input logic clk,
   input logic rst_n,
@@ -50,4 +49,3 @@ module wireless_communication_block_sva (
     else $error("data_out assigned when ctrl is invalid");
 
 endmodule
-```

@@ -318,6 +318,43 @@ INFO: Using TOP = BCD_to_Binary
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,23 +441,15 @@ DEBUG: SVA_FILES    = ./01924/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './01924/sva.sv'
-[ERROR (VERI-1068)] ./01924/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./01924/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./01924/sva.sv(9): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./01924/sva.sv(9): 'clk' is not declared
-[ERROR (VERI-1072)] ./01924/sva.sv(11): module 'BCD_to_Binary_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./01924/sva.sv(12): missing compiler directive
-[ERROR (VERI-1137)] ./01924/sva.sv(12): syntax error near '`'
+[ERROR (VERI-1128)] ./01924/sva.sv(8): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./01924/sva.sv(8): 'clk' is not declared
+[ERROR (VERI-1072)] ./01924/sva.sv(10): module 'BCD_to_Binary_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./01924/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./01924/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./01924/sva.sv(9): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./01924/sva.sv(9): 'clk' is not declared
-	[ERROR (VERI-1072)] ./01924/sva.sv(11): module 'BCD_to_Binary_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./01924/sva.sv(12): missing compiler directive
-	[ERROR (VERI-1137)] ./01924/sva.sv(12): syntax error near '`'
+	[ERROR (VERI-1128)] ./01924/sva.sv(8): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./01924/sva.sv(8): 'clk' is not declared
+	[ERROR (VERI-1072)] ./01924/sva.sv(10): module 'BCD_to_Binary_sva' ignored due to previous errors
 ERROR: analyze SVA failed:
-ERROR (ENL034): 7 errors detected in the design file(s).
+ERROR (ENL034): 3 errors detected in the design file(s).
 
 1
 % 

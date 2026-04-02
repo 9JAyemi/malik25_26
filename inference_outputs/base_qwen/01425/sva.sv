@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__a311oi_sva (
     input logic CLK,
     input logic RESETn,
@@ -18,4 +17,3 @@ module sky130_fd_sc_lp__a311oi_sva (
         @(posedge CLK) disable iff (!RESETn) (Y == ~(A3 & A1 & A2 | B1 | C1))
     );
 endmodule
-```

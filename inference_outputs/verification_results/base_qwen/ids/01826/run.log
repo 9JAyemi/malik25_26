@@ -318,6 +318,43 @@ INFO: Using TOP = hls_contrast_streibs
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -412,63 +449,65 @@ DEBUG: SVA_FILES    = ./01826/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './01826/sva.sv'
-[ERROR (VERI-1068)] ./01826/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./01826/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-9011)] ./01826/sva.sv(52): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(57): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(62): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(67): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(72): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(77): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(82): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(87): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(92): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(97): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(102): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(107): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(112): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(117): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(122): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(127): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
-[ERROR (VERI-9011)] ./01826/sva.sv(132): block id 'reset_dout_check' is already declared
-[INFO (VERI-1967)] ./01826/sva.sv(45): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(51): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(56): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(61): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(66): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(71): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(76): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(81): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(86): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(91): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(96): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(101): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(106): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(111): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(116): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(121): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(126): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(131): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(136): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
+[ERROR (VERI-9011)] ./01826/sva.sv(141): block id 'reset_dout_check' is already declared
+[INFO (VERI-1967)] ./01826/sva.sv(44): previous declaration of 'reset_dout_check' is from here
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./01826/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./01826/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-9011)] ./01826/sva.sv(52): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(57): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(62): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(67): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(72): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(77): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(82): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(87): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(92): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(97): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(102): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(107): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(112): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(117): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(122): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(127): block id 'reset_dout_check' is already declared
-	[ERROR (VERI-9011)] ./01826/sva.sv(132): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(51): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(56): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(61): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(66): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(71): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(76): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(81): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(86): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(91): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(96): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(101): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(106): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(111): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(116): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(121): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(126): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(131): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(136): block id 'reset_dout_check' is already declared
+	[ERROR (VERI-9011)] ./01826/sva.sv(141): block id 'reset_dout_check' is already declared
 ERROR: analyze SVA failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

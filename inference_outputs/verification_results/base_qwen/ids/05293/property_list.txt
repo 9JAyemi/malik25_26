@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+sync_counter.auto_sva_inst.reset
+sync_counter.auto_sva_inst.load_behavior
+sync_counter.auto_sva_inst.increment_behavior
+sync_counter.auto_sva_inst.count_range
+sync_counter.auto_sva_inst.count_underflow
+sync_counter.auto_sva_inst.load_and_increment
+sync_counter.auto_sva_inst.count_during_reset
+sync_counter.auto_sva_inst.load_during_reset
+sync_counter.auto_sva_inst.data_during_reset
+sync_counter.auto_sva_inst.count_during_load
+
+COVER PROPERTIES:
+sync_counter.auto_sva_inst.load_behavior:precondition1
+sync_counter.auto_sva_inst.increment_behavior:precondition1

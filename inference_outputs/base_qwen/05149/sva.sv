@@ -1,4 +1,3 @@
-```systemverilog
 module comparator_sva(
     input logic [3:0] A,
     input logic [3:0] B,
@@ -67,4 +66,3 @@ module comparator_sva(
     endproperty
     not_gt_a_b_c_d: assert property (p_not_gt_a_b_c_d) else $error("GT is true when A <= B and C <= D");
 endmodule
-```

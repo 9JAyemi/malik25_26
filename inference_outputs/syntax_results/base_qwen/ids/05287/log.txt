@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./05287/sva.sv ./05287/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./05287/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,63 +163,65 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './05287/sva.sv'
-[ERROR (VERI-1068)] ./05287/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./05287/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1116)] ./05287/sva.sv(100): 'p_y_n1_calc' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(65): previous declaration of 'p_y_n1_calc' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(115): 'p_y_n_no_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(75): previous declaration of 'p_y_n_no_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(120): 'p_y_n1_no_calc' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(80): previous declaration of 'p_y_n1_no_calc' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(125): 'p_x_int_no_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(85): previous declaration of 'p_x_int_no_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(130): 'p_y_no_assign' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(90): previous declaration of 'p_y_no_assign' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(135): 'p_y_n_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(95): previous declaration of 'p_y_n_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(140): 'p_y_n1_calc' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(65): previous declaration of 'p_y_n1_calc' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(145): 'p_x_int_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(105): previous declaration of 'p_x_int_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(150): 'p_y_assign' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(110): previous declaration of 'p_y_assign' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(155): 'p_y_n_no_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(75): previous declaration of 'p_y_n_no_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(160): 'p_y_n1_no_calc' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(80): previous declaration of 'p_y_n1_no_calc' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(165): 'p_x_int_no_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(85): previous declaration of 'p_x_int_no_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(170): 'p_y_no_assign' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(90): previous declaration of 'p_y_no_assign' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(175): 'p_y_n_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(95): previous declaration of 'p_y_n_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(180): 'p_y_n1_calc' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(65): previous declaration of 'p_y_n1_calc' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(185): 'p_x_int_update' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(105): previous declaration of 'p_x_int_update' is from here
-[ERROR (VERI-1116)] ./05287/sva.sv(190): 'p_y_assign' is already declared
-[INFO (VERI-1967)] ./05287/sva.sv(110): previous declaration of 'p_y_assign' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(99): 'p_y_n1_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(64): previous declaration of 'p_y_n1_calc' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(114): 'p_y_n_no_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(74): previous declaration of 'p_y_n_no_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(119): 'p_y_n1_no_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(79): previous declaration of 'p_y_n1_no_calc' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(124): 'p_x_int_no_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(84): previous declaration of 'p_x_int_no_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(129): 'p_y_no_assign' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(89): previous declaration of 'p_y_no_assign' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(134): 'p_y_n_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(94): previous declaration of 'p_y_n_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(139): 'p_y_n1_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(64): previous declaration of 'p_y_n1_calc' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(144): 'p_x_int_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(104): previous declaration of 'p_x_int_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(149): 'p_y_assign' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(109): previous declaration of 'p_y_assign' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(154): 'p_y_n_no_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(74): previous declaration of 'p_y_n_no_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(159): 'p_y_n1_no_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(79): previous declaration of 'p_y_n1_no_calc' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(164): 'p_x_int_no_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(84): previous declaration of 'p_x_int_no_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(169): 'p_y_no_assign' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(89): previous declaration of 'p_y_no_assign' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(174): 'p_y_n_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(94): previous declaration of 'p_y_n_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(179): 'p_y_n1_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(64): previous declaration of 'p_y_n1_calc' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(184): 'p_x_int_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(104): previous declaration of 'p_x_int_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(189): 'p_y_assign' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(109): previous declaration of 'p_y_assign' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(194): 'p_y_n_no_update' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(74): previous declaration of 'p_y_n_no_update' is from here
+[ERROR (VERI-1116)] ./05287/sva.sv(199): 'p_y_n1_no_calc' is already declared
+[INFO (VERI-1967)] ./05287/sva.sv(79): previous declaration of 'p_y_n1_no_calc' is from here
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./05287/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./05287/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1116)] ./05287/sva.sv(100): 'p_y_n1_calc' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(115): 'p_y_n_no_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(120): 'p_y_n1_no_calc' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(125): 'p_x_int_no_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(130): 'p_y_no_assign' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(135): 'p_y_n_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(140): 'p_y_n1_calc' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(145): 'p_x_int_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(150): 'p_y_assign' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(155): 'p_y_n_no_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(160): 'p_y_n1_no_calc' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(165): 'p_x_int_no_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(170): 'p_y_no_assign' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(175): 'p_y_n_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(180): 'p_y_n1_calc' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(185): 'p_x_int_update' is already declared
-	[ERROR (VERI-1116)] ./05287/sva.sv(190): 'p_y_assign' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(99): 'p_y_n1_calc' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(114): 'p_y_n_no_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(119): 'p_y_n1_no_calc' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(124): 'p_x_int_no_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(129): 'p_y_no_assign' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(134): 'p_y_n_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(139): 'p_y_n1_calc' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(144): 'p_x_int_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(149): 'p_y_assign' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(154): 'p_y_n_no_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(159): 'p_y_n1_no_calc' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(164): 'p_x_int_no_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(169): 'p_y_no_assign' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(174): 'p_y_n_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(179): 'p_y_n1_calc' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(184): 'p_x_int_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(189): 'p_y_assign' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(194): 'p_y_n_no_update' is already declared
+	[ERROR (VERI-1116)] ./05287/sva.sv(199): 'p_y_n1_no_calc' is already declared
 ERROR: analyze failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

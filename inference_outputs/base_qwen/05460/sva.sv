@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic data_in,
     input logic shift_clk,
@@ -18,4 +17,3 @@ module shift_register_sva (
         @(posedge shift_clk) disable iff (!reset) (q0 == data_in) && (q1 == q0) && (q2 == q1) && (q3 == q2)
     );
 endmodule
-```

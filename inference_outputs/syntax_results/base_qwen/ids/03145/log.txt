@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./03145/sva.sv ./03145/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./03145/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,46 +163,45 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './03145/sva.sv'
-[ERROR (VERI-1068)] ./03145/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./03145/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./03145/sva.sv(13): 'ones_count' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(28): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(28): 'ones_count' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(28): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(34): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(34): 'ones_count' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(34): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(40): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(40): 'ones_count' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(40): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(46): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(46): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(52): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(52): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(58): 'RESETn' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(58): 'CLK' is not declared
-[ERROR (VERI-1128)] ./03145/sva.sv(66): 'CLK' is not declared
-[INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
+[ERROR (VERI-1128)] ./03145/sva.sv(12): 'ones_count' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(27): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(27): 'ones_count' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(27): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(33): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(33): 'ones_count' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(33): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(39): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(39): 'ones_count' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(39): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(45): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(45): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(51): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(51): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(57): 'RESETn' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(57): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(65): 'CLK' is not declared
+[ERROR (VERI-1128)] ./03145/sva.sv(66): 'RESETn' is not declared
+[ERROR (VERI-1072)] ./03145/sva.sv(76): module 'test_eval_generic_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./03145/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./03145/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./03145/sva.sv(13): 'ones_count' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(28): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(28): 'ones_count' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(28): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(34): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(34): 'ones_count' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(34): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(40): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(40): 'ones_count' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(40): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(46): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(46): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(52): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(52): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(58): 'RESETn' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(58): 'CLK' is not declared
-	[ERROR (VERI-1128)] ./03145/sva.sv(66): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(12): 'ones_count' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(27): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(27): 'ones_count' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(27): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(33): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(33): 'ones_count' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(33): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(39): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(39): 'ones_count' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(39): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(45): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(45): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(51): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(51): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(57): 'RESETn' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(57): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(65): 'CLK' is not declared
+	[ERROR (VERI-1128)] ./03145/sva.sv(66): 'RESETn' is not declared
+	[ERROR (VERI-1072)] ./03145/sva.sv(76): module 'test_eval_generic_sva' ignored due to previous errors
 ERROR: analyze failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

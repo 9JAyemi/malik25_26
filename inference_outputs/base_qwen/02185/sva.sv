@@ -1,4 +1,3 @@
-```systemverilog
 module counter_sva (
     input logic CLK,
     input logic reset,
@@ -23,4 +22,3 @@ module counter_sva (
         @(posedge CLK) disable iff (reset) !enable |-> count == count
     );
 endmodule
-```

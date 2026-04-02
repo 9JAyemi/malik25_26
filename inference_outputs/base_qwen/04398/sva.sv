@@ -1,4 +1,3 @@
-```systemverilog
 module Sec6_SM_assertions (
     input logic clk_i,
     input logic reset_n,
@@ -62,4 +61,3 @@ module Sec6_SM_assertions (
         @(posedge clk_i) disable iff (!reset_n) (state == 2'b00 || state == 2'b01 || state == 2'b10 || state == 2'b11)
     );
 endmodule
-```

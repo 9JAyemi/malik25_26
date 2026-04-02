@@ -1,4 +1,3 @@
-```systemverilog
 module wasca_hexdot_sva (
     input logic clk,
     input logic reset_n,
@@ -57,4 +56,3 @@ module wasca_hexdot_sva (
     endproperty
     assert property (readdata_match) else $error("Readdata is not equal to read_mux_out");
 endmodule
-```

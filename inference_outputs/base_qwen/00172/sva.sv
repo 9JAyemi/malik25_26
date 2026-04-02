@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg_sva (
     input logic CLK,
     input logic SLEEP_B,
@@ -63,4 +62,3 @@ module sky130_fd_sc_hvl__lsbuflv2hv_clkiso_hlkg_sva (
     );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva
 #(
   parameter N = 4
@@ -22,4 +21,3 @@ module binary_counter_sva
     );
 
 endmodule
-```

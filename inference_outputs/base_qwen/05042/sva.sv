@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -25,4 +24,3 @@ module top_module_sva (
     // Assert the property to ensure that min is correctly assigned
     assert property (check_min_assignment) else $error("min is not correctly assigned");
 endmodule
-```

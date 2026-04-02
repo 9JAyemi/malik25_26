@@ -1,4 +1,3 @@
-```systemverilog
 module ClockDividerAssertions (
     input logic clk,
     input logic rst,
@@ -56,4 +55,3 @@ module ClockDividerAssertions (
         @(posedge clk) disable iff (!rst) (count_i <= 32'hFFFFFFFF)
     );
 endmodule
-```

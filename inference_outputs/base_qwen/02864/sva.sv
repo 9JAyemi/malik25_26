@@ -1,4 +1,3 @@
-```systemverilog
 module mux2_sva (
     input wire clk,
     input wire sel,
@@ -16,4 +15,3 @@ module mux2_sva (
         @(posedge clk) disable iff (!clk) (sel == 1'b1) |-> (out == in2)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic reset,
@@ -23,4 +22,3 @@ module top_module_sva (
     ) else $error("Register does not hold the value of sum_out");
 
 endmodule
-```

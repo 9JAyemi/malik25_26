@@ -1,4 +1,3 @@
-```systemverilog
 module johnson_counter_and (
     input logic clk,
     input logic reset,
@@ -70,4 +69,3 @@ assign output_val = counter & {64{input_val}};
     );
 
 endmodule
-```

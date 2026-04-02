@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva (
   input logic s_aclk,
   input logic AR,
@@ -60,4 +59,3 @@ module binary_counter_sva (
     @(posedge s_aclk) disable iff (!AR) (E |-> !AR |-> Q == Q)
   );
 endmodule
-```

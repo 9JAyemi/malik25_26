@@ -1,4 +1,3 @@
-```systemverilog
 module FSM_assertions (
   input logic clk,
   input logic rst,
@@ -89,4 +88,3 @@ module FSM_assertions (
     @(posedge clk) disable iff (!rst) (state == S3) && (in == I1) |-> (out == O1)
   );
 endmodule
-```

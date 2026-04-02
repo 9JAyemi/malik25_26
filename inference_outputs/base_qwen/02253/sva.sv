@@ -1,4 +1,3 @@
-```systemverilog
 module alu_sva (
     input logic [3:0] a,
     input logic [3:0] b,
@@ -35,4 +34,3 @@ module alu_sva (
         @(posedge clk) $rose(op != 3'b000 && op != 3'b001 && op != 3'b010 && op != 3'b011 && op != 3'b100 && op != 3'b101) |-> (out == 4'b0)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module vga_color_generator_sva (
     input logic clk,
     input logic rst,
@@ -70,4 +69,3 @@ module vga_color_generator_sva (
         @(posedge clk) disable iff (!rst) (hsync == 0 && h_count == 799 && vsync == 0 && v_count == 524) |-> (v_count == 10'h0)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module gray_code_state_machine_sva (
     input logic clk,
     input logic rst,
@@ -71,4 +70,3 @@ deterministic_gray_code: assert property (
 );
 
 endmodule
-```

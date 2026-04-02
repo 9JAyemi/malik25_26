@@ -1,4 +1,3 @@
-```systemverilog
 module mux_assertions (
     input logic CLK,
     input logic EN,
@@ -27,4 +26,3 @@ module mux_assertions (
         disable iff (!EN) if (SEL != 2'b00 && SEL != 2'b01 && SEL != 2'b10 && SEL != 2'b11) Y <= 1'bx;
     end
 endmodule
-```

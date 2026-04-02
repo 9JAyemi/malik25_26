@@ -1,4 +1,3 @@
-```systemverilog
 module AND3_assertions (
     input logic A,
     input logic B,
@@ -11,4 +10,3 @@ module AND3_assertions (
         @(posedge clk) disable iff (!reset_n) Z == (A & B & C)
     );
 endmodule
-```

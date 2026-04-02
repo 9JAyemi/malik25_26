@@ -1,4 +1,3 @@
-```systemverilog
 module Approx_adder_sva
     #(parameter W=26, parameter LowL=16) (
         input wire clk,
@@ -50,4 +49,3 @@ module Approx_adder_sva
     ) else $error("Incorrect calculation of approx_cout");
 
 endmodule
-```

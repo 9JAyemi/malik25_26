@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_and_sva (
     input logic [7:0] A,
     input logic [7:0] B,
@@ -12,4 +11,3 @@ module bitwise_and_sva (
     );
 
 endmodule
-```

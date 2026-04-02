@@ -1,4 +1,3 @@
-```systemverilog
 module key_expander_sva (
     input logic CLK,
     input logic RESETn,
@@ -140,4 +139,3 @@ module key_expander_sva (
     );
 
 endmodule
-```

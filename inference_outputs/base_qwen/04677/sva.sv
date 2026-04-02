@@ -1,4 +1,3 @@
-```systemverilog
 module xor_gate_assertions (
     input logic a,
     input logic b,
@@ -9,4 +8,3 @@ module xor_gate_assertions (
         @(posedge clk) disable iff (!reset_n) (a != b) |-> (y == 1'b1) else (y == 1'b0)
     );
 endmodule
-```

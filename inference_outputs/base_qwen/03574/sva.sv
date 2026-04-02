@@ -1,4 +1,3 @@
-```systemverilog
 module square_module_sva (
     input logic [3:0] num,
     output logic [7:0] square
@@ -9,4 +8,3 @@ module square_module_sva (
         @(posedge clk) square == num * num
     ) else $error("Square calculation is incorrect");
 endmodule
-```

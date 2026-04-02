@@ -1,4 +1,3 @@
-```systemverilog
 module mux_4to1_sva (
     input logic [3:0] in0,
     input logic [3:0] in1,
@@ -16,4 +15,3 @@ module mux_4to1_sva (
             sel == 2'b11 ? (enable ? in3 : 4'b0) : 4'b0)))
     );
 endmodule
-```

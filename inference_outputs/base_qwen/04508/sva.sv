@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_or_logical_or_not_sva (
     input logic [2:0] a,
     input logic [2:0] b,
@@ -52,4 +51,3 @@ module bitwise_or_logical_or_not_sva (
         @(posedge CLK) disable iff (!RESETn) $rose(out_not[5]) |-> (b[2] == 1'b0)
     );
 endmodule
-```

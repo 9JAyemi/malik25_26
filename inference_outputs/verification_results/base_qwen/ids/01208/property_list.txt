@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+control.auto_sva_inst.reset
+control.auto_sva_inst.enable_en_mem
+control.auto_sva_inst.enable_should_branch
+control.auto_sva_inst.enable_imm
+control.auto_sva_inst.opcode_and
+control.auto_sva_inst.opcode_add
+control.auto_sva_inst.mem_wait_behavior
+
+COVER PROPERTIES:
+control.auto_sva_inst.reset:precondition1
+control.auto_sva_inst.enable_en_mem:precondition1
+control.auto_sva_inst.enable_should_branch:precondition1
+control.auto_sva_inst.enable_imm:precondition1
+control.auto_sva_inst.opcode_and:precondition1
+control.auto_sva_inst.opcode_add:precondition1
+control.auto_sva_inst.mem_wait_behavior:precondition1

@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_4to16_sva (
     input logic [3:0] in,
     output logic [15:0] out
@@ -8,4 +7,3 @@ module decoder_4to16_sva (
         @(posedge CLK) disable iff (!RESETn) (in inside {[0:15]}) |-> (out == {16{in}})
     ) else $error("Decoder output does not match expected value for input %h", in);
 endmodule
-```

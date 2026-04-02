@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./05361/sva.sv ./05361/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./05361/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,46 +163,46 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './05361/sva.sv'
-[ERROR (VERI-1068)] ./05361/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./05361/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./05361/sva.sv(20): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(20): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(25): 'v_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(25): 'v_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(30): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(30): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(30): 'v_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(30): 'v_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(30): 'color' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(35): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(35): 'color' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(35): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(40): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(40): 'color' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(40): 'h_count' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(45): 'color' is not declared
-[ERROR (VERI-1128)] ./05361/sva.sv(45): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(19): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(19): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(24): 'v_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(24): 'v_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(29): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(29): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(29): 'v_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(29): 'v_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(29): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(34): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(34): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(34): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(39): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(39): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(39): 'h_count' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+[ERROR (VERI-1128)] ./05361/sva.sv(54): 'h_count' is not declared
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./05361/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./05361/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./05361/sva.sv(20): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(20): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(25): 'v_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(25): 'v_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(30): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(30): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(30): 'v_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(30): 'v_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(30): 'color' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(35): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(35): 'color' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(35): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(40): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(40): 'color' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(40): 'h_count' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(45): 'color' is not declared
-	[ERROR (VERI-1128)] ./05361/sva.sv(45): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(19): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(19): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(24): 'v_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(24): 'v_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(29): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(29): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(29): 'v_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(29): 'v_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(29): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(34): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(34): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(34): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(39): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(39): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(39): 'h_count' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(44): 'color' is not declared
+	[ERROR (VERI-1128)] ./05361/sva.sv(54): 'h_count' is not declared
 ERROR: analyze failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 
@@ -200,8 +233,8 @@ ERROR (ENL034): 19 errors detected in the design file(s).
 }
 
 ❌ FAILED: Syntax/elaboration errors detected
-% INFO (IPL005): Received request to exit from the console.
-INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
+% INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
+INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO (IPL015): The Tcl-thread exited with status 1.
 INFO (IPL016): Exiting the analysis session with status 1.

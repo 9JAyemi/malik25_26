@@ -1,4 +1,3 @@
-```systemverilog
 module mux2to1_sva (
     input logic A1_N,
     input logic A2_N,
@@ -15,4 +14,3 @@ module mux2to1_sva (
         @(posedge clk) disable iff (!RESETn) Y == ((A1 & A2 & B2) | (A1 & ~A2 & B1) | (~A1 & A2 & B2) | (~A1 & ~A2 & B1))
     );
 endmodule
-```

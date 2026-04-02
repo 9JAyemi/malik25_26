@@ -1,4 +1,3 @@
-```systemverilog
 module mux4to1_sva (
     input logic [3:0] in0,
     input logic [3:0] in1,
@@ -20,4 +19,3 @@ module mux4to1_sva (
     ) else $error("Mux select signal out of range");
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module hex_display_sva (
     input wire clk,
     input wire rst_n,
@@ -23,4 +22,3 @@ module hex_display_sva (
     ) else $error("Output should be 0 when enable is 0");
 
 endmodule
-```

@@ -240,6 +240,70 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
     print(f"  Saved {out_path}")
 
 
+def generate_auto_bind_chart(results_dir, label, out_dir):
+    """Generate a PNG showing IDs that needed auto_bind vs those that did not."""
+    visual_data_dir = os.path.join(os.path.dirname(results_dir), "visual_data")
+    csv_path = os.path.join(visual_data_dir, "verif_summary.csv")
+    if not os.path.isfile(csv_path):
+        return
+
+    auto_bind_count = 0
+    no_auto_bind_count = 0
+    with open(csv_path, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            status = row.get("status", "").strip().lower()
+            if status == "skip":
+                continue
+            ab = row.get("auto_bind", "").strip()
+            if ab == "1":
+                auto_bind_count += 1
+            else:
+                no_auto_bind_count += 1
+
+    total = auto_bind_count + no_auto_bind_count
+    if total == 0:
+        return
+
+    os.makedirs(out_dir, exist_ok=True)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Bar chart
+    bars = ax1.bar(["Auto-Bind", "No Auto-Bind"],
+                   [auto_bind_count, no_auto_bind_count],
+                   color=["#FF9800", "#2196F3"], edgecolor="black", linewidth=0.5)
+    for bar, val in zip(bars, [auto_bind_count, no_auto_bind_count]):
+        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + total * 0.01,
+                 f"{val:,}", ha="center", va="bottom", fontweight="bold", fontsize=12)
+    ax1.set_ylabel("Number of IDs", fontsize=12)
+    ax1.set_title(f"Auto-Bind Usage — {label}\n(Total IDs: {total:,})",
+                  fontsize=12, fontweight="bold")
+
+    # Pie chart
+    sizes = [auto_bind_count, no_auto_bind_count]
+    labels_pie = [f"Auto-Bind\n({auto_bind_count:,})",
+                  f"No Auto-Bind\n({no_auto_bind_count:,})"]
+    colors = ["#FF9800", "#2196F3"]
+    filtered = [(s, l, c) for s, l, c in zip(sizes, labels_pie, colors) if s > 0]
+    if filtered:
+        sizes, labels_pie, colors = zip(*filtered)
+        wedges, texts, autotexts = ax2.pie(
+            sizes, labels=labels_pie, colors=colors, autopct="%1.1f%%",
+            startangle=90, pctdistance=0.6,
+            wedgeprops=dict(edgecolor="black", linewidth=0.5),
+        )
+        for t in autotexts:
+            t.set_fontsize(12)
+            t.set_fontweight("bold")
+    ax2.set_title(f"Auto-Bind Rate — {label}", fontsize=13, fontweight="bold")
+
+    fig.tight_layout()
+    out_path = os.path.join(out_dir, "auto_bind_usage.png")
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved {out_path}")
+
+
 def count_verif_failures(results_dir):
     """Count IDs that failed verification entirely (no property data) from verif_summary.csv."""
     # verif_summary.csv is at ../visual_data/verif_summary.csv relative to ids/
@@ -346,6 +410,9 @@ def run_for_dirs(results_dir, sva_dir, output_csv, chart_label=""):
         compile_fail_ids=ids_without_properties,
         total_ids=total_verif_ids,
     )
+
+    # Generate auto-bind usage chart
+    generate_auto_bind_chart(results_dir, chart_label, visual_data_dir)
 
 
 def main():

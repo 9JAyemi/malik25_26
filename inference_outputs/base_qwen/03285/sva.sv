@@ -1,4 +1,3 @@
-```systemverilog
 module johnson_counter_sva (
   input logic clk,
   input logic reset,
@@ -33,4 +32,3 @@ module johnson_counter_sva (
   );
 
 endmodule
-```

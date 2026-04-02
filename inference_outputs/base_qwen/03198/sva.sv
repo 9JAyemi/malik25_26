@@ -1,4 +1,3 @@
-```systemverilog
 module full_adder_sva (
     input logic A,
     input logic B,
@@ -25,4 +24,3 @@ module full_adder_sva (
     ) else $error("Overflow detected in full adder.");
 
 endmodule
-```

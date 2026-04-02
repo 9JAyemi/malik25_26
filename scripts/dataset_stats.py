@@ -65,20 +65,20 @@ RE_BIND   = re.compile(r'(?m)^\s*bind\s+', re.IGNORECASE)
 
 CHART_CONFIG = {
     # ── Distribution metrics (support: histogram, histogram_log, boxplot, strip, cdf) ──
-    "module_loc": ["histogram", "histogram_log", "strip", "cdf"],
-    "sva_loc":    ["histogram", "strip", "cdf"],
-    "sva_properties":  ["histogram", "strip", "cdf"],
+    "module_loc": ["histogram"],
+    "sva_loc":    ["histogram"],
+    "sva_properties":  ["histogram"],
     "sva_assertions":  ["histogram"],
 
     # ── Relationship metrics (support: scatter) ──
-    "module_loc_vs_sva_loc":    ["scatter"],
-    "module_loc_vs_sva_props":  ["scatter"],
+    "module_loc_vs_sva_loc":    [],
+    "module_loc_vs_sva_props":  [],
 
     # ── Breakdown metrics (support: pie, stacked_bar) ──
-    "property_breakdown": ["pie"],
+    "property_breakdown": [],
 
     # ── Bind status (support: pie) ──
-    "bind_status": ["pie"],
+    "bind_status": [],
 }
 
 VALID_CHART_TYPES = {"histogram", "histogram_log", "boxplot", "strip", "cdf",
@@ -933,6 +933,18 @@ def generate_charts_for_dataset(records, label, out_dir):
                 title=f"{ylabel_short} Distribution — {label}",
                 out_path=os.path.join(out_dir, f"hist_{metric_key}.png"),
             )
+        # Write summary stats txt alongside histogram
+        if data and _enabled(metric_key, "histogram"):
+            txt_path = os.path.join(out_dir, f"stats_{metric_key}.txt")
+            with open(txt_path, "w", encoding="utf-8") as f:
+                f.write(f"{ylabel_short} — {label}\n")
+                f.write(f"{'=' * 40}\n")
+                f.write(f"count  : {len(data)}\n")
+                f.write(f"min    : {min(data)}\n")
+                f.write(f"median : {int(np.median(data))}\n")
+                f.write(f"mean   : {np.mean(data):.2f}\n")
+                f.write(f"max    : {max(data)}\n")
+            print(f"  Saved {txt_path}")
         if _enabled(metric_key, "histogram_log"):
             plot_histogram_single(
                 data, label,
@@ -1667,13 +1679,28 @@ def main():
         if not os.path.isdir(target):
             print(f"ERROR: {target} is not a directory")
             sys.exit(1)
-        process_inference_outputs(target)
+        # Detect layout: if target has version_X subdirs, treat as a
+        # metrex/veri_thoughts-style dataset; otherwise as inference_outputs.
+        has_versions = any(
+            d.startswith("version_") and os.path.isdir(os.path.join(target, d))
+            for d in os.listdir(target)
+        )
+        if has_versions:
+            label = os.path.basename(os.path.dirname(target)) or os.path.basename(target)
+            process_single_dataset(target, label)
+        else:
+            process_inference_outputs(target)
     else:
         metrex_dir = os.path.join(base, "metrex", "dataset")
         vt_dir = os.path.join(base, "veri_thoughts", "dataset")
+        io_dir = os.path.join(base, "inference_outputs")
 
         process_single_dataset(metrex_dir, "metrex")
         process_single_dataset(vt_dir, "veri_thoughts")
+
+        # ── Process inference_outputs/ ──
+        if os.path.isdir(io_dir):
+            process_inference_outputs(io_dir)
 
         # ── Combined interactive pie charts (all versions merged, one per dataset) ──
         for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:

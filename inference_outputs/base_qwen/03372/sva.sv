@@ -1,4 +1,3 @@
-```systemverilog
 module mux4to1_sva(
     input logic [3:0] in,
     input logic [1:0] sel,
@@ -13,4 +12,3 @@ module mux4to1_sva(
         @(posedge clk) disable iff (!resetn) $stable(out)
     );
 endmodule
-```

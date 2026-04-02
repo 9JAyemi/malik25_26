@@ -1,4 +1,3 @@
-```systemverilog
 module register_sva (
     input logic clk,
     input logic reset,
@@ -25,4 +24,3 @@ module register_sva (
         @(posedge clk) disable iff (!reset) (!xload && !xclear && !reset) |-> (xout == xout)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module up_counter_sva (
     input logic clk,
     input logic reset,
@@ -23,4 +22,3 @@ module up_counter_sva (
         @(posedge clk) disable iff (!reset) (!reset |-> out == ~out)
     );
 endmodule
-```

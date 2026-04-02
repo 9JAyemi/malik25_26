@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic a,
     input logic b,
@@ -42,4 +41,3 @@ module top_module_sva (
     assert property (p_top_module) else $error("top_module output is not stable on the rising edge of the clock");
 
 endmodule
-```

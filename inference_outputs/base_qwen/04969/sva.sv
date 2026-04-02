@@ -1,4 +1,3 @@
-```systemverilog
 module comparator_4bit_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -47,4 +46,3 @@ module comparator_4bit_sva (
         );
     end
 endmodule
-```

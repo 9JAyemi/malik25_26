@@ -1,4 +1,3 @@
-```systemverilog
 module AND_32bit_sva (
     input logic clk,
     input logic rst_n,
@@ -16,4 +15,3 @@ module AND_32bit_sva (
     a_and_32bit: assert property (p_and_32bit) else $error("AND operation does not match expected result");
 
 endmodule
-```

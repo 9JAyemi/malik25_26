@@ -1,4 +1,3 @@
-```systemverilog
 module reverse_last_two_bits_sva (
     input logic clk,
     input logic [3:0] in,
@@ -10,4 +9,3 @@ module reverse_last_two_bits_sva (
         @(posedge clk) $stable(in) |-> out == {in[1:0], in[3:2]}
     );
 endmodule
-```

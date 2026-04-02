@@ -1,4 +1,3 @@
-```systemverilog
 module rotation_module_sva (
   input logic clk,
   input logic reset,
@@ -30,4 +29,3 @@ module rotation_module_sva (
   );
 
 endmodule
-```

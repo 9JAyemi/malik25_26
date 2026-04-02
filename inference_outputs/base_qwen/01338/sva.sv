@@ -1,4 +1,3 @@
-```systemverilog
 module dpth_addr_sva (
     input logic clk,
     input logic rst_n,
@@ -39,4 +38,3 @@ module dpth_addr_sva (
         @(posedge clk) disable iff (!rst_n) (pc_plus_one == m_at + 8'b00000001)
     ) else $error("pc_plus_one calculation failed");
 endmodule
-```

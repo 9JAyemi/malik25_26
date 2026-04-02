@@ -1,4 +1,3 @@
-```systemverilog
 module mux_4to1_enable_sva (
     input logic [3:0] in0,
     input logic [3:0] in1,
@@ -18,4 +17,3 @@ module mux_4to1_enable_sva (
         @(posedge clk) disable iff (!en) out == 4'b0
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module oh_mux8_sva (
     input logic clk,
     input logic rst_n,
@@ -32,4 +31,3 @@ module oh_mux8_sva (
                                                        {(DW){sel7}} & in7[DW-1:0])
     );
 endmodule
-```

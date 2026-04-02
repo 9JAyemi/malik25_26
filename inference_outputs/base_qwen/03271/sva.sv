@@ -1,4 +1,3 @@
-```systemverilog
 module alu_sva (
     input logic [3:0] alu_ctl,
     input signed [31:0] A, B,
@@ -55,4 +54,3 @@ module alu_sva (
         @(posedge clk) disable iff (!resetn) (alu_ctl == 4'b1001) |-> (result == (A < B))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module l1_data_cache_64entry_4way_line64b_bus_8b_disable_cache_sva (
     input wire iCLOCK,
     input wire inRESET,
@@ -79,4 +78,3 @@ module l1_data_cache_64entry_4way_line64b_bus_8b_disable_cache_sva (
     endproperty
     assert property (p_reset_sync) else $error("Reset synchronization handling failed");
 endmodule
-```

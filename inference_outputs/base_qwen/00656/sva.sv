@@ -1,4 +1,3 @@
-```systemverilog
 module or3_4_custom_sva (
     input logic A,
     input logic B,
@@ -10,4 +9,3 @@ module or3_4_custom_sva (
         @(posedge clk) disable iff (!reset_n) (X == (A | B | C))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module port_address_reg_sva (
     input logic clk,
     input logic reset_b,
@@ -46,4 +45,3 @@ module port_address_reg_sva (
         @(posedge clk) disable iff (!reset_b) !reset_b |-> (address_port_0 == 8'h00) && (address_port_1 == 8'h01) && (address_port_2 == 8'h02) && (address_port_3 == 8'h03)
     );
 endmodule
-```

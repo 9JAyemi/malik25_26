@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva(
     input logic CLK,
     input logic RESETn,
@@ -47,4 +46,3 @@ module four_bit_adder_sva(
     );
 
 endmodule
-```

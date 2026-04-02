@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./01791/sva.sv ./01791/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./01791/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,46 +163,46 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './01791/sva.sv'
-[ERROR (VERI-1068)] ./01791/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./01791/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./01791/sva.sv(19): 'reset_n' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(19): 'and7_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(19): 'clk' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(24): 'reset_n' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(24): 'and7_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(24): 'and6_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(24): 'clk' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(29): 'reset_n' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and6_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and4_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and5_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(29): 'clk' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(34): 'reset_n' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and5_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and2_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and3_out' is not declared
-[ERROR (VERI-1128)] ./01791/sva.sv(34): 'clk' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(18): 'reset_n' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(18): 'and7_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(18): 'clk' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(23): 'reset_n' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(23): 'and7_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(23): 'and6_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(23): 'clk' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(28): 'reset_n' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and6_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and4_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and5_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(28): 'clk' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(33): 'reset_n' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and5_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and2_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and3_out' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(33): 'clk' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(38): 'reset_n' is not declared
+[ERROR (VERI-1128)] ./01791/sva.sv(38): 'and4_out' is not declared
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./01791/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./01791/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./01791/sva.sv(19): 'reset_n' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(19): 'and7_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(19): 'clk' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(24): 'reset_n' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(24): 'and7_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(24): 'and6_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(24): 'clk' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(29): 'reset_n' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and6_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and4_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(29): 'and5_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(29): 'clk' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(34): 'reset_n' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and5_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and2_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(34): 'and3_out' is not declared
-	[ERROR (VERI-1128)] ./01791/sva.sv(34): 'clk' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(18): 'reset_n' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(18): 'and7_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(18): 'clk' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(23): 'reset_n' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(23): 'and7_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(23): 'and6_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(23): 'clk' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(28): 'reset_n' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and6_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and4_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(28): 'and5_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(28): 'clk' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(33): 'reset_n' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and5_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and2_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(33): 'and3_out' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(33): 'clk' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(38): 'reset_n' is not declared
+	[ERROR (VERI-1128)] ./01791/sva.sv(38): 'and4_out' is not declared
 ERROR: analyze failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

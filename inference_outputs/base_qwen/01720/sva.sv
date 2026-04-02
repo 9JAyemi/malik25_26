@@ -1,4 +1,3 @@
-```systemverilog
 module axi_timer_sva (
     input logic CLK,
     input logic RESETn,
@@ -20,4 +19,3 @@ module axi_timer_sva (
         @(posedge CLK) !RESETn |-> (ce_expnd_i_5 == 1'b0)
     );
 endmodule
-```

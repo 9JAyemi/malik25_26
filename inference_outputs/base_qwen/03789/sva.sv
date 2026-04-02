@@ -1,4 +1,3 @@
-```systemverilog
 module arithmetic_logic_unit_sva (
     input logic clk,
     input logic [31:0] a, b,

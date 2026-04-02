@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__o2bb2a_sva (
     input logic X,
     input logic A1_N,
@@ -30,4 +29,3 @@ module sky130_fd_sc_hd__o2bb2a_sva (
         @(posedge VPWR) disable iff (VGND) X |-> (and0_out_X)
     );
 endmodule
-```

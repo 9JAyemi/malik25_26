@@ -1,4 +1,3 @@
-```systemverilog
 module data_select_sva (
     input logic clk,
     input logic rst_n,
@@ -39,4 +38,3 @@ module data_select_sva (
     );
 
 endmodule
-```

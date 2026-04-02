@@ -1,4 +1,3 @@
-```systemverilog
 module EtherCAT_slave_sva (
     input logic clk,
     input logic rst,
@@ -15,4 +14,3 @@ module EtherCAT_slave_sva (
         @(posedge clk) disable iff (!rst) out_send == in_receive
     );
 endmodule
-```

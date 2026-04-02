@@ -1,4 +1,3 @@
-```systemverilog
 module binary_subtractor_32bit_sva (
     input logic clk,
     input logic rst_n,
@@ -19,4 +18,3 @@ module binary_subtractor_32bit_sva (
     ) else $error("Subtraction result is incorrect");
 
 endmodule
-```

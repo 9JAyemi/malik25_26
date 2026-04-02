@@ -1,4 +1,3 @@
-```systemverilog
 module test_eval_generic_sva(
     input logic [7:0] data,
     output logic out_bit_def,
@@ -75,4 +74,3 @@ module test_eval_generic_sva(
         end
     end
 endmodule
-```

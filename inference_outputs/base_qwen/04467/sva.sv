@@ -1,4 +1,3 @@
-```systemverilog
 module RegisterAdd__parameterized5_sva
    #(parameter N = 23)
    (Q,
@@ -57,4 +56,3 @@ module RegisterAdd__parameterized5_sva
   );
 
 endmodule
-```

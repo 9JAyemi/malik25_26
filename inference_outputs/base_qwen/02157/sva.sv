@@ -1,4 +1,3 @@
-```systemverilog
 module custom_module_sva (
     input logic A1,
     input logic A2,
@@ -23,4 +22,3 @@ module custom_module_sva (
         @(posedge clk) disable iff (!reset_n) (X == base.X)
     ) else $error("Base cell instantiation error: X is not equal to base.X");
 endmodule
-```

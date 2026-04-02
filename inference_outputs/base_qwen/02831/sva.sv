@@ -1,4 +1,3 @@
-```systemverilog
 module flip_flop_sva (
   input logic clk,
   input logic rst,
@@ -36,4 +35,3 @@ module flip_flop_sva (
     @(posedge clk) disable iff (!rst) (type == 3) |-> (data |-> (q == 1'b1 && q_bar == 1'b0)) && (!data |-> (q == 1'b0 && q_bar == 1'b1))
   ) else $error("SR flip-flop behavior violated");
 endmodule
-```

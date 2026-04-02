@@ -1,4 +1,3 @@
-```systemverilog
 module binary_to_gray_sva (
     input logic [8:0] binary,
     output logic [3:0] gray
@@ -21,4 +20,3 @@ module binary_to_gray_sva (
         @(posedge CLK) disable iff (!RESETn) (gray[0] == (binary[6] ^ binary[5]))
     );
 endmodule
-```

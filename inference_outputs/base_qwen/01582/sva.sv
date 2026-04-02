@@ -1,4 +1,3 @@
-```systemverilog
 module register_4bit_sva (
     input logic [3:0] data_in,
     input logic load,
@@ -79,4 +78,3 @@ module register_4bit_sva (
     );
 
 endmodule
-```

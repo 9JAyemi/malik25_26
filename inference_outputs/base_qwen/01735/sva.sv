@@ -1,4 +1,3 @@
-```systemverilog
 module tri_buf_sva (
     inout wire A,
     output wire Z,
@@ -29,4 +28,3 @@ module tri_buf_sva (
         @(posedge TE_B) $fell(A) |-> (TE_B == 1'b0)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module RCB_FRL_TrainingPattern_sva (
     input logic CLK,
     input logic RST,
@@ -14,4 +13,3 @@ module RCB_FRL_TrainingPattern_sva (
         @(posedge CLK) disable iff (!RST) (DATA_OUT == 8'hf4) |-> DATA_OUT == 8'hc2
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module zbroji_sva (
     input logic [31:0] a,
     input logic [31:0] b,
@@ -9,4 +8,3 @@ module zbroji_sva (
         @(posedge clk) disable iff (!RESETn) sum == a + b
     );
 endmodule
-```

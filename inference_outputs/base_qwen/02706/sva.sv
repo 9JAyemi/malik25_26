@@ -1,4 +1,3 @@
-```systemverilog
 module magnitude_comparator_selector_sva (
     input logic [2:0] a,
     input logic [2:0] b,
@@ -59,4 +58,3 @@ module magnitude_comparator_selector_sva (
     );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mux_adder_sva (
     input logic clk,
     input logic rst_n,
@@ -44,4 +43,3 @@ module mux_adder_sva (
         @(posedge clk) !rst_n |-> (out == 4'b0000)
     );
 endmodule
-```

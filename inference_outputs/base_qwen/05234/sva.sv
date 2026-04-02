@@ -1,4 +1,3 @@
-```systemverilog
 module four_input_and_sva (
     input logic A,
     input logic B,
@@ -19,4 +18,3 @@ module four_input_and_sva (
     ) else $error("Combinational logic error in four_input_and module");
 
 endmodule
-```

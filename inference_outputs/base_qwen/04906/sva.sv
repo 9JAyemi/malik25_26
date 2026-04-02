@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic reset,
@@ -77,4 +76,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!reset) reset |-> q == 8'b0
     ) else $error("Functional output did not reset on reset");
 endmodule
-```

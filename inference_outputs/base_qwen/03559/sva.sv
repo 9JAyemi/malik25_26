@@ -1,4 +1,3 @@
-```systemverilog
 module MUXCY_assertions (
     input logic CLK,
     input logic RESETn,
@@ -46,4 +45,3 @@ module MUXCY_assertions (
         @(posedge CLK) !RESETn |-> (O == 1'b0) && (CO == 1'b0)
     );
 endmodule
-```

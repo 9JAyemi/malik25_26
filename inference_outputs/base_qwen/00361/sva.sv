@@ -1,4 +1,3 @@
-```systemverilog
 module d_ff_en_gate_sva (
     input logic CLK,
     input logic D,
@@ -59,4 +58,3 @@ module d_ff_en_gate_sva (
     );
 
 endmodule
-```

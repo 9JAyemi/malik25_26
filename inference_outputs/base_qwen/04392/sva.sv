@@ -1,4 +1,3 @@
-```systemverilog
 module my_module_sva (
     input logic [1:0] A1,
     input logic [1:0] A2,
@@ -25,4 +24,3 @@ module my_module_sva (
     ) else $error("C1 must be equal to VPWR and VPB must be equal to VGND for X to be inverted.");
 
 endmodule
-```

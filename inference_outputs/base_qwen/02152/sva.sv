@@ -1,4 +1,3 @@
-```systemverilog
 module dynamic_gate_sva (
   input wire in,
   input wire clk,
@@ -9,4 +8,3 @@ module dynamic_gate_sva (
     @(posedge clk) disable iff (!clk) out == (in ? 1'b1 : 1'b0)
   );
 endmodule
-```

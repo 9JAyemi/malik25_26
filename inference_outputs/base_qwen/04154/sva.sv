@@ -1,4 +1,3 @@
-```systemverilog
 module invert_msb_sva (
     input logic [3:0] i_binary,
     output logic [3:0] o_inverted
@@ -8,4 +7,3 @@ module invert_msb_sva (
         @(posedge CLK) disable iff (!RESETn) (o_inverted == {~i_binary[3], i_binary[2:0]})
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva (
     input logic CLK,
     input logic CLR_B,
@@ -74,4 +73,3 @@ module binary_counter_sva (
         @(posedge CLK) CLR_B |-> Q == 0
     );
 endmodule
-```

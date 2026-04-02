@@ -1,4 +1,3 @@
-```systemverilog
 module twos_complement_sva (
     input logic [3:0] binary,
     output logic [3:0] twos_comp
@@ -22,4 +21,3 @@ module twos_complement_sva (
         @(posedge CLK) disable iff (!RESETn) (twos_comp == add_one)
     );
 endmodule
-```

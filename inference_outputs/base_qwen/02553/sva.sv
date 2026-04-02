@@ -1,4 +1,3 @@
-```systemverilog
 module binary_multiplier_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -12,4 +11,3 @@ module binary_multiplier_sva (
         @(posedge clk) disable iff (!RESETn) (result == {8'b0, a} * {8'b0, b})
     );
 endmodule
-```

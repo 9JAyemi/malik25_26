@@ -1,4 +1,3 @@
-```systemverilog
 module addsub_sva (
     input logic [15:0] A,
     input logic [15:0] B,
@@ -10,4 +9,3 @@ module addsub_sva (
         @(posedge CLK) disable iff (!RESETn) (Q == (C == 1'b1) ? A - B : A + B)
     );
 endmodule
-```

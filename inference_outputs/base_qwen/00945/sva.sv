@@ -1,4 +1,3 @@
-```systemverilog
 module control_module_sva (
     input logic input_1,
     input logic [1:0] input_2,
@@ -46,4 +45,3 @@ module control_module_sva (
         @(posedge input_1) disable iff (!input_6) (output_1 == 0)
     ) else $error("output_1 should be 0 when input_1 is 3 and input_6 is 1");
 endmodule
-```

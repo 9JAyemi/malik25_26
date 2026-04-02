@@ -1,4 +1,3 @@
-```systemverilog
 module Sprite_Controller_assertions (
     input logic CLK,
     input logic RESETn,
@@ -38,4 +37,3 @@ module Sprite_Controller_assertions (
     );
 
 endmodule
-```

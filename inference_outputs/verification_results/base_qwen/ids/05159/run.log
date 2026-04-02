@@ -318,6 +318,43 @@ INFO: Using TOP = color_to_memory
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -403,23 +440,11 @@ DEBUG: SVA_FILES    = ./05159/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './05159/sva.sv'
-[ERROR (VERI-1068)] ./05159/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./05159/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1072)] ./05159/sva.sv(14): module 'color_to_memory' ignored due to previous errors
-[ERROR (VERI-1072)] ./05159/sva.sv(28): module 'memory_to_color' ignored due to previous errors
-[ERROR (VERI-1068)] ./05159/sva.sv(29): missing compiler directive
-[ERROR (VERI-1137)] ./05159/sva.sv(29): syntax error near '`'
-Summary of errors detected:
-	[ERROR (VERI-1068)] ./05159/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./05159/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1072)] ./05159/sva.sv(14): module 'color_to_memory' ignored due to previous errors
-	[ERROR (VERI-1072)] ./05159/sva.sv(28): module 'memory_to_color' ignored due to previous errors
-	[ERROR (VERI-1068)] ./05159/sva.sv(29): missing compiler directive
-	[ERROR (VERI-1137)] ./05159/sva.sv(29): syntax error near '`'
-ERROR: analyze SVA failed:
-ERROR (ENL034): 6 errors detected in the design file(s).
-
-1
+[WARN (VERI-1206)] ./05159/sva.sv(13): overwriting previous definition of module 'color_to_memory'
+[INFO (VERI-2142)] ./05159/module.v(12): previous definition of design element 'color_to_memory' is here
+[WARN (VERI-1206)] ./05159/sva.sv(27): overwriting previous definition of module 'memory_to_color'
+[INFO (VERI-2142)] ./05159/module.v(23): previous definition of design element 'memory_to_color' is here
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv'
 % 
 % puts "DEBUG: Elaborating TOP='$TOP'"
 DEBUG: Elaborating TOP='color_to_memory'
@@ -427,20 +452,97 @@ DEBUG: Elaborating TOP='color_to_memory'
   puts "ERROR: elaborate failed:\n$emsg"
   set err 1
 }
-% 
-% # If combinational / event-driven, you can force "no clock"
-% if {!$err && $NO_CLOCK} {
+INFO (ISW003): Top module name is "color_to_memory".
+[INFO (HIER-8002)] ./05159/sva.sv(13): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] ./05159/sva.sv(15): compiling module 'memory_to_color'
+[INFO (VERI-1018)] ./05159/sva.sv(1): compiling module 'color_to_memory'
+[WARN (VERI-1330)] /home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv(4): actual bit length 1 differs from formal bit length 32 for port 'mem_i'
+[WARN (VERI-1330)] /home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv(5): actual bit length 1 differs from formal bit length 2 for port 'mem_lsb_i'
+[WARN (VERI-1330)] /home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv(6): actual bit length 1 differs from formal bit length 32 for port 'color_o'
+[WARN (VDB-1002)] /home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv(4): net 'mem_i' does not have a driver
+[WARN (VDB-1002)] /home/ab2113/malik25_26/inference_outputs/verification_results/base_qwen/ids/05159/auto_bind.sv(5): net 'mem_lsb_i' does not have a driver
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+INFO (IMDS005): Number of multiple-driven bits in design: 4. Use "get_design_info -list multiple_driven" for more information.
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
   catch { clock -none }
 }
-% 
-% if {$err} {
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
 }
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: No reset signal found; using reset -none
+INFO (IPM031): Clearing proof results of all properties.
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 0 asserts, 0 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
 
-❌ FAILED: compile/elab errors
-% INFO (IPL005): Received request to exit from the console.
+❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
 INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
-INFO (IPL015): The Tcl-thread exited with status 1.
-INFO (IPL016): Exiting the analysis session with status 1.
+INFO (IPL015): The Tcl-thread exited with status 3.
+INFO (IPL016): Exiting the analysis session with status 3.

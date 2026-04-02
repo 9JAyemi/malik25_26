@@ -1,4 +1,3 @@
-```systemverilog
 module sync_up_down_counter_sva (
   input logic clk,
   input logic up_down,
@@ -24,4 +23,3 @@ module sync_up_down_counter_sva (
   );
 
 endmodule
-```

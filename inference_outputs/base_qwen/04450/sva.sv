@@ -1,4 +1,3 @@
-```systemverilog
 module flip_flop_sva (
     input logic CLK,
     input logic DE,
@@ -11,4 +10,3 @@ module flip_flop_sva (
         @(posedge CLK) disable iff (!CLK) (DE |-> Q == D) && (SCE |-> Q == SCD)
     );
 endmodule
-```

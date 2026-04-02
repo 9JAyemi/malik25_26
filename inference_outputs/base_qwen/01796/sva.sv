@@ -1,4 +1,3 @@
-```systemverilog
 module mem_encrypt_decrypt_sva (
   input logic clk,
   input logic reset,
@@ -24,4 +23,3 @@ module mem_encrypt_decrypt_sva (
   );
 
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mux_priority_encoder_sva (
     input logic clk,
     input logic rst_n,
@@ -105,4 +104,3 @@ module mux_priority_encoder_sva (
         @(posedge clk) !rst_n |-> mux_out == 0
     );
 endmodule
-```

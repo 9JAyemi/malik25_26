@@ -1,4 +1,3 @@
-```systemverilog
 module limbus_cpu_cpu_nios2_oci_dtrace_sva (
     input logic clk,
     input logic jrst_n,
@@ -77,4 +76,3 @@ module limbus_cpu_cpu_nios2_oci_dtrace_sva (
         )
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic CLK,
     input logic [7:0] DATA,
@@ -43,4 +42,3 @@ module barrel_shifter_sva (
     );
 
 endmodule
-```

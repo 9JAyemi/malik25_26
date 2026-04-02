@@ -1,4 +1,3 @@
-```systemverilog
 module digital_circuit_sva (
     input logic Y,
     input logic A1,
@@ -49,4 +48,3 @@ module digital_circuit_sva (
         @(posedge VPWR) disable iff (!VGND) !(Y == 1'b0) |-> (Y == 1'b1)
     );
 endmodule
-```

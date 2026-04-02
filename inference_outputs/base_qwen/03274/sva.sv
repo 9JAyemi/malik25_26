@@ -1,4 +1,3 @@
-```systemverilog
 module dffr_assertions (
     input logic CLK,
     input logic R,
@@ -22,4 +21,3 @@ module dffr_assertions (
         @(posedge CLK) disable iff (R) Q == D
     );
 endmodule
-```

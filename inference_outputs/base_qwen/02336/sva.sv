@@ -1,4 +1,3 @@
-```systemverilog
 module MUX4_1_SL_assertions (
     input logic CLK,
     input logic [1:0] Sel,
@@ -15,4 +14,3 @@ module MUX4_1_SL_assertions (
         @(posedge CLK) disable iff (!CLK) (out == (Sel[1] ? (Sel[0] ? S3 : S2) : (Sel[0] ? S1 : S0)))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic a,
     input logic b,
@@ -16,4 +15,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!resetn) (out_final == (a ^ b) & (c ^ d))
     );
 endmodule
-```

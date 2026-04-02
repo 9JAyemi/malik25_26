@@ -1,1 +1,1699 @@
 id,original_rtl_design,property_type,passing_property
+00003,sky130_fd_sc_hd__o21bai,assert,"// No clock or reset signals are present in the RTL
+
+    // The logic is purely combinational as there are no sequential elements
+
+    // Key signals and interfaces:
+    // Y, A1, A2, B1_N are inputs
+    // VPWR, VGND, VPB, VNB are power and ground signals
+
+    // Functional behaviors:
+    // Y is the output of a combinational logic circuit
+
+    // Combinational logic behavior:
+    // Y = !B1_N && (A2 || A1)
+
+    // Assertion for the combinational logic behavior
+    comb_logic: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == (!B1_N && (A2 || A1)))
+    ) else $error(""Combinational logic behavior violated"");"
+00200,sky130_fd_sc_hd__nor4,assert,"// The logic is purely combinational as there are no sequential elements.
+
+    // The output Y is the result of a NOR operation on inputs A, B, C, and D.
+    // NOR operation: Y = ~(A | B | C | D)
+    combinational_logic: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == ~(A | B | C | D))
+    );"
+00244,ripple_carry_adder,assert,"// Combinational logic: SUM and Cout are determined by A, B, and Cin
+  // Clocked assertions to ensure the combinational logic is correct
+  // at the rising edge of the clock
+
+  // SUM is the XOR of A, B, and Cin
+  sum_correct: assert property (
+    @(posedge CLK) disable iff (!CLK) Sum == (A ^ B ^ Cin)
+  );"
+00244,ripple_carry_adder,assert,"// Cout is the OR of the ANDs of A and B, A and Cin, and B and Cin
+  cout_correct: assert property (
+    @(posedge CLK) disable iff (!CLK) Cout == ((A & B) | (A & Cin) | (B & Cin))
+  );"
+00325,up_counter,assert,"///// Counter reset /////
+    // At reset, the counter must be driven to 0.
+    reset_count: assert property (
+        @(posedge clk) disable iff (!reset) (reset |-> count == 4'b0)
+    );"
+00325,up_counter,assert,"///// Counter increment /////
+    // The counter must increment by 1 on each clock cycle when reset is low.
+    increment_count: assert property (
+        @(posedge clk) disable iff (!reset) (!reset |-> count == count + 1)
+    );"
+00325,up_counter,assert,"///// Output toggle /////
+    // The output must toggle on each clock cycle when reset is low.
+    toggle_out: assert property (
+        @(posedge clk) disable iff (!reset) (!reset |-> out == ~out)
+    );"
+00355,m_pc_reg,assert,"///// Register behavior /////
+    // Register r_bus_addr_out should hold the value of w_bus_addr_in on the positive edge of w_clock.
+    register_update: assert property (
+        @(posedge w_clock) disable iff (!w_reset) r_bus_addr_out == w_bus_addr_in
+    );"
+00355,m_pc_reg,assert,"// Register r_bus_addr_out should be reset to 0 on the positive edge of w_clock when w_reset is asserted.
+    register_reset: assert property (
+        @(posedge w_clock) disable iff (!w_reset) (w_reset == 1'b1) |-> r_bus_addr_out == 8'b0
+    );"
+00378,decoder_4to16,assert,"// Ensure that the output is consistent with the input and enable
+    output_consistency_check: assert property (
+        @(posedge clk) disable iff (!rst_n) (ena |-> (out == (16'b1 << in) | 16'b1))
+    );"
+00378,decoder_4to16,assert,"// Ensure that the output is consistent with the input and enable
+    output_consistency_with_enable_check: assert property (
+        @(posedge clk) disable iff (!rst_n) (ena |-> (out == (16'b1 << in) | 16'b1))
+    );"
+00468,clock_gate_en,assert,"///// Clock gating logic /////
+    // data_out should only change when en is HIGH.
+    clock_gating_1: assert property (
+        @(posedge clk) disable iff (!clk) $changed(data_out) |-> en == 1'b1
+    );"
+00468,clock_gate_en,assert,"// data_out should be LOW when en is LOW.
+    clock_gating_2: assert property (
+        @(posedge clk) disable iff (!clk) (en == 1'b0) |-> data_out == 1'b0
+    );"
+00474,XOR_M,assert,"// XOR logic must be correct
+    xor_logic: assert property (
+        @(posedge CLK) disable iff (!CLK) Sgn_Info == (Sgn_X ^ Sgn_Y)
+    );"
+00479,sky130_fd_sc_lp__ha,assert,"// COUT is the result of ANDing A and B
+    and_result: assert property (
+        @(posedge CLK) disable iff (!CLK) (COUT == (A & B))
+    );"
+00479,sky130_fd_sc_lp__ha,assert,"// SUM is the result of XORing A and B
+    xor_result: assert property (
+        @(posedge CLK) disable iff (!CLK) (SUM == (A ^ B))
+    );"
+00499,shift_register,assert,"///// Register reset /////
+    // At reset assertion, the register must be driven to 0.
+    reset_register: assert property (
+        @(posedge clk) disable iff (!reset) register == 4'b0000
+    );"
+00499,shift_register,assert,"///// Parallel load /////
+    // When parallel_load is asserted, the register must be loaded with parallel_input.
+    parallel_load_check: assert property (
+        @(posedge clk) disable iff (!reset) (parallel_load |-> register == parallel_input)
+    );"
+00499,shift_register,assert,"///// Shift left /////
+    // When shift_left is asserted, the register must shift left by one position.
+    shift_left_check: assert property (
+        @(posedge clk) disable iff (!reset) (shift_left |-> register == {register[2:0], 1'b0})
+    );"
+00499,shift_register,assert,"///// Shift right /////
+    // When shift_right is asserted, the register must shift right by one position.
+    shift_right_check: assert property (
+        @(posedge clk) disable iff (!reset) (shift_right |-> register == {1'b0, register[3:1]})
+    );"
+00499,shift_register,assert,"///// Exclusive control /////
+    // Only one of parallel_load, shift_left, or shift_right can be asserted at a time.
+    exclusive_control: assert property (
+        @(posedge clk) disable iff (!reset) !(parallel_load && shift_left) && !(parallel_load && shift_right) && !(shift_left && shift_right)
+    );"
+00524,pwm_generator,assert,"///// Device reset /////
+    // At reset assertion, pwm_out must be LOW.
+    reset: assert property (
+        @(posedge clk) !rst_n |-> (pwm_out == 1'b0)
+    );"
+00569,RegisterAdd,assert,"///// Sequential logic behavior /////
+    // FSM_sequential_state_reg_reg should be reset to 2'b00 when FSM_selector_C is HIGH.
+    reset_to_zero: assert property (
+        @(posedge clk_IBUF_BUFG) disable iff (!clk_IBUF_BUFG) FSM_selector_C |-> (FSM_sequential_state_reg_reg == 2'b00)
+    );"
+00569,RegisterAdd,assert,"// FSM_sequential_state_reg_reg should increment by AR when FSM_selector_C is LOW.
+    increment_on_ar: assert property (
+        @(posedge clk_IBUF_BUFG) disable iff (!clk_IBUF_BUFG) !FSM_selector_C |-> FSM_sequential_state_reg_reg == FSM_sequential_state_reg_reg + AR
+    );"
+00573,sky130_fd_sc_hd__nor4b,assert,"// The logic is purely combinational as it only uses assign statements.
+
+    // The output Y is the negation of the OR of A, B, C, and D_N.
+    combinational_logic: assert property (
+        @(posedge VPB) disable iff (!VGND) Y == ~(A | B | C | D_N)
+    );"
+00767,Video_System_CPU_nios2_oci_td_mode,assert,"// ctrl_bits_for_mux should always be within the valid range [0, 7].
+    ctrl_bits_for_mux_range: assert property (
+        @(posedge clk) disable iff (!rst_n) (ctrl_bits_for_mux >= 3'b000) && (ctrl_bits_for_mux <= 3'b111)
+    );"
+00767,Video_System_CPU_nios2_oci_td_mode,assert,"// td_mode should always be one of the valid values [0, 15].
+    td_mode_range: assert property (
+        @(posedge clk) disable iff (!rst_n) (td_mode >= 4'b0000) && (td_mode <= 4'b1111)
+    );"
+00767,Video_System_CPU_nios2_oci_td_mode,assert,"// ctrl_bits_for_mux should not change when td_mode is changing.
+    ctrl_bits_for_mux_stable: assert property (
+        @(posedge clk) disable iff (!rst_n) (ctrl_bits_for_mux == ctrl_bits_for_mux)
+    );"
+00767,Video_System_CPU_nios2_oci_td_mode,assert,"// td_mode should not change when ctrl_bits_for_mux is changing.
+    td_mode_stable: assert property (
+        @(posedge clk) disable iff (!rst_n) (td_mode == td_mode)
+    );"
+00806,sky130_fd_sc_ls__or4b,assert,"// The OR4B module has combinational logic, so we will use @(posedge CLK) for assertions.
+
+    // The output X is the result of the OR operation on A, B, C, and the inverted D_N.
+    // The OR operation is performed on the inputs A, B, C, and the inverted D_N.
+    // The output X is the result of the OR operation.
+    or4b_output: assert property (
+        @(posedge CLK) disable iff (!CLK) (X == (A | B | C | ~D_N))
+    );"
+00848,vfabric_bypass_reg,assert,"// Sequential logic: o_dataout and o_dataout_valid are driven by the clock
+    // Combinational logic: o_dataout and o_dataout_valid are driven by i_settings, i_register_settings, and i_datain
+
+    // o_dataout should be equal to i_register_settings when i_settings is high
+    bypass_reg_1: assert property (
+        @(posedge clock) disable iff (!resetn) (i_settings == 1'b1) |-> (o_dataout == i_register_settings)
+    );"
+00848,vfabric_bypass_reg,assert,"// o_dataout should be equal to i_datain when i_settings is low
+    bypass_reg_2: assert property (
+        @(posedge clock) disable iff (!resetn) (i_settings == 1'b0) |-> (o_dataout == i_datain)
+    );"
+00848,vfabric_bypass_reg,assert,"// o_dataout_valid should be equal to i_datain_valid
+    bypass_reg_3: assert property (
+        @(posedge clock) disable iff (!resetn) (o_dataout_valid == i_datain_valid)
+    );"
+00848,vfabric_bypass_reg,assert,"// o_datain_stall should be equal to i_dataout_stall
+    bypass_reg_4: assert property (
+        @(posedge clock) disable iff (!resetn) (o_datain_stall == i_dataout_stall)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_datain_valid should not be high when i_dataout_stall is high
+    bypass_reg_5: assert property (
+        @(posedge clock) disable iff (!resetn) (i_dataout_stall == 1'b1) |-> (i_datain_valid == 1'b0)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_settings should not be high when i_dataout_stall is high
+    bypass_reg_6: assert property (
+        @(posedge clock) disable iff (!resetn) (i_dataout_stall == 1'b1) |-> (i_settings == 1'b0)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_register_settings should not be used when i_dataout_stall is high
+    bypass_reg_7: assert property (
+        @(posedge clock) disable iff (!resetn) (i_dataout_stall == 1'b1) |-> (i_register_settings == 32'b0)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_datain should not be used when i_dataout_stall is high
+    bypass_reg_8: assert property (
+        @(posedge clock) disable iff (!resetn) (i_dataout_stall == 1'b1) |-> (i_datain == 32'b0)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_datain_valid should not be high when o_datain_stall is high
+    bypass_reg_9: assert property (
+        @(posedge clock) disable iff (!resetn) (o_datain_stall == 1'b1) |-> (i_datain_valid == 1'b0)
+    );"
+00848,vfabric_bypass_reg,assert,"// i_settings should not be high when o_datain_stall is high
+    bypass_reg_10: assert property (
+        @(posedge clock) disable iff (!resetn) (o_datain_stall == 1'b1) |-> (i_settings == 1'b0)
+    );"
+00895,binary_counter,assert,"// Reset behavior: count should be 0 at reset
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) count == 3'b0
+    );"
+00895,binary_counter,assert,"// Counting behavior: count should increment by 1 on each clock cycle
+    counting: assert property (
+        @(posedge clk) disable iff (!rst) count == count + 1
+    );"
+00912,shift_register_4bit,assert,"// Q should not change when CLR is HIGH.
+    no_change_on_reset: assert property (
+        @(posedge CLK) CLR |-> Q == Q
+    );"
+00912,shift_register_4bit,assert,"// Q_next should not change when CLR is HIGH.
+    next_no_change_on_reset: assert property (
+        @(posedge CLK) CLR |-> Q_next == Q_next
+    );"
+00912,shift_register_4bit,assert,"// Q should not change when LOAD is LOW and CLR is LOW.
+    no_change_on_load: assert property (
+        @(posedge CLK) disable iff (!CLR) (LOAD == 1'b0) |-> Q == Q
+    );"
+00912,shift_register_4bit,assert,"// Q_next should not change when LOAD is LOW and CLR is LOW.
+    next_no_change_on_load: assert property (
+        @(posedge CLK) disable iff (!CLR) (LOAD == 1'b0) |-> Q_next == Q_next
+    );"
+01030,constant_generator,assert,"// op_reg can only transition from 1 to 0 when clr is HIGH.
+  transition_2: assert property (
+    @(posedge clk) disable iff (!clr) $fell(op_reg) |-> (clr == 1'b1)
+  );"
+01042,DFF_AR,assert,"// Reset behavior: Q and QN should be 0 and 1 respectively when RST is active
+  reset: assert property (
+    @(posedge CLK) disable iff (!RST) (Q == 1'b0) && (QN == 1'b1)
+  );"
+01085,counter_4bit,assert,"// Reset behavior: count should be 0 at reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count == 4'b0)
+  );"
+01085,counter_4bit,assert,"// Enable behavior: count should increment when enable is high
+  enable_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (enable |-> count == count + 1)
+  );"
+01085,counter_4bit,assert,"// Disable behavior: count should not increment when enable is low
+  disable_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (!enable |-> count == count)
+  );"
+01085,counter_4bit,assert,"// Count range behavior: count should not exceed 4'b1111
+  count_range_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count <= 4'b1111)
+  );"
+01085,counter_4bit,assert,"// Count should not wrap around from 4'b1111 to 4'b0000
+  count_wrap_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 4'b0000 |-> count != 4'b1111)
+  );"
+01085,counter_4bit,assert,"// Count should not be negative
+  count_negative_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count >= 4'b0000)
+  );"
+01085,counter_4bit,assert,"// Count should not be greater than 4 bits
+  count_bits_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count < 5'b10000)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10000
+  count_10000_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10000)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10001
+  count_10001_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10001)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10010
+  count_10010_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10010)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10011
+  count_10011_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10011)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10100
+  count_10100_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10100)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10101
+  count_10101_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10101)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10110
+  count_10110_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10110)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b10111
+  count_10111_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b10111)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11000
+  count_11000_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11000)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11001
+  count_11001_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11001)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11010
+  count_11010_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11010)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11011
+  count_11011_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11011)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11100
+  count_11100_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11100)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11101
+  count_11101_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11101)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11110
+  count_11110_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11110)
+  );"
+01085,counter_4bit,assert,"// Count should not be equal to 4'b11111
+  count_11111_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (count != 5'b11111)
+  );"
+01170,binary_counter,assert,"// Reset behavior: count should be 0 after reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!rst) count == 4'b0000
+  );"
+01170,binary_counter,assert,"// Counting behavior: count should increment by 1 on each clock edge
+  counting_behavior: assert property (
+    @(posedge clk) disable iff (!rst) count == count + 1
+  );"
+01208,control,assert,"///// Reset behavior /////
+    // At reset, control_o and pc_op must be driven to 0.
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) (rst |-> (control_o == 8'b0) && (pc_op == 2'b0))
+    );"
+01208,control,assert,"///// Enable behavior /////
+    // When en is high, control_o[0] should be equal to en_mem.
+    enable_en_mem: assert property (
+        @(posedge clk) disable iff (!rst) (en |-> (control_o[0] == en_mem))
+    );"
+01208,control,assert,"// When en is high, control_o[1] should be equal to should_branch.
+    enable_should_branch: assert property (
+        @(posedge clk) disable iff (!rst) (en |-> (control_o[1] == should_branch))
+    );"
+01208,control,assert,"// When en is high, control_o[2] should be equal to imm.
+    enable_imm: assert property (
+        @(posedge clk) disable iff (!rst) (en |-> (control_o[2] == imm))
+    );"
+01208,control,assert,"///// Opcode generation /////
+    // When imm is high, pc_op should be 2'b10 (Bitwise AND).
+    opcode_and: assert property (
+        @(posedge clk) disable iff (!rst) (imm |-> (pc_op == 2'b10))
+    );"
+01208,control,assert,"// When imm is low, pc_op should be 2'b00 (Add).
+    opcode_add: assert property (
+        @(posedge clk) disable iff (!rst) (!imm |-> (pc_op == 2'b00))
+    );"
+01208,control,assert,"///// Memory wait behavior /////
+    // mem_wait should not affect control_o or pc_op directly.
+    mem_wait_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (mem_wait |-> (control_o == control_o) && (pc_op == pc_op))
+    );"
+01352,binary_to_gray,assert,"// Binary to Gray conversion on load
+    binary_to_gray_conversion: assert property (
+        @(posedge load) disable iff (!load) (out == (in >> 1) ^ in)
+    );"
+01352,binary_to_gray,assert,"// Valid signal should be high only when load is high
+    valid_signal: assert property (
+        @(posedge load) disable iff (!load) (valid == 1'b1)
+    );"
+01440,binary_counter,assert,"// Reset behavior: count should be 0 at reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!rst) (count == 4'b0)
+  );"
+01440,binary_counter,assert,"// Counting behavior: count should increment by 1 on each clock edge
+  counting_behavior: assert property (
+    @(posedge clk) disable iff (!rst) (count == 4'b1111) |-> count == 4'b0000
+  );"
+01462,ripple_adder,assert,"// Ripple adder logic is combinational, but we will use @(posedge clk) for assertions.
+
+    // Sum calculation is correct for each bit position
+    bit_calculation: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_2: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_3: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_4: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_5: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_6: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_7: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01462,ripple_adder,assert,"// Sum calculation is correct for each bit position
+    bit_calculation_8: assert property (
+        @(posedge clk) $rose(sum) |-> (sum == a + b)
+    );"
+01522,four_bit_counter,assert,"// Reset behavior: count should be 0 at reset
+    reset_behavior: assert property (
+        @(posedge clk) disable iff (!reset) (count == 4'b0)
+    );"
+01522,four_bit_counter,assert,"// Counting behavior: count should increment by 1 on each clock edge
+    counting_behavior: assert property (
+        @(posedge clk) disable iff (!reset) (count == 4'b1111) |-> count == 4'b0000
+    );"
+01555,barrel_shifter,assert,"// Shift direction must be either 0 (left) or 1 (right)
+    direction_check: assert property (
+        @(posedge clk) disable iff (!rst_n) (dir == 0 || dir == 1)
+    );"
+01555,barrel_shifter,assert,"// Shift amount must be within the valid range [0, 15]
+    shift_amount_check: assert property (
+        @(posedge clk) disable iff (!rst_n) (shift >= 4'b0000 && shift <= 4'b1111)
+    );"
+01571,r_FAULT_STATUS,assert,"///// Register behavior /////
+    // Register reg_0x1F should be reset to 0x00 on reset.
+    reset_reg_0x1F: assert property (
+        @(posedge clk) disable iff (!reset) reg_0x1F == 8'h00
+    );"
+01571,r_FAULT_STATUS,assert,"// Register reg_0x1F should be updated with in_data when wenb is 0.
+    update_reg_0x1F: assert property (
+        @(posedge clk) disable iff (!reset) (wenb == 1'b0) |-> reg_0x1F == in_data
+    );"
+01571,r_FAULT_STATUS,assert,"// Register reg_0x1F should remain unchanged when wenb is 1.
+    no_update_reg_0x1F: assert property (
+        @(posedge clk) disable iff (!reset) (wenb == 1'b1) |-> reg_0x1F == reg_0x1F
+    );"
+01582,register_4bit,assert,"///// Register behavior /////
+    // Q_reg should only change on the rising edge of clk or on reset.
+    reg_change: assert property (
+        @(posedge clk) disable iff (!reset) Q_reg !== Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should be loaded with data_in when load is asserted.
+    load_behavior: assert property (
+        @(posedge clk) disable iff (!reset) (load == 1'b1) |-> (Q_reg == data_in)
+    );"
+01582,register_4bit,assert,"// Q_reg should be reset to 0 when reset is asserted.
+    reset_behavior: assert property (
+        @(posedge clk) disable iff (!reset) reset |-> (Q_reg == 4'b0)
+    );"
+01582,register_4bit,assert,"// Q should always reflect the current value of Q_reg.
+    q_output: assert property (
+        @(posedge clk) disable iff (!reset) Q == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when neither load nor reset is asserted.
+    no_change: assert property (
+        @(posedge clk) disable iff (!reset) (!load && !reset) |-> Q_reg == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when reset is asserted.
+    reset_no_change: assert property (
+        @(posedge clk) disable iff (!reset) reset |-> Q_reg == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when load is asserted but reset is not.
+    load_no_change: assert property (
+        @(posedge clk) disable iff (!reset) (load && !reset) |-> Q_reg == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when data_in is not changing.
+    data_in_no_change: assert property (
+        @(posedge clk) disable iff (!reset) data_in == data_in |-> Q_reg == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when clk is not rising edge.
+    clk_no_change: assert property (
+        @(posedge clk) disable iff (!reset) clk |-> Q_reg == Q_reg
+    );"
+01582,register_4bit,assert,"// Q_reg should not change when load and reset are both asserted.
+    load_reset_no_change: assert property (
+        @(posedge clk) disable iff (!reset) (load && reset) |-> Q_reg == Q_reg
+    );"
+01614,up_down_counter,assert,"///// Load behavior /////
+    // Q can only transition when load is HIGH.
+    load_behavior: assert property (
+        @(posedge clk) disable iff (!clk) $rose(load) |-> Q == input_data
+    );"
+01614,up_down_counter,assert,"///// Up/Down behavior /////
+    // Q increments when up_down is HIGH and load is LOW.
+    up_behavior: assert property (
+        @(posedge clk) disable iff (!clk) (up_down == 1'b1) && (load == 1'b0) |-> Q == Q + 1
+    );"
+01614,up_down_counter,assert,"// Q decrements when up_down is LOW and load is LOW.
+    down_behavior: assert property (
+        @(posedge clk) disable iff (!clk) (up_down == 1'b0) && (load == 1'b0) |-> Q == Q - 1
+    );"
+01614,up_down_counter,assert,"///// Sequential logic /////
+    // Q should not change when load is LOW and up_down is LOW.
+    no_change_behavior: assert property (
+        @(posedge clk) disable iff (!clk) (load == 1'b0) && (up_down == 1'b0) |-> Q == Q
+    );"
+01716,binary_counter,assert,"// Reset behavior: COUNT should be 0 when RST is active
+    reset: assert property (
+        @(posedge clk) disable iff (!RST) COUNT == 4'b0000
+    );"
+01716,binary_counter,assert,"// Enable behavior: COUNT should increment when EN is high and RST is low
+    enable: assert property (
+        @(posedge clk) disable iff (!RST) (EN == 1'b1) |-> COUNT == COUNT + 1
+    );"
+01716,binary_counter,assert,"// Synchronous reset behavior: COUNT should be 0 after a synchronous reset
+    sync_reset: assert property (
+        @(posedge clk) disable iff (!RST) RST |-> COUNT == 4'b0000
+    );"
+01716,binary_counter,assert,"// Asynchronous reset behavior: COUNT should be 0 after an asynchronous reset
+    async_reset: assert property (
+        @(posedge clk) disable iff (!RST) RST |-> COUNT == 4'b0000
+    );"
+01716,binary_counter,assert,"// COUNT should not exceed 4'b1111
+    count_limit: assert property (
+        @(posedge clk) disable iff (!RST) COUNT <= 4'b1111
+    );"
+01716,binary_counter,assert,"// COUNT should not be negative
+    count_non_negative: assert property (
+        @(posedge clk) disable iff (!RST) COUNT >= 4'b0000
+    );"
+01716,binary_counter,assert,"// COUNT should not wrap around
+    count_wraparound: assert property (
+        @(posedge clk) disable iff (!RST) (COUNT == 4'b1111) |-> COUNT + 1 == 4'b0000
+    );"
+01716,binary_counter,assert,"// COUNT should not decrement when EN is low
+    count_no_decrement: assert property (
+        @(posedge clk) disable iff (!RST) (EN == 1'b0) |-> COUNT == COUNT
+    );"
+01716,binary_counter,assert,"// COUNT should not increment when RST is high
+    count_no_increment_on_reset: assert property (
+        @(posedge clk) disable iff (!RST) (RST == 1'b1) |-> COUNT == COUNT
+    );"
+01716,binary_counter,assert,"// COUNT should not be zero when EN is low and RST is low
+    count_non_zero_when_en_low: assert property (
+        @(posedge clk) disable iff (!RST) (EN == 1'b0) |-> COUNT != 4'b0000
+    );"
+01716,binary_counter,assert,"// COUNT should not be zero when RST is low
+    count_non_zero_when_reset_low: assert property (
+        @(posedge clk) disable iff (!RST) COUNT != 4'b0000
+    );"
+01735,tri_buf,assert,"// TE_B can only transition from LOW to HIGH when A is LOW.
+    tri_buf_1: assert property (
+        @(posedge TE_B) $rose(TE_B) |-> (A == 1'b0)
+    );"
+01735,tri_buf,assert,"// Z can only transition from HIGH to LOW when TE_B is LOW.
+    tri_buf_4: assert property (
+        @(posedge TE_B) $fell(Z) |-> (TE_B == 1'b0)
+    );"
+01735,tri_buf,assert,"// A can only transition from HIGH to LOW when TE_B is LOW.
+    tri_buf_6: assert property (
+        @(posedge TE_B) $fell(A) |-> (TE_B == 1'b0)
+    );"
+01741,TLATNTSCAX2TS,assert,"// ECK is the output of the logic, which is a function of E, SE, and CK.
+    // ECK is HIGH when (E AND SE) is HIGH or (NOT E AND CK) is HIGH.
+    logic_property: assert property (
+        @(posedge CK) disable iff (!CK) (ECK == ((E & SE) | (!E & CK)))
+    );"
+01750,MUX16,assert,"// MUX output must match the selected input
+    mux_output: assert property (
+        @(posedge CLK) disable iff (!CLK) data_o == {select == 4'b0000 ? data_i00 :
+                                                   select == 4'b0001 ? data_i01 :
+                                                   select == 4'b0010 ? data_i02 :
+                                                   select == 4'b0011 ? data_i03 :
+                                                   select == 4'b0100 ? data_i04 :
+                                                   select == 4'b0101 ? data_i05 :
+                                                   select == 4'b0110 ? data_i06 :
+                                                   select == 4'b0111 ? data_i07 :
+                                                   select == 4'b1000 ? data_i08 :
+                                                   select == 4'b1001 ? data_i09 :
+                                                   select == 4'b1010 ? data_i10 :
+                                                   select == 4'b1011 ? data_i11 :
+                                                   select == 4'b1100 ? data_i12 :
+                                                   select == 4'b1101 ? data_i13 :
+                                                   select == 4'b1110 ? data_i14 :
+                                                   data_i15}
+    );"
+01792,port_address_reg,assert,"// Reset behavior
+    reset_behavior: assert property (
+        @(posedge clk) disable iff (!reset_b) !reset_b |-> (address_port_0 == 8'h00) && (address_port_1 == 8'h01) && (address_port_2 == 8'h02) && (address_port_3 == 8'h03)
+    );"
+01799,counter_4bit_async_reset,assert,"///// Sequential logic behavior /////
+    // Count should increment by 1 on each positive edge of the clock.
+    count_increment: assert property (
+        @(posedge clk) disable iff (!rst) count == count + 1
+    );"
+01822,sky130_fd_sc_ms__o211ai,assert,"// The logic is purely combinational as there are no sequential elements.
+
+    // The output Y is driven by the combination of A1, A2, B1, and C1.
+    // Y = C1 & (A1 | A2) & B1
+
+    // Property to check the combinational logic for Y
+    combinational_logic: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == (C1 & (A1 | A2) & B1))
+    ) else $error(""Combinational logic for Y is incorrect"");"
+01828,counter_mod_rtl,assert,"///// Counter behavior /////
+  // Up counter: q should increment by 1 on each positive edge of clk when up_down is 0.
+  up_counter: assert property (
+    @(posedge clk) disable iff (!rst) (up_down == 1'b0) |-> (q == q + 4'b1)
+  );"
+01828,counter_mod_rtl,assert,"// Down counter: q should decrement by 1 on each positive edge of clk when up_down is 1.
+  down_counter: assert property (
+    @(posedge clk) disable iff (!rst) (up_down == 1'b1) |-> (q == q - 4'b1)
+  );"
+01828,counter_mod_rtl,assert,"// Counter should wrap around to 0 when it reaches 15 (4'b1111) and carry should be set.
+  counter_wrap_up: assert property (
+    @(posedge clk) disable iff (!rst) (q == 4'b1111) |-> (q == 4'b0000) && (carry == 1'b1)
+  );"
+01828,counter_mod_rtl,assert,"// Counter should wrap around to 15 (4'b1111) when it reaches 0 (4'b0000) and carry should be set.
+  counter_wrap_down: assert property (
+    @(posedge clk) disable iff (!rst) (q == 4'b0000) |-> (q == 4'b1111) && (carry == 1'b1)
+  );"
+01828,counter_mod_rtl,assert,"// Counter should not change when reset is active.
+  counter_reset: assert property (
+    @(posedge clk) !rst |-> q == q
+  );"
+01828,counter_mod_rtl,assert,"// Carry should be set when counter wraps around.
+  carry_set: assert property (
+    @(posedge clk) disable iff (!rst) (q == 4'b1111) |-> carry == 1'b1
+  );"
+01828,counter_mod_rtl,assert,"// Carry should be cleared when counter does not wrap around.
+  carry_clear: assert property (
+    @(posedge clk) disable iff (!rst) (q != 4'b1111) |-> carry == 1'b0
+  );"
+01828,counter_mod_rtl,assert,"// Up counter should not wrap around when it reaches 15.
+  up_counter_no_wrap: assert property (
+    @(posedge clk) disable iff (!rst) (q == 4'b1111) |-> up_down == 1'b1
+  );"
+01828,counter_mod_rtl,assert,"// Down counter should not wrap around when it reaches 0.
+  down_counter_no_wrap: assert property (
+    @(posedge clk) disable iff (!rst) (q == 4'b0000) |-> up_down == 1'b0
+  );"
+01840,binary_counter,assert,"///// Reset behavior /////
+    // At reset, count must be driven to 0.
+    reset: assert property (
+        @(posedge clk) !rst |-> (count == 4'b0)
+    );"
+01840,binary_counter,assert,"///// Load behavior /////
+    // When load is asserted, count must be driven to the value of data.
+    load_behavior: assert property (
+        @(posedge clk) disable iff (!rst) load |-> (count == data)
+    );"
+01840,binary_counter,assert,"///// Count increment behavior /////
+    // When load is not asserted, count must increment by 1 on each clock edge.
+    increment_behavior: assert property (
+        @(posedge clk) disable iff (!rst) !load |-> (count == count + 4'b1)
+    );"
+01840,binary_counter,assert,"///// Count rollover behavior /////
+    // When count reaches 4'b1111, it should rollover to 4'b0000.
+    rollover_behavior: assert property (
+        @(posedge clk) disable iff (!rst) count == 4'b1111 |-> (count == 4'b0000)
+    );"
+01840,binary_counter,assert,"///// Count should not be greater than 4'b1111 /////
+    // Count should always be between 0 and 15.
+    count_range: assert property (
+        @(posedge clk) disable iff (!rst) count inside {[0:15]}
+    );"
+01840,binary_counter,assert,"///// Load should not be asserted when count is not 0 /////
+    // Load should only be asserted when count is 0.
+    load_when_count_zero: assert property (
+        @(posedge clk) disable iff (!rst) count != 4'b0000 |-> !load
+    );"
+01840,binary_counter,assert,"///// Count should not increment when load is asserted /////
+    // Count should not increment when load is asserted.
+    count_not_increment_on_load: assert property (
+        @(posedge clk) disable iff (!rst) load |-> count == count
+    );"
+01840,binary_counter,assert,"///// Count should not be greater than data when load is asserted /////
+    // When load is asserted, count should be equal to data.
+    count_not_greater_than_data_on_load: assert property (
+        @(posedge clk) disable iff (!rst) load |-> count == data
+    );"
+01840,binary_counter,assert,"///// Count should not be less than data when load is not asserted /////
+    // When load is not asserted, count should be greater than or equal to data.
+    count_not_less_than_data_on_not_load: assert property (
+        @(posedge clk) disable iff (!rst) !load |-> count >= data
+    );"
+01840,binary_counter,assert,"///// Count should not be equal to data when load is not asserted /////
+    // When load is not asserted, count should not be equal to data.
+    count_not_equal_to_data_on_not_load: assert property (
+        @(posedge clk) disable iff (!rst) !load |-> count != data
+    );"
+01866,up_counter,assert,"// At reset assertion, the counter must be driven to 0.
+    reset: assert property (
+        @(posedge clk) !rst_n |-> (count == 16'b0000000000000000)
+    );"
+01875,udp_mux_4to1,assert,"// Mux selection logic must be driven by sel
+  mux_selection: assert property (
+    @(posedge CLK) disable iff (!CLK) $rose(out) |-> (sel == 2'b00 || sel == 2'b01 || sel == 2'b10 || sel == 2'b11)
+  );"
+01875,udp_mux_4to1,assert,"// Output must be one of the inputs based on the selection
+  mux_output: assert property (
+    @(posedge CLK) disable iff (!CLK) $rose(out) |-> 
+      (sel == 2'b00 && out == in0[0]) || 
+      (sel == 2'b01 && out == in1[0]) || 
+      (sel == 2'b10 && out == in2[0]) || 
+      (sel == 2'b11 && out == in3[0])
+  );"
+01876,sky130_fd_sc_lp__a21boi,assert,"// The logic is purely combinational as there are no sequential elements.
+
+    // A1 and A2 must be inputs to the AND gate.
+    combinational_input_and: assert property (
+        @(posedge VPWR) disable iff (VGND) (A1 && A2)
+    );"
+01876,sky130_fd_sc_lp__a21boi,assert,"// B1_N must be an input to the NOT gate.
+    combinational_input_not: assert property (
+        @(posedge VPWR) disable iff (VGND) (!B1_N)
+    );"
+01876,sky130_fd_sc_lp__a21boi,assert,"// The output Y should be the result of the NOR gate.
+    combinational_output_nor: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == !(!B1_N || A1 && A2))
+    );"
+01905,simple_counter,assert,"// Reset behavior: count should be 0 at reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!rst) count == 32'b0
+  );"
+01905,simple_counter,assert,"// Enable behavior: count should increment when en is high
+  enable_behavior: assert property (
+    @(posedge clk) disable iff (!rst) (en == 1'b1) |-> count == count + 1
+  );"
+01905,simple_counter,assert,"// Disable behavior: count should not increment when en is low
+  disable_behavior: assert property (
+    @(posedge clk) disable iff (!rst) (en == 1'b0) |-> count == count
+  );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must be initialized to 0 at reset
+    reset: assert property (
+        @(posedge clk) disable iff (!clk) synch_out |-> synch_in
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must propagate the input signal through the stages
+    sync_stages: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_2: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_3: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_4: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_5: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_6: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_7: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+01926,axis_infrastructure_v1_1_clock_synchronizer,assert,"// Synchronizer stages must not change the output signal unless the input signal changes
+    sync_no_change_8: assert property (
+        @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
+    );"
+02001,nor4b,assert,"// The logic is purely combinational as it only uses assign statements.
+    // No clock or reset signals are present.
+
+    // Check that Y is the NOR of A, B, C, and D_N
+    nor_behavior: assert property (
+        @(posedge VPWR) disable iff (!VGND) (Y == ~(A | B | C | D_N))
+    );"
+02032,sky130_fd_sc_ms__o21ai,assert,"// No clock or reset signals are present in the RTL
+
+    // The logic is purely combinational as there are no sequential elements
+
+    // Key signals: Y, A1, A2, B1, VPWR, VGND, VPB, VNB
+    // Interfaces: None
+
+    // Functional behaviors:
+    // Y is driven by the output of a NAND gate which takes B1 and the output of an OR gate as inputs
+    // The OR gate takes A2 and A1 as inputs
+
+    // Combinational logic assertion
+    // Y should be the result of the NAND gate
+    combinational_logic: assert property (
+        @(posedge VPB) $stable(A1) && $stable(A2) && $stable(B1) |-> Y == ~(B1 & (A2 | A1))
+    ) else $error(""Combinational logic error: Y does not match the expected value"");"
+02057,shift_register,assert,"// Output is the most significant bit of the register.
+    output_msb: assert property (
+        @(posedge shift) $stable(register) |-> out == register[7]
+    );"
+02057,shift_register,assert,"// Register is stable during the shift operation.
+    register_stable: assert property (
+        @(posedge shift) $stable(register) |-> register == register
+    );"
+02057,shift_register,assert,"// Output is stable during the shift operation.
+    output_stable: assert property (
+        @(posedge shift) $stable(out) |-> out == out
+    );"
+02057,shift_register,assert,"// Register is stable when shift is not asserted.
+    register_stable_no_shift: assert property (
+        @(posedge shift) !shift |-> register == register
+    );"
+02057,shift_register,assert,"// Output is stable when shift is not asserted.
+    output_stable_no_shift: assert property (
+        @(posedge shift) !shift |-> out == out
+    );"
+02057,shift_register,assert,"// Register is stable during the shift operation.
+    register_stable_shift: assert property (
+        @(posedge shift) $stable(register) |-> register == register
+    );"
+02057,shift_register,assert,"// Output is stable during the shift operation.
+    output_stable_shift: assert property (
+        @(posedge shift) $stable(out) |-> out == out
+    );"
+02152,dynamic_gate,assert,"// Sequential logic: out is updated on the rising edge of clk based on the value of in
+  sequential_logic: assert property (
+    @(posedge clk) disable iff (!clk) out == (in ? 1'b1 : 1'b0)
+  );"
+02169,arithmetic_op,assert,"// Combinational logic, so use @(posedge clk)
+   // Check that the result is correctly calculated based on the control signal
+   check_result: assert property (
+      @(posedge clk) disable iff (!rst_n) (ctrl == 2'b00) |-> (result == a + b)
+   );"
+02169,arithmetic_op,assert,"check_result_sub: assert property (
+      @(posedge clk) disable iff (!rst_n) (ctrl == 2'b01) |-> (result == a - b)
+   );"
+02169,arithmetic_op,assert,"check_result_xor: assert property (
+      @(posedge clk) disable iff (!rst_n) (ctrl == 2'b10) |-> (result == a ^ b)
+   );"
+02169,arithmetic_op,assert,"check_result_default: assert property (
+      @(posedge clk) disable iff (!rst_n) (ctrl != 2'b00 && ctrl != 2'b01 && ctrl != 2'b10) |-> (result == 8'b0)
+   );"
+02266,simple_calculator,assert,"///// Reset behavior /////
+    // At reset, C_reg must be driven to 0.
+    reset_C_reg: assert property (
+        @(posedge CLK) disable iff (!RST) RST |-> (C_reg == 8'b0)
+    );"
+02266,simple_calculator,assert,"///// Operation behavior /////
+    // When OP is 1, C_reg should be updated to A - B.
+    operation_subtract: assert property (
+        @(posedge CLK) disable iff (!RST) (OP == 1) |-> (C_reg == A - B)
+    );"
+02266,simple_calculator,assert,"// When OP is 0, C_reg should be updated to A + B.
+    operation_add: assert property (
+        @(posedge CLK) disable iff (!RST) (OP == 0) |-> (C_reg == A + B)
+    );"
+02277,EX_MEM_Seg,assert,"// Ensure outputs are updated when stall is not asserted
+    update_no_stall: assert property (
+        @(posedge Clk) disable iff (!stall) (~stall |-> (Branch_addr_out == Branch_addr) && (PC_add_out == PC_add) && (Condition_out == Condition) && (Branch_out == Branch) && (PC_write_out == PC_write) && (Mem_Byte_Write_out == Mem_Byte_Write) && (Rd_Write_Byte_en_out == Rd_Write_Byte_en) && (MemWBSrc_out == MemWBSrc) && (MemData_out == MemData) && (WBData_out == WBData) && (Less_out == Less) && (Zero_out == Zero) && (Overflow_out == Overflow) && (Rd_out == Rd))
+    );"
+02336,MUX4_1_SL,assert,"// Sequential logic is not present, so all assertions will be clocked.
+
+    // MUX output should be one of the inputs based on the selection.
+    mux_output: assert property (
+        @(posedge CLK) disable iff (!CLK) (out == (Sel[1] ? (Sel[0] ? S3 : S2) : (Sel[0] ? S1 : S0)))
+    );"
+02444,my_buffer,assert,"// Z is driven to 1'b0 when TE_B is LOW.
+    Z_low: assert property (
+        @(posedge VPB) disable iff (!VPWR) TE_B == 1'b0 |-> Z == 1'b0
+    );"
+02444,my_buffer,assert,"// Z is driven to the value of A when TE_B is HIGH.
+    Z_high: assert property (
+        @(posedge VPB) disable iff (!VPWR) TE_B == 1'b1 |-> Z == A
+    );"
+02478,sync_up_down_counter,assert,"///// Counter behavior /////
+  // Counter increments when up_down is 0 and q is not 7.
+  counter_inc: assert property (
+    @(posedge clk) disable iff (!clk) (up_down == 0 && q != 7) |-> q == q + 1
+  );"
+02478,sync_up_down_counter,assert,"// Counter decrements when up_down is 1 and q is not 0.
+  counter_dec: assert property (
+    @(posedge clk) disable iff (!clk) (up_down == 1 && q != 0) |-> q == q - 1
+  );"
+02478,sync_up_down_counter,assert,"// Counter wraps around to 0 when up_down is 0 and q is 7.
+  counter_wrap_up: assert property (
+    @(posedge clk) disable iff (!clk) (up_down == 0 && q == 7) |-> q == 0
+  );"
+02478,sync_up_down_counter,assert,"// Counter wraps around to 7 when up_down is 1 and q is 0.
+  counter_wrap_down: assert property (
+    @(posedge clk) disable iff (!clk) (up_down == 1 && q == 0) |-> q == 7
+  );"
+02584,four_bit_adder,assert,"// Full adder logic is combinational, but we will use clocked assertions for consistency.
+
+    // Ci can only transition from HIGH to LOW when all bits of A and B are LOW.
+    ci_transition: assert property (
+        @(posedge CLK) disable iff (!CLK) $fell(Ci) |-> (A == 4'b0000) && (B == 4'b0000)
+    );"
+02584,four_bit_adder,assert,"// S[0] is the sum of A[0] and B[0] with Ci.
+    sum_0: assert property (
+        @(posedge CLK) disable iff (!CLK) S[0] == (A[0] ^ B[0] ^ Ci)
+    );"
+02584,four_bit_adder,assert,"// S[1] is the sum of A[1] and B[1] with carry from S[0].
+    sum_1: assert property (
+        @(posedge CLK) disable iff (!CLK) S[1] == (A[1] ^ B[1] ^ S[0])
+    );"
+02584,four_bit_adder,assert,"// S[2] is the sum of A[2] and B[2] with carry from S[1].
+    sum_2: assert property (
+        @(posedge CLK) disable iff (!CLK) S[2] == (A[2] ^ B[2] ^ S[1])
+    );"
+02584,four_bit_adder,assert,"// S[3] is the sum of A[3] and B[3] with carry from S[2].
+    sum_3: assert property (
+        @(posedge CLK) disable iff (!CLK) S[3] == (A[3] ^ B[3] ^ S[2])
+    );"
+02584,four_bit_adder,assert,"// Co is the carry out from the last full adder.
+    carry_out: assert property (
+        @(posedge CLK) disable iff (!CLK) Co == (A[3] & B[3] | A[3] & S[2] | B[3] & S[2])
+    );"
+02639,my_mac,assert,"///// Sequential logic /////
+    // dout is reset to 0 on the rising edge of clk when reset is asserted.
+    reset_dout: assert property (
+        @(posedge clk) disable iff (!reset) reset |-> (dout == 32'b0)
+    );"
+02639,my_mac,assert,"// dout is updated on the rising edge of clk when ce is asserted.
+    update_dout: assert property (
+        @(posedge clk) disable iff (!reset) ce |-> (dout == dout + din0 * din1)
+    );"
+02704,sky130_fd_sc_ms__nor3b,assert,"// The AND gate should only output 1 when C_N is 0 and the NOR output is 1.
+    and_output: assert property (
+        @(posedge CLK) disable iff (!C_N) (C_N == 1'b0 && Y == 1'b1) |-> A == 1'b0 && B == 1'b0
+    );"
+02864,mux2,assert,"// Mux output should be equal to in1 when sel is 0
+    mux_out_when_sel_0: assert property (
+        @(posedge clk) disable iff (!clk) (sel == 1'b0) |-> (out == in1)
+    );"
+02864,mux2,assert,"// Mux output should be equal to in2 when sel is 1
+    mux_out_when_sel_1: assert property (
+        @(posedge clk) disable iff (!clk) (sel == 1'b1) |-> (out == in2)
+    );"
+02940,add_sub,assert,"// Reset behavior: result should be 0 after reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!reset) result == 4'b0000
+  );"
+02940,add_sub,assert,"// Addition operation: result should be A + B when operation is 0
+  add_operation: assert property (
+    @(posedge clk) disable iff (!reset) (operation == 0) |-> result == A + B
+  );"
+02940,add_sub,assert,"// Subtraction operation: result should be A - B when operation is 1
+  sub_operation: assert property (
+    @(posedge clk) disable iff (!reset) (operation == 1) |-> result == A - B
+  );"
+02987,calculator,assert,"// Combinational logic for result calculation
+  // result = a + b if op == 0, result = a - b if op == 1
+  comb_result: assert property (
+    @(posedge clk) disable iff (!clk) (op == 0) |-> (result == a + b)
+  );"
+02987,calculator,assert,"comb_result_neg: assert property (
+    @(posedge clk) disable iff (!clk) (op == 1) |-> (result == a - b)
+  );"
+02987,calculator,assert,"// Sequential logic for overflow detection
+  // Overflow or underflow condition
+  seq_overflow: assert property (
+    @(posedge clk) disable iff (!clk) 
+      ((result[7] == 1 && op == 0 && a[7] == 1 && b[7] == 1) ||
+       (result[7] == 1 && op == 1 && a[7] == 0 && b[7] == 1) ||
+       (result[7] == 0 && op == 1 && a[7] == 1 && b[7] == 0)) |-> (overflow == 1'b1)
+  );"
+02987,calculator,assert,"seq_no_overflow: assert property (
+    @(posedge clk) disable iff (!clk) 
+      !((result[7] == 1 && op == 0 && a[7] == 1 && b[7] == 1) ||
+        (result[7] == 1 && op == 1 && a[7] == 0 && b[7] == 1) ||
+        (result[7] == 0 && op == 1 && a[7] == 1 && b[7] == 0)) |-> (overflow == 1'b0)
+  );"
+02988,RegisterAdd_4,assert,"// At reset, the output should be 0
+    reset_output: assert property (
+        @(posedge CLK) disable iff (!reset) (reset |-> out == 4'd0)
+    );"
+02988,RegisterAdd_4,assert,"// The output should be the sum of in1 and in2 when not in reset
+    add_behavior: assert property (
+        @(posedge CLK) disable iff (!reset) (!reset |-> out == in1 + in2)
+    );"
+03032,binary_counter,assert,"///// Device reset /////
+    // At reset assertion, the counter must be driven to 0.
+    reset: assert property (
+        @(posedge clk) rst |-> (count == 4'b0)
+    );"
+03104,OR3_gate,assert,"// The OR3_gate module is purely combinational logic.
+    // The output X is the result of the OR operation on inputs A, B, and C.
+    // No clock or reset signals are present in the OR3_gate module.
+    // Therefore, we use a clocked assertion to ensure the combinational logic is correct.
+
+    // Combinational logic assertion
+    comb_logic: assert property (
+        @(posedge VPWR) disable iff (!VGND) (X == (A | B | C))
+    ) else $error(""Combinational logic error in OR3_gate"");"
+03285,johnson_counter,assert,"// At reset, the counter output must be 000
+  reset_output: assert property (
+    @(posedge clk) disable iff (!reset) (reset |-> out == 3'b000)
+  );"
+03285,johnson_counter,assert,"// The counter output must cycle through 000, 001, 010, 011, 100, 101, 110, 111
+  counter_cycle: assert property (
+    @(posedge clk) disable iff (!reset) (out inside {[3'b000:3'b111]})
+  );"
+03285,johnson_counter,assert,"// The counter output must not be stuck at any value
+  counter_stuck: assert property (
+    @(posedge clk) disable iff (!reset) (out !== out)
+  );"
+03286,EX_ME,assert,"// Reset behavior: At reset, all outputs should be zero
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) (me_aluresult == 32'b0) && (me_d2 == 32'b0) && (me_td == 5'b0) && (me_WREG == 1'b0) && (me_WMEM == 1'b0) && (me_LW == 1'b0) && (me_instr == 32'b100000)
+    );"
+03286,EX_ME,assert,"// Sequential behavior: Outputs should match inputs at the next clock edge
+    sequential_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (me_aluresult == ex_aluresult) && (me_d2 == ex_d2) && (me_td == ex_td) && (me_WREG == ex_WREG) && (me_WMEM == ex_WMEM) && (me_LW == ex_LW) && (me_instr == ex_instr)
+    );"
+03329,clock_gate,assert,"// ENCLK is always LOW when RST is asserted
+  reset: assert property (
+    @(posedge CLK) disable iff (!RST) RST |-> (ENCLK == 1'b0)
+  );"
+03329,clock_gate,assert,"// ENCLK remains unchanged when TE is deasserted and RST is deasserted
+  hold: assert property (
+    @(posedge CLK) disable iff (RST) !TE |-> (ENCLK == ENCLK)
+  );"
+03334,four_bit_adder,assert,"// Sum should be the result of A + B + Cin
+    sum_correct: assert property (
+        @(posedge Clock) disable iff (!Clock) (Sum == A + B + Cin)
+    );"
+03334,four_bit_adder,assert,"// Cout should be the carry out of the addition
+    carry_out_correct: assert property (
+        @(posedge Clock) disable iff (!Clock) (Cout == (A + B + Cin) >> 4)
+    );"
+03444,Multiplexer_AC__parameterized36,assert,"// The multiplexer selects one of the four inputs based on the control signal.
+    // The output should be one of the inputs D0, D1, D2, or D3, or 'x' if the control signal is invalid.
+    mux_output: assert property (
+        @(posedge CLK) disable iff (!CLK) (ctrl == 2'b00) |-> (S == D0)
+    );"
+03444,Multiplexer_AC__parameterized36,assert,"mux_output_1: assert property (
+        @(posedge CLK) disable iff (!CLK) (ctrl == 2'b01) |-> (S == D1)
+    );"
+03444,Multiplexer_AC__parameterized36,assert,"mux_output_2: assert property (
+        @(posedge CLK) disable iff (!CLK) (ctrl == 2'b10) |-> (S == D2)
+    );"
+03444,Multiplexer_AC__parameterized36,assert,"mux_output_3: assert property (
+        @(posedge CLK) disable iff (!CLK) (ctrl == 2'b11) |-> (S == D3)
+    );"
+03444,Multiplexer_AC__parameterized36,assert,"mux_output_invalid: assert property (
+        @(posedge CLK) disable iff (!CLK) (ctrl != 2'b00 && ctrl != 2'b01 && ctrl != 2'b10 && ctrl != 2'b11) |-> (S == 1'bx)
+    );"
+03466,sync_signal,assert,"// Ensure shiftreg is properly updated on each clock edge
+    shiftreg_update: assert property (
+        @(posedge clk) disable iff (!clk) shiftreg[2:0] == {shiftreg[1:0], in}
+    );"
+03466,sync_signal,assert,"// Ensure out is synchronized with the middle bit of shiftreg
+    out_sync: assert property (
+        @(posedge clk) disable iff (!clk) out == shiftreg[1]
+    );"
+03466,sync_signal,assert,"// Ensure falling edge is detected correctly
+    falling_edge: assert property (
+        @(posedge clk) disable iff (!clk) falling |-> shiftreg[2] & ~shiftreg[1]
+    );"
+03466,sync_signal,assert,"// Ensure rising edge is detected correctly
+    rising_edge: assert property (
+        @(posedge clk) disable iff (!clk) rising |-> ~shiftreg[2] & shiftreg[1]
+    );"
+03466,sync_signal,assert,"// Ensure shiftreg is reset to 0 on each clock edge
+    shiftreg_reset: assert property (
+        @(posedge clk) disable iff (!clk) shiftreg == 0
+    );"
+03466,sync_signal,assert,"// Ensure out is reset to 0 on each clock edge
+    out_reset: assert property (
+        @(posedge clk) disable iff (!clk) out == 0
+    );"
+03466,sync_signal,assert,"// Ensure falling is reset to 0 on each clock edge
+    falling_reset: assert property (
+        @(posedge clk) disable iff (!clk) falling == 0
+    );"
+03466,sync_signal,assert,"// Ensure rising is reset to 0 on each clock edge
+    rising_reset: assert property (
+        @(posedge clk) disable iff (!clk) rising == 0
+    );"
+03482,TLU,assert,"// EN must be HIGH for Q to be updated
+    update_q: assert property (
+        @(posedge CK) disable iff (!EN) Q == Q
+    );"
+03509,EHRU_3,assert,"///// Write enable logic /////
+    // wire_1 should be equal to write_0 when EN_write_0 is high.
+    write_0_enable: assert property (
+        @(posedge CLK) disable iff (!RESETn) (EN_write_0 == 1'b1) |-> wire_1 == write_0
+    );"
+03509,EHRU_3,assert,"// wire_2 should be equal to write_1 when EN_write_1 is high.
+    write_1_enable: assert property (
+        @(posedge CLK) disable iff (!RESETn) (EN_write_1 == 1'b1) |-> wire_2 == write_1
+    );"
+03509,EHRU_3,assert,"// wire_3 should be equal to write_2 when EN_write_2 is high.
+    write_2_enable: assert property (
+        @(posedge CLK) disable iff (!RESETn) (EN_write_2 == 1'b1) |-> wire_3 == write_2
+    );"
+03520,counter,assert,"///// Counter behavior /////
+    // The counter should increment by 1 on each positive edge of the clock.
+    counter_increment: assert property (
+        @(posedge clk) disable iff (!rst) count == count + 1
+    );"
+03561,freq_divider,assert,"///// Frequency Divider Behavior /////
+  // clk_out toggles every n clock cycles of clk_in.
+  toggle_clk_out: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count == n-1) |-> $rose(clk_out)
+  );"
+03561,freq_divider,assert,"// count increments on every positive edge of clk_in.
+  count_increments: assert property (
+    @(posedge clk_in) disable iff (!clk_in) count |-> count + 1
+  );"
+03561,freq_divider,assert,"// count resets to 0 when it reaches n-1.
+  count_resets: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count == n-1) |-> count == 0
+  );"
+03561,freq_divider,assert,"// clk_out is always either 0 or 1.
+  clk_out_valid: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (clk_out == 1'b0) || (clk_out == 1'b1)
+  );"
+03561,freq_divider,assert,"// count is always within the range of 0 to n-1.
+  count_range: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count >= 0) && (count <= n-1)
+  );"
+03561,freq_divider,assert,"// clk_out toggles exactly once per n clock cycles of clk_in.
+  toggle_once_per_n: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count == n-1) |-> $rose(clk_out) && $fell(clk_out)
+  );"
+03561,freq_divider,assert,"// count increments by 1 on every positive edge of clk_in.
+  count_increment_by_1: assert property (
+    @(posedge clk_in) disable iff (!clk_in) count |-> count + 1
+  );"
+03561,freq_divider,assert,"// count resets to 0 when it reaches n-1.
+  count_reset_to_0: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count == n-1) |-> count == 0
+  );"
+03561,freq_divider,assert,"// clk_out is always either 0 or 1.
+  clk_out_is_valid: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (clk_out == 1'b0) || (clk_out == 1'b1)
+  );"
+03561,freq_divider,assert,"// count is always within the range of 0 to n-1.
+  count_is_in_range: assert property (
+    @(posedge clk_in) disable iff (!clk_in) (count >= 0) && (count <= n-1)
+  );"
+03714,dffl_64,assert,"// At reset, q should be driven to 0
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) q == 64'b0
+    );"
+03714,dffl_64,assert,"// When ld is high, q should be driven to the value of d
+    load: assert property (
+        @(posedge clk) disable iff (!rst) (ld == 1'b1) |-> q == d
+    );"
+03714,dffl_64,assert,"// When ld is low, q should hold its previous value
+    no_load: assert property (
+        @(posedge clk) disable iff (!rst) (ld == 1'b0) |-> q == q
+    );"
+03745,counter_4bit_sync_reset,assert,"// Counter increments on each clock cycle when reset is low
+    counter_increment: assert property (
+        @(posedge CK) disable iff (!RST) Q == Q + 1
+    );"
+03758,autoasciienum_onehot,assert,"// End of automatics
+
+    // Assertions
+    // State transition from IDLE to S1
+    state_transition_1: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == IDLE) |-> (nxt_state == S1)
+    );"
+03758,autoasciienum_onehot,assert,"// State transition from S1 to S2
+    state_transition_2: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == S1) |-> (nxt_state == S2)
+    );"
+03758,autoasciienum_onehot,assert,"// State transition from S3 to DONE
+    state_transition_4: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == S3) |-> (nxt_state == DONE)
+    );"
+03758,autoasciienum_onehot,assert,"// State transition from IDLE to DONE
+    state_transition_6: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == IDLE) |-> (nxt_state == DONE)
+    );"
+03758,autoasciienum_onehot,assert,"// State transition from S2 to DONE
+    state_transition_8: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == S2) |-> (nxt_state == DONE)
+    );"
+03758,autoasciienum_onehot,assert,"// State transition from S3 to DONE
+    state_transition_9: assert property (
+        @(posedge clk) disable iff (!rst_n) (cur_state == S3) |-> (nxt_state == DONE)
+    );"
+03976,sky130_fd_sc_ms__o31ai,assert,"// No clock or reset signals are present in the RTL
+
+    // The logic is purely combinational as there are no sequential elements
+
+    // Key signals and functional behaviors:
+    // Y is the output of a buffer that drives the result of a NAND gate
+    // The NAND gate takes the output of an OR gate as one input and B1 as the other
+    // The OR gate takes A2, A1, and A3 as inputs
+
+    // Combinational logic assertion
+    // Y should be the result of the NAND gate
+    combinational_logic: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == ~(A2 | A1 | A3) & B1)
+    );"
+03986,simple_adder,assert,"///// Sequential logic /////
+    // C should only change on the rising edge of the clock.
+    sequential_logic: assert property (
+        @(posedge clk) disable iff (!rst) $stable(C)
+    );"
+03986,simple_adder,assert,"// C should be the sum of A and B on the rising edge of the clock.
+    adder_behavior: assert property (
+        @(posedge clk) disable iff (!rst) C == A + B
+    );"
+04049,pipereg_w26,assert,"// Synchronous reset behavior
+    reset_behavior: assert property (
+        @(posedge clk) disable iff (!resetn) q == 26'b0
+    ) else $error(""q should be 0 at reset"");"
+04049,pipereg_w26,assert,"// Squashn behavior
+    squash_behavior: assert property (
+        @(posedge clk) disable iff (!resetn) squashn |-> q == 26'b0
+    ) else $error(""q should be 0 when squashn is asserted"");"
+04049,pipereg_w26,assert,"// Enable behavior
+    enable_behavior: assert property (
+        @(posedge clk) disable iff (!resetn) en |-> q == d
+    ) else $error(""q should be equal to d when enable is asserted"");"
+04049,pipereg_w26,assert,"// Combinational logic behavior (always block)
+    combinational_behavior: assert property (
+        @(posedge clk) disable iff (!resetn) (q == (resetn && squashn) ? 26'b0 : (en ? d : q))
+    ) else $error(""q should be 0 when resetn or squashn is asserted, otherwise it should be equal to d when enable is asserted"");"
+04119,shift_register,assert,"// Reset behavior: q should be 0000 at reset
+    reset: assert property (
+        @(posedge clk) disable iff (!areset) (q == 4'b0000)
+    );"
+04119,shift_register,assert,"// Load behavior: q should be equal to data when load is asserted
+    load_behavior: assert property (
+        @(posedge clk) disable iff (!areset) (load |-> (q == data))
+    );"
+04119,shift_register,assert,"// Enable behavior: q should shift right when ena is asserted
+    enable_behavior: assert property (
+        @(posedge clk) disable iff (!areset) (ena |-> (q == {q[2:0], q[3]}))
+    );"
+04119,shift_register,assert,"// Combinational logic behavior: q should not change when neither load nor ena is asserted
+    combinational_behavior: assert property (
+        @(posedge clk) disable iff (!areset) (!load && !ena |-> (q == q))
+    );"
+04222,sky130_fd_sc_ls__ha,assert,"// COUT is the result of the AND operation between A and B
+    and_operation: assert property (
+        @(posedge CLK) disable iff (!CLK) (COUT == (A & B))
+    );"
+04222,sky130_fd_sc_ls__ha,assert,"// SUM is the result of the XOR operation between A and B
+    xor_operation: assert property (
+        @(posedge CLK) disable iff (!CLK) (SUM == (A ^ B))
+    );"
+04239,sky130_fd_sc_hd__xor2,assert,"// XOR logic must produce the correct output based on inputs A and B
+    xor_logic: assert property (
+        @(posedge CLK) disable iff (!VPWR || !VGND) (X == A ^ B)
+    );"
+04333,bw_clk_gclk_inv_r90_192x,assert,"// Combinational logic: clkout is the inverse of clkin
+    comb_logic: assert property (
+        @(posedge clk) disable iff (!clk) clkout == ~clkin
+    );"
+04334,RCB_FRL_TrainingPattern,assert,"// Reset behavior: DATA_OUT should be 0 after reset
+    reset: assert property (
+        @(posedge CLK) disable iff (!RST) DATA_OUT == 8'h00
+    );"
+04334,RCB_FRL_TrainingPattern,assert,"// Sequential logic behavior: DATA_OUT toggles between 0xf4 and 0xc2
+    toggle: assert property (
+        @(posedge CLK) disable iff (!RST) (DATA_OUT == 8'hf4) |-> DATA_OUT == 8'hc2
+    );"
+04344,digital_circuit,assert,"// The logic is purely combinational as there are no sequential elements.
+    
+    // Y is driven by a combination of A1, A2, VPWR, VGND, VPB, and VNB.
+    // Y is LOW if any of the following conditions are met:
+    // 1. A1 AND A2 are both LOW
+    // 2. VPWR is HIGH, VGND is LOW, A1 is LOW, and A2 is HIGH
+    // 3. VPWR is LOW, VGND is HIGH, A1 is HIGH, and A2 is LOW
+    // Y is also LOW if B1_N is HIGH or if both VGND and VPB and VNB are HIGH.
+    // Y is HIGH otherwise.
+    
+    // Y is LOW when A1 and A2 are both LOW.
+    combinational_1: assert property (
+        @(posedge VPWR) disable iff (!VGND) (A1 == 1'b0) && (A2 == 1'b0) |-> (Y == 1'b0)
+    );"
+04344,digital_circuit,assert,"// Y is LOW when VPWR is HIGH, VGND is LOW, A1 is LOW, and A2 is HIGH.
+    combinational_2: assert property (
+        @(posedge VPWR) disable iff (!VGND) (VPWR == 1'b1) && (VGND == 1'b0) && (A1 == 1'b0) && (A2 == 1'b1) |-> (Y == 1'b0)
+    );"
+04344,digital_circuit,assert,"// Y is LOW when B1_N is HIGH.
+    combinational_4: assert property (
+        @(posedge VPWR) disable iff (!VGND) (B1_N == 1'b1) |-> (Y == 1'b0)
+    );"
+04344,digital_circuit,assert,"// Y is LOW when both VGND and VPB and VNB are HIGH.
+    combinational_5: assert property (
+        @(posedge VPWR) disable iff (!VGND) (VGND == 1'b1) && (VPB == 1'b1) && (VNB == 1'b1) |-> (Y == 1'b0)
+    );"
+04344,digital_circuit,assert,"// Y is HIGH otherwise.
+    combinational_6: assert property (
+        @(posedge VPWR) disable iff (!VGND) !(Y == 1'b0) |-> (Y == 1'b1)
+    );"
+04467,RegisterAdd__parameterized5,assert,"///// Register hold /////
+  // When E is low, the register Q_reg must not change.
+  hold: assert property (
+      @(posedge CLK) disable iff (!AR) (E == 1'b0) |-> (Q_reg == Q_reg)
+  );"
+04467,RegisterAdd__parameterized5,assert,"///// Register initialization /////
+  // When AR is low, the register Q_reg must be initialized to 0.
+  init: assert property (
+      @(posedge CLK) disable iff (!AR) (AR == 1'b0) |-> (Q_reg == {N{1'b0}})
+  );"
+04467,RegisterAdd__parameterized5,assert,"///// Register final state /////
+  // When AR is high, the register Q_reg must not change.
+  final_state: assert property (
+      @(posedge CLK) disable iff (!AR) (AR == 1'b1) |-> (Q_reg == Q_reg)
+  );"
+04522,binary_counter,assert,"// Reset behavior: count should be 0 after reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!reset) count == 4'b0000
+  );"
+04522,binary_counter,assert,"// Count should increment by 1 on each clock cycle when not reset
+  count_increment: assert property (
+    @(posedge clk) disable iff (!reset) (count != 4'b1111) |-> count + 4'b0001 == count
+  );"
+04522,binary_counter,assert,"// Count should wrap around to 0 when it reaches 15
+  count_wraparound: assert property (
+    @(posedge clk) disable iff (!reset) count == 4'b1111 |-> count + 4'b0001 == 4'b0000
+  );"
+04522,binary_counter,assert,"// Count should not change when reset is asserted
+  count_stable_on_reset: assert property (
+    @(posedge clk) disable iff (!reset) reset |-> count == count
+  );"
+04522,binary_counter,assert,"// Count should not increment when reset is asserted
+  count_no_increment_on_reset: assert property (
+    @(posedge clk) disable iff (!reset) reset |-> count + 4'b0001 == count
+  );"
+04522,binary_counter,assert,"// Count should not wrap around when reset is asserted
+  count_no_wraparound_on_reset: assert property (
+    @(posedge clk) disable iff (!reset) reset |-> count == count
+  );"
+04522,binary_counter,assert,"// Count should not change when count is at its maximum value
+  count_stable_at_max: assert property (
+    @(posedge clk) disable iff (!reset) count == 4'b1111 |-> count == count
+  );"
+04522,binary_counter,assert,"// Count should not increment when count is at its maximum value
+  count_no_increment_at_max: assert property (
+    @(posedge clk) disable iff (!reset) count == 4'b1111 |-> count + 4'b0001 == count
+  );"
+04522,binary_counter,assert,"// Count should not wrap around when count is at its maximum value
+  count_no_wraparound_at_max: assert property (
+    @(posedge clk) disable iff (!reset) count == 4'b1111 |-> count == count
+  );"
+04541,twos_complement,assert,"// Property to check that Y is correctly calculated based on A and invert
+    twos_comp_calculation: assert property (
+        @(posedge CLK) disable iff (!RESETn) Y == twos_comp
+    ) else $error(""Y is not correctly calculated based on A and invert"");"
+04541,twos_complement,assert,"// Property to check that not_A is the correct inversion of A
+    not_A_inversion: assert property (
+        @(posedge CLK) disable iff (!RESETn) not_A == ~A
+    ) else $error(""not_A is not the correct inversion of A"");"
+04541,twos_complement,assert,"// Property to check that one is correctly assigned as 1
+    one_assignment: assert property (
+        @(posedge CLK) disable iff (!RESETn) one == 4'b0001
+    ) else $error(""one is not correctly assigned as 1"");"
+04541,twos_complement,assert,"// Property to check that twos_comp is correctly calculated based on invert
+    twos_comp_inversion: assert property (
+        @(posedge CLK) disable iff (!RESETn) (invert) ? twos_comp == ~add_one : twos_comp == add_one
+    ) else $error(""twos_comp is not correctly calculated based on invert"");"
+04541,twos_complement,assert,"// Property to check that Y is not driven to an invalid value
+    Y_valid: assert property (
+        @(posedge CLK) disable iff (!RESETn) Y inside {[0:15]}
+    ) else $error(""Y is driven to an invalid value"");"
+04541,twos_complement,assert,"// Property to check that not_A is not driven to an invalid value
+    not_A_valid: assert property (
+        @(posedge CLK) disable iff (!RESETn) not_A inside {[0:15]}
+    ) else $error(""not_A is driven to an invalid value"");"
+04541,twos_complement,assert,"// Property to check that one is not driven to an invalid value
+    one_valid: assert property (
+        @(posedge CLK) disable iff (!RESETn) one inside {[0:15]}
+    ) else $error(""one is driven to an invalid value"");"
+04541,twos_complement,assert,"// Property to check that add_one is not driven to an invalid value
+    add_one_valid: assert property (
+        @(posedge CLK) disable iff (!RESETn) add_one inside {[0:15]}
+    ) else $error(""add_one is not driven to an invalid value"");"
+04541,twos_complement,assert,"// Property to check that twos_comp is not driven to an invalid value
+    twos_comp_valid: assert property (
+        @(posedge CLK) disable iff (!RESETn) twos_comp inside {[0:15]}
+    ) else $error(""twos_comp is not driven to an invalid value"");"
+04543,my_nand2b,assert,"// No clock or reset signals present in the RTL
+
+    // Combinational logic: Y = ~(~B & ~A_N)
+    // Assert that Y is the correct output of the NAND2 gate
+    nand2_output: assert property (
+        @(posedge VPWR) disable iff (VGND) (Y == ~(~B & ~A_N))
+    );"
+04597,mux_2_1,assert,"// Sequential logic is not present, so all assertions will be clocked.
+
+    // The output should be 1 if sel is 0 and in0 is 1, otherwise 0.
+    mux_output_check: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b0) |-> (out == in0)
+    );"
+04597,mux_2_1,assert,"// The output should be 1 if sel is 1 and in1 is 1, otherwise 0.
+    mux_output_check_2: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) |-> (out == in1)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 0 and in0 is 0, otherwise 1.
+    mux_output_check_3: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b0) && (in0 == 1'b0) |-> (out == 1'b0)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 1 and in1 is 0, otherwise 1.
+    mux_output_check_4: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) && (in1 == 1'b0) |-> (out == 1'b0)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 0 and in0 is 1, otherwise 1.
+    mux_output_check_5: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b0) && (in0 == 1'b1) |-> (out == 1'b1)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 1 and in1 is 1, otherwise 1.
+    mux_output_check_6: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) && (in1 == 1'b1) |-> (out == 1'b1)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 0 and in0 is 0, otherwise 1.
+    mux_output_check_7: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b0) && (in0 == 1'b0) |-> (out == 1'b0)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 1 and in1 is 0, otherwise 1.
+    mux_output_check_8: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) && (in1 == 1'b0) |-> (out == 1'b0)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 0 and in0 is 1, otherwise 1.
+    mux_output_check_9: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b0) && (in0 == 1'b1) |-> (out == 1'b1)
+    );"
+04597,mux_2_1,assert,"// The output should be 0 if both sel is 1 and in1 is 1, otherwise 1.
+    mux_output_check_10: assert property (
+        @(posedge CLK) disable iff (!RSTn) (sel == 1'b1) && (in1 == 1'b1) |-> (out == 1'b1)
+    );"
+04837,counter,assert,"// Reset behavior: count should be 00 at reset
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) count == 2'b00
+    );"
+04837,counter,assert,"// Enable behavior: count should increment when enabled and not at reset
+    enable: assert property (
+        @(posedge clk) disable iff (!rst) (en == 1) |-> count != 2'b11
+    );"
+04837,counter,assert,"// Count increment behavior: count should increment by 1 when enabled and not at reset
+    increment: assert property (
+        @(posedge clk) disable iff (!rst) (en == 1) |-> count == 2'b11
+    );"
+04837,counter,assert,"// Count wrap-around behavior: count should wrap around from 11 to 00 when enabled
+    wrap_around: assert property (
+        @(posedge clk) disable iff (!rst) (en == 1 && count == 2'b11) |-> count == 2'b00
+    );"
+04837,counter,assert,"// Count should not change when disabled and not at reset
+    disabled: assert property (
+        @(posedge clk) disable iff (!rst) (en == 0) |-> count == count
+    );"
+04837,counter,assert,"// Count should not change at reset
+    reset_count: assert property (
+        @(posedge clk) !rst |-> count == count
+    );"
+04881,up_down_counter_4bit,assert,"///// Up and Down control /////
+    // Up can only transition from LOW to HIGH when Q is not at its maximum value.
+    up_transition: assert property (
+        @(posedge clk) disable iff (!clk) $rose(Up) |-> (Q != 4'b1111)
+    );"
+04881,up_down_counter_4bit,assert,"// Down can only transition from LOW to HIGH when Q is not at its minimum value.
+    down_transition: assert property (
+        @(posedge clk) disable iff (!clk) $rose(Down) |-> (Q != 4'b0000)
+    );"
+04881,up_down_counter_4bit,assert,"// Up and Down cannot both be HIGH at the same time.
+    up_down_xor: assert property (
+        @(posedge clk) disable iff (!clk) !(Up && Down)
+    );"
+04881,up_down_counter_4bit,assert,"// Q can only transition when either Up or Down is HIGH.
+    q_transition: assert property (
+        @(posedge clk) disable iff (!clk) (Q == $past(Q)) |-> !(Up || Down)
+    );"
+04881,up_down_counter_4bit,assert,"// Q increments when Up is HIGH and Q is not at its maximum value.
+    q_increment: assert property (
+        @(posedge clk) disable iff (!clk) (Up && (Q != 4'b1111)) |-> (Q == $past(Q) + 1)
+    );"
+04881,up_down_counter_4bit,assert,"// Q decrements when Down is HIGH and Q is not at its minimum value.
+    q_decrement: assert property (
+        @(posedge clk) disable iff (!clk) (Down && (Q != 4'b0000)) |-> (Q == $past(Q) - 1)
+    );"
+04881,up_down_counter_4bit,assert,"// Q wraps around to 0 when it reaches its maximum value.
+    q_wrap_up: assert property (
+        @(posedge clk) disable iff (!clk) (Q == 4'b1111) |-> (Q == 4'b0000)
+    );"
+04881,up_down_counter_4bit,assert,"// Q wraps around to 15 when it reaches its minimum value.
+    q_wrap_down: assert property (
+        @(posedge clk) disable iff (!clk) (Q == 4'b0000) |-> (Q == 4'b1111)
+    );"
+04881,up_down_counter_4bit,assert,"// Q remains unchanged when neither Up nor Down is HIGH.
+    q_stable: assert property (
+        @(posedge clk) disable iff (!clk) (!(Up || Down)) |-> (Q == $past(Q))
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b000000000001
+    output_1: assert property (
+        @(posedge CLK) $rose(I == 12'b000000000001) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b000000000010
+    output_2: assert property (
+        @(posedge CLK) $rose(I == 12'b000000000010) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b000000000100
+    output_3: assert property (
+        @(posedge CLK) $rose(I == 12'b000000000100) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b000000001000
+    output_4: assert property (
+        @(posedge CLK) $rose(I == 12'b000000001000) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b000000010000
+    output_5: assert property (
+        @(posedge CLK) $rose(I == 12'b000000010000) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b000000100000
+    output_6: assert property (
+        @(posedge CLK) $rose(I == 12'b000000100000) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b000001000000
+    output_7: assert property (
+        @(posedge CLK) $rose(I == 12'b000001000000) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b000010000000
+    output_8: assert property (
+        @(posedge CLK) $rose(I == 12'b000010000000) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b000100000000
+    output_9: assert property (
+        @(posedge CLK) $rose(I == 12'b000100000000) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b001000000000
+    output_10: assert property (
+        @(posedge CLK) $rose(I == 12'b001000000000) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b1 when I is 12'b010000000000
+    output_11: assert property (
+        @(posedge CLK) $rose(I == 12'b010000000000) |-> O == 1'b1
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is 12'b100000000000
+    output_12: assert property (
+        @(posedge CLK) $rose(I == 12'b100000000000) |-> O == 1'b0
+    );"
+04945,Span12Mux_s5_v,assert,"// The output O is 1'b0 when I is not one of the specified values
+    output_13: assert property (
+        @(posedge CLK) $rose(I != 12'b000000000001) && $rose(I != 12'b000000000010) && $rose(I != 12'b000000000100) && $rose(I != 12'b000000001000) && $rose(I != 12'b000000010000) && $rose(I != 12'b000000100000) && $rose(I != 12'b000001000000) && $rose(I != 12'b000010000000) && $rose(I != 12'b000100000000) && $rose(I != 12'b001000000000) && $rose(I != 12'b010000000000) && $rose(I != 12'b100000000000) |-> O == 1'b0
+    );"
+05207,sync_reset_counter,assert,"// Reset behavior: count should be 0 at reset
+    reset_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (count == 4'b0)
+    );"
+05207,sync_reset_counter,assert,"// Counting behavior: count should increment by 1 on each positive edge of clk
+    counting_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (count == $past(count) + 1)
+    );"
+05293,sync_counter,assert,"///// Reset behavior /////
+    // At reset, count should be driven to 0.
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) count == 4'b0
+    );"
+05293,sync_counter,assert,"///// Load behavior /////
+    // When load is asserted, count should be driven to the value of data.
+    load_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (load |-> count == data)
+    );"
+05293,sync_counter,assert,"///// Count increment behavior /////
+    // When load is not asserted, count should increment by 1.
+    increment_behavior: assert property (
+        @(posedge clk) disable iff (!rst) (!load |-> count == count + 1)
+    );"
+05293,sync_counter,assert,"///// Count range behavior /////
+    // Count should not exceed 4'b1111.
+    count_range: assert property (
+        @(posedge clk) disable iff (!rst) count <= 4'b1111
+    );"
+05293,sync_counter,assert,"///// Count underflow behavior /////
+    // Count should not go below 4'b0000.
+    count_underflow: assert property (
+        @(posedge clk) disable iff (!rst) count >= 4'b0000
+    );"
+05293,sync_counter,assert,"///// Load and count increment cannot happen at the same time /////
+    // Load and count increment cannot happen simultaneously.
+    load_and_increment: assert property (
+        @(posedge clk) disable iff (!rst) !(load & !count == count + 1)
+    );"
+05293,sync_counter,assert,"///// Count should not change when reset is asserted /////
+    // Count should not change when reset is asserted.
+    count_during_reset: assert property (
+        @(posedge clk) disable iff (rst) count == count
+    );"
+05293,sync_counter,assert,"///// Load should not change when reset is asserted /////
+    // Load should not change when reset is asserted.
+    load_during_reset: assert property (
+        @(posedge clk) disable iff (rst) load == load
+    );"
+05293,sync_counter,assert,"///// Data should not change when reset is asserted /////
+    // Data should not change when reset is asserted.
+    data_during_reset: assert property (
+        @(posedge clk) disable iff (rst) data == data
+    );"
+05293,sync_counter,assert,"///// Count should not change when load is asserted /////
+    // Count should not change when load is asserted.
+    count_during_load: assert property (
+        @(posedge clk) disable iff (load) count == count
+    );"
+05308,four_bit_adder,assert,"// Second least significant bit
+    // Sum is correct for A[1] + B[1] + carry from least significant bit
+    second_least_significant_bit: assert property (
+        @(posedge clk) $rose(A[1]) |-> (sum[1] == A[1] ^ B[1] ^ sum[0])
+    );"
+05308,four_bit_adder,assert,"// Third least significant bit
+    // Sum is correct for A[2] + B[2] + carry from second least significant bit
+    third_least_significant_bit: assert property (
+        @(posedge clk) $rose(A[2]) |-> (sum[2] == A[2] ^ B[2] ^ sum[1])
+    );"
+05308,four_bit_adder,assert,"// Most significant bit
+    // Sum is correct for A[3] + B[3] + carry from third least significant bit
+    most_significant_bit: assert property (
+        @(posedge clk) $rose(A[3]) |-> (sum[3] == A[3] ^ B[3] ^ sum[2])
+    );"
+05417,counter_4bit_sync_reset_load,assert,"///// Synchronous Reset Behavior /////
+  // At reset, the counter should be driven to 0.
+  reset_to_zero: assert property (
+    @(posedge clk) disable iff (!reset) reset |-> count == 4'b0
+  );"
+05417,counter_4bit_sync_reset_load,assert,"///// Load Behavior /////
+  // When load is asserted, the counter should be loaded with data_in.
+  load_behavior: assert property (
+    @(posedge clk) disable iff (!reset) load |-> count == data_in
+  );"
+05417,counter_4bit_sync_reset_load,assert,"///// Counting Behavior /////
+  // When neither reset nor load is asserted, the counter should increment by 1.
+  counting_behavior: assert property (
+    @(posedge clk) disable iff (!reset) !(reset | load) |-> count == count + 4'b1
+  );"
+05460,shift_register,assert,"// Reset behavior: All outputs should be 0 when reset is active
+    reset_behavior: assert property (
+        @(posedge shift_clk) disable iff (!reset) (reset |-> (q0 == 4'b0000) && (q1 == 4'b0000) && (q2 == 4'b0000) && (q3 == 4'b0000))
+    );"
+05460,shift_register,assert,"// Shift behavior: Each output should shift to the next on the rising edge of shift_clk
+    shift_behavior: assert property (
+        @(posedge shift_clk) disable iff (!reset) (q0 == data_in) && (q1 == q0) && (q2 == q1) && (q3 == q2)
+    );"
+05599,rotation_module,assert,"// Reset behavior: out should be 0 at reset
+  reset_behavior: assert property (
+    @(posedge clk) disable iff (!reset) out == 4'b0
+  );"
+05599,rotation_module,assert,"// Load behavior: out should be the lower 4 bits of data when load is high
+  load_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (load |-> out == data[3:0])
+  );"
+05599,rotation_module,assert,"// Select behavior: out should be {in[2:0], in[3]} when select is high
+  select_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (select |-> out == {in[2:0], in[3]})
+  );"
+05599,rotation_module,assert,"// Default behavior: out should be {in[0], in[3:1]} when neither load nor select is high
+  default_behavior: assert property (
+    @(posedge clk) disable iff (!reset) (!(load | select) |-> out == {in[0], in[3:1]})
+  );"
+05627,counter4,assert,"// Reset behavior: count should be 0 after reset
+    reset: assert property (
+        @(posedge clk) disable iff (!rst) count == 4'b0000
+    );"
+05627,counter4,assert,"// Count should increment by 1 on each positive edge of clk, except when it reaches 9
+    count_increment: assert property (
+        @(posedge clk) disable iff (!rst) (count != 4'b1001) |-> count == count + 1
+    );"
+05627,counter4,assert,"// Count should wrap around to 0 when it reaches 9
+    count_wrap: assert property (
+        @(posedge clk) disable iff (!rst) count == 4'b1001 |-> count == 4'b0000
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is only high when both src_clk and clk_en are high
+    gated_clk_high: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (src_clk == 1'b1) && (clk_en == 1'b1)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is low when either src_clk or clk_en is low
+    gated_clk_low: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (src_clk == 1'b0) || (clk_en == 1'b0)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is always low when clk_en is low
+    gated_clk_when_clk_en_low: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (clk_en == 1'b0)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is always high when both src_clk and clk_en are high
+    gated_clk_when_clk_en_high: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (src_clk == 1'b1) && (clk_en == 1'b1)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is stable when clk_en is high
+    gated_clk_stable_when_clk_en_high: assert property (
+        @(posedge src_clk) disable iff (!clk_en) $stable(gated_clk) |-> (clk_en == 1'b1)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is always low when src_clk is low
+    gated_clk_when_src_clk_low: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (src_clk == 1'b0)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is always high when src_clk is high
+    gated_clk_when_src_clk_high: assert property (
+        @(posedge src_clk) disable iff (!clk_en) gated_clk |-> (src_clk == 1'b1)
+    );"
+05745,clk_gated_module,assert,"// Ensure that gated_clk is stable when src_clk is low
+    gated_clk_stable_when_src_clk_low: assert property (
+        @(posedge src_clk) disable iff (!clk_en) $stable(gated_clk) |-> (src_clk == 1'b0)
+    );"

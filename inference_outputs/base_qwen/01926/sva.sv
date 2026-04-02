@@ -1,4 +1,3 @@
-```systemverilog
 module axis_infrastructure_v1_1_clock_synchronizer_sva (
     input logic clk,
     input logic synch_in,
@@ -54,4 +53,3 @@ module axis_infrastructure_v1_1_clock_synchronizer_sva (
         @(posedge clk) disable iff (!clk) $stable(synch_in) |-> $stable(synch_out)
     );
 endmodule
-```

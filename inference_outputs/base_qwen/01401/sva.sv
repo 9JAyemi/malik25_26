@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic clk,
     input logic load,
@@ -77,4 +76,3 @@ module shift_register_sva (
         @(posedge clk) disable iff (!load) shift_reg != 4'b0110
     );
 endmodule
-```

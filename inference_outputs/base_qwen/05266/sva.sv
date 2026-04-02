@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic [7:0] a,
     input logic [7:0] b,
@@ -35,4 +34,3 @@ module top_module_sva (
         @(posedge clk) disable iff (!RESETn) (ab_max <= cd_max) |-> (max == cd_max)
     );
 endmodule
-```

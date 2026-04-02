@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__or2_sva (
     input logic CLK,
     input logic A,
@@ -10,4 +9,3 @@ module sky130_fd_sc_lp__or2_sva (
         @(posedge CLK) $stable(A) |-> $stable(B) |-> (X == (A | B))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic [31:0] a,
     input logic [31:0] b,

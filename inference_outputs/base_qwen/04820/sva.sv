@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__lpflow_inputiso0n_sva (
     input logic X,
     input logic A,
@@ -19,4 +18,3 @@ module sky130_fd_sc_hd__lpflow_inputiso0n_sva (
         @(posedge CLK) !RESETn |-> (A == 1'b0)
     );
 endmodule
-```

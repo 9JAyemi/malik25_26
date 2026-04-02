@@ -1,4 +1,3 @@
-```systemverilog
 module min_max_sva #(
   parameter n = 8
 )(
@@ -81,4 +80,3 @@ module min_max_sva #(
   check_min_max_some_same_some_different_values_inst: assert property (check_min_max_some_same_some_different_values) else $error("Min and max not updated correctly when some values are the same and others are different");
 
 endmodule
-```

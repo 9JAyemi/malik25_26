@@ -75,6 +75,17 @@ VERSION_NAME="$(basename "$DATASET_DIR")"
 
 cd "$DATASET_DIR"
 
+# ── Read AUTO_BIND from summary.txt ──────────────────────────
+get_auto_bind() {
+  local out_dir="$1"
+  local summary="$out_dir/summary.txt"
+  if [[ -f "$summary" ]]; then
+    grep -oP '(?<=AUTO_BIND=)\d+' "$summary" 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
+
 # ── Failure reason extractor (verif mode) ────────────────────
 extract_reason() {
   local log="$1"
@@ -164,7 +175,7 @@ run_verif() {
 
   local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/visual_data/verif_summary.csv"
 
-  echo "id,status,reason" > "$VERIF_CSV"
+  echo "id,status,reason,auto_bind" > "$VERIF_CSV"
 
   echo "=============================="
   echo "Running Jasper verification..."
@@ -190,21 +201,23 @@ run_verif() {
       if [[ "$FORCE" -eq 0 && -f "$done_marker" ]]; then
         echo "⏭️  Skipping $id (already attempted)"
         local existing_log="$out_dir/run.log"
+        local ab
+        ab=$(get_auto_bind "$out_dir")
         if [[ -f "$existing_log" ]]; then
           if grep -q '\- cex' "$existing_log" 2>/dev/null; then
             local cex_count
             cex_count=$(grep -oP '(?<=- cex\s{1,20}: )\d+' "$existing_log" 2>/dev/null || echo "0")
             if [[ "$cex_count" != "0" ]]; then
-              echo "$id,cex,proof completed with $cex_count counter-example(s)" >> "$VERIF_CSV"
+              echo "$id,cex,proof completed with $cex_count counter-example(s),$ab" >> "$VERIF_CSV"
             else
-              echo "$id,pass," >> "$VERIF_CSV"
+              echo "$id,pass,,$ab" >> "$VERIF_CSV"
             fi
           elif grep -q "FAILED" "$existing_log" 2>/dev/null; then
             local reason
             reason=$(extract_reason "$existing_log")
-            echo "$id,fail,\"$reason\"" >> "$VERIF_CSV"
+            echo "$id,fail,\"$reason\",$ab" >> "$VERIF_CSV"
           else
-            echo "$id,pass," >> "$VERIF_CSV"
+            echo "$id,pass,,$ab" >> "$VERIF_CSV"
           fi
         fi
         continue
@@ -229,17 +242,19 @@ run_verif() {
         >"$out_dir/run.log" 2>&1 && {
 
         echo "✅ $id VERIF RUN OK"
+        local ab
+        ab=$(get_auto_bind "$out_dir")
 
         if grep -q '\- cex' "$out_dir/run.log" 2>/dev/null; then
           local cex_count
           cex_count=$(grep -oP '(?<=- cex\s{1,20}: )\d+' "$out_dir/run.log" 2>/dev/null || echo "0")
           if [[ "$cex_count" != "0" ]]; then
-            echo "$id,cex,proof completed with $cex_count counter-example(s)" >> "$VERIF_CSV"
+            echo "$id,cex,proof completed with $cex_count counter-example(s),$ab" >> "$VERIF_CSV"
           else
-            echo "$id,pass," >> "$VERIF_CSV"
+            echo "$id,pass,,$ab" >> "$VERIF_CSV"
           fi
         else
-          echo "$id,pass," >> "$VERIF_CSV"
+          echo "$id,pass,,$ab" >> "$VERIF_CSV"
         fi
 
         touch "$done_marker"
@@ -249,14 +264,16 @@ run_verif() {
         echo "❌ $id VERIF RUN FAIL"
         local reason
         reason=$(extract_reason "$out_dir/run.log")
-        echo "$id,fail,\"$reason\"" >> "$VERIF_CSV"
+        local ab
+        ab=$(get_auto_bind "$out_dir")
+        echo "$id,fail,\"$reason\",$ab" >> "$VERIF_CSV"
 
         touch "$done_marker"
       }
 
     else
       echo "⚠️  Skipping $id (missing module.v or sva.sv)"
-      echo "$id,skip,missing module.v or sva.sv" >> "$VERIF_CSV"
+      echo "$id,skip,missing module.v or sva.sv," >> "$VERIF_CSV"
     fi
   done
 

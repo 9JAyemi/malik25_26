@@ -1,4 +1,3 @@
-```systemverilog
 module pipereg_w26_sva(
     input logic clk,
     input logic resetn,
@@ -28,4 +27,3 @@ module pipereg_w26_sva(
     ) else $error("q should be 0 when resetn or squashn is asserted, otherwise it should be equal to d when enable is asserted");
 
 endmodule
-```

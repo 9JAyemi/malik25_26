@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_sva (
     input logic clk,
     input logic reset,
@@ -60,4 +59,3 @@ module shift_register_sva (
     );
 
 endmodule
-```

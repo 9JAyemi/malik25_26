@@ -1,4 +1,3 @@
-```systemverilog
 module decoder_sva (
     input logic A,
     input logic B,
@@ -86,4 +85,3 @@ module decoder_sva (
         @(posedge CLK) disable iff (!RESETn) (A == 1'b0 && B == 1'b0) |-> (O == 16'b0000000000000000)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module four_to_one_mux_sva (
     input logic in0,
     input logic in1,
@@ -26,4 +25,3 @@ module four_to_one_mux_sva (
     ) else $error("Mux output is not one of the inputs");
 
 endmodule
-```

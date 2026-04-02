@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hdll__a22o_sva (
     input logic CLK,
     input logic A1,
@@ -13,4 +12,3 @@ module sky130_fd_sc_hdll__a22o_sva (
         @(posedge CLK) $stable(X) |-> (X == (A1 & A2) | (B1 & B2))
     );
 endmodule
-```

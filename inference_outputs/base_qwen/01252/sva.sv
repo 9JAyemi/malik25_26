@@ -1,4 +1,3 @@
-```systemverilog
 module assertions (
     input logic clk,
     input logic rst_n,
@@ -24,4 +23,3 @@ module assertions (
         @(posedge clk) disable iff (!rst_n) Y == (S ? B : A)
     );
 endmodule
-```

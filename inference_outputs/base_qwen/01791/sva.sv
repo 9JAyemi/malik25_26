@@ -1,4 +1,3 @@
-```systemverilog
 module power_good_sva (
     input logic in1,
     input logic in2,
@@ -64,4 +63,3 @@ module power_good_sva (
         @(posedge clk) !reset_n |-> out1 == 1'b0
     ) else $error("out1 is HIGH when reset_n is LOW");
 endmodule
-```

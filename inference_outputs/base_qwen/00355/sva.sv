@@ -1,4 +1,3 @@
-```systemverilog
 module m_pc_reg_sva (
     input logic w_clock,
     input logic w_reset,
@@ -15,4 +14,3 @@ module m_pc_reg_sva (
         @(posedge w_clock) disable iff (!w_reset) (w_reset == 1'b1) |-> r_bus_addr_out == 8'b0
     );
 endmodule
-```

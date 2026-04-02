@@ -1,4 +1,3 @@
-```systemverilog
 module adder_16bit_signed_unsigned_sva (
     input signed [15:0] a,
     input signed [15:0] b,
@@ -26,4 +25,3 @@ module adder_16bit_signed_unsigned_sva (
     assign cout = (a[15] & b[15]) | ((a[15] | b[15]) & ~unsigned_sum[15]);
     assign sum = (a[15] == b[15]) ? unsigned_sum : (a > b) ? a + b : b + a;
 endmodule
-```

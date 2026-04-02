@@ -1,4 +1,3 @@
-```systemverilog
 module shift_right_sva (
     input logic clk,
     input logic rst,
@@ -57,4 +56,3 @@ module shift_right_sva (
         @(posedge clk) disable iff (!rst) (out == 1'b1 |-> shiftreg == 64'b1111111111111111111111111111111111111111111111111111111111111111)
     );
 endmodule
-```

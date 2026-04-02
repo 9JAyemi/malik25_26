@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_op_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -19,4 +18,3 @@ module bitwise_op_sva (
         @(posedge clk) disable iff (!reset_n) (sel inside {[2'b00:2'b11]})
     );
 endmodule
-```

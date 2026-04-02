@@ -1,4 +1,3 @@
-```systemverilog
 module mux4_1_assertions (
     input logic CLK,
     input logic VPWR,
@@ -36,4 +35,3 @@ module mux4_1_assertions (
     );
 
 endmodule
-```

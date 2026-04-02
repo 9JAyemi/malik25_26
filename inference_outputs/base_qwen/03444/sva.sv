@@ -1,4 +1,3 @@
-```systemverilog
 module Multiplexer_AC__parameterized36_sva (
     input logic CLK,
     input logic [1:0] ctrl,
@@ -26,4 +25,3 @@ module Multiplexer_AC__parameterized36_sva (
         @(posedge CLK) disable iff (!CLK) (ctrl != 2'b00 && ctrl != 2'b01 && ctrl != 2'b10 && ctrl != 2'b11) |-> (S == 1'bx)
     );
 endmodule
-```

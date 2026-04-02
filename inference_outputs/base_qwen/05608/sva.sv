@@ -1,4 +1,3 @@
-```systemverilog
 module binary_converter_sva (
     input logic [9:0] input_val,
     output logic [3:0] binary_val
@@ -39,4 +38,3 @@ module binary_converter_sva (
         @(posedge clk) disable iff (!reset_n) (input_val != 10'b0000000000 && input_val != 10'b0000000001 && input_val != 10'b0000000010 && input_val != 10'b0000000011 && input_val != 10'b0000000100 && input_val != 10'b0000000101 && input_val != 10'b0000000110 && input_val != 10'b0000000111 && input_val != 10'b0000001000 && input_val != 10'b0000001001) |-> (binary_val == 4'b0000)
     );
 endmodule
-```

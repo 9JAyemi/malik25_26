@@ -1,4 +1,3 @@
-```systemverilog
 module nand4and2_sva (
     input logic A,
     input logic B,
@@ -64,4 +63,3 @@ module nand4and2_sva (
         @(posedge clk) (Z[0] == 1'b0) |-> (Z[1] == 1'b1)
     );
 endmodule
-```

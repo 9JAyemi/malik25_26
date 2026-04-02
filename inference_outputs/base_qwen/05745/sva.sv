@@ -1,4 +1,3 @@
-```systemverilog
 module clk_gated_module_sva (
     input logic src_clk,
     input logic clk_en,
@@ -45,4 +44,3 @@ module clk_gated_module_sva (
         @(posedge src_clk) disable iff (!clk_en) $stable(gated_clk) |-> (src_clk == 1'b1)
     );
 endmodule
-```

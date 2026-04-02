@@ -1,4 +1,3 @@
-```systemverilog
 module digital_circuit_sva (
     input logic CLK,
     input logic D,
@@ -66,4 +65,3 @@ module digital_circuit_sva (
         @(posedge CLK) disable iff (!VPWR) $stable(Q_ff)
     );
 endmodule
-```

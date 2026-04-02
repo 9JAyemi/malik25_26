@@ -1,4 +1,3 @@
-```systemverilog
 module sequence_counter_sva (
   input logic slowest_sync_clk,
   input logic lpf_int,
@@ -24,4 +23,3 @@ module sequence_counter_sva (
     @(posedge lpf_int) disable iff (!lpf_int) pr == (cnt_bsr == 64)
   );
 endmodule
-```

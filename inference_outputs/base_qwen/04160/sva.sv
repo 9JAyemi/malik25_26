@@ -1,4 +1,3 @@
-```systemverilog
 module gray_shift_register_sva (
     input CLK,
     input RST,
@@ -42,4 +41,3 @@ module gray_shift_register_sva (
         @(posedge CLK) disable iff (!RST) shift_reg_out == (shift_reg ^ (shift_reg >> 1))
     );
 endmodule
-```

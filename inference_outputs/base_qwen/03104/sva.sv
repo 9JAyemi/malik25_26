@@ -1,4 +1,3 @@
-```systemverilog
 module OR3_gate_assertions (
     input logic A,
     input logic B,
@@ -19,4 +18,3 @@ module OR3_gate_assertions (
         @(posedge VPWR) disable iff (!VGND) (X == (A | B | C))
     ) else $error("Combinational logic error in OR3_gate");
 endmodule
-```

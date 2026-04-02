@@ -1,4 +1,3 @@
-```systemverilog
 module eight_to_one_sva (
     input logic [2:0] A1,
     input logic [2:0] A2,
@@ -54,4 +53,3 @@ module eight_to_one_sva (
     assert property (p_update_Y_D2) else $error("D2 is greater than Y but Y is not D2");
 
 endmodule
-```

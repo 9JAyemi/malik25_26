@@ -1,4 +1,3 @@
-```systemverilog
 module XOR_M_assertions (
     input logic CLK,
     input logic Sgn_X,
@@ -10,4 +9,3 @@ module XOR_M_assertions (
         @(posedge CLK) disable iff (!CLK) Sgn_Info == (Sgn_X ^ Sgn_Y)
     );
 endmodule
-```

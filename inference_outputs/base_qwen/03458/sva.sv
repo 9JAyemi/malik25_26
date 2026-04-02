@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic a1, b1, a2, b2, // 4 input bits for the two binary numbers
     input logic select, // Select input to choose between carry-out of first half adder and second half adder
@@ -37,4 +36,3 @@ module top_module_sva (
     );
 
 endmodule
-```

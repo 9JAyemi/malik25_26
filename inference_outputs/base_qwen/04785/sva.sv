@@ -1,4 +1,3 @@
-```systemverilog
 module decimal_to_binary_sva (
     input logic [3:0] in_value,
     output logic [3:0] out_value
@@ -76,4 +75,3 @@ module decimal_to_binary_sva (
         @(posedge clk) disable iff (1'b0) (in_value == 4'b1001) |-> (out_value == 4'b1001)
     ) else $error("Output should be nine for input value 9");
 endmodule
-```

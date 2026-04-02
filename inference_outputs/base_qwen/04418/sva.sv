@@ -1,4 +1,3 @@
-```systemverilog
 module xor_product_sva (
     input logic clk,
     input logic reset,
@@ -61,4 +60,3 @@ module xor_product_sva (
     ) else $error("OR output should be the result of (~in_1 + 1) AND in_2");
 
 endmodule
-```

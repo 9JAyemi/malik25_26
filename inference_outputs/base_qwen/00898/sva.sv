@@ -1,4 +1,3 @@
-```systemverilog
 module adder_subtractor_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -23,4 +22,3 @@ module adder_subtractor_sva (
     assert property (p_sum_subtraction) else $error("SUM calculation is incorrect when SUB is 1");
 
 endmodule
-```

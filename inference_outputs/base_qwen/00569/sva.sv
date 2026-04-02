@@ -1,4 +1,3 @@
-```systemverilog
 module RegisterAdd_sva (
     input logic FSM_selector_C,
     input logic [1:0] FSM_sequential_state_reg_reg,
@@ -15,4 +14,3 @@ module RegisterAdd_sva (
         @(posedge clk_IBUF_BUFG) disable iff (!clk_IBUF_BUFG) !FSM_selector_C |-> FSM_sequential_state_reg_reg == FSM_sequential_state_reg_reg + AR
     );
 endmodule
-```

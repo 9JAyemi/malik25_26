@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+shift_register.auto_sva_inst.reset_register
+shift_register.auto_sva_inst.parallel_load_check
+shift_register.auto_sva_inst.shift_left_check
+shift_register.auto_sva_inst.shift_right_check
+shift_register.auto_sva_inst.exclusive_control
+
+COVER PROPERTIES:
+shift_register.auto_sva_inst.parallel_load_check:precondition1
+shift_register.auto_sva_inst.shift_left_check:precondition1
+shift_register.auto_sva_inst.shift_right_check:precondition1

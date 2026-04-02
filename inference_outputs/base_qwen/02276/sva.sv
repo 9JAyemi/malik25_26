@@ -1,4 +1,3 @@
-```systemverilog
 module mag_comparator_sva (
     input logic [1:0] A,
     input logic [1:0] B,
@@ -56,4 +55,3 @@ module mag_comparator_sva (
         @(posedge CLK) disable iff (!RESETn) !(EQ && GT && LT) |-> (A != B)
     );
 endmodule
-```

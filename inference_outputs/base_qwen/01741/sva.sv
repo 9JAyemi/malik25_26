@@ -1,4 +1,3 @@
-```systemverilog
 module TLATNTSCAX2TS_sva (
     input logic E,
     input logic SE,
@@ -11,4 +10,3 @@ module TLATNTSCAX2TS_sva (
         @(posedge CK) disable iff (!CK) (ECK == ((E & SE) | (!E & CK)))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module DFF_AR_assertions (
   input logic CLK,
   input logic RST,
@@ -16,4 +15,3 @@ module DFF_AR_assertions (
     @(posedge CLK) disable iff (RST) (Q == D) && (QN == ~D)
   );
 endmodule
-```

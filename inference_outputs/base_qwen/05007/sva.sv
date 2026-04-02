@@ -1,4 +1,3 @@
-```systemverilog
 module nor_gate_using_nand_sva (
     input logic a,
     input logic b,
@@ -16,4 +15,3 @@ module nor_gate_using_nand_sva (
         @(posedge clk) $fell(out) |-> (a != 1'b0) || (b != 1'b0)
     );
 endmodule
-```

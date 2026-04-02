@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic [7:0] num1,
     input logic [7:0] num2,
@@ -26,4 +25,3 @@ module calculator_sva (
         @(posedge CLK) disable iff (!RESETn) (op == 2'b11 && num2 == 0) |-> (result == 8'b00000000)
     );
 endmodule
-```

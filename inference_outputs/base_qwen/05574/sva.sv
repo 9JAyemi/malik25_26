@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hdll__o2bb2ai_sva (
     input logic Y,
     input logic A1_N,
@@ -31,4 +30,3 @@ module sky130_fd_sc_hdll__o2bb2ai_sva (
         @(posedge clk) !reset_n |-> (Y == 1'b0) && (nand0_out == 1'b0) && (or0_out == 1'b0) && (nand1_out_Y == 1'b0)
     );
 endmodule
-```

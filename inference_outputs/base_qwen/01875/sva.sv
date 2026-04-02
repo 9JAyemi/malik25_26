@@ -1,4 +1,3 @@
-```systemverilog
 module udp_mux_4to1_sva (
   input logic CLK,
   input logic [3:0] out,
@@ -22,4 +21,3 @@ module udp_mux_4to1_sva (
   // Sequential logic in mux_2to1 module
   // No need for additional assertions as the logic is purely combinational
 endmodule
-```

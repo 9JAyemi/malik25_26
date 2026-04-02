@@ -1,4 +1,3 @@
-```systemverilog
 module posManager_sva (
     input logic clk,
     input logic [15:0] pos11,
@@ -58,4 +57,3 @@ module posManager_sva (
     );
 
 endmodule
-```

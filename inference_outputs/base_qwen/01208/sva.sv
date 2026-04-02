@@ -1,4 +1,3 @@
-```systemverilog
 module control_sva (
     input logic clk,
     input logic rst,
@@ -50,4 +49,3 @@ module control_sva (
     );
 
 endmodule
-```

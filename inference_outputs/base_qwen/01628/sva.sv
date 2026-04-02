@@ -1,4 +1,3 @@
-```systemverilog
 module debouncer_sva (
   input logic clk,
   input logic in,
@@ -65,4 +64,3 @@ module debouncer_sva (
     @(posedge clk) disable iff (!clk) (state == DEBOUNCE) |-> (in == in)
   );
 endmodule
-```

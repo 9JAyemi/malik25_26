@@ -1,4 +1,3 @@
-```systemverilog
 module MUX16_assertions (
     input logic CLK,
     input logic [3:0] select,
@@ -40,4 +39,3 @@ module MUX16_assertions (
                                                    data_i15}
     );
 endmodule
-```

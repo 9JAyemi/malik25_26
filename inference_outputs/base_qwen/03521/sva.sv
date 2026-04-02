@@ -1,4 +1,3 @@
-```systemverilog
 module mem_enc_dec_sva (
   input logic clk,
   input logic [mem_width-1:0] mem_addr,
@@ -17,4 +16,3 @@ parameter key_width = 8; // width of encryption or decryption key
   ) else $error("Combinational logic error: enc_data is not equal to mem_data XOR key");
 
 endmodule
-```

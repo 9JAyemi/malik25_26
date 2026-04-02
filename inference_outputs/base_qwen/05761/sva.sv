@@ -1,4 +1,3 @@
-```systemverilog
 module my_2to1_mux_sva (
     input logic CLK,
     input logic [16:0] A,
@@ -53,4 +52,3 @@ module my_2to1_mux_sva (
         @(posedge CLK) !((MO == 17'b11111111111111111) || (MO == 17'b00000000000000000))
     );
 endmodule
-```

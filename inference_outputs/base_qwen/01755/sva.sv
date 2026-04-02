@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
    input clk,
    input reset,      // Synchronous active-high reset
@@ -113,4 +112,3 @@ end
     );
 
 endmodule
-```

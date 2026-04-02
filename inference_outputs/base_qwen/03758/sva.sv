@@ -1,4 +1,3 @@
-```systemverilog
 module autoasciienum_onehot_sva (
     input logic clk,
     input logic rst_n,
@@ -106,4 +105,3 @@ module autoasciienum_onehot_sva (
         @(posedge clk) disable iff (!rst_n) (cur_state != DONE) |-> (ack == 1'b0)
     );
 endmodule
-```

@@ -318,6 +318,43 @@ INFO: Using TOP = csa_generate_adder_32bit
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -404,45 +441,37 @@ DEBUG: SVA_FILES    = ./01390/sva.sv /home/ab2113/malik25_26/inference_outputs/v
   set err 1
 }
 [-- (VERI-1482)] Analyzing Verilog file './01390/sva.sv'
-[ERROR (VERI-1068)] ./01390/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./01390/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-1128)] ./01390/sva.sv(33): 'C' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(38): 'S2' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(38): 'S1' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(38): 'P' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(38): 'G' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'C' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'S1' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'P' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'G' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'S1' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(41): 'P' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(46): 'S2' is not declared
-[ERROR (VERI-1128)] ./01390/sva.sv(49): 'C' is not declared
-[ERROR (VERI-1072)] ./01390/sva.sv(52): module 'csa_generate_adder_32bit_sva' ignored due to previous errors
-[ERROR (VERI-1068)] ./01390/sva.sv(53): missing compiler directive
-[ERROR (VERI-1137)] ./01390/sva.sv(53): syntax error near '`'
+[ERROR (VERI-1128)] ./01390/sva.sv(32): 'C' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(37): 'S2' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(37): 'S1' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(37): 'P' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(37): 'G' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'C' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'S1' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'P' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'G' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'S1' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(40): 'P' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(45): 'S2' is not declared
+[ERROR (VERI-1128)] ./01390/sva.sv(48): 'C' is not declared
+[ERROR (VERI-1072)] ./01390/sva.sv(51): module 'csa_generate_adder_32bit_sva' ignored due to previous errors
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./01390/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./01390/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-1128)] ./01390/sva.sv(33): 'C' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(38): 'S2' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(38): 'S1' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(38): 'P' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(38): 'G' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'C' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'S1' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'P' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'G' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'S1' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(41): 'P' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(46): 'S2' is not declared
-	[ERROR (VERI-1128)] ./01390/sva.sv(49): 'C' is not declared
-	[ERROR (VERI-1072)] ./01390/sva.sv(52): module 'csa_generate_adder_32bit_sva' ignored due to previous errors
-	[ERROR (VERI-1068)] ./01390/sva.sv(53): missing compiler directive
-	[ERROR (VERI-1137)] ./01390/sva.sv(53): syntax error near '`'
+	[ERROR (VERI-1128)] ./01390/sva.sv(32): 'C' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(37): 'S2' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(37): 'S1' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(37): 'P' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(37): 'G' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'C' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'S1' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'P' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'G' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'S1' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(40): 'P' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(45): 'S2' is not declared
+	[ERROR (VERI-1128)] ./01390/sva.sv(48): 'C' is not declared
+	[ERROR (VERI-1072)] ./01390/sva.sv(51): module 'csa_generate_adder_32bit_sva' ignored due to previous errors
 ERROR: analyze SVA failed:
-ERROR (ENL034): 18 errors detected in the design file(s).
+ERROR (ENL034): 14 errors detected in the design file(s).
 
 1
 % 

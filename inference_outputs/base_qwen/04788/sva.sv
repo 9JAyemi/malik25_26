@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__o31ai_sva (
     input logic Y,
     input logic VGND,
@@ -44,4 +43,3 @@ module sky130_fd_sc_lp__o31ai_sva (
         ) else $error("OR gate's output is not driven by the inputs A2, A1, and A3");
     end
 endmodule
-```

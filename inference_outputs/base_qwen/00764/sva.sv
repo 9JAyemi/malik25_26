@@ -1,4 +1,3 @@
-```systemverilog
 module xor_inv_multiplexer_sva (
     input logic clk,
     input logic [3:0] a,
@@ -54,4 +53,3 @@ module xor_inv_multiplexer_sva (
         @(posedge clk) disable iff (!clk) (sel_out == 1'b1) |-> (out_always == out_xor_inv)
     );
 endmodule
-```

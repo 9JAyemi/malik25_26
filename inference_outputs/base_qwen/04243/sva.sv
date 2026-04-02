@@ -1,4 +1,3 @@
-```systemverilog
 module mux2_sva (
     input logic A0,
     input logic A1,
@@ -16,4 +15,3 @@ module mux2_sva (
         @(posedge VPB) $stable(S) |-> (X == A0) || (X == A1)
     );
 endmodule
-```

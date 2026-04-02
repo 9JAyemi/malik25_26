@@ -10,37 +10,46 @@
 # Generic SLURM wrapper for check_all.sh
 #
 # Usage:
-#   sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <parent_dir>
+#   sbatch scripts/run_check_all.sbatch [--force] [--only <subdir>] <syntax|verif> <parent_dir>
 #
 # Iterates over every subdirectory in <parent_dir> and runs
 # check_all.sh on each one as a separate dataset.
+# Use --only to target a single subdirectory.
 #
 # Examples:
 #   sbatch scripts/run_check_all.sbatch verif  inference_outputs
 #   sbatch scripts/run_check_all.sbatch syntax inference_outputs
 #   sbatch scripts/run_check_all.sbatch --force verif inference_outputs
+#   sbatch scripts/run_check_all.sbatch --force --only base_qwen verif inference_outputs
 # ============================================================
 
 set -euo pipefail
 
 # ── Validate arguments ───────────────────────────────────────
 FORCE_FLAG=""
-if [[ "${1:-}" == "--force" ]]; then
-  FORCE_FLAG="--force"
-  shift
-fi
+ONLY_SUBDIR=""
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force) FORCE_FLAG="--force"; shift ;;
+    --only)  ONLY_SUBDIR="$2"; shift 2 ;;
+    *)       POSITIONAL+=("$1"); shift ;;
+  esac
+done
+set -- "${POSITIONAL[@]}"
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: sbatch scripts/run_check_all.sbatch [--force] <syntax|verif> <parent_dir>"
+  echo "Usage: sbatch scripts/run_check_all.sbatch [--force] [--only <subdir>] <syntax|verif> <parent_dir>"
   echo ""
   echo "  --force      Re-run all IDs even if DONE marker exists"
+  echo "  --only NAME  Only process this subdirectory (e.g. base_qwen)"
   echo "  syntax       Compile/syntax check only"
   echo "  verif        Full assertion verification"
   echo "  parent_dir   Directory containing dataset subdirectories"
   echo ""
   echo "Examples:"
   echo "  sbatch scripts/run_check_all.sbatch verif  inference_outputs"
-  echo "  sbatch scripts/run_check_all.sbatch syntax inference_outputs"
+  echo "  sbatch scripts/run_check_all.sbatch --only base_qwen verif inference_outputs"
   exit 1
 fi
 
@@ -54,6 +63,7 @@ echo "PWD: $(pwd)"
 echo "JobID: ${SLURM_JOB_ID:-unknown}"
 echo "Mode: $MODE"
 echo "Force: ${FORCE_FLAG:-off}"
+echo "Only: ${ONLY_SUBDIR:-all}"
 echo "Parent dir: $PARENT_DIR"
 
 # ── Environment setup ────────────────────────────────────────
@@ -92,7 +102,10 @@ for DATASET_DIR in "$PARENT_ABS"/*/; do
   SUBDIR_NAME="$(basename "$DATASET_DIR")"
 
   # Skip result directories that may have been created by previous runs
-  [[ "$SUBDIR_NAME" == "syntax_results" || "$SUBDIR_NAME" == "verification_results" ]] && continue
+  [[ "$SUBDIR_NAME" == "syntax_results" || "$SUBDIR_NAME" == "verification_results" || "$SUBDIR_NAME" == "dataset_stats" ]] && continue
+
+  # If --only is set, skip non-matching subdirectories
+  [[ -n "$ONLY_SUBDIR" && "$SUBDIR_NAME" != "$ONLY_SUBDIR" ]] && continue
 
   TOTAL_COUNT=$((TOTAL_COUNT + 1))
   echo ""

@@ -1,4 +1,3 @@
-```systemverilog
 module alu_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -41,4 +40,3 @@ module alu_sva (
         @(posedge clk) disable iff (!reset) (out != 4'b0000) |-> (zero == 1'b0)
     );
 endmodule
-```

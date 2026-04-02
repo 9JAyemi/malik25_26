@@ -1,4 +1,3 @@
-```systemverilog
 module binary_to_gray_sva (
     input logic [3:0] in,
     input logic load,
@@ -18,4 +17,3 @@ module binary_to_gray_sva (
         @(posedge load) disable iff (load) (valid == 1'b0)
     );
 endmodule
-```

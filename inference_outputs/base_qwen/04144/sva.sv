@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2to1_sva (
     input logic a,
     input logic b,
@@ -28,4 +27,3 @@ module mux_2to1_sva (
     ) else $error("Mux output should be undefined on reset");
 
 endmodule
-```

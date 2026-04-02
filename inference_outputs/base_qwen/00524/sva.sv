@@ -1,4 +1,3 @@
-```systemverilog
 module pwm_generator_sva (
     input logic clk,
     input logic rst_n,
@@ -16,4 +15,3 @@ module pwm_generator_sva (
         @(posedge clk) disable iff (!rst_n) pwm_out == ~pwm_out
     );
 endmodule
-```

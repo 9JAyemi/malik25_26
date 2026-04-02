@@ -1,4 +1,3 @@
-```systemverilog
 module simplified_axi_protocol_converter_sva (
     input logic aclk,
     input logic si_rs_awvalid,
@@ -72,4 +71,3 @@ module simplified_axi_protocol_converter_sva (
     endproperty
     assert property (p_next_pending_r_reg_on_next_change_2) else $error("next_pending_r_reg is not set correctly when next changes");
 endmodule
-```

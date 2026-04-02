@@ -1,4 +1,3 @@
-```systemverilog
 module bin2gray_sva (
   input logic [3:0] binary,
   output logic [3:0] gray
@@ -30,4 +29,3 @@ module bin2gray_sva (
   assert property (p_gray_0) else $error("gray[0] should be the XOR of binary[1] and binary[0]");
 
 endmodule
-```

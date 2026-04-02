@@ -1,4 +1,3 @@
-```systemverilog
 module odd_even_sva (
   input logic [2:0] input_bits,
   output logic [1:0] output_bits
@@ -35,4 +34,3 @@ module odd_even_sva (
   );
 
 endmodule
-```

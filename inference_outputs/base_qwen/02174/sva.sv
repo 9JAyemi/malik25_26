@@ -1,4 +1,3 @@
-```systemverilog
 module zet_bitlog_sva (
     input logic [15:0] x,
     output logic [15:0] o,
@@ -18,4 +17,3 @@ module zet_bitlog_sva (
         @(posedge clk) disable iff (!RESETn) (ofo == 1'b0)
     );
 endmodule
-```

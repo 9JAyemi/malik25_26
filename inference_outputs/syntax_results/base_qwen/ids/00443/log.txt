@@ -87,6 +87,39 @@ sv12
 % set FILES [collect_files $DIR]
 ./00443/sva.sv ./00443/module.v
 % 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
+INFO: Stripped markdown fences from ./00443/sva.sv
+% 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
 % puts "  DIR      : $DIR"
@@ -130,63 +163,65 @@ analyze -sv12
 }
 [-- (VERI-1482)] Analyzing Verilog file '/scratch/gpfs/LICENSED/x86_64/cadence-20210126/jasper_2021.03/lib/verilog/packages/std/std.sv' into library 'std'
 [-- (VERI-1482)] Analyzing Verilog file './00443/sva.sv'
-[ERROR (VERI-1068)] ./00443/sva.sv(1): missing compiler directive
-[ERROR (VERI-1158)] ./00443/sva.sv(1): use of undefined macro 'systemverilog'
-[ERROR (VERI-9011)] ./00443/sva.sv(64): block id 'check_X_high_when_A1_low_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(32): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(69): block id 'check_X_high_when_A1_high_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(37): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(74): block id 'check_X_low_when_B1_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(42): previous declaration of 'check_X_low_when_B1_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(79): block id 'check_X_low_when_A1_low_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(47): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(84): block id 'check_X_high_when_A1_high_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(52): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(89): block id 'check_X_high_when_A1_low_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(57): previous declaration of 'check_X_high_when_A1_low_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(94): block id 'check_X_high_when_A1_low_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(32): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(99): block id 'check_X_high_when_A1_high_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(37): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(104): block id 'check_X_low_when_B1_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(42): previous declaration of 'check_X_low_when_B1_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(109): block id 'check_X_low_when_A1_low_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(47): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(114): block id 'check_X_high_when_A1_high_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(52): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(119): block id 'check_X_high_when_A1_low_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(57): previous declaration of 'check_X_high_when_A1_low_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(124): block id 'check_X_high_when_A1_low_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(32): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(129): block id 'check_X_high_when_A1_high_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(37): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(134): block id 'check_X_low_when_B1_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(42): previous declaration of 'check_X_low_when_B1_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(139): block id 'check_X_low_when_A1_low_A2_low' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(47): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
-[ERROR (VERI-9011)] ./00443/sva.sv(144): block id 'check_X_high_when_A1_high_A2_high' is already declared
-[INFO (VERI-1967)] ./00443/sva.sv(52): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(63): block id 'check_X_high_when_A1_low_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(31): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(68): block id 'check_X_high_when_A1_high_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(36): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(73): block id 'check_X_low_when_B1_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(41): previous declaration of 'check_X_low_when_B1_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(78): block id 'check_X_low_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(46): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(83): block id 'check_X_high_when_A1_high_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(51): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(88): block id 'check_X_high_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(56): previous declaration of 'check_X_high_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(93): block id 'check_X_high_when_A1_low_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(31): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(98): block id 'check_X_high_when_A1_high_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(36): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(103): block id 'check_X_low_when_B1_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(41): previous declaration of 'check_X_low_when_B1_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(108): block id 'check_X_low_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(46): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(113): block id 'check_X_high_when_A1_high_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(51): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(118): block id 'check_X_high_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(56): previous declaration of 'check_X_high_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(123): block id 'check_X_high_when_A1_low_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(31): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(128): block id 'check_X_high_when_A1_high_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(36): previous declaration of 'check_X_high_when_A1_high_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(133): block id 'check_X_low_when_B1_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(41): previous declaration of 'check_X_low_when_B1_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(138): block id 'check_X_low_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(46): previous declaration of 'check_X_low_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(143): block id 'check_X_high_when_A1_high_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(51): previous declaration of 'check_X_high_when_A1_high_A2_high' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(148): block id 'check_X_high_when_A1_low_A2_low' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(56): previous declaration of 'check_X_high_when_A1_low_A2_low' is from here
+[ERROR (VERI-9011)] ./00443/sva.sv(153): block id 'check_X_high_when_A1_low_A2_high' is already declared
+[INFO (VERI-1967)] ./00443/sva.sv(31): previous declaration of 'check_X_high_when_A1_low_A2_high' is from here
 [INFO (VMSG-1000)] Too many errors. Further error messages will be suppressed.
 Summary of errors detected:
-	[ERROR (VERI-1068)] ./00443/sva.sv(1): missing compiler directive
-	[ERROR (VERI-1158)] ./00443/sva.sv(1): use of undefined macro 'systemverilog'
-	[ERROR (VERI-9011)] ./00443/sva.sv(64): block id 'check_X_high_when_A1_low_A2_high' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(69): block id 'check_X_high_when_A1_high_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(74): block id 'check_X_low_when_B1_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(79): block id 'check_X_low_when_A1_low_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(84): block id 'check_X_high_when_A1_high_A2_high' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(89): block id 'check_X_high_when_A1_low_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(94): block id 'check_X_high_when_A1_low_A2_high' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(99): block id 'check_X_high_when_A1_high_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(104): block id 'check_X_low_when_B1_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(109): block id 'check_X_low_when_A1_low_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(114): block id 'check_X_high_when_A1_high_A2_high' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(119): block id 'check_X_high_when_A1_low_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(124): block id 'check_X_high_when_A1_low_A2_high' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(129): block id 'check_X_high_when_A1_high_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(134): block id 'check_X_low_when_B1_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(139): block id 'check_X_low_when_A1_low_A2_low' is already declared
-	[ERROR (VERI-9011)] ./00443/sva.sv(144): block id 'check_X_high_when_A1_high_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(63): block id 'check_X_high_when_A1_low_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(68): block id 'check_X_high_when_A1_high_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(73): block id 'check_X_low_when_B1_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(78): block id 'check_X_low_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(83): block id 'check_X_high_when_A1_high_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(88): block id 'check_X_high_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(93): block id 'check_X_high_when_A1_low_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(98): block id 'check_X_high_when_A1_high_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(103): block id 'check_X_low_when_B1_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(108): block id 'check_X_low_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(113): block id 'check_X_high_when_A1_high_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(118): block id 'check_X_high_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(123): block id 'check_X_high_when_A1_low_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(128): block id 'check_X_high_when_A1_high_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(133): block id 'check_X_low_when_B1_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(138): block id 'check_X_low_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(143): block id 'check_X_high_when_A1_high_A2_high' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(148): block id 'check_X_high_when_A1_low_A2_low' is already declared
+	[ERROR (VERI-9011)] ./00443/sva.sv(153): block id 'check_X_high_when_A1_low_A2_high' is already declared
 ERROR: analyze failed:
 ERROR (ENL034): 19 errors detected in the design file(s).
 

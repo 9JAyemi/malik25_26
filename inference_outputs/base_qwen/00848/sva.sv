@@ -1,4 +1,3 @@
-```systemverilog
 module vfabric_bypass_reg_sva (
     input logic clock,
     input logic resetn,
@@ -74,4 +73,3 @@ module vfabric_bypass_reg_sva (
         @(posedge clock) disable iff (!resetn) (o_datain_stall == 1'b1) |-> (i_settings == 1'b0)
     );
 endmodule
-```

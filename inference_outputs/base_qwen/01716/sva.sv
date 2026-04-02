@@ -1,4 +1,3 @@
-```systemverilog
 module binary_counter_sva (
     input logic clk,
     input logic EN,
@@ -60,4 +59,3 @@ module binary_counter_sva (
         @(posedge clk) disable iff (!RST) COUNT != 4'b0000
     );
 endmodule
-```

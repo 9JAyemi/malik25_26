@@ -1,4 +1,3 @@
-```systemverilog
 module alu_16bit_sva(A, B, op, Y);
   input logic [15:0] A, B;
   input logic [3:0] op;
@@ -49,4 +48,3 @@ module alu_16bit_sva(A, B, op, Y);
       @(posedge clk) disable iff (1'b0) (op == 4'b1001) |-> (Y == {A[0], A[15:1]})
   );
 endmodule
-```

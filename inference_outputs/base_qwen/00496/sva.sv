@@ -1,4 +1,3 @@
-```systemverilog
 module nonblocking_gate_sva (
     input logic clk,
     input logic [4:0] ctrl,

@@ -1,4 +1,3 @@
-```systemverilog
 module two_bit_adder_sva (
     input logic X,
     input logic A1_N,

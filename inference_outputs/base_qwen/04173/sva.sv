@@ -1,4 +1,3 @@
-```systemverilog
 module logic_module_sva (
     input logic A1,
     input logic A2,
@@ -14,4 +13,3 @@ module logic_module_sva (
         @(posedge VPWR) disable iff (!VGND) (X == ((A1 | A2) & (~B1 | B2) & (~A1 | ~A2 | B1)))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module seq_detector_sva (
   input logic clk,
   input logic in,
@@ -96,4 +95,3 @@ module seq_detector_sva (
     @(posedge clk) disable iff (!clk) $fell(in) && $fell(clk) |-> (state != next_state)
   );
 endmodule
-```

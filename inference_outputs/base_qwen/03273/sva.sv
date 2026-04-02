@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_operations_sva (
     input logic clk,
     input logic rst_n,
@@ -105,4 +104,3 @@ module bitwise_operations_sva (
     endproperty
     a10: assert property (p_b) else $error("b is not correctly assigned");
 endmodule
-```

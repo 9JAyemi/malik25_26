@@ -1,4 +1,3 @@
-```systemverilog
 module final_module_sva (
     input logic clk,
     input logic [15:0] in,
@@ -46,4 +45,3 @@ module final_module_sva (
         @(posedge clk) disable iff (!clk) out == {out1, out2, out[0]}
     );
 endmodule
-```

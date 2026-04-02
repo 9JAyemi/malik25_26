@@ -1,4 +1,3 @@
-```systemverilog
 module reset_sync_sva (
     input logic clk,
     input logic reset_n,
@@ -16,4 +15,3 @@ module reset_sync_sva (
     ) else $error("Reset signal not low after synchronization");
 
 endmodule
-```

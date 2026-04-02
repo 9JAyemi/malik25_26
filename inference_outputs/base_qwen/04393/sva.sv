@@ -1,4 +1,3 @@
-```systemverilog
 module omsp_sync_cell_sva (
     input logic clk,
     input logic rst,
@@ -23,4 +22,3 @@ module omsp_sync_cell_sva (
         @(posedge clk) disable iff (!rst) (data_sync[0] == data_sync[1])
     );
 endmodule
-```

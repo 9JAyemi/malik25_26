@@ -1,4 +1,3 @@
-```systemverilog
 module barrel_shifter_sva (
     input logic clk,
     input logic [3:0] data_in,
@@ -75,4 +74,3 @@ module barrel_shifter_sva (
         @(posedge clk) $stable(data_in) |-> $stable(shift_amount) |-> $stable(data_out)
     ) else $error("data_out is not stable after shift_amount and data_in are stable");
 endmodule
-```

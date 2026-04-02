@@ -1,4 +1,3 @@
-```systemverilog
 module half_adder_sva (
     input logic A,
     input logic B,
@@ -14,4 +13,3 @@ module half_adder_sva (
         @(posedge clk) disable iff (!resetn) carry_out == (A & B)
     );
 endmodule
-```

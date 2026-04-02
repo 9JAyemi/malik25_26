@@ -1,4 +1,3 @@
-```systemverilog
 module dff_en_sva (
     input logic CLK,
     input logic RESETn,
@@ -15,4 +14,3 @@ module dff_en_sva (
         @(posedge CLK) !RESETn |-> Q == 1'b0
     );
 endmodule
-```

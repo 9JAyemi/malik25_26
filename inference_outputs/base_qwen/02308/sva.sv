@@ -1,4 +1,3 @@
-```systemverilog
 module nand2_module_sva (
     input logic in1,
     input logic in2,
@@ -10,4 +9,3 @@ module nand2_module_sva (
         @(posedge clk) disable iff (!clk) out == ~(in1 & in2)
     );
 endmodule
-```

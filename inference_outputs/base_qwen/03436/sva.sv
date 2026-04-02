@@ -1,4 +1,3 @@
-```systemverilog
 module oh_mux4_sva (
     input logic sel3,
     input logic sel2,
@@ -49,4 +48,3 @@ module oh_mux4_sva (
         !error
     );
 endmodule
-```

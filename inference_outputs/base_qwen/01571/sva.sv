@@ -1,4 +1,3 @@
-```systemverilog
 module r_FAULT_STATUS_assertions (
     input logic clk,
     input logic reset,
@@ -36,4 +35,3 @@ module r_FAULT_STATUS_assertions (
         @(posedge clk) disable iff (!reset) (wenb == 1'b1) |-> reg_0x1F == reg_0x1F
     );
 endmodule
-```

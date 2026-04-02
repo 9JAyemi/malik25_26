@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input wire [7:0] num1,
     input wire [7:0] num2,
@@ -15,4 +14,3 @@ module top_module_sva (
     ) else $error("Product is not correctly calculated");
 
 endmodule
-```

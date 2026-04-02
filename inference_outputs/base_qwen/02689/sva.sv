@@ -1,4 +1,3 @@
-```systemverilog
 module bitwise_operators_sva #(
   parameter n = 4 // number of bits in A and B
 ) (
@@ -34,4 +33,3 @@ module bitwise_operators_sva #(
   ) else $error("NOT result is incorrect");
 
 endmodule
-```

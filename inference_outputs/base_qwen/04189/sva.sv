@@ -1,4 +1,3 @@
-```systemverilog
 module shift_reg_sva (
     input logic CLK,
     input logic RST,
@@ -61,4 +60,3 @@ module shift_reg_sva (
         @(posedge CLK) disable iff (!RST) (!LD |-> (reg3 == reg4))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module ripple_adder_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -52,4 +51,3 @@ module ripple_adder_sva (
     // Reset polarity is active low
     parameter reset_n = 1'b0;
 endmodule
-```

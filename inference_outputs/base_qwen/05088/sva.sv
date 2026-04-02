@@ -1,4 +1,3 @@
-```systemverilog
 module binary_adder_sva (
     input logic CLK,
     input logic COUT,
@@ -74,4 +73,3 @@ module binary_adder_sva (
     );
 
 endmodule
-```

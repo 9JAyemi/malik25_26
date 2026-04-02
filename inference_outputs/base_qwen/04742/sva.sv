@@ -1,4 +1,3 @@
-```systemverilog
 module dffe_sva (
     input logic clk,
     input logic rst_n,
@@ -30,4 +29,3 @@ module dffe_sva (
     ) else $error("so is not equal to q");
 
 endmodule
-```

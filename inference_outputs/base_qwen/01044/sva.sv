@@ -1,4 +1,3 @@
-```systemverilog
 module signal_processor_sva(
     input logic [3:0] in,
     output logic [3:0] out
@@ -21,4 +20,3 @@ module signal_processor_sva(
         @(posedge clk) disable iff (!RESETn) (in > 7) |-> (out == in / 2)
     );
 endmodule
-```

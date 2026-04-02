@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ls__ha_sva (
     input logic CLK,
     input logic A,
@@ -16,4 +15,3 @@ module sky130_fd_sc_ls__ha_sva (
         @(posedge CLK) disable iff (!CLK) (SUM == (A ^ B))
     );
 endmodule
-```

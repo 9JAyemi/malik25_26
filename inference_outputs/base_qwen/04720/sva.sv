@@ -1,4 +1,3 @@
-```systemverilog
 module functional_module_sva (
     input [3:0] B,
     input [1:0] in,
@@ -40,4 +39,3 @@ module functional_module_sva (
     endproperty
     assert property (p_out_update) else $error("Out update error");
 endmodule
-```

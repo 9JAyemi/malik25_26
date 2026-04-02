@@ -1,4 +1,3 @@
-```systemverilog
 module counter_sva (
     input logic clk,
     input logic rst,
@@ -44,4 +43,3 @@ module counter_sva (
         @(posedge clk) disable iff (!rst) (value >= 8'b00000000 && value <= 8'b11111111)
     );
 endmodule
-```

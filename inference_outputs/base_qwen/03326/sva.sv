@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hdll__or4bb_sva (
     input logic CLK,
     input logic RESETn,
@@ -75,4 +74,3 @@ module sky130_fd_sc_hdll__or4bb_sva (
         @(posedge CLK) disable iff (!RESETn) ((A == 1) || (B == 1) || (nand0_out == 1) |-> (or0_out_X == 1))
     );
 endmodule
-```

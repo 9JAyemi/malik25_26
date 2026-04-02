@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2_1_sva (
     input logic A,
     input logic B,
@@ -14,4 +13,3 @@ module mux_2_1_sva (
         @(posedge CLK) disable iff (!RESETn) $fell(SEL) |-> (Y == A)
     );
 endmodule
-```

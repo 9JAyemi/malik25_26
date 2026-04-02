@@ -1,4 +1,3 @@
-```systemverilog
 module nand2_en_sva (
     input logic A,
     input logic B,
@@ -20,4 +19,3 @@ module nand2_en_sva (
         @(posedge clk) disable iff (!rst_n) Z == ((A & B) & ~((A & B)) & EN)
     );
 endmodule
-```

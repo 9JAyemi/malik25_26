@@ -1,4 +1,3 @@
-```systemverilog
 module clock_gate_high_sva (
     input logic CLK,
     input logic EN,
@@ -24,4 +23,3 @@ module clock_gate_high_sva (
     assert property (p_se_low_en_low) else $error("ENCLK should be LOW when SE is LOW and EN is LOW");
 
 endmodule
-```

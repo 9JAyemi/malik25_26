@@ -1,4 +1,3 @@
-```systemverilog
 module mux4to1_32_sva (
     input wire [1:0] sel,
     input wire [31:0] a,
@@ -42,4 +41,3 @@ module mux4to1_32_sva (
     );
 
 endmodule
-```

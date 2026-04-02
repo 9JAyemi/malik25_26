@@ -1,4 +1,3 @@
-```systemverilog
 module sector_flash_map_sva (
     input logic [2:0] sector,
     output logic [2:0] flash_sector
@@ -14,4 +13,3 @@ module sector_flash_map_sva (
             3'b000) // Set to 0 for invalid sector ID
     );
 endmodule
-```

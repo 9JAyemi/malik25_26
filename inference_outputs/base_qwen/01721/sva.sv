@@ -1,4 +1,3 @@
-```systemverilog
 module and_gate_4_sva (
     input logic A1,
     input logic A2,
@@ -29,4 +28,3 @@ module and_gate_4_sva (
     endproperty
     assert property (p_temp3) else $error("temp3 is not correctly driven by the AND operations");
 endmodule
-```

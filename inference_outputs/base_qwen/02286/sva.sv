@@ -1,4 +1,3 @@
-```systemverilog
 module sysgen_logical_8b7810a2aa_sva (
     input logic d0,
     input logic d1,
@@ -12,4 +11,3 @@ module sysgen_logical_8b7810a2aa_sva (
         @(posedge clk) disable iff (!clr) (y == (d0 | d1))
     );
 endmodule
-```

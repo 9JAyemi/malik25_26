@@ -1,4 +1,3 @@
-```systemverilog
 module and4_pwr_good_sva (
     input logic A_N,
     input logic B,
@@ -33,4 +32,3 @@ module and4_pwr_good_sva (
         @(posedge VPB) disable iff (!VPB) (pwrgood_pp0_out_X) |-> (X == pwrgood_pp0_out_X)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module adder_4bit_sva (
   input logic [3:0] a,
   input logic [3:0] b,
@@ -16,4 +15,3 @@ module adder_4bit_sva (
     @(posedge clk) disable iff (!resetn) (cout == (a + b + cin)[4])
   );
 endmodule
-```

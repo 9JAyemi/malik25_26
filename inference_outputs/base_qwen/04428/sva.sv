@@ -1,4 +1,3 @@
-```systemverilog
 module comparator_sva (
     input logic [3:0] in0,
     input logic [3:0] in1,

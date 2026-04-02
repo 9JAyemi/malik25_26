@@ -1,4 +1,3 @@
-```systemverilog
 module full_adder_sva (
     input logic A,
     input logic B,
@@ -16,4 +15,3 @@ module full_adder_sva (
         @(posedge clk) disable iff (!reset_n) (COUT == ((A & B) | (B & CI) | (CI & A)))
     );
 endmodule
-```

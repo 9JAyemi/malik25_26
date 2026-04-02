@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hd__nor4b_sva (
     input logic Y,
     input logic A,
@@ -17,4 +16,3 @@ module sky130_fd_sc_hd__nor4b_sva (
         @(posedge VPB) disable iff (!VGND) Y == ~(A | B | C | D_N)
     );
 endmodule
-```

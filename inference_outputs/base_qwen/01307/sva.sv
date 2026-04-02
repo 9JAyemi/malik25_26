@@ -1,4 +1,3 @@
-```systemverilog
 module top_module_sva (
     input logic clk,
     input logic [15:0] A,
@@ -39,4 +38,3 @@ module top_module_sva (
     );
 
 endmodule
-```

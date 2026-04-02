@@ -1,4 +1,3 @@
-```systemverilog
 module dual_d_flip_flop_sva (
     input logic clk,
     input logic reset,
@@ -61,4 +60,3 @@ module dual_d_flip_flop_sva (
         @(posedge clk) !reset |-> ##1 toggle == toggle
     );
 endmodule
-```

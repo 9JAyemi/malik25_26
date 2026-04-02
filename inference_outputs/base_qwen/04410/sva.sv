@@ -1,4 +1,3 @@
-```systemverilog
 module fifo_buffer_sva (
   input wire clk,
   input wire aclr,
@@ -52,4 +51,3 @@ module fifo_buffer_sva (
   ) else $error("FIFO output did not occur as expected");
 
 endmodule
-```

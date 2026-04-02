@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__o41a_sva (
     input logic CLK,
     input logic RESETn,
@@ -37,4 +36,3 @@ module sky130_fd_sc_ms__o41a_sva (
     );
 
 endmodule
-```

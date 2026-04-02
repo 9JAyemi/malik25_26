@@ -1,4 +1,3 @@
-```systemverilog
 module nand_decoder_sva (
     input logic [1:0] in,
     input logic [3:0] out
@@ -12,4 +11,3 @@ module nand_decoder_sva (
         @(posedge CLK) disable iff (!RESETn) (out[0] == ~out[0]) && (out[1] == ~out[1]) && (out[2] == ~out[2]) && (out[3] == ~out[3])
     );
 endmodule
-```

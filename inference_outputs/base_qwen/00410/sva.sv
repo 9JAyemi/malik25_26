@@ -1,4 +1,3 @@
-```systemverilog
 module up_down_counter_sva (
     input logic clk,
     input logic load,
@@ -70,4 +69,3 @@ module up_down_counter_sva (
         @(posedge clk) disable iff (!clk) !(up_down && (out == 3'b000))
     );
 endmodule
-```

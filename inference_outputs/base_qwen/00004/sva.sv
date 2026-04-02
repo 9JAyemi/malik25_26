@@ -1,4 +1,3 @@
-```systemverilog
 module mux_2to1_sva (
     input logic a,
     input logic b,
@@ -37,4 +36,3 @@ module mux_2to1_sva (
         @(posedge clk) disable iff (!reset_n) (a inside {0, 1}) && (b inside {0, 1})
     ) else $error("Inputs a and b are not valid logic levels.");
 endmodule
-```

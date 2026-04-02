@@ -1,4 +1,3 @@
-```systemverilog
 module rominfr_sva (
     input logic clk,
     input logic en,
@@ -37,4 +36,3 @@ module rominfr_sva (
         @(posedge clk) disable iff (!en) (data == 4'bXXXX)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_lp__a21oi_sva (
     input logic CLK,
     input logic Y,
@@ -24,4 +23,3 @@ module sky130_fd_sc_lp__a21oi_sva (
         @(posedge CLK) disable iff (!CLK) nor0_out_Y == ~(B1 & and0_out)
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module RippleAdder2_sva (
     input wire clk,
     input wire rst_n,
@@ -125,4 +124,3 @@ module RippleAdder2_sva (
     );
 
 endmodule
-```

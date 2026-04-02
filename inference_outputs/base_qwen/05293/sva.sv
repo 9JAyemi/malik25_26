@@ -1,4 +1,3 @@
-```systemverilog
 module sync_counter_sva(
     input logic clk,
     input logic rst,
@@ -66,4 +65,3 @@ module sync_counter_sva(
         @(posedge clk) disable iff (load) count == count
     );
 endmodule
-```

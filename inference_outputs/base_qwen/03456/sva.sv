@@ -1,4 +1,3 @@
-```systemverilog
 module shift_register_4bit_sva (
     input logic clk,
     input logic load,
@@ -48,4 +47,3 @@ module shift_register_4bit_sva (
         @(posedge clk) disable iff (!load) out == 4'b0000
     );
 endmodule
-```

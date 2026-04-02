@@ -1,4 +1,3 @@
-```systemverilog
 module freq_divider_sva (
   input logic clk_in,
   output logic clk_out
@@ -58,4 +57,3 @@ module freq_divider_sva (
     @(posedge clk_in) disable iff (!clk_in) (count >= 0) && (count <= n-1)
   );
 endmodule
-```

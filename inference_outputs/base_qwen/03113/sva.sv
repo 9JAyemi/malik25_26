@@ -1,4 +1,3 @@
-```systemverilog
 module addition_module_sva (
     input logic [7:0] A,
     input logic [7:0] B,
@@ -12,4 +11,3 @@ module addition_module_sva (
         @(posedge CLK) disable iff (!RESETn) (sum == A + B) && (carry == (A + B > 255 ? 1 : 0))
     );
 endmodule
-```

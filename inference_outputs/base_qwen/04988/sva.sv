@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic [3:0] A,
     input logic [3:0] B,
@@ -27,4 +26,3 @@ module calculator_sva (
         @(posedge clk) disable iff (!RESETn) (div == A / B)
     ) else $error("Divider output is incorrect");
 endmodule
-```

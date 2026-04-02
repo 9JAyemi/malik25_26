@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_hdll__nand4bb_sva (
     input logic Y,
     input logic A_N,
@@ -21,4 +20,3 @@ module sky130_fd_sc_hdll__nand4bb_sva (
         @(posedge clk) disable iff (!RESETn) (Y == (B_N | A_N | !(D & C)))
     );
 endmodule
-```

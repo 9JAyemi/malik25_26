@@ -1,4 +1,3 @@
-```systemverilog
 module karnaugh_map_assertions(
     input wire A,
     input wire B,

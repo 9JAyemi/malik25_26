@@ -1,4 +1,3 @@
-```systemverilog
 module sqrt_calc_sva (
   input logic clk,
   input logic [7:0] x,

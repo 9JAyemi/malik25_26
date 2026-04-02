@@ -1,4 +1,3 @@
-```systemverilog
 module my_or4b_sva (
     input logic X,
     input logic A,
@@ -23,4 +22,3 @@ module my_or4b_sva (
         @(posedge clk) disable iff (!RESETn) X == (A | B | C | ~D_N)
     );
 endmodule
-```

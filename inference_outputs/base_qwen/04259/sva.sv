@@ -1,4 +1,3 @@
-```systemverilog
 module four_bit_adder_sva (
     input logic clk,
     input logic rst_n,
@@ -40,4 +39,3 @@ module four_bit_adder_sva (
     assert property (check_consistency) else $error("Sum and carry-out are inconsistent");
 
 endmodule
-```

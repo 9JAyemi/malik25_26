@@ -1,4 +1,3 @@
-```systemverilog
 module sky130_fd_sc_ms__nor3b_sva (
     input logic CLK,
     input logic C_N,
@@ -31,4 +30,3 @@ module sky130_fd_sc_ms__nor3b_sva (
     );
 
 endmodule
-```

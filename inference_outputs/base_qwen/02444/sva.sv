@@ -1,4 +1,3 @@
-```systemverilog
 module my_buffer_sva (
     input logic A,
     input logic Z,
@@ -25,4 +24,3 @@ module my_buffer_sva (
         @(posedge VPB) disable iff (!VPWR) TE_B == 1'b1 |-> Z == A
     );
 endmodule
-```

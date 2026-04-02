@@ -1,4 +1,3 @@
-```systemverilog
 module calculator_sva (
     input logic [7:0] A,
     input logic [7:0] B,
@@ -36,4 +35,3 @@ module calculator_sva (
     ) else $error("Result is not zero when invalid operation is selected");
 
 endmodule
-```

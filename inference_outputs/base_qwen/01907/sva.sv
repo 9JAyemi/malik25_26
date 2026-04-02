@@ -1,4 +1,3 @@
-```systemverilog
 module and_module_sva (
     input logic clk,
     input logic rst_n,
@@ -12,4 +11,3 @@ module and_module_sva (
         @(posedge clk) disable iff (!rst_n) (o_bus == (i_bus1 & i_bus2))
     );
 endmodule
-```

@@ -1,4 +1,3 @@
-```systemverilog
 module mux_4to1_using_2to1_sva (
   input logic CLK,
   input logic [7:0] data0,
@@ -25,4 +24,3 @@ module mux_4to1_using_2to1_sva (
   );
 
 endmodule
-```
