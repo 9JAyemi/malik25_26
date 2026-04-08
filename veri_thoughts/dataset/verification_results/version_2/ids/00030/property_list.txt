@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+four_bit_adder.auto_sva_inst.check_sum_vector
+four_bit_adder.auto_sva_inst.check_sum_bit0
+four_bit_adder.auto_sva_inst.check_sum_bit1
+four_bit_adder.auto_sva_inst.check_sum_bit2
+four_bit_adder.auto_sva_inst.check_sum_bit3
+four_bit_adder.auto_sva_inst.check_cout_from_sum_msb
+four_bit_adder.auto_sva_inst.check_cout_function
+four_bit_adder.auto_sva_inst.check_sum_ci_low
+four_bit_adder.auto_sva_inst.check_sum_ci_high
+four_bit_adder.auto_sva_inst.check_cout_ci_low
+four_bit_adder.auto_sva_inst.check_cout_ci_high
+
+COVER PROPERTIES:
+four_bit_adder.auto_sva_inst.check_sum_ci_low:precondition1
+four_bit_adder.auto_sva_inst.check_sum_ci_high:precondition1
+four_bit_adder.auto_sva_inst.check_cout_ci_low:precondition1
+four_bit_adder.auto_sva_inst.check_cout_ci_high:precondition1

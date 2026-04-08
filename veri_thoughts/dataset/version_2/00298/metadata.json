@@ -1,0 +1,29 @@
+{
+  "id": "00298",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.791030",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f0b64819088c9f1543e365bc4",
+  "custom_id": "comparator_21113525",
+  "module_name": "comparator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `comparator` that takes two 32-bit inputs, `a` and `b`, and a single-bit control input `unsigned_cmp`. The module should output three single-bit flags: `greater`, `less`, and `equal`.\n\nThe comparison performed by the module depends on the value of the `unsigned_cmp` input:\n*   If `unsigned_cmp` is high (1), the module should perform an unsigned comparison between `a` and `b`.\n*   If `unsigned_cmp` is low (0), the module should perform a signed comparison between `a` and `b`.\n\nBased on the result of the comparison in the selected mode, set the output flags as follows:\n*   `greater` should be high if `a` is strictly greater than `b`, and low otherwise.\n*   `less` should be high if `a` is strictly less than `b`, and low otherwise.\n*   `equal` should be high if `a` is equal to `b`, and low otherwise.\n\nEnsure that for any given input combination, exactly one of the output flags (`greater`, `less`, or `equal`) is high.\n\nThe module interface should be exactly as follows:\nmodule comparator (\n  input [31:0] a,\n  input [31:0] b,\n  input unsigned_cmp,\n  output greater,\n  output less,\n  output equal\n);\n// ... your implementation here\nendmodule\n",
+  "original_verified": true,
+  "prompt_hash": "bbec3c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.473796",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

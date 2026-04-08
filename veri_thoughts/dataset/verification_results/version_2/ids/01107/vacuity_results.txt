@@ -1,0 +1,17 @@
+# Vacuity check results for DESIGN_ID=01107
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::control.auto_sva_inst.check_regDst_equals_aluop1 | error
+<embedded>::control.auto_sva_inst.check_branch_equals_aluop0 | error
+<embedded>::control.auto_sva_inst.check_memToReg_equals_memRead | error
+<embedded>::control.auto_sva_inst.check_aluSrc_equals_memRead_or_memWrite | error
+<embedded>::control.auto_sva_inst.check_regWrite_equals_memToReg_or_regDst | error
+<embedded>::control.auto_sva_inst.check_aluop_mutex | error
+<embedded>::control.auto_sva_inst.check_mem_mutex | error
+<embedded>::control.auto_sva_inst.check_memToReg_implies_regWrite | error
+<embedded>::control.auto_sva_inst.check_regDst_implies_regWrite | error
+<embedded>::control.auto_sva_inst.check_memWrite_implies_no_regWrite | error
+<embedded>::control.auto_sva_inst.check_decode_op_000000 | error
+<embedded>::control.auto_sva_inst.check_decode_op_000100 | error
+<embedded>::control.auto_sva_inst.check_decode_op_100011 | error
+<embedded>::control.auto_sva_inst.check_decode_op_101011 | error

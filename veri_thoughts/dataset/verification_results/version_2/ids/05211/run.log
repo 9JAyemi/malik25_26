@@ -318,6 +318,43 @@ INFO: Using TOP = pcie_reset_delay_v6
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -558,47 +595,55 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 17
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 139564@della-i13n6(local) jg_139490_della-i13n6_1
-0.0.N: Proofgrid shell started at 139563@della-i13n6(local) jg_139490_della-i13n6_1
+0.0.Hp: Proofgrid shell started at 2848092@della-h16n1(local) jg_2847925_della-h16n1_1
+0.0.N: Proofgrid shell started at 2848091@della-h16n1(local) jg_2847925_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit" in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_counter_increments_while_output_low:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_increments_on_low_overflow:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_increments_on_double_overflow:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_holds_without_low_overflow:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_holds_without_double_overflow:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_counter_increments_while_output_low" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_holds_without_low_overflow" in 0.01 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_increments_on_low_overflow" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_holds_without_double_overflow" in 0.01 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_increments_on_double_overflow" in 0.01 s.
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit" in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit".
+INFO (IPF047): 0.0.N: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_counter_increments_while_output_low:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit".
+INFO (IPF047): 0.0.N: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_holds_without_low_overflow:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit".
+INFO (IPF047): 0.0.N: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_holds_without_double_overflow:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit".
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_matches_selected_bit"	[0.02 s].
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low" in 0.00 s.
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_counter_increments_while_output_low" in 0.00 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low".
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_increments_on_low_overflow" in 0.00 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low".
+INFO (IPF047): 0.0.N: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_increments_on_low_overflow:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low".
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_low_byte_increments_while_output_low"	[0.00 s].
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_increments_on_double_overflow:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
+0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_mid_byte_holds_without_low_overflow" in 0.03 s.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_holds_without_double_overflow" in 0.04 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_high_byte_increments_on_double_overflow" in 0.04 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -606,18 +651,10 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.Hp: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.Hp: The property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted" was proven in 0.02 s.
+INFO (IPF057): 0.0.Hp: The property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted" was proven in 0.04 s.
 0.0.Hp: Trace Attempt  4	[0.01 s]
 0.0.Hp: Trace Attempt  5	[0.02 s]
-0.0.Ht: Proofgrid shell started at 139577@della-i13n6(local) jg_139490_della-i13n6_1
-0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.B: Proofgrid shell started at 139578@della-i13n6(local) jg_139490_della-i13n6_1
+0.0.B: Proofgrid shell started at 2848106@della-h16n1(local) jg_2847925_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -627,32 +664,40 @@ INFO (IPF057): 0.0.Hp: The property "pcie_reset_delay_v6.auto_sva_inst.check_out
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Proofgrid shell started at 2848105@della-h16n1(local) jg_2847925_della-h16n1_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 3
-0.0.B: Trace Attempt 189	[0.92 s]
-0.0.B: Per property time limit expired (0.93 s) [0.93 s]
-0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.93 s].
+0.0.N: Trace Attempt 194	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Trace Attempt 165	[0.89 s]
+0.0.B: Per property time limit expired (0.91 s) [0.91 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.98 s].
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.91 s].
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
 0.0.B: A max_length bound was found. The shortest trace is no longer than 8388608 cycles. [0.00 s]
 INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 204	[1.00 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.99 s].
-0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt 208	[0.98 s]
+0.0.B: Trace Attempt 191	[0.99 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
@@ -663,9 +708,9 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 324	[1.00 s]
-0.0.N: Per property time limit expired (1.00 s) [1.01 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.01 s].
+0.0.N: Trace Attempt 326	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.02 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.02 s].
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -673,10 +718,10 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 209	[0.99 s]
+0.0.B: Trace Attempt 188	[0.97 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.00 s].
 0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
@@ -686,39 +731,40 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.00 s].
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.01 s].
 0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 336	[4.22 s]
-0.0.B: Trace Attempt 307	[4.03 s]
-0.0.N: Trace Attempt 420	[4.31 s]
-0.0.Ht: Trace Attempt 426	[8.23 s]
-0.0.B: Trace Attempt 355	[8.85 s]
-0.0.Ht: Trace Attempt 534	[12.26 s]
-0.0.B: Trace Attempt 359	[9.97 s]
-0.0.B: Per property time limit expired (10.00 s) [10.01 s]
-0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[10.01 s].
+0.0.Ht: Trace Attempt 403	[4.03 s]
+0.0.B: Trace Attempt 264	[4.01 s]
+0.0.N: Trace Attempt 420	[4.51 s]
+0.0.Ht: Trace Attempt 480	[8.05 s]
+0.0.B: Trace Attempt 330	[8.13 s]
+0.0.Ht: Trace Attempt 551	[12.05 s]
+0.0.B: Trace Attempt 348	[9.99 s]
+0.0.B: Per property time limit expired (10.00 s) [10.03 s]
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[10.03 s].
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 964	[8.19 s]
-0.0.N: Per property time limit expired (10.00 s) [10.05 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[10.06 s].
+0.0.N: Trace Attempt 964	[8.46 s]
+0.0.N: Per property time limit expired (10.00 s) [10.11 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[10.11 s].
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  9	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 583	[16.32 s]
-0.0.B: Trace Attempt 354	[4.00 s]
-0.0.B: Trace Attempt 403	[8.20 s]
-0.0.Ht: Trace Attempt 646	[21.25 s]
+0.0.Ht: Trace Attempt 607	[16.13 s]
+0.0.B: Trace Attempt 306	[4.04 s]
+0.0.Ht: Trace Attempt 646	[20.17 s]
+0.0.B: Trace Attempt 386	[8.06 s]
+0.0.B: Trace Attempt 402	[9.47 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
@@ -727,17 +773,19 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[9.98 s].
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[9.95 s].
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 675	[25.29 s]
-0.0.B: Trace Attempt 354	[4.00 s]
-0.0.Ht: Trace Attempt 690	[29.31 s]
-0.0.B: Trace Attempt 403	[8.12 s]
-0.0.B: Per property time limit expired (10.00 s) [10.01 s]
-0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[10.01 s].
+0.0.Ht: Trace Attempt 681	[24.22 s]
+0.0.B: Trace Attempt 301	[4.04 s]
+0.0.Ht: Trace Attempt 726	[28.22 s]
+0.0.B: Trace Attempt 374	[8.15 s]
+0.0.Ht: Trace Attempt 756	[32.29 s]
+0.0.B: Trace Attempt 394	[10.00 s]
+0.0.B: Per property time limit expired (10.00 s) [10.02 s]
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[10.02 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -745,105 +793,158 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[10.00 s].
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[10.03 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 758	[33.37 s]
-0.0.B: Trace Attempt 307	[4.03 s]
-0.0.N: Trace Attempt 420	[4.29 s]
-0.0.Ht: Trace Attempt 805	[37.38 s]
-0.0.B: Trace Attempt 355	[8.84 s]
-0.0.Ht: Trace Attempt 861	[42.34 s]
-0.0.B: Trace Attempt 362	[12.86 s]
-0.0.Ht: Trace Attempt 901	[46.70 s]
-0.0.N: Trace Attempt 965	[15.16 s]
-0.0.B: Trace Attempt 386	[17.02 s]
-0.0.Ht: Trace Attempt 941	[52.03 s]
-0.0.B: Trace Attempt 410	[21.05 s]
-0.0.N: Trace Attempt 1066	[21.25 s]
-0.0.Ht: Trace Attempt 973	[56.08 s]
-0.0.B: Trace Attempt 455	[25.89 s]
-0.0.Ht: Trace Attempt 1002	[60.08 s]
-0.0.N: Trace Attempt 1141	[27.30 s]
-0.0.B: Trace Attempt 458	[30.39 s]
-0.0.Ht: Trace Attempt 1022	[64.84 s]
-0.0.B: Trace Attempt 466	[34.41 s]
-0.0.Ht: Trace Attempt 1040	[69.06 s]
-0.0.N: Trace Attempt 1223	[37.43 s]
-0.0.B: Trace Attempt 486	[38.51 s]
-0.0.Ht: Trace Attempt 1074	[73.12 s]
-0.0.B: Trace Attempt 506	[43.90 s]
-0.0.Ht: Trace Attempt 1094	[77.21 s]
-0.0.B: Trace Attempt 539	[48.00 s]
-0.0.Ht: Trace Attempt 1101	[81.59 s]
-0.0.B: Trace Attempt 548	[52.34 s]
-0.0.Ht: Trace Attempt 1121	[85.83 s]
-0.0.B: Trace Attempt 549	[56.74 s]
-0.0.Ht: Trace Attempt 1145	[90.03 s]
-0.0.N: Trace Attempt 1298	[57.77 s]
-0.0.Ht: Trace Attempt 1166	[94.14 s]
-0.0.N: Trace Attempt 1945	[63.26 s]
-0.0.B: Trace Attempt 556	[63.50 s]
-0.0.Ht: Trace Attempt 1173	[98.81 s]
-0.0.Ht: Trace Attempt 1196	[102.87 s]
-0.0.B: Trace Attempt 565	[71.25 s]
-0.0.Ht: Trace Attempt 1213	[106.88 s]
-0.0.N: Trace Attempt 2049	[74.84 s]
-0.0.Ht: Trace Attempt 1234	[110.97 s]
-0.0.B: Trace Attempt 580	[78.47 s]
-0.0.B: Trace Attempt 588	[84.05 s]
-0.0.Ht: Trace Attempt 1242	[118.30 s]
-0.0.N: Trace Attempt 2113	[87.78 s]
-0.0.B: Trace Attempt 593	[89.10 s]
-0.0.Ht: Trace Attempt 1260	[122.87 s]
-0.0.Ht: Trace Attempt 1274	[126.98 s]
-0.0.B: Trace Attempt 623	[95.39 s]
-0.0.Ht: Trace Attempt 1288	[131.03 s]
-0.0.N: Trace Attempt 2181	[99.58 s]
-0.0.B: Trace Attempt 634	[97.43 s]
-0.0.B: Per property time limit expired (100.00 s) [100.02 s]
-0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[100.02 s].
+0.0.Ht: Trace Attempt 793	[36.32 s]
+0.0.B: Trace Attempt 266	[4.11 s]
+0.0.N: Trace Attempt 420	[4.35 s]
+0.0.Ht: Trace Attempt 814	[40.32 s]
+0.0.B: Trace Attempt 331	[8.19 s]
+0.0.Ht: Trace Attempt 858	[44.46 s]
+0.0.B: Trace Attempt 352	[12.91 s]
+0.0.N: Trace Attempt 965	[15.37 s]
+0.0.Ht: Trace Attempt 877	[48.49 s]
+0.0.B: Trace Attempt 358	[17.14 s]
+0.0.Ht: Trace Attempt 906	[52.55 s]
+0.0.N: Trace Attempt 1066	[21.56 s]
+0.0.B: Trace Attempt 362	[22.93 s]
+0.0.Ht: Trace Attempt 931	[56.61 s]
+0.0.B: Trace Attempt 379	[26.94 s]
+0.0.N: Trace Attempt 1141	[27.62 s]
+0.0.Ht: Trace Attempt 941	[60.83 s]
+0.0.B: Trace Attempt 388	[31.68 s]
+0.0.Ht: Trace Attempt 968	[64.85 s]
+0.0.B: Trace Attempt 391	[35.81 s]
+0.0.Ht: Trace Attempt 994	[68.90 s]
+0.0.N: Trace Attempt 1223	[37.97 s]
+0.0.B: Trace Attempt 454	[40.85 s]
+0.0.Ht: Trace Attempt 1000	[73.90 s]
+0.0.Ht: Trace Attempt 1018	[77.95 s]
+0.0.B: Trace Attempt 455	[46.67 s]
+0.0.Ht: Trace Attempt 1051	[82.11 s]
+0.0.B: Trace Attempt 457	[51.89 s]
+0.0.Ht: Trace Attempt 1066	[86.36 s]
+0.0.B: Trace Attempt 460	[56.04 s]
+0.0.Ht: Trace Attempt 1083	[90.90 s]
+0.0.B: Trace Attempt 466	[60.22 s]
+0.0.Ht: Trace Attempt 1109	[95.19 s]
+0.0.B: Trace Attempt 477	[65.24 s]
+0.0.N: Trace Attempt 1298	[65.29 s]
+0.0.Ht: Trace Attempt 1133	[99.19 s]
+0.0.B: Trace Attempt 505	[71.03 s]
+0.0.N: Trace Attempt 1945	[71.17 s]
+0.0.Ht: Trace Attempt 1145	[104.20 s]
+0.0.B: Trace Attempt 506	[75.14 s]
+0.0.Ht: Trace Attempt 1166	[108.25 s]
+0.0.Ht: Trace Attempt 1185	[112.45 s]
+0.0.B: Trace Attempt 539	[81.33 s]
+0.0.N: Trace Attempt 2049	[82.56 s]
+0.0.Ht: Trace Attempt 1204	[116.78 s]
+0.0.B: Trace Attempt 540	[86.40 s]
+0.0.Ht: Trace Attempt 1211	[121.04 s]
+0.0.Ht: Trace Attempt 1223	[125.15 s]
+0.0.N: Trace Attempt 2113	[94.69 s]
+0.0.B: Trace Attempt 549	[96.29 s]
+0.0.Ht: Trace Attempt 1232	[129.38 s]
+0.0.B: Trace Attempt 555	[98.42 s]
+0.0.B: Per property time limit expired (100.00 s) [100.08 s]
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[100.08 s].
 0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[100.33 s].
+0.0.Ht: Trace Attempt 1253	[133.43 s]
+0.0.N: Trace Attempt 2180	[97.29 s]
+0.0.N: Per property time limit expired (100.00 s) [100.69 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[100.69 s].
 0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.Ht: Trace Attempt 1304	[135.52 s]
-0.0.B: Trace Attempt 356	[4.01 s]
-0.0.Ht: Trace Attempt 1313	[141.29 s]
-0.0.B: Trace Attempt 404	[10.97 s]
-0.0.Ht: Trace Attempt 1325	[145.39 s]
-0.0.N: Trace Attempt  1	[12.65 s]
-0.0.N: Trace Attempt  2	[12.65 s]
-0.0.N: Trace Attempt  3	[12.65 s]
-0.0.B: Trace Attempt 428	[15.09 s]
-0.0.Ht: Trace Attempt 1340	[149.68 s]
-0.0.N: Trace Attempt 402	[18.20 s]
-0.0.B: Trace Attempt 449	[19.32 s]
-0.0.Ht: Trace Attempt 1355	[153.69 s]
-0.0.N: Trace Attempt 483	[22.35 s]
-0.0.B: Trace Attempt 467	[23.42 s]
-0.0.Ht: Trace Attempt 1367	[157.88 s]
-0.0.N: Trace Attempt 802	[26.35 s]
-0.0.B: Trace Attempt 482	[28.21 s]
-0.0.Ht: Trace Attempt 1376	[161.89 s]
-0.0.B: Trace Attempt 509	[33.52 s]
-0.0.N: Trace Attempt 974	[33.67 s]
-0.0.Ht: Trace Attempt 1386	[168.43 s]
-0.0.B: Trace Attempt 524	[37.81 s]
-0.0.Ht: Trace Attempt 1395	[172.92 s]
-0.0.B: Trace Attempt 532	[43.95 s]
-0.0.Ht: Trace Attempt 1405	[177.99 s]
-0.0.N: Trace Attempt 1047	[45.78 s]
-0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[47.91 s].
+0.0.N: Trace Attempt 388	[0.05 s]
+0.0.B: Trace Attempt 311	[4.01 s]
+0.0.Ht: Trace Attempt 1272	[137.62 s]
+0.0.B: Trace Attempt 386	[8.08 s]
+0.0.Ht: Trace Attempt 1284	[141.78 s]
+0.0.Ht: Trace Attempt 1300	[145.97 s]
+0.0.B: Trace Attempt 403	[13.16 s]
+0.0.Ht: Trace Attempt 1314	[150.42 s]
+0.0.B: Trace Attempt 404	[17.84 s]
+0.0.Ht: Trace Attempt 1332	[154.70 s]
+0.0.B: Trace Attempt 420	[21.88 s]
+0.0.N: Trace Attempt 389	[23.11 s]
+0.0.N: Trace Attempt  1	[23.43 s]
+0.0.N: Trace Attempt  2	[23.43 s]
+0.0.N: Trace Attempt  3	[23.43 s]
+0.0.Ht: Trace Attempt 1349	[158.87 s]
+0.0.B: Trace Attempt 445	[26.16 s]
+0.0.N: Trace Attempt 370	[27.44 s]
+0.0.B: Trace Attempt 448	[30.66 s]
+0.0.Ht: Trace Attempt 1359	[164.25 s]
+0.0.N: Trace Attempt 483	[33.64 s]
+0.0.Ht: Trace Attempt 1371	[168.59 s]
+0.0.B: Trace Attempt 458	[35.70 s]
+0.0.N: Trace Attempt 661	[37.64 s]
+0.0.Ht: Trace Attempt 1389	[172.72 s]
+0.0.Ht: Trace Attempt 1407	[176.73 s]
+0.0.B: Trace Attempt 481	[44.11 s]
+0.0.N: Trace Attempt 974	[44.97 s]
+0.0.Ht: Trace Attempt 1421	[181.25 s]
+0.0.B: Trace Attempt 501	[48.40 s]
+0.0.B: Trace Attempt 509	[54.13 s]
+0.0.Ht: Trace Attempt 1433	[187.39 s]
+0.0.N: Trace Attempt 1047	[56.40 s]
+0.0.Ht: Trace Attempt 1447	[191.81 s]
+0.0.B: Trace Attempt 524	[60.75 s]
+0.0.Ht: Trace Attempt 1461	[196.08 s]
+0.0.B: Trace Attempt 527	[65.12 s]
+0.0.Ht: Trace Attempt 1474	[200.30 s]
+0.0.N: Trace Attempt 1108	[68.17 s]
+0.0.B: Trace Attempt 532	[69.71 s]
+0.0.Ht: Trace Attempt 1494	[204.68 s]
+0.0.B: Trace Attempt 571	[73.76 s]
+0.0.N: Trace Attempt 1147	[75.18 s]
+0.0.Ht: Trace Attempt 1508	[208.96 s]
+0.0.Ht: Trace Attempt 1512	[212.99 s]
+0.0.B: Trace Attempt 577	[82.14 s]
+0.0.Ht: Trace Attempt 1525	[217.13 s]
+0.0.B: Trace Attempt 585	[86.38 s]
+0.0.Ht: Trace Attempt 1537	[221.26 s]
+0.0.B: Trace Attempt 586	[91.33 s]
+0.0.Ht: Trace Attempt 1548	[225.33 s]
+0.0.Ht: Trace Attempt 1556	[229.56 s]
+0.0.N: Trace Attempt 1187	[96.68 s]
+0.0.B: Trace Attempt 611	[93.81 s]
+0.0.B: Per property time limit expired (100.00 s) [100.03 s]
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[100.03 s].
+0.0.B: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[99.57 s].
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.Ht: Trace Attempt 1569	[233.62 s]
+0.0.B: Trace Attempt 302	[4.01 s]
+0.0.Ht: Trace Attempt 1581	[237.76 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: Trace Attempt 13	[0.12 s]
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.00 s]
+0.0.Bm: Trace Attempt  3	[0.00 s]
+0.0.Bm: Trace Attempt  4	[0.00 s]
+0.0.Bm: Trace Attempt  5	[0.00 s]
+0.0.B: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[7.86 s].
 0.0.B: Morphing to AB
-0.0.B: Trace Attempt 575	[47.14 s]
+0.0.B: Trace Attempt 380	[7.84 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -860,38 +961,39 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[47.69 s].
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[7.67 s].
 0.0.N: Morphing to K
-0.0.N: Trace Attempt 1061	[47.49 s]
+0.0.N: Trace Attempt 388	[0.02 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.K: Trace Attempt 388	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.73 s]
-0.0.AB: Trace Attempt  2	[0.73 s]
-0.0.AB: Trace Attempt  3	[0.73 s]
-0.0.AB: Trace Attempt  4	[0.73 s]
-0.0.AB: Trace Attempt  5	[0.73 s]
-0.0.AB: Trace Attempt 138	[1.00 s]
-0.0.AB: Per property time limit expired (1.00 s) [1.00 s]
-0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.00 s].
+0.0.AB: Trace Attempt  1	[0.76 s]
+0.0.AB: Trace Attempt  2	[0.76 s]
+0.0.AB: Trace Attempt  3	[0.76 s]
+0.0.AB: Trace Attempt  4	[0.76 s]
+0.0.AB: Trace Attempt  5	[0.76 s]
+0.0.AB: Trace Attempt 132	[0.98 s]
+0.0.AB: Per property time limit expired (0.99 s) [0.99 s]
+0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.99 s].
 0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.89 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Per property time limit expired (0.98 s) [0.98 s]
+0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.99 s].
+0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.K: Trace Attempt  1	[0.00 s]
 0.0.K: Trace Attempt  2	[0.00 s]
 0.0.K: Trace Attempt  3	[0.00 s]
@@ -907,18 +1009,20 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AB: Trace Attempt  3	[0.04 s]
 0.0.AB: Trace Attempt  4	[0.04 s]
 0.0.AB: Trace Attempt  5	[0.04 s]
-0.0.Ht: Trace Attempt 1423	[182.11 s]
-0.0.AB: Trace Attempt 192	[1.00 s]
+0.0.Ht: Trace Attempt 1583	[242.46 s]
+0.0.AB: Trace Attempt 177	[1.00 s]
 0.0.AB: Per property time limit expired (1.00 s) [1.00 s]
 0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[1.00 s].
-0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
+0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.K: Trace Attempt 192	[0.98 s]
+0.0.K: Per property time limit expired (1.00 s) [1.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[1.00 s].
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[1.00 s].
-0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
+0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
@@ -929,14 +1033,15 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.73 s]
-0.0.AB: Trace Attempt  2	[0.73 s]
-0.0.AB: Trace Attempt  3	[0.73 s]
-0.0.AB: Trace Attempt  4	[0.73 s]
-0.0.AB: Trace Attempt  5	[0.73 s]
-0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.95 s].
+0.0.K: Trace Attempt 388	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.83 s]
+0.0.AB: Trace Attempt  2	[0.83 s]
+0.0.AB: Trace Attempt  3	[0.83 s]
+0.0.AB: Trace Attempt  4	[0.83 s]
+0.0.AB: Trace Attempt  5	[0.83 s]
+0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.41 s].
 0.0.AB: Morphing to Hts
-0.0.AB: Trace Attempt 228	[1.95 s]
+0.0.AB: Trace Attempt 160	[1.40 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -946,9 +1051,8 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.Hts: Trace Attempt  3	[0.00 s]
 0.0.Hts: Trace Attempt  4	[0.00 s]
 0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.95 s].
+0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.41 s].
 0.0.K: Morphing to AM
-0.0.K: Trace Attempt 388	[0.01 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -967,39 +1071,14 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AM: Trace Attempt  1	[0.04 s]
 0.0.AM: Trace Attempt  2	[0.04 s]
 0.0.AM: Trace Attempt  3	[0.04 s]
-0.0.Ht: Trace Attempt 1435	[186.24 s]
-0.0.Hts: Trace Attempt 2183	[0.65 s]
-0.0.Hts: Per property time limit expired (2.00 s) [2.01 s]
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[2.01 s].
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt 256	[1.91 s]
+0.0.Bm: Trace Attempt 341	[4.00 s]
+0.0.Hts: Trace Attempt 2180	[0.91 s]
+0.0.Hts: Per property time limit expired (1.99 s) [2.00 s]
+0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[2.00 s].
+0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt 256	[1.81 s]
 0.0.AM: Per property time limit expired (1.99 s) [2.00 s]
 0.0.AM: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[2.00 s].
-0.0.AM: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.Hts: Trace Attempt  1	[0.14 s]
-0.0.Hts: Trace Attempt  2	[0.14 s]
-0.0.Hts: Trace Attempt  3	[0.14 s]
-0.0.Hts: Trace Attempt  4	[0.14 s]
-0.0.Hts: Trace Attempt  5	[0.14 s]
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.14 s].
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.00 s]
-0.0.Hts: Trace Attempt  2	[0.00 s]
-0.0.Hts: Trace Attempt  3	[0.00 s]
-0.0.Hts: Trace Attempt  4	[0.00 s]
-0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.AM: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.14 s].
 0.0.AM: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1012,111 +1091,96 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.67 s]
-0.0.AM: Trace Attempt  2	[0.67 s]
-0.0.AM: Trace Attempt  3	[0.68 s]
-0.0.Ht: Trace Attempt 1446	[190.45 s]
-0.0.Hts: Trace Attempt 1437	[0.18 s]
-0.0.Hts: Per property time limit expired (4.00 s) [4.03 s]
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[4.03 s].
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt 570	[3.13 s]
-0.0.AM: Per property time limit expired (4.00 s) [4.03 s]
-0.0.AM: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[4.03 s].
-0.0.AM: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.Hts: Trace Attempt  1	[0.04 s]
-0.0.Hts: Trace Attempt  2	[0.04 s]
-0.0.Hts: Trace Attempt  3	[0.04 s]
-0.0.Hts: Trace Attempt  4	[0.04 s]
-0.0.Hts: Trace Attempt  5	[0.04 s]
-0.0.AM: Trace Attempt  1	[0.67 s]
-0.0.AM: Trace Attempt  2	[0.67 s]
-0.0.AM: Trace Attempt  3	[0.67 s]
-0.0.AM: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.60 s].
+0.0.Hts: Trace Attempt  1	[0.18 s]
+0.0.Hts: Trace Attempt  2	[0.18 s]
+0.0.Hts: Trace Attempt  3	[0.18 s]
+0.0.Hts: Trace Attempt  4	[0.18 s]
+0.0.Hts: Trace Attempt  5	[0.18 s]
+0.0.AM: Trace Attempt  1	[0.71 s]
+0.0.AM: Trace Attempt  2	[0.71 s]
+0.0.AM: Trace Attempt  3	[0.71 s]
+0.0.Ht: Trace Attempt 1593	[247.41 s]
+0.0.AM: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.76 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 436	[1.59 s]
+0.0.AM: Trace Attempt 471	[1.73 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Tri: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.21" ---- Launching abstraction thread ----
-0.0.Tri:    0.23" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.49 s]
-0.0.Tri: Trace Attempt  3	[0.49 s]
-0.0.Tri: Trace Attempt  4	[0.49 s]
-0.0.Tri: Trace Attempt  5	[0.49 s]
-0.0.Tri:    1.32" Simplification phase 1 complete
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[3.59 s].
+0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[2.02 s].
 0.0.Hts: Morphing to I
-0.0.Hts: Trace Attempt 1448	[0.23 s]
+0.0.Hts: Trace Attempt 1592	[0.42 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.I: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
 0.0.I: Trace Attempt  8	[0.00 s]
-0.0.I: Trace Attempt  1	[0.00 s]
-0.0.I: Trace Attempt  2	[0.00 s]
-0.0.I: Trace Attempt  3	[0.00 s]
+0.0.I: Trace Attempt  1	[0.01 s]
+0.0.I: Trace Attempt  2	[0.01 s]
+0.0.I: Trace Attempt  3	[0.01 s]
 0.0.I: Trace Attempt  4	[0.01 s]
-0.0.I: Trace Attempt  1	[1.56 s]
-0.0.I: Trace Attempt  2	[1.56 s]
-0.0.I: Trace Attempt  3	[1.56 s]
-0.0.I: Trace Attempt  4	[1.56 s]
-0.0.Tri:    3.86" Simplification phase 2 complete
-0.0.Tri: Trace Attempt 9586	[4.49 s]
-0.0.Tri:    4.57" Simplification phase 3 complete
-0.0.Tri:    4.57" ---- Completed simplification thread ----
-0.0.Tri:    4.63" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    4.75" ---- Restarting abstraction thread on simplified netlist ----
-0.0.Ht: Trace Attempt 1459	[199.41 s]
-0.0.I: Trace Attempt 82	[4.78 s]
-0.0.I: Per property time limit expired (6.02 s) [6.02 s]
-0.0.I: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[6.02 s].
-0.0.I: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.I: Trace Attempt 10	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.34" ---- Launching abstraction thread ----
+0.0.Tri:    0.38" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.62 s]
+0.0.Tri: Trace Attempt  3	[0.63 s]
+0.0.Tri: Trace Attempt  4	[0.63 s]
+0.0.Tri: Trace Attempt  5	[0.63 s]
+0.0.Bm: Trace Attempt 455	[8.01 s]
+0.0.Tri:    1.43" Simplification phase 1 complete
+0.0.I: Trace Attempt  1	[1.95 s]
+0.0.I: Trace Attempt  2	[1.95 s]
+0.0.I: Trace Attempt  3	[1.95 s]
+0.0.I: Trace Attempt  4	[1.96 s]
+0.0.Tri: Trace Attempt 17029	[4.63 s]
+0.0.Bm: Trace Attempt 593	[12.04 s]
+0.0.Tri:    4.52" Simplification phase 2 complete
+0.0.Tri:    5.25" Simplification phase 3 complete
+   5.25" ---- Completed simplification thread ----
+   5.25" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    5.48" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1597	[254.29 s]
+0.0.I: Trace Attempt 82	[6.78 s]
+0.0.I: Per property time limit expired (7.73 s) [7.77 s]
+0.0.I: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[7.77 s].
+0.0.I: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.I: Trace Attempt  1	[0.00 s]
 0.0.I: Trace Attempt  2	[0.00 s]
 0.0.I: Trace Attempt  3	[0.00 s]
-0.0.I: Trace Attempt  5	[0.01 s]
-0.0.Tri: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[7.95 s].
-0.0.Tri: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  5	[0.00 s]
+0.0.Tri: Trace Attempt 18324	[5.28 s]
+0.0.Tri: Per property time limit expired (7.97 s) [8.08 s]
+0.0.Tri: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[8.08 s].
+0.0.Tri: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    7.82" ---- Launching main thread ----
-0.0.Tri:    7.94" ---- Launching abstraction thread ----
-0.0.Tri:    7.96" ---- Launching multi-phase simplification thread ----
-0.0.I: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.63 s].
+0.0.Tri:    7.90" ---- Launching main thread ----
+0.0.Tri:    8.21" ---- Launching abstraction thread ----
+0.0.Tri:    8.24" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.41 s]
+0.0.Tri: Trace Attempt  3	[0.41 s]
+0.0.Tri: Trace Attempt  4	[0.41 s]
+0.0.Tri: Trace Attempt  5	[0.41 s]
+0.0.I: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.79 s].
 0.0.I: Morphing to AB
-0.0.I: Trace Attempt 28	[0.07 s]
+0.0.I: Trace Attempt 28	[0.06 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Tri: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.63 s].
 0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.Tri: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.64 s].
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.Tri: Morphing to D
-0.0.Tri: Trace Attempt 13286	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Tri: Morphing to Hts
+0.0.Tri: Trace Attempt 247	[0.64 s]
 0.0.Tri: All properties determined. [0.00 s]
 0.0.Tri: Exited with Success (@ 0.00 s)
 0.0.AB: Trace Attempt  1	[0.01 s]
@@ -1124,41 +1188,31 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.D: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
-0.0.D: Trace Attempt  1	[0.00 s]
-0.0.D: Trace Attempt  2	[0.00 s]
-0.0.D: Trace Attempt  3	[0.00 s]
-0.0.D: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.78 s]
-0.0.AB: Trace Attempt  2	[0.78 s]
-0.0.AB: Trace Attempt  3	[0.78 s]
-0.0.AB: Trace Attempt  4	[0.78 s]
-0.0.AB: Trace Attempt  5	[0.78 s]
-0.0.Ht: Trace Attempt 1464	[203.45 s]
-0.0.AB: Trace Attempt 303	[4.85 s]
-0.0.Ht: Trace Attempt 1471	[207.68 s]
-0.0.AB: Trace Attempt 321	[8.87 s]
-0.0.Ht: Trace Attempt 1481	[211.94 s]
-0.0.AB: Trace Attempt 342	[12.88 s]
-0.0.Ht: Trace Attempt 1488	[216.57 s]
-0.0.D: Trace Attempt 79	[3.40 s]
-0.0.D: Per property time limit expired (15.99 s) [15.99 s]
-0.0.D: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[15.99 s].
-0.0.D: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
-0.0.D: Trace Attempt  1	[0.00 s]
-0.0.D: Trace Attempt  2	[0.00 s]
-0.0.D: Trace Attempt  3	[0.00 s]
-0.0.D: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt 367	[15.81 s]
-0.0.AB: Per property time limit expired (16.00 s) [16.00 s]
-0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[16.00 s].
+0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.00 s]
+0.0.Hts: Trace Attempt  2	[0.00 s]
+0.0.Hts: Trace Attempt  3	[0.00 s]
+0.0.Hts: Trace Attempt  4	[0.00 s]
+0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Bm: Trace Attempt 673	[16.09 s]
+0.0.AB: Trace Attempt  1	[1.05 s]
+0.0.AB: Trace Attempt  2	[1.05 s]
+0.0.AB: Trace Attempt  3	[1.05 s]
+0.0.AB: Trace Attempt  4	[1.05 s]
+0.0.AB: Trace Attempt  5	[1.05 s]
+0.0.Ht: Trace Attempt 1603	[259.40 s]
+0.0.Bm: Trace Attempt 677	[20.76 s]
+0.0.AB: Trace Attempt 301	[5.71 s]
+0.0.Ht: Trace Attempt 1608	[264.00 s]
+0.0.AB: Trace Attempt 310	[10.00 s]
+0.0.Bm: Trace Attempt 681	[26.79 s]
+0.0.Ht: Trace Attempt 1612	[268.54 s]
+0.0.AB: Trace Attempt 327	[14.09 s]
+0.0.AB: Trace Attempt 333	[15.99 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.02 s]
+0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[16.02 s].
 0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
@@ -1174,186 +1228,115 @@ INFO (IPF008): 0.0.B: A max_length bound of 8388608 was found for the property "
 0.0.AB: Trace Attempt  3	[0.05 s]
 0.0.AB: Trace Attempt  4	[0.05 s]
 0.0.AB: Trace Attempt  5	[0.05 s]
-0.0.AB: Trace Attempt 335	[4.08 s]
-0.0.Ht: Trace Attempt 1499	[222.13 s]
-0.0.AB: Trace Attempt 470	[8.10 s]
-0.0.Ht: Trace Attempt 1510	[226.30 s]
-0.0.D: Trace Attempt 107	[11.99 s]
-0.0.AB: Trace Attempt 558	[12.12 s]
-0.0.Ht: Trace Attempt 1520	[231.33 s]
-0.0.D: Per property time limit expired (16.00 s) [16.00 s]
-0.0.D: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[16.00 s].
-0.0.D: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.D: Trace Attempt  1	[0.00 s]
-0.0.D: Trace Attempt  2	[0.00 s]
-0.0.D: Trace Attempt  3	[0.00 s]
-0.0.D: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.12 s]
+0.0.AB: Trace Attempt  2	[0.12 s]
+0.0.AB: Trace Attempt  3	[0.12 s]
+0.0.AB: Trace Attempt  4	[0.12 s]
+0.0.AB: Trace Attempt  5	[0.12 s]
+0.0.Bm: Trace Attempt 683	[32.33 s]
+0.0.Hts: Trace Attempt 1601	[0.15 s]
+0.0.Hts: Per property time limit expired (15.98 s) [16.28 s]
+0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[16.28 s].
+0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
+0.0.Ht: Trace Attempt 1616	[273.25 s]
+0.0.Hts: Trace Attempt  1	[0.03 s]
+0.0.Hts: Trace Attempt  2	[0.03 s]
+0.0.Hts: Trace Attempt  3	[0.03 s]
+0.0.Hts: Trace Attempt  4	[0.03 s]
+0.0.Hts: Trace Attempt  5	[0.03 s]
+0.0.AB: Trace Attempt 360	[4.13 s]
+0.0.Ht: Trace Attempt 1622	[277.59 s]
+0.0.Hts: Trace Attempt 18324	[6.31 s]
+0.0.AB: Trace Attempt 505	[8.36 s]
+0.0.Bm: Trace Attempt 743	[41.43 s]
+0.0.Ht: Trace Attempt 1628	[282.91 s]
+0.0.AB: Trace Attempt 623	[12.38 s]
+0.0.Bm: Trace Attempt 803	[45.95 s]
+0.0.Ht: Trace Attempt 1634	[288.07 s]
+0.0.AB: Trace Attempt 645	[14.26 s]
+0.0.AB: Per property time limit expired (16.00 s) [16.01 s]
 0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[16.01 s].
-0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.78 s]
-0.0.AB: Trace Attempt  2	[0.78 s]
-0.0.AB: Trace Attempt  3	[0.78 s]
-0.0.AB: Trace Attempt  4	[0.78 s]
-0.0.AB: Trace Attempt  5	[0.78 s]
-0.0.D: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.87 s].
-0.0.D: Morphing to Hts
-0.0.D: Trace Attempt 38	[0.16 s]
-0.0.D: All properties determined. [0.00 s]
-0.0.D: Exited with Success (@ 0.00 s)
-0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.00 s]
-0.0.Hts: Trace Attempt  2	[0.00 s]
-0.0.Hts: Trace Attempt  3	[0.00 s]
-0.0.Hts: Trace Attempt  4	[0.00 s]
-0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.85 s].
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[15.91 s].
+0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.64 s]
+0.0.AB: Trace Attempt  2	[0.64 s]
+0.0.AB: Trace Attempt  3	[0.64 s]
+0.0.AB: Trace Attempt  4	[0.64 s]
+0.0.AB: Trace Attempt  5	[0.64 s]
+0.0.AB: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[1.69 s].
 0.0.AB: Morphing to K
-0.0.AB: Trace Attempt 84	[0.85 s]
+0.0.AB: Trace Attempt 227	[1.68 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[0.00 s].
-0.0.K: Trace Attempt 67	[0.01 s]
-0.0.K: Trace Attempt  1	[0.11 s]
-0.0.K: Trace Attempt  2	[0.11 s]
-0.0.K: Trace Attempt  3	[0.11 s]
-0.0.K: Trace Attempt  4	[0.11 s]
-0.0.K: Trace Attempt  5	[0.11 s]
-0.0.Ht: Trace Attempt 1522	[236.16 s]
-0.0.K: Trace Attempt 334	[4.11 s]
-0.0.Hts: Trace Attempt 13286	[4.12 s]
-0.0.Ht: Trace Attempt 1532	[240.29 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Morphing to Bm
-0.0.Hp: Trace Attempt  8	[0.05 s]
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.00 s)
-0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Bm: Trace Attempt  1	[0.00 s]
-0.0.Bm: Trace Attempt  2	[0.00 s]
-0.0.Bm: Trace Attempt  3	[0.00 s]
-0.0.Bm: Trace Attempt  4	[0.00 s]
-0.0.Bm: Trace Attempt  5	[0.00 s]
-0.0.K: Trace Attempt 375	[9.18 s]
-0.0.Ht: Trace Attempt 1537	[244.63 s]
-0.0.Bm: Trace Attempt 315	[4.01 s]
-0.0.K: Trace Attempt 407	[13.22 s]
-0.0.Ht: Trace Attempt 1545	[249.12 s]
-0.0.Bm: Trace Attempt 382	[8.74 s]
-0.0.K: Trace Attempt 433	[17.23 s]
-0.0.Ht: Trace Attempt 1554	[253.44 s]
-0.0.Bm: Trace Attempt 526	[12.74 s]
-0.0.K: Trace Attempt 448	[21.63 s]
-0.0.Ht: Trace Attempt 1563	[257.60 s]
-0.0.Bm: Trace Attempt 605	[16.74 s]
-0.0.K: Trace Attempt 457	[25.99 s]
-0.0.Ht: Trace Attempt 1570	[262.11 s]
-0.0.Bm: Trace Attempt 662	[20.85 s]
-0.0.K: Trace Attempt 470	[30.02 s]
-0.0.K: Trace Attempt 471	[30.06 s]
-0.0.K: Per property time limit expired (32.00 s) [32.01 s]
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[32.01 s].
 0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 388	[0.02 s]
-0.0.Bm: Trace Attempt 676	[24.95 s]
-0.0.Ht: Trace Attempt 1580	[266.59 s]
-0.0.Ht: Trace Attempt 1592	[271.00 s]
-0.0.Bm: Trace Attempt 680	[31.19 s]
-0.0.Ht: Trace Attempt 1593	[275.23 s]
-0.0.Bm: Trace Attempt 681	[36.65 s]
-0.0.K: Trace Attempt  1	[12.66 s]
-0.0.K: Trace Attempt  2	[12.66 s]
-0.0.K: Trace Attempt  3	[12.66 s]
-0.0.K: Trace Attempt  4	[12.66 s]
-0.0.K: Trace Attempt  5	[12.66 s]
-0.0.Ht: Trace Attempt 1602	[279.27 s]
-0.0.K: Trace Attempt 351	[16.67 s]
-0.0.Bm: Trace Attempt 682	[41.94 s]
-0.0.Ht: Trace Attempt 1607	[283.69 s]
-0.0.Hts: Per property time limit expired (32.00 s) [51.66 s]
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high"	[51.66 s].
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.10 s]
-0.0.Hts: Trace Attempt  2	[0.10 s]
-0.0.Hts: Trace Attempt  3	[0.10 s]
-0.0.Hts: Trace Attempt  4	[0.10 s]
-0.0.Hts: Trace Attempt  5	[0.10 s]
-0.0.K: Trace Attempt 403	[20.89 s]
-0.0.Bm: Trace Attempt 699	[46.05 s]
-0.0.Ht: Trace Attempt 1614	[288.17 s]
-0.0.K: Trace Attempt 437	[25.00 s]
-0.0.Bm: Trace Attempt 742	[50.68 s]
-0.0.Ht: Trace Attempt 1622	[292.72 s]
-0.0.K: Trace Attempt 446	[29.99 s]
-0.0.Ht: Trace Attempt 1629	[297.27 s]
-0.0.K: Trace Attempt 458	[30.98 s]
-0.0.K: Per property time limit expired (32.00 s) [32.01 s]
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[32.01 s].
-0.0.K: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[12.37 s].
-0.0.Hts: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 388	[0.02 s]
-0.0.Hts: Trace Attempt  1	[0.02 s]
-0.0.Hts: Trace Attempt  2	[0.02 s]
-0.0.Hts: Trace Attempt  3	[0.02 s]
-0.0.Hts: Trace Attempt  4	[0.02 s]
-0.0.Hts: Trace Attempt  5	[0.02 s]
-0.0.Bm: Trace Attempt 743	[58.50 s]
-INFO (IPF144): 0: Initiating shutdown of proof [300.06 s]
-0.0.Ht: Trace Attempt 1631	[298.63 s]
-0.0.Ht: Time limit expired (300.00 s) [300.00 s]
-0.0.Ht: Exited with Success (@ 300.08 s)
-0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[1.84 s].
-0.0.K: Time limit expired (300.00 s) [1.84 s]
-0.0.Bm: Time limit expired (300.00 s) [58.73 s]
-0.0.K: Exited with Success (@ 300.09 s)
-0.0.Hts: Sending SIGKILL
-0.0.Bm: Sending SIGKILL
-0.0.Bm: Exited with Success (@ 302.13 s)
-0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_counter_holds_while_output_high:precondition1"	[3.89 s].
-0.0.Hts: Trace Attempt 1630	[0.25 s]
-0.0.Hts: Terminated by signal SIGKILL (@ 302.13 s)
+0.0.Bm: Trace Attempt 822	[49.95 s]
+0.0.Hts: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[3.04 s].
+0.0.Hts: Morphing to N
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Starting proof for property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 388	[0.01 s]
+0.0.Ht: Trace Attempt 1639	[292.24 s]
+0.0.Bm: Trace Attempt 838	[54.95 s]
+0.0.Ht: Trace Attempt 1643	[296.44 s]
+INFO (IPF144): 0: Initiating shutdown of proof [300.13 s]
+0.0.Ht: Interrupted (multi)
+0.0.Ht: Trace Attempt 1645	[299.29 s]
+0.0.Ht: Time limit expired (300.00 s) [299.99 s]
+0.0.Bm: Trace Attempt 862	[57.04 s]
+0.0.Bm: Time limit expired (300.00 s) [59.14 s]
+0.0.K: Trace Attempt  1	[9.36 s]
+0.0.K: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[9.36 s].
+0.0.K: Time limit expired (300.00 s) [9.36 s]
+0.0.N: Stopped processing property "pcie_reset_delay_v6.auto_sva_inst.check_output_stays_high_once_asserted:precondition1"	[7.84 s].
+0.0.N: Time limit expired (300.00 s) [7.84 s]
+0.0.Bm: Exited with Success (@ 300.17 s)
+0.0.Ht: Exited with Success (@ 300.36 s)
+0.0.K: Exited with Success (@ 300.36 s)
+0.0.N: Exited with Success (@ 300.36 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
-     engines started                               :    12
+     engines started                               :    11
      engine jobs started                           :     4
 
     Average time in state (seconds)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.06      300.00        0.00       99.98 %
-      K        0.07      297.98        0.00       99.97 %
-    Hts        0.05      301.95        0.00       99.98 %
-     Bm        0.05      299.86        0.00       99.98 %
-    all        0.06      299.95        0.00       99.98 %
+      N        0.07      298.54        0.00       99.98 %
+     Ht        0.14      299.99        0.00       99.95 %
+     Bm        0.06      300.09        0.00       99.98 %
+      K        0.09      299.76        0.00       99.97 %
+    all        0.09      299.59        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23     1199.79        0.00
+               0.37     1198.38        0.00
 
-    Data read    : 2.79 MiB
-    Data written : 384.01 kiB
+    Data read    : 2.99 MiB
+    Data written : 522.11 kiB
 
 0: All pending notifications were processed.
 ----------------------------------------
@@ -1389,6 +1372,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05211/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 2 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 2 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05211/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1438,8 +1479,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1454,6 +1499,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 2.880 GB.
+INFO (IPL018): The peak resident set memory use for this session was 3.311 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

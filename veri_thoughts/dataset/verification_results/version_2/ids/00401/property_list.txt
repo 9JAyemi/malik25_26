@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count
+counter.auto_sva_inst.check_increment_when_up_only
+counter.auto_sva_inst.check_decrement_when_down_only
+counter.auto_sva_inst.check_hold_when_idle
+counter.auto_sva_inst.check_hold_when_up_and_down
+
+COVER PROPERTIES:
+counter.auto_sva_inst.check_reset_clears_count:precondition1
+counter.auto_sva_inst.check_increment_when_up_only:precondition1
+counter.auto_sva_inst.check_decrement_when_down_only:precondition1
+counter.auto_sva_inst.check_hold_when_idle:precondition1
+counter.auto_sva_inst.check_hold_when_up_and_down:precondition1

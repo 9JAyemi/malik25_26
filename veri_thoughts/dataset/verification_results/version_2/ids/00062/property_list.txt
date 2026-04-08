@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+shift_mux.auto_sva_inst.check_shift_reg_shift
+shift_mux.auto_sva_inst.check_shift_reg_load_bit3
+shift_mux.auto_sva_inst.check_out_sel_00
+shift_mux.auto_sva_inst.check_out_sel_01
+shift_mux.auto_sva_inst.check_out_sel_10
+shift_mux.auto_sva_inst.check_out_sel_11
+shift_mux.auto_sva_inst.check_out_stable_when_mux_inputs_stable
+
+COVER PROPERTIES:
+shift_mux.auto_sva_inst.check_shift_reg_shift:precondition1
+shift_mux.auto_sva_inst.check_shift_reg_load_bit3:precondition1
+shift_mux.auto_sva_inst.check_out_sel_00:precondition1
+shift_mux.auto_sva_inst.check_out_sel_01:precondition1
+shift_mux.auto_sva_inst.check_out_sel_10:precondition1
+shift_mux.auto_sva_inst.check_out_sel_11:precondition1
+shift_mux.auto_sva_inst.check_out_stable_when_mux_inputs_stable:precondition1

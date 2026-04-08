@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01613
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::counter.auto_sva_inst.reset_forces_zero_next | error
+<embedded>::counter.auto_sva_inst.reset_hold_zero | error
+<embedded>::counter.auto_sva_inst.hold_when_disabled | error
+<embedded>::counter.auto_sva_inst.increment_when_enabled_no_overflow | error
+<embedded>::counter.auto_sva_inst.rollover_when_enabled_at_max | error
+<embedded>::counter.auto_sva_inst.wrap_after_16_enables | error
+<embedded>::counter.auto_sva_inst.hold_across_two_disabled_cycles | error

@@ -1,0 +1,29 @@
+{
+  "id": "00186",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.664011",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e049ab88190a5c79a1209e63e8f",
+  "custom_id": "counter_9e6eefd6",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `counter`.\n\nThis module should implement a 4-bit counter with the following interface:\n- Inputs: `clk`, `rst`\n- Output: `count` (a 4-bit registered output)\n\nThe counter's behavior should be as follows:\n- On the positive edge of the `clk` signal, the counter should increment its value.\n- When the `rst` signal is high, the counter should asynchronously reset its value to zero.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "ca6e1b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.415946",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

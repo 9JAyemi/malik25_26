@@ -318,6 +318,43 @@ INFO: Using TOP = segClkDevider
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -558,11 +595,10 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 10
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 83572@della-i13n6(local) jg_83454_della-i13n6_1
-0.0.N: Proofgrid shell started at 83571@della-i13n6(local) jg_83454_della-i13n6_1
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 2740457@della-h16n1(local) jg_2740289_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 2740458@della-h16n1(local) jg_2740289_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal"	[0.00 s].
@@ -570,19 +606,21 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0.0.N: A max_length bound was found. The shortest trace is no longer than 8 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 8 was found for the property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
-INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_count_increments_or_clears:precondition1" was covered in 3 cycles in 0.01 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
-INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
-INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal:precondition1" was covered in 3 cycles in 0.01 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal"	[0.01 s].
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_count_increments_or_clears"	[0.00 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal" in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
+INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_count_increments_or_clears:precondition1" was covered in 3 cycles in 0.02 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
+INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
+INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal:precondition1" was covered in 3 cycles in 0.02 s by the incidental trace "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal".
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_count_wraps_at_terminal"	[0.02 s].
 0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_count_increments_or_clears"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -591,25 +629,25 @@ INFO (IPF047): 0.0.N: The cover property "segClkDevider.auto_sva_inst.check_clk_
 0.0.N: A trace with 3 cycles was found. [0.00 s]
 INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "segClkDevider.auto_sva_inst.check_count_increments_or_clears" in 0.00 s.
 0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_count_increments_or_clears"	[0.00 s].
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Hp: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  5	[0.02 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.02 s]
-0.0.B: Proofgrid shell started at 83586@della-i13n6(local) jg_83454_della-i13n6_1
+0.0.B: Proofgrid shell started at 2740472@della-h16n1(local) jg_2740289_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -619,81 +657,69 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 83585@della-i13n6(local) jg_83454_della-i13n6_1
+0.0.Ht: Proofgrid shell started at 2740471@della-h16n1(local) jg_2740289_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
 0.0.Ht: Trace Attempt  2	[0.00 s]
 0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.56 s]
-0.0.N: Trace Attempt  2	[0.56 s]
-0.0.N: Trace Attempt  3	[0.56 s]
-0.0.N: Trace Attempt  5	[0.56 s]
+0.0.Ht: Trace Attempt  4	[0.01 s]
+0.0.Ht: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.73 s]
+0.0.N: Trace Attempt  2	[0.74 s]
+0.0.N: Trace Attempt  3	[0.74 s]
+0.0.N: Trace Attempt  5	[0.74 s]
 0: ProofGrid usable level: 4
-0.0.N: Trace Attempt 88	[1.00 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.99 s].
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt 154	[0.94 s]
-0.0.B: Per property time limit expired (0.94 s) [0.95 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.95 s].
+0.0.B: Trace Attempt 165	[0.90 s]
+0.0.B: Per property time limit expired (0.91 s) [0.91 s]
+0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.91 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  1	[0.04 s]
-0.0.N: Trace Attempt  2	[0.04 s]
-0.0.N: Trace Attempt  3	[0.04 s]
-0.0.N: Trace Attempt 118	[0.87 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.00 s].
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
+0.0.N: Trace Attempt 81	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[1.00 s].
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt 167	[0.99 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  1	[0.06 s]
+0.0.N: Trace Attempt  2	[0.06 s]
+0.0.N: Trace Attempt  3	[0.06 s]
+0.0.B: Trace Attempt 183	[0.98 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.00 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.01 s].
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.02 s]
-0.0.N: Trace Attempt  3	[0.02 s]
-0.0.N: Trace Attempt 106	[0.27 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.00 s].
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt 168	[0.98 s]
+0.0.N: Trace Attempt  1	[0.03 s]
+0.0.N: Trace Attempt  2	[0.03 s]
+0.0.N: Trace Attempt  3	[0.03 s]
+0.0.B: Trace Attempt 193	[0.98 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.00 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.00 s].
@@ -702,21 +728,23 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.01 s].
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  1	[0.05 s]
 0.0.N: Trace Attempt  2	[0.05 s]
 0.0.N: Trace Attempt  3	[0.05 s]
-0.0.N: Trace Attempt 114	[1.00 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[1.00 s].
-0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
-0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
-0.0.B: Trace Attempt 191	[1.00 s]
+0.0.B: Trace Attempt 201	[1.00 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[1.00 s].
-0.0.N: Trace Attempt 55	[0.00 s]
 0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -724,18 +752,20 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt 221	[4.01 s]
-0.0.N: Trace Attempt  1	[0.49 s]
-0.0.N: Trace Attempt  2	[0.49 s]
-0.0.N: Trace Attempt  3	[0.49 s]
-0.0.N: Trace Attempt  5	[0.49 s]
-0.0.B: Trace Attempt 257	[4.03 s]
-0.0.Ht: Trace Attempt 296	[8.37 s]
-0.0.N: Trace Attempt 307	[5.29 s]
-0.0.B: Trace Attempt 327	[8.06 s]
-0.0.Ht: Trace Attempt 350	[12.41 s]
-0.0.N: Trace Attempt 393	[9.36 s]
-0.0.B: Trace Attempt 356	[9.95 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.99 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.55 s]
+0.0.N: Trace Attempt  2	[0.55 s]
+0.0.N: Trace Attempt  3	[0.55 s]
+0.0.N: Trace Attempt  5	[0.55 s]
+0.0.Ht: Trace Attempt 184	[6.28 s]
+0.0.B: Trace Attempt 288	[4.00 s]
+0.0.N: Trace Attempt 307	[5.16 s]
+0.0.Ht: Trace Attempt 302	[10.29 s]
+0.0.B: Trace Attempt 369	[8.02 s]
+0.0.N: Trace Attempt 390	[9.26 s]
+0.0.B: Trace Attempt 404	[9.90 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[10.01 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
@@ -744,21 +774,22 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 405	[9.96 s]
-0.0.N: Per property time limit expired (10.00 s) [10.04 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[10.04 s].
+0.0.N: Trace Attempt 400	[9.96 s]
+0.0.N: Per property time limit expired (10.00 s) [10.10 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[10.10 s].
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.N: Trace Attempt 25	[0.00 s]
-0.0.N: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.02 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 392	[16.45 s]
-0.0.B: Trace Attempt 285	[4.04 s]
-0.0.N: Trace Attempt 311	[4.03 s]
-0.0.Ht: Trace Attempt 450	[20.79 s]
-0.0.B: Trace Attempt 360	[8.05 s]
-0.0.N: Trace Attempt 519	[8.05 s]
-0.0.B: Trace Attempt 385	[9.98 s]
+0.0.N: Trace Attempt 25	[0.01 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.Ht: Trace Attempt 394	[14.31 s]
+0.0.B: Trace Attempt 312	[4.08 s]
+0.0.N: Trace Attempt 288	[4.05 s]
+0.0.Ht: Trace Attempt 446	[18.32 s]
+0.0.B: Trace Attempt 403	[8.24 s]
+0.0.N: Trace Attempt 423	[8.28 s]
+0.0.Ht: Trace Attempt 486	[22.35 s]
+0.0.B: Trace Attempt 430	[9.99 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[10.01 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
@@ -767,18 +798,17 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[10.04 s].
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[9.94 s].
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
-0.0.Ht: Trace Attempt 490	[24.80 s]
-0.0.N: Trace Attempt  1	[3.38 s]
-0.0.N: Trace Attempt  2	[3.38 s]
-0.0.N: Trace Attempt  3	[3.38 s]
-0.0.B: Trace Attempt 306	[4.03 s]
-0.0.Ht: Trace Attempt 513	[28.91 s]
-0.0.N: Trace Attempt 310	[7.39 s]
-0.0.B: Trace Attempt 373	[8.12 s]
-0.0.Ht: Trace Attempt 557	[33.02 s]
-0.0.B: Trace Attempt 396	[10.00 s]
+0.0.N: Trace Attempt  1	[2.74 s]
+0.0.N: Trace Attempt  2	[2.74 s]
+0.0.N: Trace Attempt  3	[2.74 s]
+0.0.Ht: Trace Attempt 507	[27.16 s]
+0.0.B: Trace Attempt 340	[4.04 s]
+0.0.N: Trace Attempt 357	[6.76 s]
+0.0.Ht: Trace Attempt 508	[31.83 s]
+0.0.B: Trace Attempt 414	[8.09 s]
+0.0.B: Trace Attempt 438	[9.89 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[10.01 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.00 s].
@@ -787,18 +817,18 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[9.99 s].
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[10.00 s].
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.03 s]
 0.0.N: Trace Attempt  2	[0.03 s]
 0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 568	[37.21 s]
-0.0.B: Trace Attempt 297	[4.01 s]
-0.0.N: Trace Attempt 338	[4.57 s]
-0.0.Ht: Trace Attempt 602	[41.25 s]
-0.0.B: Trace Attempt 373	[8.02 s]
-0.0.N: Trace Attempt 550	[9.55 s]
-0.0.B: Trace Attempt 402	[9.93 s]
+0.0.Ht: Trace Attempt 519	[35.86 s]
+0.0.B: Trace Attempt 334	[4.04 s]
+0.0.N: Trace Attempt 434	[4.03 s]
+0.0.Ht: Trace Attempt 532	[39.92 s]
+0.0.B: Trace Attempt 416	[8.18 s]
+0.0.N: Trace Attempt 629	[8.73 s]
+0.0.B: Trace Attempt 445	[9.86 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[10.01 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
@@ -808,74 +838,65 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[10.03 s].
+0.0.Ht: Trace Attempt 546	[43.95 s]
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal:precondition1"	[10.02 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.49 s]
-0.0.N: Trace Attempt  2	[0.49 s]
-0.0.N: Trace Attempt  3	[0.49 s]
-0.0.N: Trace Attempt  5	[0.49 s]
-0.0.Ht: Trace Attempt 616	[47.03 s]
-0.0.B: Trace Attempt 257	[4.00 s]
-0.0.N: Trace Attempt 307	[5.26 s]
-0.0.Ht: Trace Attempt 645	[51.07 s]
-0.0.B: Trace Attempt 328	[8.10 s]
-0.0.N: Trace Attempt 393	[9.29 s]
-0.0.Ht: Trace Attempt 661	[55.26 s]
-0.0.B: Trace Attempt 389	[12.15 s]
-0.0.N: Trace Attempt 515	[14.78 s]
-0.0.Ht: Trace Attempt 664	[59.67 s]
-0.0.B: Trace Attempt 424	[16.40 s]
-0.0.N: Trace Attempt 733	[19.11 s]
-0.0.Ht: Trace Attempt 693	[63.80 s]
-0.0.B: Trace Attempt 459	[20.44 s]
-0.0.N: Trace Attempt 845	[23.11 s]
-0.0.Ht: Trace Attempt 716	[67.84 s]
-0.0.B: Trace Attempt 484	[27.16 s]
-0.0.Ht: Trace Attempt 725	[73.68 s]
-0.0.N: Trace Attempt 1091	[30.48 s]
-0.0.Ht: Trace Attempt 742	[78.13 s]
-0.0.N: Trace Attempt 1309	[35.04 s]
-0.0.Ht: Trace Attempt 758	[82.16 s]
-0.0.N: Trace Attempt 1421	[39.32 s]
-0.0.Ht: Trace Attempt 771	[86.63 s]
-0.0.N: Trace Attempt 1528	[43.34 s]
-0.0.B: Trace Attempt 485	[46.11 s]
-0.0.Ht: Trace Attempt 773	[91.38 s]
-0.0.N: Trace Attempt 1716	[47.36 s]
-0.0.B: Trace Attempt 505	[50.17 s]
-0.0.N: Trace Attempt 1783	[51.47 s]
-0.0.Ht: Trace Attempt 786	[95.56 s]
-0.0.B: Trace Attempt 541	[54.22 s]
-0.0.N: Trace Attempt 1847	[55.52 s]
-0.0.Ht: Trace Attempt 801	[99.83 s]
-0.0.B: Trace Attempt 568	[58.23 s]
-0.0.N: Trace Attempt 1929	[59.52 s]
-0.0.Ht: Trace Attempt 814	[104.32 s]
-0.0.B: Trace Attempt 592	[63.51 s]
-0.0.N: Trace Attempt 2153	[63.54 s]
-0.0.Ht: Trace Attempt 818	[109.54 s]
-0.0.B: Trace Attempt 619	[67.73 s]
-0.0.Ht: Trace Attempt 831	[113.68 s]
-0.0.N: Trace Attempt 2389	[69.98 s]
-0.0.B: Trace Attempt 636	[72.96 s]
-0.0.Ht: Trace Attempt 844	[117.84 s]
-0.0.N: Trace Attempt 2476	[73.98 s]
-0.0.Ht: Trace Attempt 853	[121.84 s]
-0.0.N: Trace Attempt 2673	[78.00 s]
-0.0.Ht: Trace Attempt 867	[125.86 s]
-0.0.N: Trace Attempt 2832	[82.00 s]
-0.0.B: Trace Attempt 658	[84.20 s]
-0.0.N: Trace Attempt 3090	[86.00 s]
-0.0.B: Trace Attempt 660	[88.36 s]
-0.0.Ht: Trace Attempt 872	[134.07 s]
-0.0.N: Trace Attempt 3171	[90.21 s]
-0.0.B: Trace Attempt 682	[92.96 s]
-0.0.Ht: Trace Attempt 883	[138.14 s]
-0.0.N: Trace Attempt 3478	[94.75 s]
-0.0.B: Trace Attempt 698	[97.53 s]
-0.0.Ht: Trace Attempt 900	[142.15 s]
-0.0.B: Trace Attempt 712	[99.73 s]
+0.0.N: Trace Attempt  1	[0.42 s]
+0.0.N: Trace Attempt  2	[0.42 s]
+0.0.N: Trace Attempt  3	[0.42 s]
+0.0.N: Trace Attempt  5	[0.42 s]
+0.0.B: Trace Attempt 290	[4.03 s]
+0.0.N: Trace Attempt 329	[4.42 s]
+0.0.Ht: Trace Attempt 552	[51.22 s]
+0.0.B: Trace Attempt 372	[8.04 s]
+0.0.N: Trace Attempt 417	[8.43 s]
+0.0.Ht: Trace Attempt 564	[55.27 s]
+0.0.B: Trace Attempt 433	[12.14 s]
+0.0.N: Trace Attempt 698	[12.43 s]
+0.0.Ht: Trace Attempt 574	[59.62 s]
+0.0.B: Trace Attempt 481	[16.27 s]
+0.0.N: Trace Attempt 812	[18.00 s]
+0.0.Ht: Trace Attempt 593	[64.06 s]
+0.0.N: Trace Attempt 1091	[24.23 s]
+0.0.N: Trace Attempt 1344	[28.24 s]
+0.0.Ht: Trace Attempt 599	[72.36 s]
+0.0.B: Trace Attempt 485	[31.11 s]
+0.0.N: Trace Attempt 1448	[32.26 s]
+0.0.Ht: Trace Attempt 613	[76.40 s]
+0.0.B: Trace Attempt 526	[35.19 s]
+0.0.Ht: Trace Attempt 627	[80.68 s]
+0.0.N: Trace Attempt 1701	[37.48 s]
+0.0.B: Trace Attempt 570	[39.25 s]
+0.0.B: Trace Attempt 604	[43.27 s]
+0.0.N: Trace Attempt 1847	[44.01 s]
+0.0.B: Trace Attempt 635	[47.46 s]
+0.0.N: Trace Attempt 1959	[48.14 s]
+0.0.N: Trace Attempt 2294	[52.15 s]
+0.0.B: Trace Attempt 658	[55.11 s]
+0.0.N: Trace Attempt 2447	[57.95 s]
+0.0.B: Trace Attempt 669	[59.18 s]
+0.0.B: Trace Attempt 698	[63.32 s]
+0.0.N: Trace Attempt 2729	[64.30 s]
+0.0.B: Trace Attempt 733	[68.04 s]
+0.0.N: Trace Attempt 3108	[68.31 s]
+0.0.B: Trace Attempt 755	[72.04 s]
+0.0.N: Trace Attempt 3371	[72.33 s]
+0.0.B: Trace Attempt 758	[76.27 s]
+0.0.N: Trace Attempt 3652	[76.33 s]
+0.0.N: Trace Attempt 3832	[80.34 s]
+0.0.B: Trace Attempt 787	[80.39 s]
+0.0.Ht: Trace Attempt 704	[126.58 s]
+0.0.N: Trace Attempt 3940	[85.30 s]
+0.0.B: Trace Attempt 790	[85.84 s]
+0.0.B: Trace Attempt 809	[89.90 s]
+0.0.N: Trace Attempt 4208	[91.40 s]
+0.0.Ht: Trace Attempt 705	[136.45 s]
+0.0.B: Trace Attempt 840	[93.95 s]
+0.0.N: Trace Attempt 4443	[95.99 s]
+0.0.Ht: Trace Attempt 750	[140.81 s]
+0.0.B: Trace Attempt 866	[98.04 s]
+0.0.B: Trace Attempt 873	[99.80 s]
 0.0.B: Per property time limit expired (100.00 s) [100.03 s]
 0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[100.03 s].
 0.0.B: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
@@ -884,93 +905,95 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[100.35 s].
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[100.27 s].
 0.0.N: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.04 s]
-0.0.N: Trace Attempt  3	[0.04 s]
-0.0.Ht: Trace Attempt 911	[146.15 s]
-0.0.B: Trace Attempt 286	[4.03 s]
-0.0.N: Trace Attempt 312	[4.04 s]
-0.0.Ht: Trace Attempt 928	[150.26 s]
-0.0.B: Trace Attempt 361	[8.05 s]
-0.0.N: Trace Attempt 520	[8.05 s]
-0.0.B: Trace Attempt 413	[12.08 s]
-0.0.N: Trace Attempt 812	[13.38 s]
-0.0.B: Trace Attempt 457	[16.16 s]
-0.0.Ht: Trace Attempt 932	[160.87 s]
-0.0.N: Trace Attempt 1009	[17.82 s]
-0.0.B: Trace Attempt 493	[20.65 s]
-0.0.Ht: Trace Attempt 946	[165.22 s]
-0.0.N: Trace Attempt 1168	[22.57 s]
-0.0.B: Trace Attempt 534	[24.71 s]
-0.0.Ht: Trace Attempt 957	[169.32 s]
-0.0.N: Trace Attempt 1386	[27.27 s]
-0.0.B: Trace Attempt 556	[28.76 s]
-0.0.Ht: Trace Attempt 965	[173.59 s]
-0.0.N: Trace Attempt 1585	[33.24 s]
-0.0.Ht: Trace Attempt 973	[177.89 s]
-0.0.B: Trace Attempt 569	[37.83 s]
-0.0.Ht: Trace Attempt 981	[182.21 s]
-0.0.N: Trace Attempt 1742	[38.35 s]
-0.0.N: Trace Attempt 1884	[42.72 s]
-0.0.Ht: Trace Attempt 985	[188.28 s]
-0.0.B: Trace Attempt 570	[46.38 s]
-0.0.N: Trace Attempt 2063	[46.86 s]
-0.0.Ht: Trace Attempt 997	[192.47 s]
-0.0.N: Trace Attempt 2263	[51.00 s]
-0.0.Ht: Trace Attempt 1007	[196.88 s]
-0.0.B: Trace Attempt 571	[53.02 s]
-0.0.N: Trace Attempt 2462	[55.47 s]
-0.0.Ht: Trace Attempt 1021	[201.02 s]
-0.0.B: Trace Attempt 577	[57.75 s]
-0.0.N: Trace Attempt 2652	[59.47 s]
-0.0.Ht: Trace Attempt 1030	[205.26 s]
-0.0.B: Trace Attempt 580	[63.60 s]
-0.0.N: Trace Attempt 2920	[63.47 s]
-0.0.Ht: Trace Attempt 1037	[209.45 s]
-0.0.B: Trace Attempt 595	[67.80 s]
-0.0.N: Trace Attempt 3164	[67.58 s]
-0.0.Ht: Trace Attempt 1045	[214.11 s]
-0.0.N: Trace Attempt 3220	[71.86 s]
-0.0.B: Trace Attempt 616	[72.98 s]
-0.0.N: Trace Attempt 3260	[76.04 s]
-0.0.Ht: Trace Attempt 1048	[220.79 s]
-0.0.B: Trace Attempt 629	[77.07 s]
-0.0.N: Trace Attempt 3289	[80.05 s]
-0.0.B: Trace Attempt 658	[81.10 s]
-0.0.Ht: Trace Attempt 1061	[225.25 s]
-0.0.N: Trace Attempt 3302	[84.12 s]
-0.0.B: Trace Attempt 689	[85.39 s]
-0.0.Ht: Trace Attempt 1070	[229.45 s]
-0.0.N: Trace Attempt 3337	[88.22 s]
-0.0.Ht: Trace Attempt 1080	[233.60 s]
-0.0.B: Trace Attempt 708	[89.93 s]
-0.0.N: Trace Attempt 3345	[92.42 s]
-0.0.Ht: Trace Attempt 1091	[238.25 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.Ht: Trace Attempt 793	[144.86 s]
+0.0.B: Trace Attempt 316	[4.04 s]
+0.0.N: Trace Attempt 338	[4.54 s]
+0.0.Ht: Trace Attempt 798	[148.91 s]
+0.0.B: Trace Attempt 409	[8.07 s]
+0.0.Ht: Trace Attempt 841	[152.92 s]
+0.0.N: Trace Attempt 812	[10.64 s]
+0.0.B: Trace Attempt 473	[12.17 s]
+0.0.Ht: Trace Attempt 862	[156.97 s]
+0.0.N: Trace Attempt 1090	[14.64 s]
+0.0.B: Trace Attempt 525	[16.24 s]
+0.0.Ht: Trace Attempt 885	[161.11 s]
+0.0.N: Trace Attempt 1279	[19.48 s]
+0.0.B: Trace Attempt 565	[20.32 s]
+0.0.Ht: Trace Attempt 897	[167.90 s]
+0.0.B: Trace Attempt 569	[25.35 s]
+0.0.N: Trace Attempt 1585	[26.67 s]
+0.0.Ht: Trace Attempt 951	[171.97 s]
+0.0.B: Trace Attempt 570	[30.99 s]
+0.0.N: Trace Attempt 1742	[31.94 s]
+0.0.Ht: Trace Attempt 988	[177.01 s]
+0.0.B: Trace Attempt 571	[35.42 s]
+0.0.N: Trace Attempt 1884	[36.56 s]
+0.0.Ht: Trace Attempt 1058	[181.01 s]
+0.0.B: Trace Attempt 578	[39.94 s]
+0.0.N: Trace Attempt 2063	[41.00 s]
+0.0.Ht: Trace Attempt 1086	[187.08 s]
+0.0.B: Trace Attempt 583	[44.06 s]
+0.0.N: Trace Attempt 2263	[45.55 s]
+0.0.Ht: Trace Attempt 1110	[191.13 s]
+0.0.B: Trace Attempt 616	[49.22 s]
+0.0.N: Trace Attempt 2462	[50.30 s]
+0.0.Ht: Trace Attempt 1126	[195.88 s]
+0.0.B: Trace Attempt 635	[53.58 s]
+0.0.N: Trace Attempt 2635	[54.30 s]
+0.0.Ht: Trace Attempt 1134	[200.29 s]
+0.0.B: Trace Attempt 689	[57.69 s]
+0.0.N: Trace Attempt 2859	[58.34 s]
+0.0.Ht: Trace Attempt 1161	[204.33 s]
+0.0.N: Trace Attempt 3162	[62.59 s]
+0.0.Ht: Trace Attempt 1193	[208.42 s]
+0.0.B: Trace Attempt 710	[66.52 s]
+0.0.N: Trace Attempt 3217	[67.11 s]
+0.0.Ht: Trace Attempt 1206	[215.05 s]
+0.0.N: Trace Attempt 3251	[71.28 s]
+0.0.B: Trace Attempt 711	[72.50 s]
+0.0.Ht: Trace Attempt 1235	[219.25 s]
+0.0.N: Trace Attempt 3283	[75.47 s]
+0.0.B: Trace Attempt 749	[76.53 s]
+0.0.Ht: Trace Attempt 1264	[223.41 s]
+0.0.N: Trace Attempt 3297	[79.60 s]
+0.0.B: Trace Attempt 781	[80.54 s]
+0.0.N: Trace Attempt 3315	[83.75 s]
+0.0.B: Trace Attempt 802	[84.61 s]
+0.0.Ht: Trace Attempt 1282	[230.45 s]
+0.0.B: Trace Attempt 817	[88.78 s]
+0.0.N: Trace Attempt 3343	[88.67 s]
+0.0.Ht: Trace Attempt 1302	[234.50 s]
+0.0.N: Trace Attempt 3371	[93.12 s]
+0.0.Ht: Trace Attempt 1320	[238.54 s]
+0.0.B: Trace Attempt 819	[95.31 s]
 0.0.Hp: Interrupted (multi)
 0.0.Hp: Morphing to Bm
-0.0.Hp: Trace Attempt  8	[0.07 s]
+0.0.Hp: Trace Attempt 10	[0.09 s]
 0.0.Hp: All properties determined. [0.00 s]
 0.0.Hp: Exited with Success (@ 0.00 s)
 0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Trace Attempt 3371	[96.55 s]
-0.0.Bm: Trace Attempt  1	[0.01 s]
-0.0.Bm: Trace Attempt  2	[0.01 s]
-0.0.Bm: Trace Attempt  3	[0.01 s]
-0.0.Bm: Trace Attempt  4	[0.01 s]
-0.0.Bm: Trace Attempt  5	[0.01 s]
-0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[96.98 s].
+0.0.Bm: Trace Attempt  1	[0.04 s]
+0.0.Bm: Trace Attempt  2	[0.04 s]
+0.0.Bm: Trace Attempt  3	[0.04 s]
+0.0.Bm: Trace Attempt  4	[0.04 s]
+0.0.Bm: Trace Attempt  5	[0.04 s]
+0.0.B: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[97.00 s].
 0.0.B: Morphing to Tri
-0.0.B: Trace Attempt 709	[90.11 s]
+0.0.B: Trace Attempt 841	[96.93 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Tri: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[96.96 s].
+0.0.N: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[96.95 s].
 0.0.N: Morphing to AM
+0.0.N: Trace Attempt 3381	[96.59 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -983,56 +1006,56 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.04 s]
-0.0.AM: Trace Attempt  2	[0.04 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
 0.0.AM: Trace Attempt  3	[0.04 s]
 0.0.AM: Trace Attempt  5	[0.04 s]
-0.0.Tri:    0.21" ---- Launching abstraction thread ----
-0.0.Tri:    0.23" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.46 s]
-0.0.Tri: Trace Attempt  3	[0.46 s]
-0.0.Tri: Trace Attempt  4	[0.46 s]
-0.0.Tri: Trace Attempt  5	[0.46 s]
-0.0.AM: Trace Attempt 115	[0.62 s]
-0.0.AM: Per property time limit expired (0.65 s) [0.65 s]
-0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.65 s].
+0.0.Tri:    0.32" ---- Launching abstraction thread ----
+0.0.Tri:    0.36" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.54 s]
+0.0.Tri: Trace Attempt  3	[0.54 s]
+0.0.Tri: Trace Attempt  4	[0.54 s]
+0.0.Tri: Trace Attempt  5	[0.54 s]
+0.0.AM: Trace Attempt 154	[0.73 s]
+0.0.AM: Per property time limit expired (0.74 s) [0.74 s]
+0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.74 s].
 0.0.AM: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.97 s].
+0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.93 s].
 0.0.Tri: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    0.82" ---- Launching main thread ----
-0.0.AM: Trace Attempt  1	[0.07 s]
-0.0.AM: Trace Attempt  2	[0.07 s]
-0.0.AM: Trace Attempt  3	[0.07 s]
-0.0.Tri:    0.95" ---- Launching abstraction thread ----
-0.0.Tri:    0.97" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.23 s]
-0.0.Tri: Trace Attempt  3	[0.23 s]
-0.0.Tri: Trace Attempt  4	[0.23 s]
-0.0.Tri: Trace Attempt  5	[0.23 s]
-0.0.AM: Trace Attempt  1	[0.34 s]
-0.0.AM: Trace Attempt  2	[0.34 s]
-0.0.AM: Trace Attempt  3	[0.34 s]
-0.0.Ht: Trace Attempt 1100	[242.49 s]
-0.0.AM: Trace Attempt 118	[1.00 s]
-0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
-0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.00 s].
+0.0.AM: Trace Attempt  1	[0.05 s]
+0.0.AM: Trace Attempt  2	[0.05 s]
+0.0.AM: Trace Attempt  3	[0.05 s]
+0.0.Tri:    0.87" ---- Launching main thread ----
+0.0.AM: Trace Attempt  1	[0.25 s]
+0.0.AM: Trace Attempt  2	[0.25 s]
+0.0.AM: Trace Attempt  3	[0.25 s]
+0.0.Tri:    1.09" ---- Launching abstraction thread ----
+0.0.Tri:    1.13" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.38 s]
+0.0.Tri: Trace Attempt  3	[0.38 s]
+0.0.Tri: Trace Attempt  4	[0.38 s]
+0.0.Tri: Trace Attempt  5	[0.38 s]
+0.0.Ht: Trace Attempt 1334	[242.87 s]
+0.0.AM: Trace Attempt 156	[0.99 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.03 s]
+0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.03 s].
 0.0.AM: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1042,45 +1065,45 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.98 s].
-0.0.Tri: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.04 s]
-0.0.AM: Trace Attempt  2	[0.05 s]
-0.0.AM: Trace Attempt  3	[0.05 s]
-0.0.Tri:    1.84" ---- Launching main thread ----
-0.0.AM: Trace Attempt  1	[0.19 s]
-0.0.AM: Trace Attempt  2	[0.19 s]
-0.0.AM: Trace Attempt  3	[0.19 s]
-0.0.Tri:    1.96" ---- Launching abstraction thread ----
-0.0.Tri:    1.98" ---- Launching multi-phase simplification thread ----
-0.0.AM: Trace Attempt  1	[0.99 s]
-0.0.AM: Trace Attempt  2	[0.99 s]
-0.0.AM: Trace Attempt  3	[0.99 s]
-0.0.Tri:    3.09" Simplification phase 1 complete
-0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.39 s].
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.14 s]
+0.0.Tri: Trace Attempt 2942	[0.98 s]
+0.0.Tri: Per property time limit expired (1.00 s) [1.18 s]
+0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[1.18 s].
+0.0.Tri: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    1.99" ---- Launching main thread ----
+0.0.Tri:    2.29" ---- Launching abstraction thread ----
+0.0.Tri:    2.33" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.42 s]
+0.0.Tri: Trace Attempt  3	[0.42 s]
+0.0.Tri: Trace Attempt  4	[0.42 s]
+0.0.Tri: Trace Attempt  5	[0.42 s]
+0.0.AM: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.88 s].
 0.0.AM: Morphing to I
-0.0.AM: Trace Attempt 107	[1.38 s]
+0.0.AM: Trace Attempt 111	[0.86 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.72 s].
 0.0.I: Trace Attempt 13	[0.00 s]
+0.0.Tri: Morphing to AD
+0.0.Tri: Trace Attempt 794	[0.71 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
 0.0.I: Trace Attempt  1	[0.01 s]
 0.0.I: Trace Attempt  2	[0.01 s]
 0.0.I: Trace Attempt  3	[0.01 s]
 0.0.I: Trace Attempt  4	[0.01 s]
 0.0.I: Trace Attempt  5	[0.01 s]
-0.0.Tri: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.52 s].
-0.0.Tri: Morphing to AD
-0.0.Tri: Trace Attempt 2910	[0.02 s]
-0.0.Tri: All properties determined. [0.00 s]
-0.0.Tri: Exited with Success (@ 0.00 s)
 0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AD: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
@@ -1091,60 +1114,64 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
-0.0.AD: Trace Attempt  4	[0.01 s]
-0.0.AD: Trace Attempt  5	[0.01 s]
-0.0.AD: Trace Attempt  1	[0.03 s]
-0.0.AD: Trace Attempt  2	[0.03 s]
-0.0.AD: Trace Attempt  3	[0.03 s]
-0.0.AD: Trace Attempt  4	[0.03 s]
-0.0.AD: Trace Attempt  5	[0.03 s]
-0.0.AD: Trace Attempt  1	[0.26 s]
-0.0.AD: Trace Attempt  2	[0.26 s]
-0.0.AD: Trace Attempt  3	[0.27 s]
-0.0.AD: Trace Attempt  4	[0.27 s]
-0.0.Bm: Trace Attempt 254	[4.05 s]
-0.0.I: Trace Attempt 61	[1.40 s]
-0.0.I: Per property time limit expired (2.00 s) [2.00 s]
-0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.00 s].
-0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
-0.0.I: Trace Attempt 14	[0.00 s]
-0.0.I: Trace Attempt  1	[0.01 s]
-0.0.I: Trace Attempt  2	[0.01 s]
-0.0.I: Trace Attempt  3	[0.01 s]
-0.0.AD: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.86 s].
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.02 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AD: Trace Attempt  3	[0.02 s]
+0.0.AD: Trace Attempt  4	[0.02 s]
+0.0.AD: Trace Attempt  5	[0.02 s]
+0.0.AD: Trace Attempt  1	[0.22 s]
+0.0.AD: Trace Attempt  2	[0.22 s]
+0.0.AD: Trace Attempt  3	[0.22 s]
+0.0.AD: Trace Attempt  4	[0.22 s]
+0.0.Bm: Trace Attempt 221	[4.17 s]
+0.0.AD: Trace Attempt 56	[1.48 s]
+0.0.AD: Per property time limit expired (1.98 s) [1.98 s]
+0.0.AD: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.99 s].
 0.0.AD: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
 0.0.AD: Trace Attempt  4	[0.00 s]
 0.0.AD: Trace Attempt  5	[0.00 s]
-0.0.AD: Trace Attempt  1	[0.00 s]
-0.0.AD: Trace Attempt  2	[0.00 s]
-0.0.AD: Trace Attempt  3	[0.00 s]
-0.0.AD: Trace Attempt  1	[0.04 s]
-0.0.AD: Trace Attempt  2	[0.04 s]
-0.0.AD: Trace Attempt  3	[0.04 s]
-0.0.AD: Trace Attempt  1	[0.22 s]
-0.0.AD: Trace Attempt  2	[0.22 s]
-0.0.AD: Trace Attempt  3	[0.22 s]
-0.0.Ht: Trace Attempt 1117	[246.71 s]
-0.0.I: Trace Attempt 53	[1.32 s]
+0.0.I: Trace Attempt 61	[1.33 s]
+0.0.I: Per property time limit expired (2.00 s) [2.00 s]
+0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.00 s].
+0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
+0.0.I: Trace Attempt 14	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.I: Trace Attempt  1	[0.01 s]
+0.0.I: Trace Attempt  2	[0.01 s]
+0.0.I: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.05 s]
+0.0.AD: Trace Attempt  2	[0.05 s]
+0.0.AD: Trace Attempt  3	[0.05 s]
+0.0.AD: Trace Attempt  1	[0.25 s]
+0.0.AD: Trace Attempt  2	[0.25 s]
+0.0.AD: Trace Attempt  3	[0.26 s]
+0.0.Ht: Trace Attempt 1369	[246.94 s]
+0.0.AD: Trace Attempt 44	[1.42 s]
+0.0.AD: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AD: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[2.00 s].
+0.0.I: Trace Attempt 53	[1.30 s]
 0.0.I: Per property time limit expired (2.00 s) [2.00 s]
 0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[2.00 s].
-0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.AD: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[1.99 s].
 0.0.AD: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.I: Trace Attempt 13	[0.00 s]
-0.0.AD: Trace Attempt  4	[0.00 s]
-0.0.AD: Trace Attempt  5	[0.00 s]
-0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
 0.0.AD: Trace Attempt  4	[0.00 s]
-0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
 0.0.I: Trace Attempt  1	[0.01 s]
 0.0.I: Trace Attempt  2	[0.01 s]
 0.0.I: Trace Attempt  3	[0.01 s]
@@ -1156,65 +1183,74 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AD: Trace Attempt  4	[0.03 s]
 0.0.AD: Trace Attempt  5	[0.03 s]
 0.0.AD: Trace Attempt  1	[0.26 s]
-0.0.AD: Trace Attempt  2	[0.26 s]
-0.0.AD: Trace Attempt  3	[0.26 s]
-0.0.AD: Trace Attempt  4	[0.26 s]
-0.0.Bm: Trace Attempt 333	[8.08 s]
-0.0.Ht: Trace Attempt 1123	[250.74 s]
-0.0.AD: Trace Attempt  1	[3.06 s]
-0.0.AD: Trace Attempt  2	[3.06 s]
-0.0.AD: Trace Attempt  3	[3.06 s]
-0.0.AD: Trace Attempt  4	[3.06 s]
+0.0.AD: Trace Attempt  2	[0.27 s]
+0.0.AD: Trace Attempt  3	[0.27 s]
+0.0.AD: Trace Attempt  4	[0.27 s]
+0.0.Bm: Trace Attempt 326	[8.20 s]
+0.0.AD: Trace Attempt  1	[3.15 s]
+0.0.AD: Trace Attempt  2	[3.15 s]
+0.0.AD: Trace Attempt  3	[3.15 s]
+0.0.AD: Trace Attempt  4	[3.15 s]
 0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[3.16 s].
 0.0.I: Morphing to D
-0.0.I: Trace Attempt 61	[1.40 s]
+0.0.I: Trace Attempt 61	[1.31 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
 0.0.AD: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[3.16 s].
 0.0.AD: Morphing to M
-0.0.AD: Trace Attempt 29	[3.14 s]
+0.0.AD: Trace Attempt 10	[3.16 s]
 0.0.AD: All properties determined. [0.00 s]
 0.0.AD: Exited with Success (@ 0.00 s)
-0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.D: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.D: Trace Attempt  1	[0.00 s]
 0.0.D: Trace Attempt  2	[0.00 s]
-0.0.M: Trace Attempt  1	[0.00 s]
-0.0.M: Trace Attempt  2	[0.00 s]
 0.0.D: Trace Attempt  3	[0.00 s]
-0.0.M: Trace Attempt  3	[0.00 s]
-0.0.Bm: Trace Attempt 380	[12.14 s]
-0.0.Ht: Trace Attempt 1136	[254.99 s]
-0.0.M: Trace Attempt 250	[2.35 s]
-0.0.M: Per property time limit expired (4.00 s) [4.01 s]
-0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[4.01 s].
-0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.M: Trace Attempt  1	[0.00 s]
 0.0.M: Trace Attempt  2	[0.00 s]
 0.0.M: Trace Attempt  3	[0.00 s]
-0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[4.06 s].
+0.0.Ht: Trace Attempt 1384	[252.25 s]
+0.0.Bm: Trace Attempt 401	[12.26 s]
+0.0.D: Trace Attempt 27	[0.10 s]
+0.0.D: Per property time limit expired (4.00 s) [4.00 s]
+0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[4.00 s].
 0.0.D: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.D: Trace Attempt  1	[0.00 s]
 0.0.D: Trace Attempt  2	[0.00 s]
 0.0.D: Trace Attempt  3	[0.00 s]
-0.0.D: Trace Attempt  4	[0.00 s]
-0.0.Bm: Trace Attempt 424	[16.25 s]
-0.0.Ht: Trace Attempt 1156	[259.28 s]
-0.0.M: Trace Attempt 266	[3.21 s]
-0.0.M: Per property time limit expired (4.00 s) [4.01 s]
+0.0.D: Trace Attempt  4	[0.01 s]
+0.0.M: Trace Attempt 250	[2.45 s]
+0.0.M: Per property time limit expired (4.00 s) [4.04 s]
+0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[4.04 s].
+0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.M: Trace Attempt  1	[0.00 s]
+0.0.M: Trace Attempt  2	[0.00 s]
+0.0.M: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 1423	[256.34 s]
+0.0.Bm: Trace Attempt 454	[16.28 s]
+0.0.D: Trace Attempt 39	[0.34 s]
+0.0.D: Per property time limit expired (4.00 s) [4.00 s]
+0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[4.00 s].
+0.0.D: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
+0.0.D: Trace Attempt 39	[0.00 s]
 0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[4.01 s].
 0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.M: Trace Attempt  1	[0.00 s]
 0.0.M: Trace Attempt  2	[0.00 s]
-0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[3.97 s].
-0.0.D: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
 0.0.M: Trace Attempt  3	[0.00 s]
-0.0.Bm: Trace Attempt 455	[20.39 s]
-0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.23 s].
+0.0.Ht: Trace Attempt 1458	[260.46 s]
+0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.83 s].
+0.0.D: Morphing to Ncustom1
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 55	[0.01 s]
+0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.83 s].
 0.0.M: Morphing to I
-0.0.M: Trace Attempt 192	[2.19 s]
+0.0.M: Trace Attempt 225	[2.75 s]
 0.0.M: All properties determined. [0.00 s]
 0.0.M: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1223,42 +1259,37 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.I: Trace Attempt  1	[0.01 s]
 0.0.I: Trace Attempt  2	[0.01 s]
 0.0.I: Trace Attempt  3	[0.01 s]
-0.0.D: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.24 s].
-0.0.D: Morphing to Ncustom1
-0.0.D: Trace Attempt 39	[0.00 s]
-0.0.D: All properties determined. [0.00 s]
-0.0.D: Exited with Success (@ 0.00 s)
-0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Ncustom1: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
-0.0.Ncustom1: Trace Attempt 55	[0.00 s]
-0.0.Ncustom1: Trace Attempt  1	[0.50 s]
-0.0.Ncustom1: Trace Attempt  2	[0.50 s]
-0.0.Ncustom1: Trace Attempt  3	[0.50 s]
-0.0.Ncustom1: Trace Attempt  5	[0.50 s]
-0.0.Ht: Trace Attempt 1176	[263.53 s]
-0.0.Ncustom1: Trace Attempt 307	[5.28 s]
-0.0.Bm: Trace Attempt 472	[26.18 s]
-0.0.Ht: Trace Attempt 1190	[267.69 s]
-0.0.I: Trace Attempt 71	[3.50 s]
-0.0.I: Per property time limit expired (8.00 s) [8.00 s]
-0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[8.00 s].
+0.0.Ncustom1: Trace Attempt  1	[0.60 s]
+0.0.Ncustom1: Trace Attempt  2	[0.60 s]
+0.0.Ncustom1: Trace Attempt  3	[0.60 s]
+0.0.Ncustom1: Trace Attempt  5	[0.60 s]
+0.0.Ht: Trace Attempt 1470	[264.67 s]
+0.0.Bm: Trace Attempt 473	[24.14 s]
+0.0.Ncustom1: Trace Attempt 307	[5.60 s]
+0.0.Bm: Trace Attempt 507	[28.26 s]
+0.0.Ht: Trace Attempt 1473	[269.29 s]
+0.0.I: Trace Attempt 71	[3.51 s]
+0.0.I: Per property time limit expired (7.96 s) [7.96 s]
+0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[7.96 s].
 0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.I: Trace Attempt 18	[0.00 s]
 0.0.I: Trace Attempt  1	[0.01 s]
 0.0.I: Trace Attempt  2	[0.01 s]
 0.0.I: Trace Attempt  3	[0.01 s]
-0.0.Ncustom1: Trace Attempt 388	[6.11 s]
-0.0.Ncustom1: Per property time limit expired (7.99 s) [8.02 s]
-0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[8.02 s].
+0.0.Ncustom1: Trace Attempt 388	[6.52 s]
+0.0.Ncustom1: Per property time limit expired (8.00 s) [8.08 s]
+0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[8.09 s].
 0.0.Ncustom1: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[0.00 s].
 0.0.Ncustom1: Trace Attempt 106	[0.01 s]
-0.0.Bm: Trace Attempt 473	[31.89 s]
-0.0.Ncustom1: Trace Attempt  1	[3.37 s]
-0.0.Ncustom1: Trace Attempt  2	[3.37 s]
-0.0.Ncustom1: Trace Attempt  3	[3.37 s]
-0.0.I: Trace Attempt 84	[4.96 s]
-0.0.Bm: Trace Attempt 493	[35.90 s]
-0.0.Ncustom1: Trace Attempt 310	[7.37 s]
+0.0.Bm: Trace Attempt 549	[32.28 s]
+0.0.Ht: Trace Attempt 1500	[273.33 s]
+0.0.Ncustom1: Trace Attempt 107	[4.88 s]
+0.0.Ncustom1: Trace Attempt  1	[5.09 s]
+0.0.Ncustom1: Trace Attempt  2	[5.09 s]
+0.0.Ncustom1: Trace Attempt  3	[5.09 s]
+0.0.I: Trace Attempt 84	[5.20 s]
+0.0.Bm: Trace Attempt 590	[36.40 s]
+0.0.Ht: Trace Attempt 1531	[277.39 s]
 0.0.I: Per property time limit expired (8.00 s) [8.00 s]
 0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[8.00 s].
 0.0.I: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
@@ -1267,15 +1298,14 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.I: Trace Attempt  3	[0.01 s]
 0.0.I: Trace Attempt  4	[0.01 s]
 0.0.I: Trace Attempt  5	[0.01 s]
-0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[7.99 s].
+0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[7.98 s].
 0.0.Ncustom1: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[0.00 s].
-0.0.Ncustom1: Trace Attempt  1	[0.02 s]
-0.0.Ncustom1: Trace Attempt  2	[0.02 s]
-0.0.Ncustom1: Trace Attempt  3	[0.02 s]
-0.0.Ht: Trace Attempt 1199	[277.86 s]
-0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.45 s].
+0.0.Ncustom1: Trace Attempt  1	[0.03 s]
+0.0.Ncustom1: Trace Attempt  2	[0.03 s]
+0.0.Ncustom1: Trace Attempt  3	[0.03 s]
+0.0.I: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.24 s].
 0.0.I: Morphing to M
-0.0.I: Trace Attempt 61	[1.40 s]
+0.0.I: Trace Attempt 61	[1.41 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
 0.0.M: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1283,9 +1313,9 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.M: Trace Attempt  1	[0.00 s]
 0.0.M: Trace Attempt  2	[0.00 s]
 0.0.M: Trace Attempt  3	[0.00 s]
-0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[1.43 s].
+0.0.Ncustom1: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_low_holds_below_terminal"	[2.23 s].
 0.0.Ncustom1: Morphing to AMcustom2
-0.0.Ncustom1: Trace Attempt 187	[1.41 s]
+0.0.Ncustom1: Trace Attempt 261	[2.18 s]
 0.0.Ncustom1: All properties determined. [0.00 s]
 0.0.Ncustom1: Exited with Success (@ 0.00 s)
 0.0.AMcustom2: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1298,35 +1328,31 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AMcustom2: Trace Attempt  1	[0.01 s]
 0.0.AMcustom2: Trace Attempt  2	[0.01 s]
 0.0.AMcustom2: Trace Attempt  3	[0.01 s]
-0.0.AMcustom2: Trace Attempt  1	[0.01 s]
-0.0.AMcustom2: Trace Attempt  2	[0.01 s]
-0.0.AMcustom2: Trace Attempt  3	[0.01 s]
-0.0.AMcustom2: Trace Attempt  1	[0.07 s]
-0.0.AMcustom2: Trace Attempt  2	[0.07 s]
-0.0.AMcustom2: Trace Attempt  3	[0.07 s]
-0.0.AMcustom2: Trace Attempt  1	[0.32 s]
-0.0.AMcustom2: Trace Attempt  2	[0.32 s]
-0.0.AMcustom2: Trace Attempt  3	[0.32 s]
-0.0.AMcustom2: Trace Attempt  1	[1.57 s]
-0.0.AMcustom2: Trace Attempt  2	[1.57 s]
-0.0.AMcustom2: Trace Attempt  3	[1.57 s]
-0.0.Bm: Trace Attempt 514	[39.94 s]
-0.0.Ht: Trace Attempt 1205	[282.05 s]
-0.0.M: Trace Attempt 252	[5.54 s]
-0.0.AMcustom2: Trace Attempt 235	[5.57 s]
-0.0.Bm: Trace Attempt 547	[44.15 s]
-0.0.Ht: Trace Attempt 1215	[286.12 s]
-0.0.M: Trace Attempt 386	[9.56 s]
-0.0.Bm: Trace Attempt 578	[48.31 s]
-0.0.AMcustom2: Trace Attempt 320	[10.75 s]
-0.0.AMcustom2: Trace Attempt  1	[10.91 s]
-0.0.AMcustom2: Trace Attempt  2	[10.91 s]
-0.0.AMcustom2: Trace Attempt  3	[10.91 s]
-0.0.Ht: Trace Attempt 1221	[290.72 s]
-0.0.Ht: Trace Attempt 1230	[294.92 s]
-0.0.AMcustom2: Trace Attempt 250	[13.26 s]
-0.0.AMcustom2: Per property time limit expired (15.99 s) [16.01 s]
-0.0.AMcustom2: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[16.01 s].
+0.0.AMcustom2: Trace Attempt  1	[0.02 s]
+0.0.AMcustom2: Trace Attempt  2	[0.02 s]
+0.0.AMcustom2: Trace Attempt  3	[0.02 s]
+0.0.AMcustom2: Trace Attempt  1	[0.10 s]
+0.0.AMcustom2: Trace Attempt  2	[0.11 s]
+0.0.AMcustom2: Trace Attempt  3	[0.11 s]
+0.0.AMcustom2: Trace Attempt  1	[0.43 s]
+0.0.AMcustom2: Trace Attempt  2	[0.43 s]
+0.0.AMcustom2: Trace Attempt  3	[0.43 s]
+0.0.Ht: Trace Attempt 1561	[281.54 s]
+0.0.AMcustom2: Trace Attempt  1	[1.95 s]
+0.0.AMcustom2: Trace Attempt  2	[1.95 s]
+0.0.AMcustom2: Trace Attempt  3	[1.95 s]
+0.0.Bm: Trace Attempt 592	[42.01 s]
+0.0.M: Trace Attempt 252	[5.88 s]
+0.0.AMcustom2: Trace Attempt 195	[5.97 s]
+0.0.Ht: Trace Attempt 1573	[288.58 s]
+0.0.Bm: Trace Attempt 602	[48.30 s]
+0.0.AMcustom2: Trace Attempt 299	[9.98 s]
+0.0.M: Trace Attempt 325	[10.53 s]
+0.0.Ht: Trace Attempt 1614	[292.69 s]
+0.0.Bm: Trace Attempt 628	[52.31 s]
+0.0.AMcustom2: Trace Attempt 319	[11.07 s]
+0.0.AMcustom2: Per property time limit expired (15.95 s) [15.97 s]
+0.0.AMcustom2: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[15.97 s].
 0.0.AMcustom2: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
 0.0.AMcustom2: Trace Attempt  1	[0.00 s]
 0.0.AMcustom2: Trace Attempt  2	[0.00 s]
@@ -1337,43 +1363,43 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the pro
 0.0.AMcustom2: Trace Attempt  2	[0.01 s]
 0.0.AMcustom2: Trace Attempt  3	[0.01 s]
 0.0.AMcustom2: Trace Attempt  5	[0.01 s]
-0.0.AMcustom2: Trace Attempt  1	[0.02 s]
-0.0.AMcustom2: Trace Attempt  2	[0.02 s]
-0.0.AMcustom2: Trace Attempt  3	[0.02 s]
-0.0.AMcustom2: Trace Attempt  5	[0.02 s]
-0.0.M: Trace Attempt 505	[11.77 s]
-0.0.M: Per property time limit expired (16.00 s) [16.05 s]
-0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[16.05 s].
+0.0.AMcustom2: Trace Attempt  1	[0.03 s]
+0.0.AMcustom2: Trace Attempt  2	[0.03 s]
+0.0.AMcustom2: Trace Attempt  3	[0.03 s]
+0.0.AMcustom2: Trace Attempt  5	[0.03 s]
+0.0.AMcustom2: Trace Attempt  1	[0.07 s]
+0.0.AMcustom2: Trace Attempt  2	[0.07 s]
+0.0.AMcustom2: Trace Attempt  3	[0.07 s]
+0.0.AMcustom2: Trace Attempt  5	[0.07 s]
+0.0.M: Trace Attempt 505	[13.00 s]
+0.0.M: Per property time limit expired (16.00 s) [16.13 s]
+0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_high_goes_low_at_terminal"	[16.13 s].
 0.0.M: Starting proof for property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[0.00 s].
-0.0.M: Trace Attempt  1	[0.00 s]
-0.0.M: Trace Attempt  2	[0.00 s]
-0.0.M: Trace Attempt  3	[0.00 s]
-0.0.M: Trace Attempt  5	[0.00 s]
-0.0.AMcustom2: Trace Attempt  1	[0.05 s]
-0.0.AMcustom2: Trace Attempt  2	[0.05 s]
-0.0.AMcustom2: Trace Attempt  3	[0.05 s]
-0.0.AMcustom2: Trace Attempt  5	[0.05 s]
-0.0.Bm: Trace Attempt 591	[56.11 s]
-0.0.M: Trace Attempt 196	[4.05 s]
-0.0.Ht: Trace Attempt 1240	[299.40 s]
-INFO (IPF144): 0: Initiating shutdown of proof [300.01 s]
+0.0.M: Trace Attempt  1	[0.01 s]
+0.0.M: Trace Attempt  2	[0.01 s]
+0.0.M: Trace Attempt  3	[0.01 s]
+0.0.M: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1647	[296.73 s]
+0.0.Bm: Trace Attempt 656	[56.34 s]
+INFO (IPF144): 0: Initiating shutdown of proof [300.11 s]
 0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 1241	[299.69 s]
-0.0.Ht: Time limit expired (300.00 s) [299.94 s]
-0.0.Ht: Exited with Success (@ 300.03 s)
-0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[4.64 s].
-0.0.M: Trace Attempt 206	[4.52 s]
-0.0.M: Time limit expired (300.00 s) [4.64 s]
-0.0.M: Exited with Success (@ 300.03 s)
-0.0.AMcustom2: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[4.68 s].
-0.0.AMcustom2: Trace Attempt 234	[2.12 s]
-0.0.AMcustom2: Time limit expired (300.00 s) [4.68 s]
-0.0.Bm: Time limit expired (300.00 s) [59.05 s]
-0.0.AMcustom2: Exited with Success (@ 300.06 s)
-0.0.Bm: Exited with Success (@ 300.06 s)
+0.0.Ht: Trace Attempt 1658	[299.53 s]
+0.0.Ht: Time limit expired (300.00 s) [300.00 s]
+0.0.Ht: Exited with Success (@ 300.12 s)
+0.0.M: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[3.78 s].
+0.0.M: Trace Attempt 191	[3.58 s]
+0.0.M: Time limit expired (300.00 s) [3.78 s]
+0.0.AMcustom2: Stopped processing property "segClkDevider.auto_sva_inst.check_clk_div_toggles_or_clears_at_terminal"	[3.90 s].
+0.0.AMcustom2: Trace Attempt 234	[2.21 s]
+0.0.AMcustom2: Time limit expired (300.00 s) [3.90 s]
+0.0.Bm: Trace Attempt 670	[58.69 s]
+0.0.Bm: Time limit expired (300.00 s) [59.16 s]
+0.0.M: Exited with Success (@ 300.18 s)
+0.0.AMcustom2: Exited with Success (@ 300.19 s)
+0.0.Bm: Exited with Success (@ 300.19 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
      engines started                               :    13
      engine jobs started                           :     4
@@ -1382,20 +1408,20 @@ ProofGrid Summary (utilization 99.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.08      299.94        0.00       99.97 %
-     Bm        0.05      300.02        0.00       99.98 %
-      M        0.06      299.78        0.00       99.98 %
-    AMcustom2        0.05      299.63        0.00       99.98 %
-    all        0.06      299.84        0.00       99.98 %
+     Ht        0.11      300.00        0.00       99.96 %
+     Bm        0.06      300.11        0.00       99.98 %
+      M        0.10      299.94        0.00       99.97 %
+    AMcustom2        0.07      299.81        0.00       99.98 %
+    all        0.08      299.96        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23     1199.37        0.00
+               0.34     1199.85        0.00
 
-    Data read    : 4.69 MiB
-    Data written : 247.88 kiB
+    Data read    : 5.12 MiB
+    Data written : 282.62 kiB
 
 0: All pending notifications were processed.
 ----------------------------------------
@@ -1431,6 +1457,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04688/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 1 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 1 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04688/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1480,8 +1564,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1496,6 +1584,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 1.704 GB.
+INFO (IPL018): The peak resident set memory use for this session was 1.887 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=03523
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::full_adder.auto_sva_inst.check_sum_matches_three_input_xor | error
+<embedded>::full_adder.auto_sva_inst.check_carry_matches_ab_and | error
+<embedded>::full_adder.auto_sva_inst.check_sum_when_cin_low | error
+<embedded>::full_adder.auto_sva_inst.check_sum_when_cin_high | error
+<embedded>::full_adder.auto_sva_inst.check_sum_tracks_cin_when_ab_equal | error
+<embedded>::full_adder.auto_sva_inst.check_sum_inverts_cin_when_ab_different | error
+<embedded>::full_adder.auto_sva_inst.check_carry_high_when_ab_high | error
+<embedded>::full_adder.auto_sva_inst.check_carry_low_when_either_operand_low | error

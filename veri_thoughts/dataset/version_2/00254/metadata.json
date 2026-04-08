@@ -1,0 +1,29 @@
+{
+  "id": "00254",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.883080",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e259f1c81909c9912e42cfc901d",
+  "custom_id": "addition__68e4d09a",
+  "module_name": "addition_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a Verilog module named `addition_module`. This module takes two 8-bit inputs, `A` and `B` (declared as `[7:0]`), and produces a 9-bit output `Sum` (declared as `[8:0]`). The output `Sum` should be of type `reg`. The module should calculate the sum of `A` and `B` and assign the result to `Sum` whenever either input changes. Write the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "e2314a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 2
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.462882",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=00960
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::sync_merge.auto_sva_inst.check_r0_xor | error
+<embedded>::sync_merge.auto_sva_inst.check_both_low_behavior | error
+<embedded>::sync_merge.auto_sva_inst.check_r1_only_behavior | error
+<embedded>::sync_merge.auto_sva_inst.check_r2_only_behavior | error
+<embedded>::sync_merge.auto_sva_inst.check_both_high_behavior | error
+<embedded>::sync_merge.auto_sva_inst.check_r0_low_implies_a0_low | error
+<embedded>::sync_merge.auto_sva_inst.check_a0_high_only_if_one_req | error
+<embedded>::sync_merge.auto_sva_inst.check_rise_r1_when_r2_low | error
+<embedded>::sync_merge.auto_sva_inst.check_rise_r2_when_r1_low | error
+<embedded>::sync_merge.auto_sva_inst.check_fall_r1_when_r2_high | error

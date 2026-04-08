@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=02664
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::control_unit.auto_sva_inst.hold_outputs_during_load | error
+<embedded>::control_unit.auto_sva_inst.compute_passthrough_data_in | error
+<embedded>::control_unit.auto_sva_inst.compute_invert_data_in | error
+<embedded>::control_unit.auto_sva_inst.valid_high_on_operation | error
+<embedded>::control_unit.auto_sva_inst.load_then_ctrl00_uses_loaded_data | error
+<embedded>::control_unit.auto_sva_inst.load_then_ctrl01_uses_inverted_loaded_data | error
+<embedded>::control_unit.auto_sva_inst.load_then_ctrl10_uses_next_data_in | error
+<embedded>::control_unit.auto_sva_inst.load_then_ctrl11_uses_inverted_next_data_in | error

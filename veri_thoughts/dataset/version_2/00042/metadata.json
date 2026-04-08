@@ -1,0 +1,29 @@
+{
+  "id": "00042",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.697414",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de968448190b61e99aae497562b",
+  "custom_id": "priority_encoder_ed78b2aa",
+  "module_name": "priority_encoder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a synchronous Verilog module named `priority_encoder`. The module should have the following interface:\n- Input `clk`: A single clock signal.\n- Input `in`: An 8-bit wide signal (`[7:0]`).\n- Output `pos`: A 2-bit wide signal (`[1:0]`).\n- Output `out_sel`: A 4-bit wide signal (`[3:0]`).\n\nOn the positive edge of the clock, the module should evaluate the `in` signal with priority given to the higher index bits.\n- If `in[7]` is high, the output `pos` should be assigned the value `3'b111` (which will be truncated to fit the 2-bit output width), and `out_sel` should be assigned `4'b0001`.\n- Otherwise, if `in[6]` is high, `pos` should be assigned `3'b110` (truncated), and `out_sel` should be assigned `4'b0010`.\n- Otherwise, if `in[5]` is high, `pos` should be assigned `3'b100` (truncated), and `out_sel` should be assigned `4'b0100`.\n- Otherwise, if `in[4]` is high, `pos` should be assigned `3'b011` (truncated), and `out_sel` should be assigned `4'b1000`.\n- Otherwise, if `in[3]` is high, `pos` should be assigned `3'b010` (truncated), and `out_sel` should be assigned `4'b0000`.\n- Otherwise, if `in[2]` is high, `pos` should be assigned `3'b001` (truncated), and `out_sel` should be assigned `4'b0000`.\n- Otherwise, if `in[1]` is high, `pos` should be assigned `3'b000` (truncated), and `out_sel` should be assigned `4'b0000`.\n- If none of the bits `in[7]` through `in[1]` are high, `pos` should be assigned `2'b00` and `out_sel` should be assigned `4'b0000`.\n\nImplement this specific synchronous priority logic and output mapping in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "d7ca1d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.371403",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

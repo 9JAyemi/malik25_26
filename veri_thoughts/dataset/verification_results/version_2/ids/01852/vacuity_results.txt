@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=01852
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_pass_through_when_enabled | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_en_low_forces_zero | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_te_high_forces_zero | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_enclk_high_implies_en | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_enclk_high_implies_te_low | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_en_fall_clears_enclk | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_te_rise_clears_enclk | error
+<embedded>::CLK_GATE_MODULE.auto_sva_inst.check_gating_off_forces_zero | error

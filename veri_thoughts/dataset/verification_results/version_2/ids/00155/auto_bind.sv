@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_dst_tbm_selection, assert, property, posedge, disable, iff, check_dst_sync_direct_chain, check_dst_sync_selection, check_dst_tbm_pos_gate, check_dst_dir_selection, check_chain_blocks_dst_sync, b0, check_enabled_sync_out_copies_tbm, check_disabled_sync_out_clears_dst_sync, check_no_main_selects_clear_dst_tbm, check_no_dir_selects_clear_dst_dir
+bind trigger_control trigger_control_sva auto_sva_inst (
+    .clk(clk),
+    .sync(sync),
+    .reset(reset),
+    .sel_async(sel_async),
+    .sel_sync(sel_sync),
+    .sel_single(sel_single),
+    .sel_gen(sel_gen),
+    .sel_pg(sel_pg),
+    .sel_dir_async(sel_dir_async),
+    .sel_dir_sync(sel_dir_sync),
+    .sel_dir_single(sel_dir_single),
+    .sel_dir_gen(sel_dir_gen),
+    .sel_dir_pg(sel_dir_pg),
+    .sel_chain(sel_chain),
+    .sel_sync_out(sel_sync_out),
+    .src_async(src_async),
+    .src_async_pos(src_async_pos),
+    .src_sync(src_sync),
+    .src_sync_direct(src_sync_direct),
+    .src_single(src_single),
+    .src_gen(src_gen),
+    .src_pg(src_pg),
+    .dst_tbm(dst_tbm),
+    .dst_tbm_pos(dst_tbm_pos),
+    .dst_sync(dst_sync),
+    .dst_sync_direct(dst_sync_direct),
+    .dst_dir(dst_dir)
+);

@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=04722
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::fifo_counter.auto_sva_inst.check_empty_pass_through | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count0_returns_31 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count1_returns_0 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count2_ge2_returns_1 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count2_no_ge2_returns_0 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count3_ge3_returns_2 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count3_ge2_only_returns_1 | error
+<embedded>::fifo_counter.auto_sva_inst.check_nonempty_count3_no_free_threshold_returns_0 | error

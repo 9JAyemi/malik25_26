@@ -1,0 +1,20 @@
+module detect_0_to_1 (
+    input clk,
+    input reset,
+    input [31:0] in,
+    output reg [31:0] out
+);
+
+reg [31:0] prev_in;
+
+always @(posedge clk) begin
+    if (reset) begin
+        out <= 0;
+        prev_in <= 0;
+    end else begin
+        prev_in <= in;
+        out <= (in & ~prev_in);
+    end
+end
+
+endmodule

@@ -1,0 +1,29 @@
+{
+  "id": "00048",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.707873",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65deb3200819092b3ab6b4f1d8e9f",
+  "custom_id": "full_adder_bb44b01f",
+  "module_name": "full_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign and implement the following two modules in Verilog:\n\n1.  A module named `full_adder` that performs the binary addition of three single-bit inputs (`a`, `b`, and `cin`). The module should produce a single-bit sum output (`sum`) and a single-bit carry output (`cout`).\n\n2.  A structural module named `adder_4bit` that adds two 4-bit unsigned numbers (`A` and `B`). The module should output the 4-bit sum (`S`) and a single-bit carry out (`Cout`). This `adder_4bit` module must be constructed by instantiating the `full_adder` module four times in a ripple-carry configuration. Assume a carry-in of 0 for the least significant bit stage.\n\nEnsure the module names and input/output port names match exactly as specified.\n",
+  "original_verified": true,
+  "prompt_hash": "85cc62",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.373800",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

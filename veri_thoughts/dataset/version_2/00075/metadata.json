@@ -1,0 +1,29 @@
+{
+  "id": "00075",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.765199",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df2a4f881908d8512bc1edf5717",
+  "custom_id": "mux6_b5b2fed5",
+  "module_name": "mux6",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `mux6`. This module should act as a 6-to-1 multiplexer. It should include a parameter `WIREWIDTH` with a default value of 1 to define the data width. The interface consists of:\n- Parameter `WIREWIDTH` = 1 (default)\n- Input `s` [2:0]\n- Inputs `d0`, `d1`, `d2`, `d3`, `d4`, `d5`, each with range [WIREWIDTH:0]\n- Output `o` with range [WIREWIDTH:0]\n\nImplement the logic such that the output `o` reflects the selected input based on the value of `s`. Specifically, `o` should be `d0` when `s` is 0, `d1` when `s` is 1, `d2` when `s` is 2, `d3` when `s` is 3, and `d4` when `s` is 4. For any other value of `s`, the output `o` should be `d5`.\n",
+  "original_verified": true,
+  "prompt_hash": "f99074",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.382391",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

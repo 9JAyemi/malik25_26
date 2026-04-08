@@ -1,0 +1,29 @@
+{
+  "id": "00268",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.706559",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3c738c81909e0f00c5a99007b4",
+  "custom_id": "add_sub_4bit_83306e46",
+  "module_name": "add_sub_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `add_sub_4bit`.\nThe module should implement a 4-bit adder/subtractor with the following interface:\n-   Inputs:\n    -   `A`: 4-bit operand\n    -   `B`: 4-bit operand\n    -   `mode`: 1-bit control signal\n-   Outputs:\n    -   `O`: 4-bit result\n    -   `COUT`: 1-bit carry/borrow indicator\n\nThe module's behavior should depend on the `mode` input:\n-   If `mode` is 0, the module should perform 4-bit addition (`A + B`). The sum's lower 4 bits should be assigned to `O`, and the carry-out bit should be assigned to `COUT`.\n-   If `mode` is 1, the module should perform 4-bit subtraction (`A - B`). The difference's lower 4 bits should be assigned to `O`, and `COUT` should reflect the carry/borrow status of the subtraction.\n\nImplement this functionality using combinational logic.\n",
+  "original_verified": true,
+  "prompt_hash": "b3fbfd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.466537",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

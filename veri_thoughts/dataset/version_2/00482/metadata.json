@@ -1,0 +1,29 @@
+{
+  "id": "00482",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.331061",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4056008190af6b8bf5f103c499",
+  "custom_id": "binary_multiplier_c306fd5d",
+  "module_name": "binary_multiplier",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `binary_multiplier`.\nThe module should have the following interface:\ninput [3:0] a\ninput [3:0] b\noutput reg [7:0] out\n\nThe module should implement a specific calculation based on the bitwise AND of each bit of input `a` with the entire 4-bit input vector `b`. Consider four 4-bit intermediate vectors, one for each bit `a[i]` (where `i` ranges from 0 to 3), formed by the bitwise AND operation `a[i] & b`. Concatenate these four intermediate vectors to form a 16-bit value, placing the vector derived from `a[0]` in the most significant 4 bits and the vector derived from `a[3]` in the least significant 4 bits. The 8-bit output `out` should be the integer value represented by the least significant 8 bits of this 16-bit concatenated result.\n",
+  "original_verified": true,
+  "prompt_hash": "15cd22",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.884856",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

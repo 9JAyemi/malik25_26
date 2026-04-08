@@ -1,0 +1,29 @@
+{
+  "id": "00286",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.765351",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3e18988190ab55e6ba4ccd2b03",
+  "custom_id": "counter__fcc9c296",
+  "module_name": "counter_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `counter_module`.\n\nThis module should implement an 8-bit synchronous up-counter with an asynchronous reset.\n\nThe counter should increment on the positive edge of the `clk` input.\n\nWhen the `reset` input is high, the counter should immediately reset to 0.\n\nThe counter should count from 0 up to its maximum value (255 for an 8-bit counter) and then wrap back around to 0 on the next clock edge.\n\nThe current count should be available on the `count` output.\n\nThe module should have the following interface:\n`input clk`\n`input reset`\n`output [7:0] count`\n",
+  "original_verified": true,
+  "prompt_hash": "9762c4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.471059",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

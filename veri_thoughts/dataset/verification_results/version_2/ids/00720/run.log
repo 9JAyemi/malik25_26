@@ -318,6 +318,43 @@ INFO: Using TOP = clock_counter
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -561,56 +598,37 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 17
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 3849864@della-i13n6(local) jg_3849792_della-i13n6_1
-0.0.Hp: Proofgrid shell started at 3849865@della-i13n6(local) jg_3849792_della-i13n6_1
-0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: Proofgrid shell started at 1861762@della-h16n1(local) jg_1861595_della-h16n1_1
+0.0.N: Proofgrid shell started at 1861761@della-h16n1(local) jg_1861595_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_never_above_threshold"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.count_never_above_threshold" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "clock_counter.auto_sva_inst.count_never_above_threshold".
-INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.count_clears_on_threshold:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "clock_counter.auto_sva_inst.count_never_above_threshold".
-INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "clock_counter.auto_sva_inst.count_never_above_threshold".
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_never_above_threshold"	[0.01 s].
-0.0.N: Starting proof for property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.00 s.
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+0.0.Hp: Trace Attempt  1	[0.02 s]
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.count_never_above_threshold" in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.count_clears_on_threshold:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.count_increments_when_below_threshold:precondition1" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.clko_change_caused_by_threshold" in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold" in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.no_clko_change_when_prev_below_threshold:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
 INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "clock_counter.auto_sva_inst.zero_count_has_valid_cause" in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.zero_count_has_valid_cause:precondition1" was covered in 1 cycles in 0.02 s.
 INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.zero_advances_to_one_next:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.02 s]
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.01 s.
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.count_increments_when_below_threshold"	[0.01 s].
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.03 s.
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.03 s.
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.03 s.
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_increments_when_below_threshold" in 0.02 s.
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
@@ -621,10 +639,14 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.06 s]
-0.0.N: Trace Attempt  2	[0.06 s]
-0.0.N: Trace Attempt  3	[0.06 s]
-0.0.B: Proofgrid shell started at 3849879@della-i13n6(local) jg_3849792_della-i13n6_1
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_toggles_on_threshold" in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.count_clears_on_threshold" in 0.03 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.zero_advances_to_one_next" in 0.03 s.
+0.0.Hp: Trace Attempt  4	[0.02 s]
+0.0.Hp: Trace Attempt  5	[0.02 s]
+0.0.B: Proofgrid shell started at 1861776@della-h16n1(local) jg_1861595_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -634,7 +656,10 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 3849878@della-i13n6(local) jg_3849792_della-i13n6_1
+0.0.N: Trace Attempt  1	[0.07 s]
+0.0.N: Trace Attempt  2	[0.07 s]
+0.0.N: Trace Attempt  3	[0.07 s]
+0.0.Ht: Proofgrid shell started at 1861775@della-h16n1(local) jg_1861595_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
@@ -643,14 +668,9 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 1
-0.0.N: Trace Attempt 243	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.98 s].
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.B: Trace Attempt 158	[0.92 s]
-0.0.B: Per property time limit expired (0.92 s) [0.93 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.93 s].
+0.0.B: Per property time limit expired (0.93 s) [0.94 s]
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.94 s].
 0.0.B: Last scan. Per property time limit: 0s
 0.0.B: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -658,108 +678,71 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 233	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.02 s]
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[1.01 s].
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
 0.0.N: Trace Attempt 22	[0.00 s]
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.03 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 244	[4.01 s]
-0.0.N: Trace Attempt 368	[4.03 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.Hp: Trace Attempt 234	[5.01 s]
+0.0.N: Trace Attempt 332	[4.17 s]
 0.0.B: Trace Attempt 268	[4.20 s]
-0.0.Hp: Trace Attempt 244	[5.34 s]
-0.0.B: Trace Attempt 314	[8.31 s]
-0.0.N: Trace Attempt 592	[8.51 s]
-0.0.B: Trace Attempt 359	[12.45 s]
-0.0.N: Trace Attempt 849	[12.80 s]
-0.0.Ht: Trace Attempt 494	[13.92 s]
-0.0.N: Trace Attempt 1023	[16.80 s]
-0.0.B: Trace Attempt 371	[17.03 s]
-0.0.N: Trace Attempt 1226	[20.82 s]
-0.0.B: Trace Attempt 378	[21.09 s]
-0.0.N: Trace Attempt 1415	[25.71 s]
-0.0.B: Trace Attempt 384	[25.73 s]
-0.0.N: Trace Attempt 1839	[29.76 s]
-0.0.B: Trace Attempt 389	[30.61 s]
-0.0.N: Trace Attempt 1897	[33.91 s]
-0.0.B: Trace Attempt 399	[34.88 s]
-0.0.N: Trace Attempt 1924	[38.78 s]
-0.0.B: Trace Attempt 407	[39.08 s]
-0.0.N: Trace Attempt 1960	[43.41 s]
-0.0.B: Trace Attempt 416	[43.42 s]
-0.0.Hp: Trace Attempt 395	[44.64 s]
-0.0.Ht: Trace Attempt 903	[47.76 s]
-0.0.N: Trace Attempt 1980	[47.45 s]
-0.0.B: Trace Attempt 419	[48.79 s]
-0.0.N: Trace Attempt 1991	[51.94 s]
-0.0.B: Trace Attempt 423	[53.73 s]
-0.0.N: Trace Attempt 1998	[56.13 s]
-0.0.B: Trace Attempt 428	[58.08 s]
-0.0.B: Trace Attempt 433	[62.31 s]
-0.0.B: Trace Attempt 437	[66.56 s]
-0.0.B: Trace Attempt 441	[70.70 s]
-0.0.B: Trace Attempt 447	[75.04 s]
-0.0.B: Trace Attempt 451	[79.05 s]
-0.0.B: Trace Attempt 456	[83.71 s]
-0.0.B: Trace Attempt 460	[88.07 s]
-0.0.B: Trace Attempt 464	[92.66 s]
-0.0.B: Trace Attempt 467	[97.02 s]
-0.0.B: Trace Attempt 470	[101.35 s]
-0.0.B: Trace Attempt 474	[106.60 s]
-0.0.B: Trace Attempt 477	[112.72 s]
-0.0.B: Trace Attempt 480	[118.02 s]
-0.0.B: Trace Attempt 483	[123.32 s]
-0.0.B: Trace Attempt 486	[128.66 s]
-0.0.B: Trace Attempt 489	[133.94 s]
-0.0.B: Trace Attempt 492	[139.62 s]
-0.0.B: Trace Attempt 495	[144.53 s]
-0.0.B: Trace Attempt 498	[150.25 s]
-0.0.B: Trace Attempt 501	[156.39 s]
-0.0.B: Trace Attempt 503	[161.11 s]
-0.0.B: Trace Attempt 505	[165.45 s]
-0.0.B: Trace Attempt 507	[170.12 s]
-0.0.B: Trace Attempt 510	[175.83 s]
-0.0.B: Trace Attempt 513	[180.79 s]
-0.0.B: Trace Attempt 516	[186.45 s]
-0.0.B: Trace Attempt 519	[191.95 s]
-0.0.B: Trace Attempt 521	[195.96 s]
-0.0.B: Trace Attempt 524	[201.31 s]
-0.0.B: Trace Attempt 526	[205.95 s]
-0.0.Ht: Trace Attempt 1980	[211.11 s]
-0.0.B: Trace Attempt 529	[211.68 s]
-0.0.B: Trace Attempt 531	[216.21 s]
-0.0.Ht: Trace Attempt 2073	[218.80 s]
-0.0.B: Trace Attempt 534	[221.74 s]
-0.0.Ht: Trace Attempt 2150	[222.81 s]
-0.0.Ht: Trace Attempt 2197	[226.84 s]
-0.0.B: Trace Attempt 536	[226.09 s]
-0.0.B: Trace Attempt 538	[230.38 s]
-0.0.B: Trace Attempt 540	[234.65 s]
-0.0.Ht: Trace Attempt 2211	[235.70 s]
-0.0.Ht: Trace Attempt 2274	[239.72 s]
-0.0.B: Trace Attempt 542	[238.94 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Morphing to Mp
-0.0.Hp: Trace Attempt 1960	[44.91 s]
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.00 s)
-0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Mp: Trace Attempt  1	[0.00 s]
-0.0.Mp: Trace Attempt  2	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  4	[0.00 s]
-0.0.Mp: Trace Attempt  4	[0.00 s]
-0.0.Mp: Trace Attempt  5	[0.00 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.53 s].
-0.0.B: Morphing to K
-0.0.B: All properties determined. [0.00 s]
-0.0.B: Exited with Success (@ 0.00 s)
-0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
-0.0.K: Trace Attempt 2002	[0.07 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[240.72 s].
+0.0.Ht: Trace Attempt 231	[6.08 s]
+0.0.B: Trace Attempt 306	[8.36 s]
+0.0.N: Trace Attempt 592	[8.45 s]
+0.0.B: Trace Attempt 336	[12.76 s]
+0.0.N: Trace Attempt 926	[13.91 s]
+0.0.Ht: Trace Attempt 395	[18.22 s]
+0.0.B: Trace Attempt 360	[17.41 s]
+0.0.N: Trace Attempt 1215	[18.61 s]
+0.0.B: Trace Attempt 368	[21.49 s]
+0.0.N: Trace Attempt 1415	[22.83 s]
+0.0.B: Trace Attempt 372	[25.61 s]
+0.0.N: Trace Attempt 1846	[26.83 s]
+0.0.B: Trace Attempt 377	[30.12 s]
+0.0.N: Trace Attempt 1902	[30.84 s]
+0.0.B: Trace Attempt 381	[34.29 s]
+0.0.N: Trace Attempt 1927	[34.90 s]
+0.0.B: Trace Attempt 384	[38.30 s]
+0.0.N: Trace Attempt 1962	[38.94 s]
+0.0.B: Trace Attempt 387	[43.05 s]
+0.0.N: Trace Attempt 1986	[43.34 s]
+0.0.B: Trace Attempt 390	[47.46 s]
+0.0.N: Trace Attempt 1994	[47.60 s]
+0.0.N: Trace Attempt 2002	[51.82 s]
+0.0.B: Trace Attempt 398	[52.06 s]
+0.0.B: Trace Attempt 404	[57.13 s]
+0.0.Hp: Trace Attempt 329	[60.60 s]
+0.0.B: Trace Attempt 407	[61.29 s]
+0.0.B: Trace Attempt 411	[65.41 s]
+0.0.B: Trace Attempt 417	[71.62 s]
+0.0.B: Trace Attempt 419	[78.44 s]
+0.0.B: Trace Attempt 422	[84.15 s]
+0.0.B: Trace Attempt 424	[89.16 s]
+0.0.B: Trace Attempt 428	[94.59 s]
+0.0.B: Trace Attempt 431	[98.64 s]
+0.0.B: Trace Attempt 434	[103.93 s]
+0.0.B: Trace Attempt 437	[108.61 s]
+0.0.B: Trace Attempt 440	[113.71 s]
+0.0.B: Trace Attempt 444	[118.03 s]
+0.0.B: Trace Attempt 447	[122.78 s]
+0.0.B: Trace Attempt 450	[127.00 s]
+0.0.B: Trace Attempt 453	[131.75 s]
+0.0.B: Trace Attempt 456	[137.35 s]
+0.0.B: Trace Attempt 458	[141.53 s]
+0.0.B: Trace Attempt 461	[146.41 s]
+0.0.B: Trace Attempt 463	[150.42 s]
+0.0.B: Trace Attempt 465	[155.22 s]
+0.0.B: Trace Attempt 467	[159.93 s]
+0.0.B: Trace Attempt 469	[165.08 s]
+0.0.B: Trace Attempt 472	[170.86 s]
+0.0.Ht: Trace Attempt 1212	[176.11 s]
+0.0.B: Trace Attempt 474	[176.13 s]
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[180.64 s].
 0.0.N: Morphing to AM
-0.0.N: Trace Attempt 2002	[59.10 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -770,27 +753,38 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.08 s]
-0.0.AM: Trace Attempt  2	[0.08 s]
-0.0.AM: Trace Attempt  3	[0.08 s]
-0.0.AM: Trace Attempt  1	[0.36 s]
-0.0.AM: Trace Attempt  2	[0.36 s]
-0.0.AM: Trace Attempt  3	[0.36 s]
-0.0.AM: Trace Attempt  1	[2.32 s]
-0.0.AM: Trace Attempt  2	[2.32 s]
-0.0.AM: Trace Attempt  3	[2.32 s]
-0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[2.81 s].
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[180.71 s].
+0.0.B: Morphing to K
+0.0.B: Trace Attempt 475	[179.87 s]
+0.0.B: All properties determined. [0.00 s]
+0.0.B: Exited with Success (@ 0.00 s)
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.07 s]
+0.0.AM: Trace Attempt  2	[0.07 s]
+0.0.AM: Trace Attempt  3	[0.07 s]
+0.0.K: Trace Attempt 2002	[0.12 s]
+0.0.AM: Trace Attempt  1	[0.29 s]
+0.0.AM: Trace Attempt  2	[0.29 s]
+0.0.AM: Trace Attempt  3	[0.29 s]
+0.0.AM: Trace Attempt  1	[2.02 s]
+0.0.AM: Trace Attempt  2	[2.02 s]
+0.0.AM: Trace Attempt  3	[2.02 s]
+0.0.AM: Trace Attempt 381	[8.34 s]
+0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[11.89 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 83	[2.80 s]
+0.0.AM: Trace Attempt 557	[11.29 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[3.04 s].
+0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.K: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[12.03 s].
 0.0.K: Morphing to AB
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
@@ -805,92 +799,89 @@ INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
 0.0.AB: Trace Attempt  1	[0.09 s]
 0.0.AB: Trace Attempt  2	[0.09 s]
 0.0.AB: Trace Attempt  3	[0.09 s]
 0.0.AB: Trace Attempt  4	[0.09 s]
 0.0.AB: Trace Attempt  5	[0.09 s]
-0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.AB: Trace Attempt  1	[0.44 s]
-0.0.AB: Trace Attempt  2	[0.44 s]
-0.0.AB: Trace Attempt  3	[0.44 s]
-0.0.AB: Trace Attempt  4	[0.44 s]
-0.0.AB: Trace Attempt  5	[0.44 s]
-0.0.Tri:    0.23" ---- Launching abstraction thread ----
-0.0.Tri:    0.25" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.50 s]
-0.0.Tri: Trace Attempt  3	[0.50 s]
-0.0.Tri: Trace Attempt  4	[0.50 s]
-0.0.Tri: Trace Attempt  5	[0.50 s]
-0.0.Mp: Trace Attempt 245	[4.20 s]
-0.0.Tri:    1.33" Simplification phase 1 complete
-0.0.Ht: Trace Attempt 2339	[247.23 s]
-0.0.AB: Trace Attempt  1	[3.06 s]
-0.0.AB: Trace Attempt  2	[3.06 s]
-0.0.AB: Trace Attempt  3	[3.06 s]
-0.0.AB: Trace Attempt  4	[3.06 s]
-0.0.AB: Trace Attempt  5	[3.06 s]
-0.0.Tri:    3.08" Simplification phase 2 complete
-0.0.Tri:    3.13" Simplification phase 3 complete
-   3.13" ---- Completed simplification thread ----
-   3.13" ---- Restarting main thread on simplified netlist ----
-0.0.Tri: Trace Attempt 7758	[4.67 s]
-0.0.Mp: Trace Attempt 515	[8.23 s]
+0.0.Tri:    0.33" ---- Launching abstraction thread ----
+0.0.Tri:    0.37" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.57 s]
+0.0.Tri: Trace Attempt  3	[0.57 s]
+0.0.Tri: Trace Attempt  4	[0.57 s]
+0.0.Tri: Trace Attempt  5	[0.57 s]
+0.0.AB: Trace Attempt  1	[0.56 s]
+0.0.AB: Trace Attempt  2	[0.56 s]
+0.0.AB: Trace Attempt  3	[0.56 s]
+0.0.AB: Trace Attempt  4	[0.56 s]
+0.0.AB: Trace Attempt  5	[0.56 s]
+0.0.Tri:    1.56" Simplification phase 1 complete
+0.0.Tri:    3.81" Simplification phase 2 complete
+0.0.Tri:    3.88" Simplification phase 3 complete
+   3.88" ---- Completed simplification thread ----
+   3.88" ---- Restarting main thread on simplified netlist ----
+0.0.AB: Trace Attempt 160	[4.60 s]
+0.0.AB: Trace Attempt  1	[4.62 s]
+0.0.AB: Trace Attempt  2	[4.62 s]
+0.0.AB: Trace Attempt  3	[4.62 s]
+0.0.AB: Trace Attempt  4	[4.62 s]
+0.0.AB: Trace Attempt  5	[4.62 s]
+0.0.Tri: Trace Attempt 9515	[5.94 s]
 0.0.Tri: Requesting engine job to stop
 0.0.AB: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-0.0.Mp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [251.51 s]
-0.0.Tri: Trace Attempt 10003	[5.34 s]
-0.0.Tri: A trace with 10003 cycles was found. [6.73 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 6.92 s.
-0.0.AB: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[6.95 s].
-0.0.AB: Trace Attempt 227	[6.92 s]
-0.0.AB: All properties determined. [6.93 s]
-0.0.AB: Exited with Success (@ 251.53 s)
+INFO (IPF144): 0: Initiating shutdown of proof [201.75 s]
+0.0.Tri: Trace Attempt 10003	[6.08 s]
+0.0.Tri: A trace with 10003 cycles was found. [7.92 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 10003 cycles was found for the property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold" in 8.09 s.
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Trace Attempt 2002	[60.86 s]
+0.0.Hp: All properties determined. [201.75 s]
+0.0.AB: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[8.01 s].
+0.0.AB: Trace Attempt 155	[7.98 s]
+0.0.AB: All properties determined. [7.99 s]
+0.0.AB: Exited with Success (@ 201.76 s)
 0: ProofGrid usable level: 0
 0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 7757	[248.26 s]
-0.0.Ht: All properties determined. [251.39 s]
-0.0.Ht: Exited with Success (@ 251.55 s)
-0.0.Mp: Trace Attempt 626	[10.04 s]
-0.0.Mp: All properties determined. [10.10 s]
-0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[7.10 s].
-0.0.Mp: Exited with Success (@ 251.71 s)
-0.0.Tri: All properties determined. [7.10 s]
-0.0.Tri: Exited with Success (@ 251.72 s)
+0.0.Ht: Trace Attempt 2002	[176.35 s]
+0.0.Ht: All properties determined. [201.66 s]
+0.0.Hp: Exited with Success (@ 201.79 s)
+0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.clk_o_stable_when_below_threshold"	[8.27 s].
+0.0.Ht: Exited with Success (@ 201.95 s)
+0.0.Tri: All properties determined. [8.27 s]
+0.0.Tri: Exited with Success (@ 201.99 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.97 %)
+ProofGrid Summary (utilization 99.96 %)
 --------------------------------------------------------------
-     engines started                               :     9
+     engines started                               :     8
      engine jobs started                           :     4
 
     Average time in state (seconds)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.13      251.37        0.00       99.95 %
-     Mp        0.05      251.50        0.00       99.98 %
-    Tri        0.05      251.30        0.00       99.98 %
-     AB        0.08      251.37        0.00       99.97 %
-    all        0.08      251.39        0.00       99.97 %
+     Hp        0.07      201.74        0.00       99.96 %
+     Ht        0.11      201.64        0.00       99.95 %
+    Tri        0.08      201.35        0.00       99.96 %
+     AB        0.08      201.35        0.00       99.96 %
+    all        0.08      201.52        0.00       99.96 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.32     1005.55        0.00
+               0.34      806.08        0.00
 
-    Data read    : 3.46 MiB
-    Data written : 276.43 kiB
+    Data read    : 2.87 MiB
+    Data written : 394.52 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -921,6 +912,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00720/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 1 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 1 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00720/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -970,8 +1019,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -986,6 +1039,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 1.958 GB.
+INFO (IPL018): The peak resident set memory use for this session was 1.612 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

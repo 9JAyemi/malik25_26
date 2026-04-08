@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=03530
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::add_sub_overflow.auto_sva_inst.check_add_result | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_sub_result | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_add_overflow_exact | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_sub_overflow_exact | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_add_neg_neg_to_pos_overflow | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_add_pos_pos_to_neg_overflow | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_add_mixed_sign_no_overflow | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_sub_neg_minus_pos_overflow | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_sub_pos_minus_neg_overflow | error
+<embedded>::add_sub_overflow.auto_sva_inst.check_sub_same_sign_no_overflow | error

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_matches_previous_cycle_operation
+adder.auto_sva_inst.check_reset_clears_sum
+adder.auto_sva_inst.check_sum_updates_after_nonreset_cycle
+adder.auto_sva_inst.check_zero_a_passes_b
+adder.auto_sva_inst.check_zero_b_passes_a
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_sum_matches_previous_cycle_operation:precondition1
+adder.auto_sva_inst.check_reset_clears_sum:precondition1
+adder.auto_sva_inst.check_sum_updates_after_nonreset_cycle:precondition1
+adder.auto_sva_inst.check_zero_a_passes_b:precondition1
+adder.auto_sva_inst.check_zero_b_passes_a:precondition1

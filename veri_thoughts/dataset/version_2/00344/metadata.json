@@ -1,0 +1,29 @@
+{
+  "id": "00344",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.927557",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4cb28c81908b9798b8b9ebf611",
+  "custom_id": "barrel_shifter_2ca5f06f",
+  "module_name": "barrel_shifter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `barrel_shifter`.\nThe module should have the following interface:\n```verilog\n(\n    input [3:0] A,\n    input [3:0] B,\n    input [1:0] S,\n    output reg [3:0] Y\n);\n```\nThis module acts as a 4-bit cyclic shifter for the input `A`, controlled by the select signal `S`. The output `Y` should be determined as follows:\n- If `S` is `2'b00`, `Y` should be equal to `A` (no shift).\n- If `S` is `2'b01`, `Y` should be the result of cyclically shifting `A` one position to the left.\n- If `S` is `2'b10`, `Y` should be the result of cyclically shifting `A` one position to the right.\n- If `S` is `2'b11`, `Y` should be the result of cyclically shifting `A` two positions to the left.\nNote that the input `B` is part of the interface but is not used in the shifting logic described above.\n",
+  "original_verified": true,
+  "prompt_hash": "6585af",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.486293",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

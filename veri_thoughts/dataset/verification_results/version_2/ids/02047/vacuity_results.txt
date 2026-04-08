@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=02047
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::freq_divider.auto_sva_inst.reset_low_out_zero | error
+<embedded>::freq_divider.auto_sva_inst.async_reset_fall_clears_out | error
+<embedded>::freq_divider.auto_sva_inst.out_zero_on_first_cycle_after_deassert | error
+<embedded>::freq_divider.auto_sva_inst.out_one_on_second_cycle_after_deassert | error
+<embedded>::freq_divider.auto_sva_inst.toggle_every_cycle_after_warmup | error
+<embedded>::freq_divider.auto_sva_inst.periodicity_two_cycles | error
+<embedded>::freq_divider.auto_sva_inst.rise_followed_by_fall | error
+<embedded>::freq_divider.auto_sva_inst.fall_followed_by_rise | error

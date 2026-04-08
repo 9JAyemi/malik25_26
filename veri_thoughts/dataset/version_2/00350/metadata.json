@@ -1,0 +1,29 @@
+{
+  "id": "00350",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.949127",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4fa9008190a950f6a89a7cba43",
+  "custom_id": "gated_d_ff_en_4ce9e6cb",
+  "module_name": "gated_d_ff_en",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `gated_d_ff_en` with inputs `CLK`, `EN`, `TE` and output `ENCLK`. The module should implement the following logic: The output `ENCLK` is forced to `0` when the input `EN` is low. When `EN` is high, the module behaves as a positive-edge triggered D-type flip-flop where the data input is `TE`. The data `TE` is sampled on the positive edge of `CLK`, but only when `EN` is high. When `EN` is high, the output `ENCLK` should reflect the value stored in the internal flip-flop.\n",
+  "original_verified": true,
+  "prompt_hash": "1aa0e5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.488171",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

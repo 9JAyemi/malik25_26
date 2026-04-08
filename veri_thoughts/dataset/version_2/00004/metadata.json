@@ -1,0 +1,29 @@
+{
+  "id": "00004",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.623415",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de62ca48190a3d286000863e61c",
+  "custom_id": "mux_2to1_179bc090",
+  "module_name": "mux_2to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux_2to1`. This module should implement a 2-to-1 multiplexer. It should have the following interface:\nInputs: `a`, `b`, `sel`\nOutput: `y`\nThe module's functionality is to select between the two data inputs, `a` and `b`, based on the `sel` input. Specifically, the output `y` should be equal to `a` when `sel` is low (0), and equal to `b` when `sel` is high (1).\n",
+  "original_verified": true,
+  "prompt_hash": "849b95",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.359760",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00074",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.763197",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df2821481908c5ae1e07fa88683",
+  "custom_id": "jAsyncCntrDFlipFlop_35535c0f",
+  "module_name": "jAsyncCntrDFlipFlop",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two Verilog modules:\n\n1.  **Module:** `jAsyncCntrDFlipFlop`\n    *   **Description:** Implement a D-type flip-flop with an asynchronous reset. This module should provide both the standard output `q` and its inverse `qbar`.\n    *   **Interface:**\n        *   Inputs: `clk`, `rst`, `d`\n        *   Outputs: `q`, `qbar`\n\n2.  **Module:** `jAsynchronousCounter`\n    *   **Description:** Implement a 4-bit asynchronous (ripple) counter with asynchronous reset. This counter should be built using instances of the `jAsyncCntrDFlipFlop` module. The counter should count down (in value represented by `count`) and provide both the 4-bit count output `count` and its bitwise inverse `countbar`. The ripple clocking structure should be used, where the output of one flip-flop stage serves as the clock input for the next stage.\n    *   **Interface:**\n        *   Inputs: `clk`, `rst`\n        *   Outputs: `count` [3:0], `countbar` [3:0]\n\nYour answer should consist of the Verilog code for these two modules.\n",
+  "original_verified": true,
+  "prompt_hash": "d71836",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.382057",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

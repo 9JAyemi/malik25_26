@@ -1,0 +1,29 @@
+{
+  "id": "00391",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.684250",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e7033748190b4627abc1f5c49f3",
+  "custom_id": "four_bit_adder_9e5b4481",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign two Verilog modules:\n\n1.  A module named `full_adder` with inputs `A`, `B`, `Cin` and outputs `S`, `Cout`. Implement this module using basic logic gates (e.g., XOR, AND, OR) to perform the sum and carry logic for a single bit position.\n\n2.  A module named `four_bit_adder` with inputs `[3:0] A`, `[3:0] B`, `Cin` and outputs `[3:0] S`, `Cout`. This module should instantiate the `full_adder` module to perform the addition of the two 4-bit inputs `A` and `B` along with the carry-in `Cin`. Structure the design as a ripple-carry adder. Additionally, within this module, calculate bit-wise generate (`G`) and propagate (`P`) signals for the input vectors `A` and `B`.\n\nEnsure all input and output port names match the specifications provided.\n",
+  "original_verified": true,
+  "prompt_hash": "cc806c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.498414",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

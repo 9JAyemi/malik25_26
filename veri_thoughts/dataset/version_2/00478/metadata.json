@@ -1,0 +1,29 @@
+{
+  "id": "00478",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.319960",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4041208190b9f5a7d7c0c7a297",
+  "custom_id": "my_flip_flop_2e3685d3",
+  "module_name": "my_flip_flop",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `my_flip_flop`.\nThe module should have the following interface:\n- Inputs: `clk`, `d`, `rst`\n- Output: `q`\n\nImplement a synchronous D flip-flop with an active-high, synchronous reset.\nThe output `q` should capture the value of the input `d` on the positive edge of the `clk` signal.\nWhen the `rst` input is high, the flip-flop should synchronously reset its output `q` to `1'b0` on the next positive clock edge, overriding the `d` input.\nWhen `rst` is low, the flip-flop should operate normally, passing `d` to `q` on the positive clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "e7b250",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.884008",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

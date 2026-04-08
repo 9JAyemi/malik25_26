@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01965
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::synchronous_counter.auto_sva_inst.reset_clears_next | error
+<embedded>::synchronous_counter.auto_sva_inst.hold_zero_during_reset | error
+<embedded>::synchronous_counter.auto_sva_inst.wrap_from_15_noreset | error
+<embedded>::synchronous_counter.auto_sva_inst.step_or_zero_noreset | error
+<embedded>::synchronous_counter.auto_sva_inst.strict_step_when_nonzero | error
+<embedded>::synchronous_counter.auto_sva_inst.monotonic_increase_noreset | error
+<embedded>::synchronous_counter.auto_sva_inst.no_nonzero_after_prev_15 | error

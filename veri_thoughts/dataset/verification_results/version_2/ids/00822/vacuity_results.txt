@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=00822
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::and_gate.auto_sva_inst.check_out_equals_and | error
+<embedded>::and_gate.auto_sva_inst.check_out_one_when_both_one | error
+<embedded>::and_gate.auto_sva_inst.check_out_zero_when_any_zero | error
+<embedded>::and_gate.auto_sva_inst.check_out_one_implies_inputs_one | error
+<embedded>::and_gate.auto_sva_inst.check_out_rise_requires_both_high | error
+<embedded>::and_gate.auto_sva_inst.check_out_fall_requires_any_low | error
+<embedded>::and_gate.auto_sva_inst.check_out_known_when_inputs_known | error
+<embedded>::and_gate.auto_sva_inst.check_x_out_implies_x_input | error

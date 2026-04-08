@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=01906
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::counter_mod.auto_sva_inst.reset_clears_next | error
+<embedded>::counter_mod.auto_sva_inst.reset_held_keeps_zero | error
+<embedded>::counter_mod.auto_sva_inst.run_increments_by_one | error
+<embedded>::counter_mod.auto_sva_inst.wrap_from_f_to_0 | error
+<embedded>::counter_mod.auto_sva_inst.lsb_toggles_when_running | error
+<embedded>::counter_mod.auto_sva_inst.out_changes_each_running_cycle | error
+<embedded>::counter_mod.auto_sva_inst.release_next_is_one | error
+<embedded>::counter_mod.auto_sva_inst.zero_implies_prev_f_when_running | error

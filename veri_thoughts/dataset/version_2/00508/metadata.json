@@ -1,0 +1,29 @@
+{
+  "id": "00508",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.425483",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4ab9ec819086110e2f8f406298",
+  "custom_id": "mux4to1_6f537d1d",
+  "module_name": "mux4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux4to1` that implements a 4-to-1 multiplexer for single-bit signals. The module should have the following interface:\n- An input named `in` of width 4 bits (`[3:0]`).\n- An input named `sel` of width 2 bits (`[1:0]`).\n- An output named `out` of width 1 bit (declared as `reg`).\n\nThe module should select one of the four bits from the `in` input based on the value of the `sel` input. Specifically, if `sel` is 0, `out` should be `in[0]`; if `sel` is 1, `out` should be `in[1]`; if `sel` is 2, `out` should be `in[2]`; and if `sel` is 3, `out` should be `in[3]`.\n",
+  "original_verified": true,
+  "prompt_hash": "248845",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.891070",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

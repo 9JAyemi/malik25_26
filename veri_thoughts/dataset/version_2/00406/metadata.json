@@ -1,0 +1,29 @@
+{
+  "id": "00406",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.728347",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e87c48481908826540be2468e32",
+  "custom_id": "oh_reg1_65db10f3",
+  "module_name": "oh_reg1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `oh_reg1` that implements a D-type register with a parameterized data width `DW`. The module should have the following interface:\n- `input nreset`: Asynchronous active low reset.\n- `input clk`: Clock signal.\n- `input en`: Synchronous write enable.\n- `input [DW-1:0] in`: Input data.\n- `output [DW-1:0] out`: Output data.\n\nThe register should update its stored value with the `in` data on the positive edge of `clk` *only when* the `en` signal is asserted (high). If the `nreset` signal is low, the register should be asynchronously cleared to all zeros, overriding the clock and enable signals. The output `out` should always reflect the current value held in the register.\n",
+  "original_verified": true,
+  "prompt_hash": "1722a4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.863525",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

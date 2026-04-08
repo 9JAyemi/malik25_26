@@ -1,0 +1,29 @@
+{
+  "id": "00127",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.854990",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0210dc819084f05b7867cbf3a9",
+  "custom_id": "top__512a52c1",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\n\nDesign the following Verilog modules with the specified interfaces and functionality.\n\n1.  **Module Name:** `four_bit_adder`\n    *   **Inputs:** `input [3:0] a`, `input [3:0] b`, `input cin`\n    *   **Outputs:** `output cout`, `output [3:0] sum`\n    *   **Functionality:** Implement a standard 4-bit full adder that computes the sum of `a`, `b`, and `cin`, producing a 4-bit sum and a carry-out.\n\n2.  **Module Name:** `barrel_shifter`\n    *   **Inputs:** `input [3:0] DIN`, `input [1:0] SHIFT`\n    *   **Outputs:** `output [3:0] DOUT`\n    *   **Functionality:** Implement a module where the 4-bit output `DOUT` is constructed from bits of the input `DIN` based on the `SHIFT` input. Specifically, `DOUT[3]` is the bit of `DIN` indexed by `SHIFT[1]`, `DOUT[2]` is the bit of `DIN` indexed by `SHIFT[0]`, and the least significant two bits `DOUT[1:0]` are the same as `DIN[3:2]`.\n\n3.  **Module Name:** `top_module`\n    *   **Inputs:** `input [3:0] DIN`, `input [1:0] SHIFT`, `input [3:0] a`, `input [3:0] b`, `input cin`\n    *   **Outputs:** `output cout`, `output [3:0] sum`, `output [3:0] DOUT`\n    *   **Functionality:** This module should instantiate and connect the `four_bit_adder` and `barrel_shifter` modules.\n        *   First, pass `DIN` and `SHIFT` through the `barrel_shifter` to obtain an intermediate 4-bit value.\n        *   Then, add `a`, the intermediate value from the shifter, and `cin` using the `four_bit_adder`. The carry-out of this addition should be the `cout` output of the `top_module`. The 4-bit sum of this addition should be assigned to the `DOUT` output of the `top_module`.\n        *   Finally, calculate the `sum` output of the `top_module` by adding the 4-bit sum result from the first addition (the value assigned to `DOUT`), the input `b`, and the input `cin` again.\n\n",
+  "original_verified": true,
+  "prompt_hash": "4a7b85",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.399664",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

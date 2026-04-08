@@ -1,0 +1,29 @@
+{
+  "id": "00409",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.738183",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e8cda488190ab1129b5bc1d822c",
+  "custom_id": "timer_fd73d5a0",
+  "module_name": "timer",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `timer` with a parameter `TIMEOUT` (default 100). The module acts as an intermediary in a handshake protocol, with the following interface:\nInputs: `clk`, `rst`, `up_req`, `up_ack`, `down_grant`\nOutputs: `up_grant`, `down_req`, `down_ack`\n\nThe module should facilitate communication between an upstream and a downstream component using these handshake signals. It must also incorporate a timeout mechanism based on the parameter `TIMEOUT`.\n\nSpecifically, the module should:\n1. Route the grant signals between upstream and downstream.\n2. Route the acknowledge signals between upstream and downstream.\n3. Generate the downstream request signal (`down_req`) based on the upstream request (`up_req`) and the state of the timeout mechanism.\n4. Implement a counter that tracks a specific condition related to the downstream handshake signal (`down_grant`).\n5. Declare a timeout condition when this counter reaches the value defined by the `TIMEOUT` parameter.\n6. Ensure the module includes a reset input (`rst`).\n\nWrite the Verilog code for this `timer` module.\n",
+  "original_verified": true,
+  "prompt_hash": "282d35",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.864571",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

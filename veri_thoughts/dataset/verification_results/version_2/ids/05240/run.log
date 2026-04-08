@@ -318,6 +318,43 @@ INFO: Using TOP = clock_counter
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -561,11 +598,10 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 8
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 143134@della-i13n6(local) jg_143062_della-i13n6_1
-0.0.N: Proofgrid shell started at 143133@della-i13n6(local) jg_143062_della-i13n6_1
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 2854525@della-h16n1(local) jg_2854359_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 2854526@della-h16n1(local) jg_2854359_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.check_count_increments_below_limit"	[0.00 s].
@@ -580,33 +616,37 @@ INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "c
 INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.check_count_increments_below_limit" in 0.02 s.
 INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.check_count_increments_below_limit:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "clock_counter.auto_sva_inst.check_count_increments_below_limit".
 INFO (IPF047): 0.0.N: The cover property "clock_counter.auto_sva_inst.check_clk_holds_below_limit:precondition1" was covered in 1 cycles in 0.02 s by the incidental trace "clock_counter.auto_sva_inst.check_count_increments_below_limit".
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_count_increments_below_limit"	[0.02 s].
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.check_count_wraps_at_limit:precondition1" was covered in 1 cycles in 0.02 s.
-INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.check_clk_toggles_at_limit:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_count_increments_below_limit"	[0.03 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.02 s]
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.check_count_wraps_at_limit:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "clock_counter.auto_sva_inst.check_clk_toggles_at_limit:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.02 s]
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.check_count_wraps_at_limit" in 0.00 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.check_clk_toggles_at_limit" in 0.00 s.
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.check_count_wraps_at_limit" in 0.02 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 1048576 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 1048576 was found for the property "clock_counter.auto_sva_inst.check_clk_holds_below_limit" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "clock_counter.auto_sva_inst.check_clk_toggles_at_limit" in 0.02 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.00 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.02 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Proofgrid shell started at 143148@della-i13n6(local) jg_143062_della-i13n6_1
+0.0.Hp: Trace Attempt  5	[0.06 s]
+0.0.Ht: Proofgrid shell started at 2854539@della-h16n1(local) jg_2854359_della-h16n1_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Proofgrid shell started at 2854540@della-h16n1(local) jg_2854359_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -616,21 +656,18 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 143147@della-i13n6(local) jg_143062_della-i13n6_1
-0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
 0.0.Ht: Trace Attempt  2	[0.00 s]
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.17 s]
-0.0.N: Trace Attempt  2	[0.17 s]
-0.0.N: Trace Attempt  3	[0.17 s]
+0.0.N: Trace Attempt  1	[0.16 s]
+0.0.N: Trace Attempt  2	[0.16 s]
+0.0.N: Trace Attempt  3	[0.16 s]
 0: ProofGrid usable level: 1
-0.0.B: Trace Attempt 168	[0.94 s]
-0.0.B: Per property time limit expired (0.96 s) [0.96 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.96 s].
+0.0.B: Trace Attempt 169	[0.84 s]
+0.0.B: Per property time limit expired (0.92 s) [0.92 s]
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.92 s].
 0.0.B: Last scan. Per property time limit: 0s
 0.0.B: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -638,126 +675,126 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 157	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.98 s].
+0.0.N: Trace Attempt 165	[1.00 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.99 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
 0.0.N: Trace Attempt 36	[0.00 s]
 0.0.N: Trace Attempt  1	[0.14 s]
 0.0.N: Trace Attempt  2	[0.14 s]
 0.0.N: Trace Attempt  3	[0.14 s]
-0.0.Hp: Trace Attempt 270	[4.06 s]
-0.0.Ht: Trace Attempt 331	[4.67 s]
-0.0.B: Trace Attempt 249	[4.33 s]
-0.0.N: Trace Attempt 333	[5.22 s]
-0.0.B: Trace Attempt 298	[8.45 s]
-0.0.Ht: Trace Attempt 453	[10.06 s]
-0.0.N: Trace Attempt 532	[10.96 s]
-0.0.B: Trace Attempt 323	[12.60 s]
-0.0.Ht: Trace Attempt 531	[15.33 s]
-0.0.N: Trace Attempt 817	[14.96 s]
-0.0.Hp: Trace Attempt 453	[17.27 s]
-0.0.B: Trace Attempt 342	[16.70 s]
-0.0.N: Trace Attempt 897	[19.21 s]
-0.0.B: Trace Attempt 350	[20.76 s]
-0.0.N: Trace Attempt 1238	[23.39 s]
-0.0.B: Trace Attempt 357	[24.78 s]
-0.0.N: Trace Attempt 1441	[27.40 s]
-0.0.Ht: Trace Attempt 768	[29.69 s]
-0.0.B: Trace Attempt 364	[28.82 s]
-0.0.N: Trace Attempt 1622	[32.11 s]
-0.0.B: Trace Attempt 370	[33.60 s]
-0.0.N: Trace Attempt 2053	[36.11 s]
-0.0.B: Trace Attempt 380	[37.95 s]
-0.0.N: Trace Attempt 2521	[40.11 s]
-0.0.B: Trace Attempt 386	[42.21 s]
-0.0.N: Trace Attempt 2610	[44.12 s]
-0.0.B: Trace Attempt 391	[46.70 s]
-0.0.N: Trace Attempt 2650	[48.53 s]
-0.0.B: Trace Attempt 395	[51.03 s]
-0.0.N: Trace Attempt 2671	[52.78 s]
-0.0.B: Trace Attempt 399	[55.80 s]
-0.0.N: Trace Attempt 2683	[57.42 s]
-0.0.B: Trace Attempt 408	[60.88 s]
-0.0.N: Trace Attempt 2697	[61.95 s]
-0.0.B: Trace Attempt 412	[65.55 s]
-0.0.N: Trace Attempt 2705	[66.89 s]
-0.0.B: Trace Attempt 416	[70.03 s]
-0.0.N: Trace Attempt 2721	[71.03 s]
-0.0.B: Trace Attempt 422	[74.69 s]
-0.0.N: Trace Attempt 2743	[75.51 s]
-0.0.B: Trace Attempt 427	[78.78 s]
-0.0.N: Trace Attempt 2754	[80.18 s]
-0.0.B: Trace Attempt 432	[83.25 s]
-0.0.N: Trace Attempt 2762	[84.88 s]
-0.0.B: Trace Attempt 436	[87.55 s]
-0.0.N: Trace Attempt 2768	[88.90 s]
-0.0.B: Trace Attempt 441	[92.38 s]
-0.0.N: Trace Attempt 2787	[93.41 s]
-0.0.Hp: Trace Attempt 827	[94.66 s]
-0.0.B: Trace Attempt 446	[96.84 s]
-0.0.N: Trace Attempt 2792	[97.68 s]
-0.0.B: Trace Attempt 451	[101.82 s]
-0.0.N: Trace Attempt 2805	[102.14 s]
-0.0.N: Trace Attempt 2819	[106.26 s]
-0.0.B: Trace Attempt 456	[106.35 s]
-0.0.B: Trace Attempt 460	[110.39 s]
-0.0.N: Trace Attempt 2824	[112.09 s]
-0.0.B: Trace Attempt 466	[115.34 s]
-0.0.N: Trace Attempt 2846	[116.54 s]
-0.0.B: Trace Attempt 472	[120.19 s]
-0.0.N: Trace Attempt 2849	[120.75 s]
-0.0.B: Trace Attempt 477	[124.80 s]
-0.0.N: Trace Attempt 2862	[125.03 s]
-0.0.Ht: Trace Attempt 1551	[128.66 s]
-0.0.B: Trace Attempt 482	[129.24 s]
-0.0.N: Trace Attempt 2871	[129.66 s]
-0.0.B: Trace Attempt 487	[133.79 s]
-0.0.N: Trace Attempt 2875	[134.19 s]
-0.0.B: Trace Attempt 492	[138.56 s]
-0.0.N: Trace Attempt 2881	[139.18 s]
-0.0.N: Trace Attempt 2884	[143.34 s]
-0.0.B: Trace Attempt 497	[143.64 s]
-0.0.B: Trace Attempt 502	[148.00 s]
-0.0.N: Trace Attempt 2890	[148.37 s]
-0.0.B: Trace Attempt 507	[152.83 s]
-0.0.N: Trace Attempt 2894	[153.27 s]
-0.0.B: Trace Attempt 511	[156.86 s]
-0.0.N: Trace Attempt 2905	[157.52 s]
-0.0.B: Trace Attempt 516	[161.71 s]
-0.0.N: Trace Attempt 2923	[162.39 s]
-0.0.B: Trace Attempt 520	[166.28 s]
-0.0.N: Trace Attempt 2931	[167.09 s]
-0.0.B: Trace Attempt 524	[170.65 s]
-0.0.N: Trace Attempt 2939	[171.97 s]
-0.0.B: Trace Attempt 528	[175.38 s]
-0.0.N: Trace Attempt 2942	[176.88 s]
-0.0.B: Trace Attempt 532	[179.43 s]
-0.0.N: Trace Attempt 2945	[181.40 s]
-0.0.B: Trace Attempt 537	[184.12 s]
-0.0.N: Trace Attempt 2958	[186.30 s]
-0.0.B: Trace Attempt 544	[188.27 s]
-0.0.N: Trace Attempt 2961	[190.48 s]
-0.0.B: Trace Attempt 552	[192.51 s]
-0.0.N: Trace Attempt 2965	[194.73 s]
-0.0.B: Trace Attempt 559	[196.72 s]
-0.0.B: Trace Attempt 566	[200.72 s]
-0.0.B: Trace Attempt 573	[204.91 s]
-0.0.B: Trace Attempt 583	[209.12 s]
-0.0.B: Trace Attempt 593	[213.31 s]
-0.0.B: Trace Attempt 603	[217.42 s]
-0.0.B: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[218.29 s].
+0.0.Hp: Trace Attempt 347	[4.07 s]
+0.0.Ht: Trace Attempt 291	[4.39 s]
+0.0.B: Trace Attempt 261	[4.00 s]
+0.0.N: Trace Attempt 333	[5.10 s]
+0.0.Hp: Trace Attempt 453	[8.61 s]
+0.0.B: Trace Attempt 311	[8.26 s]
+0.0.Ht: Trace Attempt 453	[10.61 s]
+0.0.N: Trace Attempt 532	[10.70 s]
+0.0.B: Trace Attempt 332	[12.42 s]
+0.0.Hp: Trace Attempt 564	[14.41 s]
+0.0.Ht: Trace Attempt 531	[15.80 s]
+0.0.B: Trace Attempt 349	[16.77 s]
+0.0.N: Trace Attempt 827	[17.08 s]
+0.0.B: Trace Attempt 358	[20.94 s]
+0.0.N: Trace Attempt 1050	[21.08 s]
+0.0.B: Trace Attempt 366	[25.82 s]
+0.0.N: Trace Attempt 1429	[26.74 s]
+0.0.B: Trace Attempt 377	[30.05 s]
+0.0.N: Trace Attempt 1622	[31.43 s]
+0.0.B: Trace Attempt 383	[34.19 s]
+0.0.N: Trace Attempt 2064	[35.43 s]
+0.0.B: Trace Attempt 391	[38.84 s]
+0.0.N: Trace Attempt 2554	[39.46 s]
+0.0.B: Trace Attempt 396	[43.46 s]
+0.0.N: Trace Attempt 2616	[43.46 s]
+0.0.B: Trace Attempt 400	[47.70 s]
+0.0.N: Trace Attempt 2650	[47.81 s]
+0.0.N: Trace Attempt 2670	[51.88 s]
+0.0.Ht: Trace Attempt 827	[53.49 s]
+0.0.B: Trace Attempt 410	[52.72 s]
+0.0.N: Trace Attempt 2679	[56.14 s]
+0.0.B: Trace Attempt 415	[57.50 s]
+0.0.N: Trace Attempt 2695	[60.81 s]
+0.0.B: Trace Attempt 422	[62.13 s]
+0.0.N: Trace Attempt 2702	[65.14 s]
+0.0.B: Trace Attempt 428	[66.33 s]
+0.0.N: Trace Attempt 2720	[70.21 s]
+0.0.B: Trace Attempt 434	[71.28 s]
+0.0.N: Trace Attempt 2742	[75.01 s]
+0.0.B: Trace Attempt 439	[75.34 s]
+0.0.Hp: Trace Attempt 715	[78.94 s]
+0.0.N: Trace Attempt 2751	[79.10 s]
+0.0.B: Trace Attempt 445	[79.87 s]
+0.0.N: Trace Attempt 2759	[83.55 s]
+0.0.B: Trace Attempt 450	[83.97 s]
+0.0.N: Trace Attempt 2766	[87.87 s]
+0.0.B: Trace Attempt 456	[88.70 s]
+0.0.N: Trace Attempt 2775	[92.38 s]
+0.0.B: Trace Attempt 461	[92.82 s]
+0.0.B: Trace Attempt 467	[96.82 s]
+0.0.N: Trace Attempt 2791	[96.83 s]
+0.0.B: Trace Attempt 473	[100.89 s]
+0.0.N: Trace Attempt 2803	[101.18 s]
+0.0.N: Trace Attempt 2809	[105.27 s]
+0.0.B: Trace Attempt 479	[105.51 s]
+0.0.N: Trace Attempt 2820	[109.79 s]
+0.0.B: Trace Attempt 485	[109.91 s]
+0.0.N: Trace Attempt 2824	[113.90 s]
+0.0.B: Trace Attempt 491	[114.22 s]
+0.0.B: Trace Attempt 496	[118.56 s]
+0.0.N: Trace Attempt 2846	[118.64 s]
+0.0.B: Trace Attempt 502	[123.03 s]
+0.0.N: Trace Attempt 2849	[123.05 s]
+0.0.N: Trace Attempt 2862	[127.54 s]
+0.0.B: Trace Attempt 508	[127.92 s]
+0.0.B: Trace Attempt 513	[132.05 s]
+0.0.N: Trace Attempt 2871	[132.34 s]
+0.0.B: Trace Attempt 519	[136.82 s]
+0.0.N: Trace Attempt 2875	[137.07 s]
+0.0.B: Trace Attempt 524	[141.45 s]
+0.0.N: Trace Attempt 2881	[142.31 s]
+0.0.B: Trace Attempt 529	[145.83 s]
+0.0.N: Trace Attempt 2884	[146.68 s]
+0.0.B: Trace Attempt 534	[149.93 s]
+0.0.N: Trace Attempt 2890	[152.03 s]
+0.0.B: Trace Attempt 541	[154.15 s]
+0.0.N: Trace Attempt 2893	[156.05 s]
+0.0.B: Trace Attempt 550	[158.30 s]
+0.0.N: Trace Attempt 2899	[160.12 s]
+0.0.B: Trace Attempt 559	[162.48 s]
+0.0.N: Trace Attempt 2919	[164.84 s]
+0.0.B: Trace Attempt 568	[166.70 s]
+0.0.N: Trace Attempt 2929	[170.37 s]
+0.0.B: Trace Attempt 578	[170.80 s]
+0.0.N: Trace Attempt 2939	[174.92 s]
+0.0.B: Trace Attempt 590	[175.13 s]
+0.0.N: Trace Attempt 2943	[179.15 s]
+0.0.B: Trace Attempt 602	[179.19 s]
+0.0.N: Trace Attempt 2950	[183.16 s]
+0.0.B: Trace Attempt 613	[183.25 s]
+0.0.N: Trace Attempt 2960	[187.38 s]
+0.0.B: Trace Attempt 623	[187.68 s]
+0.0.B: Trace Attempt 631	[191.69 s]
+0.0.N: Trace Attempt 2965	[191.99 s]
+0.0.B: Trace Attempt 640	[196.13 s]
+0.0.B: Trace Attempt 648	[200.59 s]
+0.0.B: Trace Attempt 655	[204.68 s]
+0.0.B: Trace Attempt 661	[208.84 s]
+0.0.B: Trace Attempt 668	[213.10 s]
+0.0.B: Trace Attempt 675	[217.40 s]
+0.0.B: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[218.81 s].
 0.0.B: Morphing to I
-0.0.B: Trace Attempt 605	[218.28 s]
+0.0.B: Trace Attempt 677	[218.80 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.I: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
 0.0.I: Trace Attempt 37	[0.00 s]
-0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[218.34 s].
+0.0.N: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[218.82 s].
 0.0.N: Morphing to AM
-0.0.N: Trace Attempt 2965	[196.23 s]
+0.0.N: Trace Attempt 2965	[193.02 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -773,84 +810,79 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.I: Trace Attempt  1	[0.22 s]
-0.0.I: Trace Attempt  2	[0.22 s]
-0.0.I: Trace Attempt  3	[0.22 s]
-0.0.I: Trace Attempt  4	[0.22 s]
-0.0.I: Trace Attempt  5	[0.22 s]
-0.0.AM: Trace Attempt  1	[0.20 s]
-0.0.AM: Trace Attempt  2	[0.20 s]
-0.0.AM: Trace Attempt  3	[0.20 s]
-0.0.AM: Trace Attempt 63	[4.27 s]
-0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[7.76 s].
+0.0.AM: Trace Attempt  1	[0.16 s]
+0.0.AM: Trace Attempt  2	[0.16 s]
+0.0.AM: Trace Attempt  3	[0.16 s]
+0.0.I: Trace Attempt  1	[0.21 s]
+0.0.I: Trace Attempt  2	[0.21 s]
+0.0.I: Trace Attempt  3	[0.21 s]
+0.0.I: Trace Attempt  4	[0.21 s]
+0.0.I: Trace Attempt  5	[0.21 s]
+0.0.AM: Trace Attempt 171	[4.20 s]
+0.0.AM: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[6.02 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 248	[7.76 s]
+0.0.AM: Trace Attempt 258	[6.01 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
-0.0.I: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[7.82 s].
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.I: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[6.12 s].
 0.0.I: Morphing to AD
-0.0.I: Trace Attempt 37	[0.66 s]
+0.0.I: Trace Attempt 37	[0.61 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
 0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AD: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
-0.0.AD: Trace Attempt  4	[0.00 s]
-0.0.AD: Trace Attempt  5	[0.00 s]
-0.0.AD: Trace Attempt  1	[0.00 s]
-0.0.AD: Trace Attempt  2	[0.00 s]
-0.0.AD: Trace Attempt  3	[0.00 s]
-0.0.AD: Trace Attempt  4	[0.00 s]
-0.0.AD: Trace Attempt  5	[0.01 s]
-0.0.AD: Trace Attempt  1	[0.02 s]
-0.0.AD: Trace Attempt  2	[0.02 s]
-0.0.AD: Trace Attempt  3	[0.02 s]
-0.0.AD: Trace Attempt  4	[0.02 s]
-0.0.AD: Trace Attempt  5	[0.02 s]
-0.0.Tri: Starting proof for property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.12" ---- Launching abstraction thread ----
-0.0.Tri:    0.14" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.22 s]
-0.0.Tri: Trace Attempt  3	[0.22 s]
-0.0.Tri: Trace Attempt  4	[0.22 s]
-0.0.Tri: Trace Attempt  5	[0.22 s]
-0.0.Tri:    1.32" Simplification phase 1 complete
-0.0.Tri:    1.37" Simplification phase 2 complete
-0.0.Tri:    1.42" Simplification phase 3 complete
-   1.42" ---- Completed simplification thread ----
-   1.42" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    1.54" ---- Restarting abstraction thread on simplified netlist ----
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.03 s]
+0.0.AD: Trace Attempt  2	[0.03 s]
+0.0.AD: Trace Attempt  3	[0.03 s]
+0.0.AD: Trace Attempt  4	[0.03 s]
+0.0.AD: Trace Attempt  5	[0.03 s]
+0.0.Tri:    0.22" ---- Launching abstraction thread ----
+0.0.Tri:    0.26" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.36 s]
+0.0.Tri: Trace Attempt  3	[0.36 s]
+0.0.Tri: Trace Attempt  4	[0.36 s]
+0.0.Tri: Trace Attempt  5	[0.36 s]
 0.0.Tri: Requesting engine job to stop
 0.0.AD: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [230.30 s]
-0.0.Tri: Trace Attempt 3603	[0.95 s]
-0.0.Tri: A trace with 3603 cycles was found. [3.10 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 3603 cycles was found for the property "clock_counter.auto_sva_inst.check_clk_holds_below_limit" in 3.14 s.
-0.0.AD: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[3.18 s].
-0.0.AD: Trace Attempt 43	[1.37 s]
-0.0.AD: All properties determined. [3.18 s]
+INFO (IPF144): 0: Initiating shutdown of proof [226.85 s]
+0.0.Tri: Trace Attempt 3603	[0.89 s]
+0.0.Tri: A trace with 3603 cycles was found. [0.89 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 3603 cycles was found for the property "clock_counter.auto_sva_inst.check_clk_holds_below_limit" in 0.92 s.
 0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt 2787	[94.97 s]
-0.0.Hp: All properties determined. [230.30 s]
-0.0.AD: Exited with Success (@ 230.30 s)
+0.0.Hp: Trace Attempt 2747	[79.19 s]
+0.0.Hp: All properties determined. [226.85 s]
+0.0.AD: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.89 s].
+0.0.AD: Trace Attempt 28	[0.16 s]
+0.0.AD: All properties determined. [0.89 s]
+0.0.AD: Exited with Success (@ 226.86 s)
 0: ProofGrid usable level: 0
-0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[3.15 s].
-0.0.Tri: All properties determined. [3.15 s]
-0.0.Hp: Exited with Success (@ 230.56 s)
-0.0.Tri: Exited with Success (@ 230.56 s)
-0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 2867	[128.86 s]
-0.0.Ht: All properties determined. [230.49 s]
-0.0.Ht: Exited with Success (@ 230.57 s)
+0.0.Tri: Stopped processing property "clock_counter.auto_sva_inst.check_clk_holds_below_limit"	[0.92 s].
+0.0.Tri: All properties determined. [0.92 s]
+0.0.Tri: Sending SIGKILL
+0.0.Hp: Sending SIGKILL
+0.0.Ht: Sending SIGKILL
+0.0.Hp: Exited with Success (@ 228.95 s)
+0.0.Tri: Exited with Success (@ 228.95 s)
+0.0.Ht: Trace Attempt 2671	[53.87 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 228.95 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.96 %)
 --------------------------------------------------------------
      engines started                               :     8
      engine jobs started                           :     4
@@ -859,20 +891,20 @@ ProofGrid Summary (utilization 99.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Hp        0.04      230.30        0.00       99.98 %
-     Ht        0.07      230.23        0.00       99.97 %
-    Tri        0.05      230.23        0.00       99.98 %
-     AD        0.05      230.24        0.00       99.98 %
-    all        0.05      230.25        0.00       99.98 %
+     Hp        0.07      226.83        0.00       99.97 %
+     Ht        0.10      226.75        0.00       99.95 %
+    Tri        0.07      226.66        0.00       99.97 %
+     AD        0.10      226.66        0.00       99.96 %
+    all        0.08      226.73        0.00       99.96 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21      920.99        0.00
+               0.34      906.90        0.00
 
-    Data read    : 4.73 MiB
-    Data written : 147.78 kiB
+    Data read    : 4.72 MiB
+    Data written : 147.60 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -903,6 +935,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05240/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 1 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 1 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05240/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -952,8 +1042,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -968,6 +1062,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 2.500 GB.
+INFO (IPL018): The peak resident set memory use for this session was 2.501 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

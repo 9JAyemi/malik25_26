@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): check_input_out_registered, assert, property, posedge, b1, past, check_wren_out_registered, check_writead_out_registered, check_adr_mux_out_registered, check_write_out_registered, check_pc_load_out_registered, check_spr_w_out_registered, check_spr_i_out_registered, check_spr_d_out_registered, check_cond_out_registered, check_op2_out_registered, check_sw_out_registered, check_mad_mux_out_registered
+bind DecodeUnitRegisterTwo DecodeUnitRegisterTwo_sva auto_sva_inst (
+    .CLK(CLK),
+    .input_IN(input_IN),
+    .wren_IN(wren_IN),
+    .writeAd_IN(writeAd_IN),
+    .ADR_MUX_IN(ADR_MUX_IN),
+    .write_IN(write_IN),
+    .PC_load_IN(PC_load_IN),
+    .SPR_w_IN(SPR_w_IN),
+    .SPR_i_IN(SPR_i_IN),
+    .SPR_d_IN(SPR_d_IN),
+    .cond_IN(cond_IN),
+    .op2_IN(op2_IN),
+    .SW_IN(SW_IN),
+    .MAD_MUX_IN(MAD_MUX_IN),
+    .input_OUT(input_OUT),
+    .wren_OUT(wren_OUT),
+    .writeAd_OUT(writeAd_OUT),
+    .ADR_MUX_OUT(ADR_MUX_OUT),
+    .write_OUT(write_OUT),
+    .PC_load_OUT(PC_load_OUT),
+    .SPR_w_OUT(SPR_w_OUT),
+    .SPR_i_OUT(SPR_i_OUT),
+    .SPR_d_OUT(SPR_d_OUT),
+    .cond_OUT(cond_OUT),
+    .op2_OUT(op2_OUT),
+    .SW_OUT(SW_OUT),
+    .MAD_MUX_OUT(MAD_MUX_OUT)
+);

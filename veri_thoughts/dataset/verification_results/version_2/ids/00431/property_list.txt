@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+adder16.auto_sva_inst.check_sum_matches_inputs
+adder16.auto_sva_inst.check_zero_on_b
+adder16.auto_sva_inst.check_zero_on_a
+adder16.auto_sva_inst.check_complementary_inputs_all_ones
+adder16.auto_sva_inst.check_max_plus_one_wraps
+adder16.auto_sva_inst.check_lsb_sum_bit
+
+COVER PROPERTIES:
+adder16.auto_sva_inst.check_zero_on_b:precondition1
+adder16.auto_sva_inst.check_zero_on_a:precondition1
+adder16.auto_sva_inst.check_complementary_inputs_all_ones:precondition1
+adder16.auto_sva_inst.check_max_plus_one_wraps:precondition1

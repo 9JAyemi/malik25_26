@@ -318,6 +318,43 @@ INFO: Using TOP = adder_subtractor
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -526,9 +563,9 @@ INFO (IPF031): Settings used for proof thread 0:
 AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
 Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
 Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
-Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
 0: Using multistage preprocessing
 0: Starting reduce
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
 0: Finished reduce in 0s
 0.0.PRE: Performing Proof Simplification...
 0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
@@ -546,66 +583,66 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 10
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 20629@della-i13n6(local) jg_20557_della-i13n6_1
-0.0.Hp: Proofgrid shell started at 20630@della-i13n6(local) jg_20557_della-i13n6_1
-0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: Proofgrid shell started at 2614585@della-h16n1(local) jg_2614418_della-h16n1_1
+0.0.N: Proofgrid shell started at 2614584@della-h16n1(local) jg_2614418_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
-0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.N: Starting proof for property "adder_subtractor.auto_sva_inst.check_add_mode_result"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 32768 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 32768 was found for the property "adder_subtractor.auto_sva_inst.check_add_mode_result" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
 0.0.Hp: Trace Attempt  1	[0.00 s]
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
 INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_add_mode_result:precondition1" was covered in 1 cycles in 0.01 s.
 INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_selected_operation_result:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_sub_mode_result:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_equal_operands_subtract_zero:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_sub_mode_result:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_equal_operands_subtract_zero:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_add_zero_passthrough:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "adder_subtractor.auto_sva_inst.check_add_zero_passthrough:precondition1" was covered in 1 cycles in 0.02 s.
 0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
 0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.N: Starting proof for property "adder_subtractor.auto_sva_inst.check_add_mode_result"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: A max_length bound was found. The shortest trace is no longer than 32768 cycles. [0.01 s]
+INFO (IPF008): 0.0.N: A max_length bound of 32768 was found for the property "adder_subtractor.auto_sva_inst.check_add_mode_result" in 0.00 s.
+0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
-0.0.Hp: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_add_mode_result" was proven in 0.02 s.
-0.0.Hp: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_sub_mode_result" was proven in 0.02 s.
-0.0.Hp: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_selected_operation_result" was proven in 0.02 s.
-0.0.Hp: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_equal_operands_subtract_zero" was proven in 0.02 s.
-0.0.Hp: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_add_zero_passthrough" was proven in 0.02 s.
-0.0.N: Stopped processing property "adder_subtractor.auto_sva_inst.check_add_mode_result"	[0.02 s].
-0.0.N: All properties determined. [0.02 s]
-0.0.N: Exited with Success (@ 0.02 s)
-0: ProofGrid usable level: 0
-0.0.Hp: All properties determined. [0.02 s]
-0.0.Ht: Proofgrid shell started at 20643@della-i13n6(local) jg_20557_della-i13n6_1
-0.0.Ht: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.04 s]
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_add_mode_result" was proven in 0.03 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_sub_mode_result" was proven in 0.03 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_selected_operation_result" was proven in 0.03 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_equal_operands_subtract_zero" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.04 s]
+INFO (IPF057): 0.0.Hp: The property "adder_subtractor.auto_sva_inst.check_add_zero_passthrough" was proven in 0.04 s.
+0.0.Hp: All properties determined. [0.04 s]
 0.0.Hp: Exited with Success (@ 0.04 s)
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 20644@della-i13n6(local) jg_20557_della-i13n6_1
+0: ProofGrid usable level: 0
+0.0.N: Stopped processing property "adder_subtractor.auto_sva_inst.check_add_mode_result"	[0.01 s].
+0.0.N: All properties determined. [0.03 s]
+0.0.B: Proofgrid shell started at 2614599@della-h16n1(local) jg_2614418_della-h16n1_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.05 s)
+0.0.N: Exited with Success (@ 0.09 s)
+0.0.Ht: Proofgrid shell started at 2614598@della-h16n1(local) jg_2614418_della-h16n1_1
+0.0.Ht: Requesting engine job to terminate
+0.0.B: Interrupted. [0.01 s]
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.09 s)
+0.0.Ht: Exited with Success (@ 0.10 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 18.12 %)
+ProofGrid Summary (utilization 17.52 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -614,17 +651,17 @@ ProofGrid Summary (utilization 18.12 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.02        0.00       30.87 %
-     Hp        0.05        0.02        0.00       31.55 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.01        0.00       18.12 %
+      N        0.07        0.03        0.00       28.59 %
+     Hp        0.07        0.04        0.00       36.05 %
+     Ht        0.09        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.08        0.02        0.00       17.52 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.19        0.04        0.00
+               0.31        0.07        0.00
 
     Data read    : 4.19 kiB
     Data written : 1.62 kiB
@@ -658,6 +695,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04080/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 5 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 5 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04080/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -708,8 +803,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -724,6 +823,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.312 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.313 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

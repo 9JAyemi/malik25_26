@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=02188
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::BitShifting.auto_sva_inst.check_passthrough_when_n_zero | error
+<embedded>::BitShifting.auto_sva_inst.check_shift_when_n_positive | error
+<embedded>::BitShifting.auto_sva_inst.check_lower_bits_zero_after_shift | error
+<embedded>::BitShifting.auto_sva_inst.check_bit_n_equals_a0 | error
+<embedded>::BitShifting.auto_sva_inst.check_msb_matches_source_bit | error
+<embedded>::BitShifting.auto_sva_inst.check_large_n_forces_zero | error
+<embedded>::BitShifting.auto_sva_inst.check_zero_input_produces_zero_output | error
+<embedded>::BitShifting.auto_sva_inst.check_shift_by_31_behavior | error

@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_cmesh_access_decode, assert, property, posedge, check_rmesh_access_decode, check_xmesh_access_tied_low, check_cmesh_packet_forward, check_rmesh_packet_forward, check_xmesh_packet_forward, check_emesh_ready_and, check_emesh_access_and, check_emesh_packet_priority_mux, check_cmesh_ready_backpressure, check_rmesh_ready_backpressure, check_xmesh_ready_backpressure
+bind emesh_if emesh_if_sva auto_sva_inst (
+    .cmesh_ready_out(cmesh_ready_out),
+    .cmesh_access_out(cmesh_access_out),
+    .PW(PW),
+    .cmesh_packet_out(cmesh_packet_out),
+    .rmesh_ready_out(rmesh_ready_out),
+    .rmesh_access_out(rmesh_access_out),
+    .rmesh_packet_out(rmesh_packet_out),
+    .xmesh_ready_out(xmesh_ready_out),
+    .xmesh_access_out(xmesh_access_out),
+    .xmesh_packet_out(xmesh_packet_out),
+    .emesh_ready_out(emesh_ready_out),
+    .emesh_access_out(emesh_access_out),
+    .emesh_packet_out(emesh_packet_out),
+    .cmesh_access_in(cmesh_access_in),
+    .cmesh_packet_in(cmesh_packet_in),
+    .cmesh_ready_in(cmesh_ready_in),
+    .rmesh_access_in(rmesh_access_in),
+    .rmesh_packet_in(rmesh_packet_in),
+    .rmesh_ready_in(rmesh_ready_in),
+    .xmesh_access_in(xmesh_access_in),
+    .xmesh_packet_in(xmesh_packet_in),
+    .xmesh_ready_in(xmesh_ready_in),
+    .emesh_access_in(emesh_access_in),
+    .emesh_packet_in(emesh_packet_in),
+    .emesh_ready_in(emesh_ready_in),
+    .b0(b0)
+);

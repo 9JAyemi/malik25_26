@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=00762
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::pipeline_register.auto_sva_inst.reset_clears_outputs | error
+<embedded>::pipeline_register.auto_sva_inst.id_stall_captures_id_data | error
+<embedded>::pipeline_register.auto_sva_inst.zero_if_fields_on_if_stall_or_flush | error
+<embedded>::pipeline_register.auto_sva_inst.pass_if_fields_when_no_if_controls | error
+<embedded>::pipeline_register.auto_sva_inst.restartpc_selects_id_on_flush_or_bds | error
+<embedded>::pipeline_register.auto_sva_inst.restartpc_selects_if_on_normal_flow | error
+<embedded>::pipeline_register.auto_sva_inst.flags_follow_id_isbds | error
+<embedded>::pipeline_register.auto_sva_inst.flags_follow_id_isflushed | error

@@ -1,0 +1,29 @@
+{
+  "id": "00290",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.772787",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3e49a48190bcc94cb455a0c574",
+  "custom_id": "top__c43f898c",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a module named `top_module` with the following interface:\nInputs:\n`clk` (clock)\n`reset` (synchronous active-high reset)\n`d1` (8-bit input)\n`d2` (8-bit input)\n`select` (1-bit input)\nOutputs:\n`q_active` (8-bit output)\n`result` (16-bit output)\n\nThe module should contain two 8-bit registers and a 4-bit counter.\nOn a synchronous active-high reset, both 8-bit registers must be initialized to the hexadecimal value `34`, and the 4-bit counter must be reset to zero.\nWhen not under reset, on the positive edge of the clock:\n- The first 8-bit register loads the value from `d1` if the `select` input is high (1).\n- The second 8-bit register and the 4-bit counter do not update based on the `select` input when not under reset; their values only change during a reset.\n\nThe 8-bit output `q_active` should be the value of the first 8-bit register if `select` is high (1), and the value of the 4-bit counter (implicitly widened to 8 bits) if `select` is low (0).\n\nThe 16-bit output `result` should be formed by concatenating the two 8-bit registers, with the first register's value forming the most significant byte and the second register's value forming the least significant byte.\n\nDo not include any other logic or state elements.\n",
+  "original_verified": true,
+  "prompt_hash": "0cc133",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.472132",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

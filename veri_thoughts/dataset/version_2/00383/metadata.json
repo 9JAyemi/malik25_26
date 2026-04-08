@@ -1,0 +1,29 @@
+{
+  "id": "00383",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.057876",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5fc37c81909b46c55853cb5ecf",
+  "custom_id": "dff_sscan_6e81fef7",
+  "module_name": "dff_sscan",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `dff_sscan`.\nThis module should have a parameter `SIZE` with a default value of 1.\nThe module's interface should be defined as follows:\nInputs:\n`din` (wire, `[SIZE-1:0]`)\n`clk` (wire, 1 bit)\n`se` (wire, 1 bit)\n`si` (wire, `[SIZE-1:0]`)\n\nOutputs:\n`q` (output, `[SIZE-1:0]`)\n`so` (output, `[SIZE-1:0]`)\n\nThe module should implement a positive edge-triggered register storing `SIZE` bits in the output `q`. The behavior of the data loading and the `so` output depends on a compile-time condition.\n\nIf a specific compile-time flag (let's call it `SCAN_MODE_ENABLED`) is defined:\nOn the positive edge of `clk`, the value loaded into `q` should be `si` if `se` is high, and `din` if `se` is low. The output `so` should combinatorially reflect the current value of `q`.\n\nIf the `SCAN_MODE_ENABLED` compile-time flag is *not* defined:\nOn the positive edge of `clk`, the value loaded into `q` should always be `din`, regardless of the state of `se`. The output `so` should be a constant zero vector of width `SIZE`.\n\nWrite the Verilog code implementing this module, using the specified interface and parameter name.\n",
+  "original_verified": true,
+  "prompt_hash": "b01859",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.496532",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

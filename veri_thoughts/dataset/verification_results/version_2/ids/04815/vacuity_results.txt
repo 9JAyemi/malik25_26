@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=04815
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::ripple_shift_adder.auto_sva_inst.check_add_path_full_result | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_shift_path_output | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_carry_out_matches_adder | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_add_lsb_sum | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_shift_zero_amount_passes_a | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_shift_large_amount_clears_out | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_shift_zero_input_yields_zero | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_add_zero_operands_reflect_carry_in | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_add_zero_b_no_carry_passes_a | error
+<embedded>::ripple_shift_adder.auto_sva_inst.check_add_zero_a_no_carry_passes_b | error

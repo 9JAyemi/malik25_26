@@ -1,0 +1,29 @@
+{
+  "id": "00093",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.794965",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4b1c48190afd2244254d319c2",
+  "custom_id": "AdderSubtractor_3ae5d8d4",
+  "module_name": "AdderSubtractor",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `AdderSubtractor` that performs either 4-bit addition or subtraction based on a control signal.\n\nThe module should have the following interface:\n*   Inputs:\n    *   `A` (4-bit)\n    *   `B` (4-bit)\n    *   `Sub` (1-bit control)\n*   Outputs:\n    *   `S` (4-bit result)\n    *   `Cout` (1-bit carry/borrow/status flag)\n\nFunctionality:\n*   If `Sub` is 0, the module should perform 4-bit unsigned addition: `S = A + B`. `Cout` should represent the carry out of this addition.\n*   If `Sub` is 1, the module should perform 4-bit subtraction: `S = A - B`. Implement subtraction using two's complement arithmetic. `S` should be the 4-bit result of this subtraction. For subtraction, `Cout` should be 1 if `A` is greater than or equal to `B`, and 0 otherwise.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "804b72",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.388448",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

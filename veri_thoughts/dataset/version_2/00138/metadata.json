@@ -1,0 +1,29 @@
+{
+  "id": "00138",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.502173",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4c1f88190ab129b6707c50c9c",
+  "custom_id": "four_bit_adder_5ebde6c8",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `four_bit_adder` that implements a 4-bit binary adder. The module should take two 4-bit inputs, `A` and `B`, and a single-bit carry-in, `Cin`. It should produce a 4-bit sum, `Sum`, and a single-bit carry-out, `Cout`.\n\nThe module interface must be defined exactly as follows:\n\n```verilog\nmodule four_bit_adder(\n    input [3:0] A,\n    input [3:0] B,\n    input Cin,\n    output [3:0] Sum,\n    output Cout\n);\n    // Your implementation here\nendmodule\n```\n\nImplement the logic within the module to perform the addition of `A`, `B`, and `Cin`, generating the correct `Sum` and `Cout`.\n",
+  "original_verified": true,
+  "prompt_hash": "e95847",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.402717",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

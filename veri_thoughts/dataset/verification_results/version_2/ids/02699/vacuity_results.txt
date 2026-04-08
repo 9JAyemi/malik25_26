@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=02699
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::up_counter.auto_sva_inst.check_load_updates_count_next_cycle | error
+<embedded>::up_counter.auto_sva_inst.check_increment_on_no_load | error
+<embedded>::up_counter.auto_sva_inst.check_next_count_comes_from_load_or_increment | error
+<embedded>::up_counter.auto_sva_inst.check_wrap_from_max_on_increment | error
+<embedded>::up_counter.auto_sva_inst.check_increment_from_zero | error
+<embedded>::up_counter.auto_sva_inst.check_stable_when_load_assigns_same | error
+<embedded>::up_counter.auto_sva_inst.check_two_cycle_increment_when_no_load | error
+<embedded>::up_counter.auto_sva_inst.check_three_cycle_increment_when_no_load | error
+<embedded>::up_counter.auto_sva_inst.check_load_then_no_load_results_in_loaded_plus_one | error
+<embedded>::up_counter.auto_sva_inst.check_two_consecutive_loads_results_in_second_value | error

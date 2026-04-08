@@ -1,0 +1,29 @@
+{
+  "id": "00122",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.846396",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd7f948190888115955d323eab",
+  "custom_id": "Mult4x4_29d1c8ca",
+  "module_name": "Mult4x4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `Mult4x4` that computes the product of two 4-bit unsigned inputs, `A` and `B`. The output `Result` should be an 8-bit value representing the product. Design the module using standard arithmetic and bit manipulation operators, considering how the multiplication can be structured based on parts of one of the inputs.\n\nThe module interface should be:\n-   Input: `input wire [3:0] A`\n-   Input: `input wire [3:0] B`\n-   Output: `output wire [7:0] Result`\n",
+  "original_verified": true,
+  "prompt_hash": "6ff94d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.398384",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

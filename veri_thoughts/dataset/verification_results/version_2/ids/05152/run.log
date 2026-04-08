@@ -318,6 +318,43 @@ INFO: Using TOP = sync_ptr
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -556,91 +593,87 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 8
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 133185@della-i13n6(local) jg_133113_della-i13n6_1
-0.0.N: Proofgrid shell started at 133184@della-i13n6(local) jg_133113_della-i13n6_1
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 2835632@della-h16n1(local) jg_2835466_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 2835633@della-h16n1(local) jg_2835466_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero"	[0.00 s].
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 8192 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 8192 was found for the property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero" in 0.01 s.
+INFO (IPF008): 0.0.N: A max_length bound of 8192 was found for the property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_zero_source_propagates:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: A trace with 4 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero" in 0.01 s.
-0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero"	[0.01 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero" in 0.02 s.
+INFO (IPF047): 0.0.N: The cover property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero:precondition1" was covered in 4 cycles in 0.02 s by the incidental trace "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero".
+0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_prev_reset_keeps_output_zero"	[0.02 s].
 0.0.N: Starting proof for property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.02 s]
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
+INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: A trace with 1 cycles was found. [0.02 s]
+INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_zero_source_propagates:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: Trace Attempt  2	[0.02 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: A trace with 4 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero" in 0.00 s.
-0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero"	[0.00 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero" in 0.01 s.
+0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_output_is_prev_src_or_zero"	[0.01 s].
+0.0.Hp: Trace Attempt  3	[0.02 s]
 0.0.N: Starting proof for property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src" in 0.00 s.
-0.0.Hp: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: A trace with 4 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src:precondition1" was covered in 4 cycles in 0.00 s by the incidental trace "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src".
-0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src"	[0.00 s].
-0.0.N: Last scan. Per property time limit: 0s
-0.0.N: Starting proof for property "sync_ptr.auto_sva_inst.check_zero_source_propagates"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 262144 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 262144 was found for the property "sync_ptr.auto_sva_inst.check_zero_source_propagates" in 0.00 s.
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  4	[0.02 s]
+0.0.Hp: A trace with 4 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src" in 0.01 s.
 0.0.N: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [0.01 s]
+INFO (IPF144): 0: Initiating shutdown of proof [0.02 s]
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 4 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_zero_source_propagates" in 0.02 s.
-0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_zero_source_propagates"	[0.00 s].
+0.0.Hp: A trace with 4 cycles was found. [0.02 s]
+INFO (IPF047): 0.0.Hp: The cover property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src:precondition1" was covered in 4 cycles in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 4 cycles was found for the property "sync_ptr.auto_sva_inst.check_zero_source_propagates" in 0.01 s.
+0.0.Hp: All properties determined. [0.02 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src"	[0.01 s].
+0.0.N: Starting proof for property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Stopped processing property "sync_ptr.auto_sva_inst.check_nonzero_output_matches_prev_src:precondition1"	[0.00 s].
 0.0.N: All properties determined. [0.00 s]
-0.0.Hp: All properties determined. [0.01 s]
-0.0.N: Exited with Success (@ 0.02 s)
+0.0.Hp: Exited with Success (@ 0.04 s)
 0: ProofGrid usable level: 0
-0.0.Hp: Exited with Success (@ 0.02 s)
-0.0.Ht: Proofgrid shell started at 133198@della-i13n6(local) jg_133113_della-i13n6_1
+0.0.N: Exited with Success (@ 0.04 s)
+0.0.Ht: Proofgrid shell started at 2835646@della-h16n1(local) jg_2835466_della-h16n1_1
 0.0.Ht: Requesting engine job to terminate
-0.0.Ht: Interrupted. [0.00 s]
-0.0.B: Proofgrid shell started at 133199@della-i13n6(local) jg_133113_della-i13n6_1
+0.0.Ht: Interrupted. [0.01 s]
+0.0.B: Proofgrid shell started at 2835647@della-h16n1(local) jg_2835466_della-h16n1_1
 0.0.B: Requesting engine job to terminate
-0.0.Ht: Exited with Success (@ 0.05 s)
-0.0.B: Interrupted. [0.00 s]
-0.0.B: Exited with Success (@ 0.06 s)
+0.0.Ht: Exited with Success (@ 0.08 s)
+0.0.B: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.08 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 5.00 %)
+ProofGrid Summary (utilization 10.48 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -649,20 +682,20 @@ ProofGrid Summary (utilization 5.00 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05        0.00        0.00        9.20 %
-     Hp        0.05        0.01        0.00       10.52 %
-     Ht        0.05        0.00        0.00        0.00 %
-      B        0.05        0.00        0.00        0.00 %
-    all        0.05        0.00        0.00        5.00 %
+      N        0.07        0.02        0.00       25.88 %
+     Hp        0.07        0.01        0.00       11.81 %
+     Ht        0.06        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.01        0.00       10.48 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.19        0.01        0.00
+               0.27        0.03        0.00
 
-    Data read    : 6.24 kiB
-    Data written : 1.83 kiB
+    Data read    : 6.19 kiB
+    Data written : 1.73 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -693,6 +726,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05152/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 1 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 1 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05152/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -742,8 +833,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -758,6 +853,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 0.316 GB.
+INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

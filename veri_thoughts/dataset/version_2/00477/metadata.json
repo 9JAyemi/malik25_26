@@ -1,0 +1,29 @@
+{
+  "id": "00477",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.317646",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4017a88190a949d42953eb3479",
+  "custom_id": "counter_db7283e5",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a digital module in Verilog that implements a 4-bit counter.\nThe module must be named `counter`.\nIt should have the following interface:\n- An input clock signal named `clk`.\n- An input asynchronous reset signal named `reset`.\n- A 4-bit output register named `count`.\n\nThe counter should increment its value on the positive edge of the `clk` signal. When the `reset` signal is asserted low, the counter should asynchronously reset its value to zero.\n",
+  "original_verified": true,
+  "prompt_hash": "bfd509",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.883806",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

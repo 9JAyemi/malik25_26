@@ -1,0 +1,29 @@
+{
+  "id": "00105",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.814862",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df94b50819094a937c57f9ee159",
+  "custom_id": "decoder_3to8_2dce9af3",
+  "module_name": "decoder_3to8",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a digital circuit in Verilog that functions as an active-low 3-to-8 decoder. The circuit should take a 3-bit input and activate (set to low) exactly one of its 8 output lines corresponding to the decimal value of the input. All other output lines should be inactive (set to high).\n\nYour Verilog module must be named `decoder_3to8`.\nIt should have the following inputs:\n- `A` (Most Significant Bit of the 3-bit input)\n- `B` (Middle Bit of the 3-bit input)\n- `C` (Least Significant Bit of the 3-bit input)\n\nIt should have the following outputs:\n- `Y0`\n- `Y1`\n- `Y2`\n- `Y3`\n- `Y4`\n- `Y5`\n- `Y6`\n- `Y7`\n\nImplement the logic such that when the input `ABC` (where A is MSB, C is LSB) has the decimal value `i` (from 0 to 7), the output `Yi` is 0 and all other `Yj` (j != i) are 1.\n",
+  "original_verified": true,
+  "prompt_hash": "b5e94b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.392207",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

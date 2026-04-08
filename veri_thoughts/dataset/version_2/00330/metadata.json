@@ -1,0 +1,29 @@
+{
+  "id": "00330",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.877929",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4703dc8190bab48ef1755479db",
+  "custom_id": "full_adder_c9559730",
+  "module_name": "full_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for the following two modules:\n\n1.  A 1-bit full adder module named `full_adder`. This module should have three 1-bit inputs, `A`, `B`, and `Cin`, and two 1-bit outputs, `Sum` and `Cout`.\n2.  A 2-to-1 multiplexer module named `mux2`. This module should have three 1-bit inputs, `I0`, `I1`, and `S`, and one 1-bit output, `O`. The output `O` should select between `I0` and `I1` based on the value of the select input `S`.\n",
+  "original_verified": true,
+  "prompt_hash": "b96dc5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.482449",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

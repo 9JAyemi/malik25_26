@@ -1,0 +1,16 @@
+# Vacuity check results for DESIGN_ID=02697
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::priority_encoder.auto_sva_inst.reset_outputs_cleared | error
+<embedded>::priority_encoder.auto_sva_inst.encode_in3_maps_to_3 | error
+<embedded>::priority_encoder.auto_sva_inst.encode_in2_maps_to_2 | error
+<embedded>::priority_encoder.auto_sva_inst.encode_in1_maps_to_1 | error
+<embedded>::priority_encoder.auto_sva_inst.encode_in0_maps_to_0 | error
+<embedded>::priority_encoder.auto_sva_inst.encode_none_maps_to_none | error
+<embedded>::priority_encoder.auto_sva_inst.valid_equals_or_prev_in | error
+<embedded>::priority_encoder.auto_sva_inst.valid_zero_implies_out_zero | error
+<embedded>::priority_encoder.auto_sva_inst.out3_implies_prev_in3 | error
+<embedded>::priority_encoder.auto_sva_inst.out2_implies_prev_in2_only | error
+<embedded>::priority_encoder.auto_sva_inst.out1_implies_prev_in1_only | error
+<embedded>::priority_encoder.auto_sva_inst.out0_valid1_implies_prev_in0_only | error
+<embedded>::priority_encoder.auto_sva_inst.out0_valid0_implies_prev_none | error

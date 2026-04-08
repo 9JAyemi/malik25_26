@@ -1,0 +1,29 @@
+{
+  "id": "00375",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.041820",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5ce070819091cb236c7da82bbd",
+  "custom_id": "sky130_fd_sc_hd__o211a_1391d6d8",
+  "module_name": "sky130_fd_sc_hd__o211a",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_hd__o211a`. This module should have inputs `A1`, `A2`, `B1`, and `C1`, and a single output `X`. The functionality of the module is defined such that the output `X` is high if and only if the input `B1` is high, the input `C1` is high, and at least one of the inputs `A1` or `A2` is high. Implement this logic using basic logic gates.\n",
+  "original_verified": true,
+  "prompt_hash": "880230",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.494335",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

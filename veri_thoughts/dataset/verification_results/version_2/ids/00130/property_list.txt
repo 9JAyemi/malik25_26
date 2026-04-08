@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+incrementer.auto_sva_inst.check_registered_increment
+incrementer.auto_sva_inst.check_zero_to_one
+incrementer.auto_sva_inst.check_minus_one_to_zero
+incrementer.auto_sva_inst.check_positive_overflow_wrap
+incrementer.auto_sva_inst.check_negative_min_to_next
+
+COVER PROPERTIES:
+incrementer.auto_sva_inst.check_registered_increment:precondition1
+incrementer.auto_sva_inst.check_zero_to_one:precondition1
+incrementer.auto_sva_inst.check_minus_one_to_zero:precondition1
+incrementer.auto_sva_inst.check_positive_overflow_wrap:precondition1
+incrementer.auto_sva_inst.check_negative_min_to_next:precondition1

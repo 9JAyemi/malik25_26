@@ -1,0 +1,29 @@
+{
+  "id": "00061",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.739349",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df0bfa0819096cb1b20bf2b8792",
+  "custom_id": "counter_3ae7b98f",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a synchronous 2-bit counter module named `counter`. The module should have inputs `clk`, `rst`, and `en`. The output should be a 2-bit registered signal named `count`. The counter should reset to 0 when the `rst` input is high (synchronously). When the `en` input is high and `rst` is low, the counter should increment on the positive edge of the clock. If `en` is low and `rst` is low, the counter should hold its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "a9e6c3",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.377883",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

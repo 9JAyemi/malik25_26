@@ -1,0 +1,29 @@
+{
+  "id": "00307",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.814370",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3fa9788190b85de2772a9e0802",
+  "custom_id": "complement_70064b5a",
+  "module_name": "complement",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `complement` with inputs `D` and `CLK`, and output `Q`.\n\nOn the positive edge of the clock (`CLK`), the module should implement the following concurrent operations:\n1.  Capture the current value of input `D` into an internal state element.\n2.  Assign the value of this captured input (from step 1) to the output `Q`.\n3.  Capture the value of the state element from step 1 *before* the current clock edge into a second internal state element.\n4.  *Simultaneously*, update this second internal state element with the bitwise complement of its value *before* the current clock edge.\n\nYour design should reflect these concurrent updates on the clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "f30b3b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.475802",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

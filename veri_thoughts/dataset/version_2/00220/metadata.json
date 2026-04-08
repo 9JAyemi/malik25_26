@@ -1,0 +1,29 @@
+{
+  "id": "00220",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.798711",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0b398881909b26b321fd974a6f",
+  "custom_id": "synchronizer_ff_15_29554ac9",
+  "module_name": "synchronizer_ff_15",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `synchronizer_ff_15`.\n\nThe module should have the following interface:\n-   Inputs:\n    -   `s_axi_aclk`: Clock input.\n    -   `in0`: 1-bit input (`[0:0]`).\n-   Outputs:\n    -   `out`: 1-bit output.\n    -   `rd_rst_asreg_reg`: 1-bit output.\n\nThe module should contain a single flip-flop clocked by `s_axi_aclk`. The value of this flip-flop should be output on `out`.\n\nThe behavior of the flip-flop on the positive edge of `s_axi_aclk` should be as follows:\n- If the *current* value of the input `in0` is different from the *current* value of the flip-flop, the flip-flop should be synchronously reset to 0.\n- If the *current* value of the input `in0` is the same as the *current* value of the flip-flop, the flip-flop should sample the value of `in0`.\n\nAdditionally, the output `rd_rst_asreg_reg` should be a combinatorial signal that is high whenever the *current* value of the input `in0` is different from the *current* value of the flip-flop.\n",
+  "original_verified": true,
+  "prompt_hash": "443224",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.452793",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

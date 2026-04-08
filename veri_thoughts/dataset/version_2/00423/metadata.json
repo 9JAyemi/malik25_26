@@ -1,0 +1,29 @@
+{
+  "id": "00423",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.769915",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ea223bc8190ab51f6d8a51645b5",
+  "custom_id": "full_adder_c5b7da79",
+  "module_name": "full_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `full_adder`. This module should implement the logic of a 1-bit full adder, which calculates the sum and carry-out of three single-bit inputs.\n\nThe module should have the following interface:\n-   Inputs:\n    -   `a`: Single-bit input\n    -   `b`: Single-bit input\n    -   `cin`: Single-bit carry-in input\n-   Outputs:\n    -   `s`: Single-bit sum output\n    -   `cout`: Single-bit carry-out output\n\nYou should use continuous assignments (`assign`) to define the logic for the sum and carry-out outputs based on the inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "a390c2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.869257",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

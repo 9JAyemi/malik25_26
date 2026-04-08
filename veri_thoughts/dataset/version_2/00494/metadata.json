@@ -1,0 +1,29 @@
+{
+  "id": "00494",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.374518",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e45e6308190a1b9ec70ae5f90f3",
+  "custom_id": "up_counter_793e5fb2",
+  "module_name": "up_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a 4-bit synchronous up counter in Verilog.\n\nYour module should be named `up_counter`.\n\nThe module must accept two single-bit inputs: `clk` (the clock signal) and `rst` (a synchronous active-high reset).\n\nThe module must produce a 4-bit registered output named `count`, which holds the current counter value.\n\nThe counter should increment its value by one on every rising edge of `clk`, unless the `rst` signal is asserted high.\n\nWhen `rst` is high, the counter should synchronously reset its value to 0 on the next rising edge of `clk`.\n",
+  "original_verified": true,
+  "prompt_hash": "75f2b9",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.887595",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

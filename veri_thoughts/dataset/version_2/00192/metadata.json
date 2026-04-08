@@ -1,0 +1,29 @@
+{
+  "id": "00192",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.695066",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0714f48190be2b676581278ee9",
+  "custom_id": "oh_iddr_7ce5daf2",
+  "module_name": "oh_iddr",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `oh_iddr` with a parameter `DW` (defaulting to 1) representing the data width. The module has the following interface:\nInputs:\n- `clk`: Clock signal.\n- `ce`: Clock enable signal.\n- `din [DW-1:0]`: Input data.\nOutputs:\n- `q1 [DW-1:0]`: Output data from the positive edge path.\n- `q2 [DW-1:0]`: Output data from the negative edge path.\n\nThe module should operate as follows:\nOn each positive edge of the `clk` signal, both `q1` and `q2` should be updated.\n- `q1` should be updated with the value of `din` that was present on the *previous* positive edge of `clk`, but *only if* the `ce` signal was high at that previous positive edge.\n- `q2` should be updated with the value of `din` that was present on the *immediately preceding* negative edge of `clk` (i.e., the negative edge within the current clock period). This capture should happen unconditionally.\n\nImplement this functionality in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "bfada4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.417897",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

@@ -318,6 +318,43 @@ INFO: Using TOP = pwm_out
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -504,8 +541,8 @@ file41
 }
 [<embedded>] % 
 [<embedded>] % # ---- Prove all assertions ----
-[<embedded>] % # 3600 seconds = 1 hour timeout per property (adjust as needed)
-[<embedded>] % set_prove_time_limit 3600
+[<embedded>] % # 300 seconds = 5 minute timeout per property
+[<embedded>] % set_prove_time_limit 300
 [<embedded>] % 
 [<embedded>] % puts "INFO: Running prove -all"
 INFO: Running prove -all
@@ -525,7 +562,7 @@ INFO (IRS018): Reset analysis simulation executed for 3 iterations. Assigned val
 INFO (IRS039): Reset analysis complete.
 INFO (IPF031): Settings used for proof thread 0:
     orchestration                 = on (auto)
-    time_limit                    = 3600s
+    time_limit                    = 300s
     per_property_time_limit       = 1s * 10 ^ scan
     engine_mode                   = auto
     proofgrid_per_engine_max_jobs = 1
@@ -570,12 +607,11 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 36
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 3828600@della-i13n6(local) jg_3828528_della-i13n6_1
-0.0.N: Proofgrid shell started at 3828599@della-i13n6(local) jg_3828528_della-i13n6_1
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 1827893@della-h16n1(local) jg_1827727_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 1827894@della-h16n1(local) jg_1827727_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_timer_increments"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -591,6 +627,7 @@ INFO (IPF047): 0.0.N: The cover property "pwm_out.auto_sva_inst.check_pwms_equal
 0.0.N: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 65536 was found for the property "pwm_out.auto_sva_inst.check_rdreq_set_at_800" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
@@ -605,48 +642,50 @@ INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the pro
 INFO (IPF047): 0.0.N: The cover property "pwm_out.auto_sva_inst.check_pwm_out_r_low_when_gt:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_set_at_800".
 0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_set_at_800"	[0.00 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.Hp: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 16384 was found for the property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_data_rdy_holds_until_fff:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_data_rdy_clear_at_fff:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32_update_at_fff:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32_changes_only_on_fff" in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32_changes_only_on_fff:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32p_changes_only_on_801" in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32p_changes_only_on_801:precondition1" was covered in 1 cycles in 0.01 s.
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.01 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_data_rdy_holds_until_fff:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_data_rdy_clear_at_fff:precondition1" was covered in 1 cycles in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32_update_at_fff:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32_changes_only_on_fff" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32_changes_only_on_fff:precondition1" was covered in 1 cycles in 0.00 s.
 0: ProofGrid is temporarily paused because there are too many pending traces.
 0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_holds_until_fff" in 0.02 s.
-0.0.Hp: A trace with 3 cycles was found. [0.01 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_clear_at_fff" in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32p_changes_only_on_801" in 0.00 s.
+INFO (IPF047): 0.0.Hp: The cover property "pwm_out.auto_sva_inst.check_audiodata32p_changes_only_on_801:precondition1" was covered in 1 cycles in 0.00 s.
+0.0.Hp: Trace Attempt  2	[0.02 s]
+0.0.Hp: Trace Attempt  3	[0.02 s]
 0.0.Hp: A trace with 3 cycles was found. [0.02 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32_update_at_fff" in 0.02 s.
-0.0.Hp: Trace Attempt  4	[0.04 s]
-0.0.Hp: Trace Attempt  5	[0.07 s]
-0.0.Ht: Proofgrid shell started at 3828613@della-i13n6(local) jg_3828528_della-i13n6_1
-0.0.B: Proofgrid shell started at 3828614@della-i13n6(local) jg_3828528_della-i13n6_1
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_holds_until_fff" in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_clear_at_fff" in 0.01 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "pwm_out.auto_sva_inst.check_audiodata32_update_at_fff" in 0.01 s.
+0.0.Hp: Trace Attempt  4	[0.05 s]
+0.0.Ht: Proofgrid shell started at 1827907@della-h16n1(local) jg_1827727_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.B: Proofgrid shell started at 1827908@della-h16n1(local) jg_1827727_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -656,17 +695,12 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.Hp: A proof was found: No trace exists. [0.11 s]
-INFO (IPF057): 0.0.Hp: The property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse" was proven in 0.10 s.
+0.0.Hp: A proof was found: No trace exists. [0.17 s]
+INFO (IPF057): 0.0.Hp: The property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse" was proven in 0.14 s.
 0: ProofGrid usable level: 12
-0.0.B: Trace Attempt 171	[0.74 s]
-0.0.B: Per property time limit expired (0.94 s) [0.94 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.94 s].
+0.0.B: Trace Attempt 172	[0.90 s]
+0.0.B: Per property time limit expired (0.91 s) [0.91 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.91 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
 INFO (IPF008): 0.0.B: A max_length bound of 16384 was found for the property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1" in 0.00 s.
@@ -675,8 +709,8 @@ INFO (IPF008): 0.0.B: A max_length bound of 16384 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 178	[1.00 s]
-0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Trace Attempt 143	[0.98 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
 0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.99 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
@@ -687,9 +721,9 @@ INFO (IPF008): 0.0.B: A max_length bound of 16384 was found for the property "pw
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 180	[0.94 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt 180	[0.86 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
@@ -700,7 +734,9 @@ INFO (IPF008): 0.0.B: A max_length bound of 268435456 was found for the property
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.00 s].
+0.0.N: Trace Attempt 277	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -709,10 +745,10 @@ INFO (IPF008): 0.0.B: A max_length bound of 268435456 was found for the property
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 186	[1.00 s]
+0.0.B: Trace Attempt 193	[0.99 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[0.00 s].
@@ -732,10 +768,10 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt 177	[0.96 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 177	[0.88 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[0.00 s].
@@ -755,12 +791,12 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 266	[4.39 s]
-0.0.B: Trace Attempt 605	[1.00 s]
-0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 266	[4.67 s]
+0.0.B: Trace Attempt 672	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[1.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 32768 cycles. [0.00 s]
@@ -770,9 +806,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 191	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[1.01 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[1.00 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -786,7 +820,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 195	[0.94 s]
+0.0.B: Trace Attempt 195	[0.91 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
@@ -797,7 +831,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.00 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -805,13 +839,13 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 187	[0.99 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.B: Trace Attempt 194	[1.00 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
@@ -824,15 +858,15 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 147	[0.99 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.B: Trace Attempt 150	[0.99 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[0.00 s].
@@ -851,16 +885,15 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 403	[8.47 s]
-0.0.B: Trace Attempt 195	[0.91 s]
-0.0.B: Per property time limit expired (1.00 s) [1.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[1.00 s].
+0.0.B: Trace Attempt 196	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[1.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 65536 cycles. [0.00 s]
 INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801" in 0.00 s.
@@ -869,7 +902,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[1.00 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[1.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -881,7 +914,8 @@ INFO (IPF008): 0.0.B: A max_length bound of 65536 was found for the property "pw
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 155	[0.95 s]
+0.0.Ht: Trace Attempt 381	[9.53 s]
+0.0.B: Trace Attempt 157	[1.00 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[1.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[0.00 s].
@@ -892,7 +926,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[1.00 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.99 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -906,22 +940,24 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.B: Trace Attempt 195	[0.91 s]
-0.0.B: Per property time limit expired (1.00 s) [1.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[1.00 s].
+0.0.B: Trace Attempt 196	[1.00 s]
+0.0.B: Per property time limit expired (1.00 s) [1.01 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[1.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[1.00 s].
+0.0.N: Trace Attempt 282	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.01 s]
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[1.02 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
@@ -937,22 +973,18 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 68	[0.89 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
 0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.00 s].
 0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.N: Trace Attempt 11	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 494	[12.48 s]
-0.0.B: Trace Attempt 258	[4.02 s]
-0.0.N: Trace Attempt 390	[4.08 s]
-0.0.Ht: Trace Attempt 552	[16.49 s]
-0.0.B: Trace Attempt 312	[8.34 s]
-0.0.Ht: Trace Attempt 598	[21.11 s]
-0.0.B: Trace Attempt 320	[9.51 s]
+0.0.Ht: Trace Attempt 449	[14.16 s]
+0.0.N: Trace Attempt 405	[4.01 s]
+0.0.B: Trace Attempt 259	[4.03 s]
+0.0.Ht: Trace Attempt 515	[18.16 s]
+0.0.B: Trace Attempt 311	[8.06 s]
+0.0.B: Trace Attempt 320	[9.53 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
@@ -961,17 +993,18 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[10.05 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[10.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 644	[25.20 s]
-0.0.N: Trace Attempt 451	[4.13 s]
-0.0.B: Trace Attempt 330	[4.63 s]
-0.0.Ht: Trace Attempt 664	[29.23 s]
-0.0.B: Trace Attempt 335	[9.10 s]
-0.0.B: Trace Attempt 336	[9.66 s]
+0.0.Ht: Trace Attempt 544	[22.16 s]
+0.0.N: Trace Attempt 463	[4.03 s]
+0.0.Ht: Trace Attempt 579	[26.42 s]
+0.0.B: Trace Attempt 330	[4.55 s]
+0.0.B: Trace Attempt 335	[9.12 s]
+0.0.Ht: Trace Attempt 600	[31.20 s]
+0.0.B: Trace Attempt 336	[9.68 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
@@ -980,18 +1013,16 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[9.96 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[10.00 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 712	[33.31 s]
-0.0.B: Trace Attempt 277	[4.01 s]
-0.0.N: Trace Attempt 448	[4.03 s]
-0.0.Ht: Trace Attempt 736	[37.49 s]
-0.0.B: Trace Attempt 309	[8.06 s]
-0.0.Ht: Trace Attempt 774	[41.54 s]
-0.0.B: Trace Attempt 325	[9.74 s]
+0.0.Ht: Trace Attempt 635	[35.25 s]
+0.0.B: Trace Attempt 282	[4.11 s]
+0.0.Ht: Trace Attempt 661	[39.30 s]
+0.0.B: Trace Attempt 313	[8.11 s]
+0.0.B: Trace Attempt 325	[9.77 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[0.00 s].
@@ -1000,46 +1031,46 @@ INFO (IPF008): 0.0.B: A max_length bound of 32768 was found for the property "pw
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[10.01 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[10.00 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt 390	[4.05 s]
-0.0.Ht: Trace Attempt 802	[46.05 s]
-0.0.B: Trace Attempt 240	[4.14 s]
-0.0.Ht: Trace Attempt 840	[50.05 s]
-0.0.B: Trace Attempt 304	[8.42 s]
-0.0.B: Trace Attempt 315	[9.98 s]
-0.0.B: Per property time limit expired (10.00 s) [10.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[10.00 s].
+0.0.Ht: Trace Attempt 670	[43.55 s]
+0.0.N: Trace Attempt 399	[4.02 s]
+0.0.B: Trace Attempt 240	[4.12 s]
+0.0.Ht: Trace Attempt 700	[47.63 s]
+0.0.B: Trace Attempt 301	[8.14 s]
+0.0.Ht: Trace Attempt 719	[51.84 s]
+0.0.B: Trace Attempt 312	[9.96 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[10.00 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1"	[10.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt 870	[54.13 s]
-0.0.N: Trace Attempt  1	[3.62 s]
-0.0.N: Trace Attempt  2	[3.62 s]
-0.0.N: Trace Attempt  3	[3.62 s]
+0.0.N: Trace Attempt  1	[3.51 s]
+0.0.N: Trace Attempt  2	[3.51 s]
+0.0.N: Trace Attempt  3	[3.51 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: Trace Attempt  6	[3.62 s]
-0.0.N: A proof was found: No trace exists. [3.63 s]
-INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801" was proven in 3.63 s.
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[3.63 s].
+0.0.N: Trace Attempt  6	[3.51 s]
+0.0.N: A proof was found: No trace exists. [3.51 s]
+INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801" was proven in 3.51 s.
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[3.51 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt 11	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[3.66 s].
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801"	[3.55 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
@@ -1047,32 +1078,33 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 11
-0.0.Ht: Trace Attempt 880	[58.20 s]
-0.0.B: Trace Attempt 254	[4.08 s]
-0.0.Ht: Trace Attempt 909	[62.33 s]
-0.0.B: Trace Attempt 340	[8.09 s]
-0.0.N: Trace Attempt 421	[3.64 s]
-0.0.N: Per property time limit expired (10.00 s) [10.01 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[10.01 s].
+0.0.Ht: Trace Attempt 745	[59.24 s]
+0.0.B: Trace Attempt 254	[4.07 s]
+0.0.Ht: Trace Attempt 764	[63.29 s]
+0.0.B: Trace Attempt 340	[8.29 s]
+0.0.N: Trace Attempt 421	[3.15 s]
+0.0.N: Per property time limit expired (10.00 s) [10.02 s]
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[10.02 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
 0.0.N: Trace Attempt 11	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[10.00 s].
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 344	[9.88 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt 941	[66.34 s]
-0.0.B: Trace Attempt 245	[4.01 s]
-0.0.Ht: Trace Attempt 951	[70.75 s]
-0.0.B: Trace Attempt 291	[8.16 s]
-0.0.Ht: Trace Attempt 974	[75.02 s]
-0.0.B: Trace Attempt 323	[9.92 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 787	[67.29 s]
+0.0.B: Trace Attempt 244	[4.00 s]
+0.0.Ht: Trace Attempt 811	[71.37 s]
+0.0.B: Trace Attempt 290	[8.03 s]
+0.0.B: Trace Attempt 323	[9.95 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
@@ -1081,21 +1113,21 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 421	[3.62 s]
+0.0.N: Trace Attempt 421	[3.19 s]
 0.0.N: Per property time limit expired (10.00 s) [10.01 s]
 0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[10.01 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.N: Trace Attempt 14	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 1000	[79.07 s]
-0.0.B: Trace Attempt 245	[4.00 s]
-0.0.N: Trace Attempt 342	[4.53 s]
-0.0.B: Trace Attempt 280	[8.11 s]
-0.0.N: Trace Attempt 489	[8.55 s]
-0.0.Ht: Trace Attempt 1024	[85.08 s]
-0.0.B: Trace Attempt 286	[9.88 s]
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt 818	[77.84 s]
+0.0.B: Trace Attempt 250	[4.01 s]
+0.0.N: Trace Attempt 378	[4.02 s]
+0.0.Ht: Trace Attempt 837	[81.88 s]
+0.0.B: Trace Attempt 281	[8.04 s]
+0.0.N: Trace Attempt 538	[8.22 s]
+0.0.B: Trace Attempt 286	[9.73 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[10.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[0.00 s].
@@ -1104,40 +1136,41 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 657	[9.92 s]
-0.0.N: Per property time limit expired (10.00 s) [10.05 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[10.05 s].
+0.0.N: Trace Attempt 756	[9.59 s]
+0.0.N: Per property time limit expired (10.00 s) [10.09 s]
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[10.09 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 11	[0.00 s]
+0.0.N: Trace Attempt 11	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Ht: Trace Attempt 1051	[89.13 s]
-0.0.B: Trace Attempt 253	[4.01 s]
-0.0.Ht: Trace Attempt 1079	[93.35 s]
-0.0.B: Trace Attempt 340	[8.10 s]
-0.0.B: Trace Attempt 344	[9.74 s]
-0.0.B: Per property time limit expired (10.00 s) [10.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[10.00 s].
+0.0.Ht: Trace Attempt 856	[85.93 s]
+0.0.B: Trace Attempt 253	[4.17 s]
+0.0.Ht: Trace Attempt 875	[90.17 s]
+0.0.B: Trace Attempt 340	[8.33 s]
+0.0.Ht: Trace Attempt 889	[94.18 s]
+0.0.B: Trace Attempt 343	[9.43 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[9.97 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1"	[9.95 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt 225	[4.00 s]
-0.0.N: Trace Attempt 342	[4.48 s]
-0.0.Ht: Trace Attempt 1108	[100.43 s]
-0.0.B: Trace Attempt 263	[8.22 s]
-0.0.N: Trace Attempt 487	[8.50 s]
-0.0.Ht: Trace Attempt 1130	[104.57 s]
-0.0.B: Trace Attempt 271	[9.45 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt 890	[99.43 s]
+0.0.N: Trace Attempt 378	[4.02 s]
+0.0.B: Trace Attempt 226	[4.19 s]
+0.0.N: Trace Attempt 538	[8.19 s]
+0.0.B: Trace Attempt 263	[8.27 s]
+0.0.Ht: Trace Attempt 900	[104.22 s]
+0.0.B: Trace Attempt 271	[9.58 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[0.00 s].
@@ -1146,17 +1179,17 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[10.04 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[10.03 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Ht: Trace Attempt 1140	[109.05 s]
-0.0.B: Trace Attempt 254	[4.08 s]
-0.0.Ht: Trace Attempt 1169	[113.11 s]
-0.0.B: Trace Attempt 341	[8.47 s]
-0.0.B: Trace Attempt 345	[9.98 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 917	[108.34 s]
+0.0.B: Trace Attempt 253	[4.01 s]
+0.0.Ht: Trace Attempt 933	[112.48 s]
+0.0.B: Trace Attempt 340	[8.15 s]
+0.0.B: Trace Attempt 344	[9.93 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[10.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
@@ -1165,23 +1198,24 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[9.97 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1"	[10.00 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 1178	[118.95 s]
-0.0.N: Trace Attempt 129	[4.04 s]
-0.0.B: Trace Attempt 340	[4.90 s]
-0.0.Ht: Trace Attempt 1198	[123.17 s]
-0.0.N: Trace Attempt 181	[8.64 s]
-0.0.B: Trace Attempt 383	[9.76 s]
-0.0.B: Trace Attempt 402	[9.91 s]
-0.0.B: Per property time limit expired (10.00 s) [10.02 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[10.02 s].
+0.0.Ht: Trace Attempt 958	[116.48 s]
+0.0.N: Trace Attempt 132	[4.02 s]
+0.0.Ht: Trace Attempt 966	[120.52 s]
+0.0.B: Trace Attempt 340	[4.98 s]
+0.0.Ht: Trace Attempt 994	[124.55 s]
+0.0.N: Trace Attempt 181	[9.03 s]
+0.0.B: Trace Attempt 383	[9.49 s]
+0.0.B: Trace Attempt 402	[9.65 s]
+0.0.B: Per property time limit expired (10.00 s) [10.04 s]
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[10.04 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -1189,96 +1223,101 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 309	[9.95 s]
-0.0.N: Per property time limit expired (10.00 s) [10.02 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[10.02 s].
+0.0.N: Trace Attempt 273	[10.00 s]
+0.0.N: Per property time limit expired (10.00 s) [10.09 s]
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[10.09 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.N: Trace Attempt 445	[0.01 s]
-0.0.Ht: Trace Attempt 1223	[127.23 s]
-0.0.B: Trace Attempt 258	[4.05 s]
-0.0.Ht: Trace Attempt 1241	[131.40 s]
-0.0.B: Trace Attempt 311	[8.08 s]
-0.0.Ht: Trace Attempt 1258	[135.58 s]
-0.0.B: Trace Attempt 337	[12.47 s]
-0.0.Ht: Trace Attempt 1260	[140.50 s]
-0.0.N: Trace Attempt 446	[16.94 s]
-0.0.N: Trace Attempt  1	[17.10 s]
-0.0.N: Trace Attempt  2	[17.10 s]
-0.0.N: Trace Attempt  3	[17.10 s]
-0.0.N: Trace Attempt  5	[17.10 s]
-0.0.B: Trace Attempt 346	[17.27 s]
-0.0.Ht: Trace Attempt 1273	[144.61 s]
-0.0.B: Trace Attempt 352	[21.41 s]
-0.0.N: Trace Attempt 326	[22.57 s]
-0.0.Ht: Trace Attempt 1296	[148.63 s]
-0.0.B: Trace Attempt 357	[25.88 s]
-0.0.Ht: Trace Attempt 1317	[152.80 s]
-0.0.N: Trace Attempt 512	[27.83 s]
-0.0.B: Trace Attempt 362	[29.91 s]
-0.0.Ht: Trace Attempt 1333	[156.93 s]
-0.0.N: Trace Attempt 707	[33.01 s]
-0.0.B: Trace Attempt 367	[34.51 s]
-0.0.B: Trace Attempt 370	[38.89 s]
-0.0.Ht: Trace Attempt 1345	[166.00 s]
-0.0.N: Trace Attempt 910	[40.58 s]
-0.0.B: Trace Attempt 374	[43.59 s]
-0.0.Ht: Trace Attempt 1361	[170.23 s]
-0.0.N: Trace Attempt 1102	[47.00 s]
-0.0.B: Trace Attempt 381	[48.49 s]
-0.0.Ht: Trace Attempt 1379	[174.33 s]
-0.0.N: Trace Attempt 1294	[51.01 s]
-0.0.Ht: Trace Attempt 1394	[178.56 s]
-0.0.B: Trace Attempt 385	[54.52 s]
-0.0.N: Trace Attempt 1516	[56.32 s]
-0.0.Ht: Trace Attempt 1414	[182.89 s]
-0.0.B: Trace Attempt 388	[58.88 s]
-0.0.N: Trace Attempt 1634	[60.33 s]
-0.0.B: Trace Attempt 391	[63.52 s]
-0.0.N: Trace Attempt 1734	[64.34 s]
-0.0.Ht: Trace Attempt 1428	[191.50 s]
-0.0.N: Trace Attempt 1794	[68.34 s]
-0.0.B: Trace Attempt 394	[69.69 s]
-0.0.Ht: Trace Attempt 1444	[195.71 s]
-0.0.N: Trace Attempt 1964	[72.34 s]
-0.0.Ht: Trace Attempt 1458	[199.86 s]
-0.0.B: Trace Attempt 397	[74.53 s]
-0.0.N: Trace Attempt 2064	[77.85 s]
-0.0.Ht: Trace Attempt 1475	[204.10 s]
-0.0.B: Trace Attempt 400	[79.96 s]
-0.0.N: Trace Attempt 2202	[81.87 s]
-0.0.Ht: Trace Attempt 1492	[208.16 s]
-0.0.B: Trace Attempt 402	[84.17 s]
-0.0.Ht: Trace Attempt 1508	[212.29 s]
-0.0.N: Trace Attempt 2332	[88.01 s]
-0.0.B: Trace Attempt 405	[89.47 s]
-0.0.N: Trace Attempt 2503	[92.03 s]
-0.0.Ht: Trace Attempt 1510	[219.12 s]
-0.0.B: Trace Attempt 407	[93.51 s]
-0.0.N: Trace Attempt 2856	[96.03 s]
-0.0.B: Trace Attempt 409	[97.53 s]
-0.0.Ht: Trace Attempt 1525	[223.29 s]
-0.0.B: Trace Attempt 410	[99.77 s]
+0.0.N: Trace Attempt 445	[0.02 s]
+0.0.Ht: Trace Attempt 1022	[128.62 s]
+0.0.B: Trace Attempt 258	[4.04 s]
+0.0.B: Trace Attempt 311	[8.10 s]
+0.0.Ht: Trace Attempt 1045	[135.11 s]
+0.0.B: Trace Attempt 337	[12.57 s]
+0.0.Ht: Trace Attempt 1076	[139.37 s]
+0.0.B: Trace Attempt 346	[17.43 s]
+0.0.Ht: Trace Attempt 1105	[143.41 s]
+0.0.B: Trace Attempt 352	[21.68 s]
+0.0.Ht: Trace Attempt 1128	[147.62 s]
+0.0.B: Trace Attempt 357	[26.03 s]
+0.0.Ht: Trace Attempt 1130	[151.66 s]
+0.0.Ht: Trace Attempt 1152	[155.67 s]
+0.0.B: Trace Attempt 362	[30.38 s]
+0.0.N: Trace Attempt 446	[30.79 s]
+0.0.N: Trace Attempt  1	[31.13 s]
+0.0.N: Trace Attempt  2	[31.13 s]
+0.0.N: Trace Attempt  3	[31.13 s]
+0.0.N: Trace Attempt  5	[31.13 s]
+0.0.Ht: Trace Attempt 1161	[159.75 s]
+0.0.B: Trace Attempt 367	[35.07 s]
+0.0.N: Trace Attempt 326	[35.87 s]
+0.0.Ht: Trace Attempt 1170	[164.33 s]
+0.0.B: Trace Attempt 370	[39.63 s]
+0.0.N: Trace Attempt 512	[40.34 s]
+0.0.Ht: Trace Attempt 1179	[168.60 s]
+0.0.B: Trace Attempt 374	[44.47 s]
+0.0.N: Trace Attempt 707	[44.77 s]
+0.0.Ht: Trace Attempt 1189	[172.77 s]
+0.0.B: Trace Attempt 381	[49.60 s]
+0.0.Ht: Trace Attempt 1195	[176.77 s]
+0.0.N: Trace Attempt 910	[51.23 s]
+0.0.B: Trace Attempt 384	[53.66 s]
+0.0.N: Trace Attempt 1102	[56.66 s]
+0.0.B: Trace Attempt 386	[57.75 s]
+0.0.N: Trace Attempt 1375	[60.68 s]
+0.0.Ht: Trace Attempt 1203	[186.92 s]
+0.0.B: Trace Attempt 390	[63.47 s]
+0.0.N: Trace Attempt 1556	[64.70 s]
+0.0.Ht: Trace Attempt 1209	[191.46 s]
+0.0.B: Trace Attempt 393	[69.28 s]
+0.0.Ht: Trace Attempt 1219	[195.49 s]
+0.0.N: Trace Attempt 1677	[70.50 s]
+0.0.Ht: Trace Attempt 1227	[200.19 s]
+0.0.N: Trace Attempt 1802	[74.50 s]
+0.0.B: Trace Attempt 396	[74.68 s]
+0.0.N: Trace Attempt 1977	[78.65 s]
+0.0.B: Trace Attempt 398	[78.78 s]
+0.0.Ht: Trace Attempt 1240	[204.53 s]
+0.0.N: Trace Attempt 2126	[82.66 s]
+0.0.Ht: Trace Attempt 1246	[208.99 s]
+0.0.B: Trace Attempt 401	[84.50 s]
+0.0.N: Trace Attempt 2271	[86.67 s]
+0.0.Ht: Trace Attempt 1255	[213.30 s]
+0.0.B: Trace Attempt 404	[90.79 s]
+0.0.Ht: Trace Attempt 1261	[217.47 s]
+0.0.N: Trace Attempt 2446	[91.80 s]
+0.0.N: Trace Attempt 2874	[95.94 s]
+0.0.Ht: Trace Attempt 1269	[222.06 s]
+0.0.B: Trace Attempt 407	[96.66 s]
+0.0.B: Trace Attempt 408	[98.64 s]
 0.0.B: Per property time limit expired (100.00 s) [100.00 s]
-0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[100.01 s].
+0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[100.00 s].
 0.0.B: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[100.31 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[100.19 s].
 0.0.N: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
-0.0.Ht: Trace Attempt 1543	[227.34 s]
-0.0.B: Trace Attempt 330	[4.69 s]
-0.0.Ht: Trace Attempt 1555	[232.05 s]
-0.0.B: Trace Attempt 335	[9.27 s]
-0.0.Ht: Trace Attempt 1563	[236.52 s]
-0.0.B: Trace Attempt 355	[13.62 s]
-0.0.Ht: Trace Attempt 1575	[240.64 s]
+0.0.B: Trace Attempt 330	[4.64 s]
+0.0.Ht: Trace Attempt 1274	[233.78 s]
+0.0.B: Trace Attempt 335	[9.36 s]
+0.0.Ht: Trace Attempt 1281	[237.88 s]
+0.0.B: Trace Attempt 355	[13.85 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Bm
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Bm: Trace Attempt  1	[0.00 s]
+0.0.Bm: Trace Attempt  2	[0.01 s]
+0.0.Bm: Trace Attempt  3	[0.01 s]
+0.0.Bm: Trace Attempt  4	[0.01 s]
+0.0.Bm: Trace Attempt  5	[0.01 s]
 0.0.B: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[15.38 s].
 0.0.B: Morphing to Hts
-0.0.B: Trace Attempt 359	[15.37 s]
+0.0.B: Trace Attempt 356	[14.64 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1288,7 +1327,7 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.Hts: Trace Attempt  3	[0.00 s]
 0.0.Hts: Trace Attempt  4	[0.00 s]
 0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[15.07 s].
+0.0.N: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[15.13 s].
 0.0.N: Morphing to AM
 0.0.N: Trace Attempt 463	[0.01 s]
 0.0.N: All properties determined. [0.00 s]
@@ -1300,21 +1339,12 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Morphing to Bm
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.00 s)
-0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Bm: Trace Attempt  1	[0.00 s]
-0.0.Bm: Trace Attempt  2	[0.00 s]
-0.0.Bm: Trace Attempt  3	[0.00 s]
-0.0.Bm: Trace Attempt  4	[0.00 s]
-0.0.Bm: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt 60	[0.91 s]
-0.0.AM: Per property time limit expired (0.99 s) [0.99 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.Ht: Trace Attempt 1288	[241.93 s]
+0.0.AM: Trace Attempt 65	[0.93 s]
+0.0.AM: Per property time limit expired (0.98 s) [0.99 s]
 0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.99 s].
 0.0.AM: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
@@ -1324,28 +1354,28 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.Hts: Trace Attempt 1578	[0.93 s]
-0.0.Hts: Per property time limit expired (1.00 s) [1.02 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.02 s].
-0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.02 s]
 0.0.AM: Trace Attempt  2	[0.02 s]
 0.0.AM: Trace Attempt  3	[0.02 s]
 0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.Hts: Trace Attempt  1	[0.24 s]
-0.0.Hts: Trace Attempt  2	[0.24 s]
-0.0.Hts: Trace Attempt  3	[0.24 s]
-0.0.Hts: Trace Attempt  4	[0.24 s]
-0.0.Hts: Trace Attempt  5	[0.24 s]
-0.0.AM: Trace Attempt 119	[0.98 s]
-0.0.AM: Per property time limit expired (1.00 s) [1.03 s]
-0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.03 s].
+0.0.Hts: Trace Attempt 1287	[0.56 s]
+0.0.Hts: Per property time limit expired (1.00 s) [1.09 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.10 s].
+0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.39 s]
+0.0.Hts: Trace Attempt  2	[0.39 s]
+0.0.Hts: Trace Attempt  3	[0.39 s]
+0.0.Hts: Trace Attempt  4	[0.39 s]
+0.0.Hts: Trace Attempt  5	[0.39 s]
+0.0.AM: Trace Attempt 119	[0.86 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.02 s]
+0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.02 s].
 0.0.AM: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1363,40 +1393,23 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.09 s]
-0.0.AM: Trace Attempt  2	[0.09 s]
-0.0.AM: Trace Attempt  3	[0.09 s]
-0.0.AM: Trace Attempt  5	[0.09 s]
-0.0.Hts: Trace Attempt 1581	[0.43 s]
-0.0.Hts: Per property time limit expired (1.00 s) [2.02 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[2.02 s].
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.08 s]
+0.0.AM: Trace Attempt  2	[0.08 s]
+0.0.AM: Trace Attempt  3	[0.08 s]
+0.0.AM: Trace Attempt  5	[0.08 s]
+0.0.Hts: Trace Attempt 1288	[0.51 s]
+0.0.Hts: Per property time limit expired (1.00 s) [1.63 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[1.63 s].
 0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.Hts: Trace Attempt  1	[0.01 s]
 0.0.Hts: Trace Attempt  2	[0.01 s]
 0.0.Hts: Trace Attempt  3	[0.01 s]
 0.0.Hts: Trace Attempt  4	[0.01 s]
 0.0.Hts: Trace Attempt  5	[0.01 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.01 s].
-0.0.Hts: Morphing to AB
-0.0.Hts: Trace Attempt 61	[0.01 s]
-0.0.Hts: All properties determined. [0.00 s]
-0.0.Hts: Exited with Success (@ 0.00 s)
-0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.02 s].
+0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.57 s].
 0.0.AM: Morphing to K
-0.0.AM: Trace Attempt 233	[1.01 s]
+0.0.AM: Trace Attempt 313	[1.56 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1407,11 +1420,32 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.K: Trace Attempt  3	[0.00 s]
 0.0.K: Trace Attempt  4	[0.00 s]
 0.0.K: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt 1589	[245.02 s]
-0.0.Bm: Trace Attempt 279	[4.00 s]
-0.0.AB: Trace Attempt 175	[1.92 s]
-0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
-0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[2.00 s].
+0.0.Bm: Trace Attempt 230	[4.02 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.38 s].
+0.0.Hts: Morphing to AB
+0.0.Hts: Trace Attempt 1292	[0.11 s]
+0.0.Hts: All properties determined. [0.00 s]
+0.0.Hts: Exited with Success (@ 0.00 s)
+0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1297	[246.14 s]
+0.0.K: Trace Attempt 207	[1.98 s]
+0.0.K: Per property time limit expired (2.00 s) [2.00 s]
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[2.00 s].
+0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt 149	[1.48 s]
+0.0.AB: Per property time limit expired (1.49 s) [1.49 s]
+0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.49 s].
 0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
@@ -1420,25 +1454,21 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.K: Trace Attempt 205	[1.98 s]
-0.0.K: Per property time limit expired (1.99 s) [2.00 s]
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[2.00 s].
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.K: Trace Attempt 421	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt 135	[2.00 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AB: Trace Attempt 124	[2.00 s]
 0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
 0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[2.00 s].
 0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
@@ -1447,18 +1477,19 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.K: Per property time limit expired (2.00 s) [2.00 s]
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[2.01 s].
+0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1"	[2.00 s].
-0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
@@ -1469,13 +1500,14 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AB: Trace Attempt  3	[0.09 s]
 0.0.AB: Trace Attempt  4	[0.09 s]
 0.0.AB: Trace Attempt  5	[0.09 s]
-0.0.Bm: Trace Attempt 387	[8.18 s]
-0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.79 s].
+0.0.Bm: Trace Attempt 305	[8.08 s]
+0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.84 s].
 0.0.AB: Morphing to Hts
-0.0.AB: Trace Attempt 214	[1.79 s]
+0.0.AB: Trace Attempt 138	[0.84 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.79 s].
+0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.84 s].
 0.0.K: Morphing to AM
 0.0.K: Trace Attempt 463	[0.01 s]
 0.0.K: All properties determined. [0.00 s]
@@ -1483,32 +1515,32 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AM: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.Hts: Trace Attempt  1	[0.00 s]
-0.0.Hts: Trace Attempt  2	[0.00 s]
-0.0.Hts: Trace Attempt  3	[0.00 s]
-0.0.Hts: Trace Attempt  4	[0.00 s]
-0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.03 s]
-0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
 0.0.AM: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 1593	[252.33 s]
-0.0.AM: Trace Attempt  1	[3.96 s]
-0.0.AM: Trace Attempt  2	[3.96 s]
-0.0.AM: Trace Attempt  3	[3.96 s]
-0.0.AM: Trace Attempt 39	[3.99 s]
-0.0.AM: Per property time limit expired (3.99 s) [3.99 s]
-0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[3.99 s].
+0.0.Ht: Trace Attempt 1311	[251.87 s]
+0.0.Bm: Trace Attempt 365	[12.10 s]
+0.0.AM: Trace Attempt  1	[3.65 s]
+0.0.AM: Trace Attempt  2	[3.65 s]
+0.0.AM: Trace Attempt  3	[3.66 s]
+0.0.AM: Trace Attempt 79	[3.97 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.00 s]
+0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[4.00 s].
 0.0.AM: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1517,136 +1549,126 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
 0.0.AM: Trace Attempt  3	[0.02 s]
 0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.13 s]
-0.0.AM: Trace Attempt  2	[0.13 s]
-0.0.AM: Trace Attempt  3	[0.13 s]
-0.0.AM: Trace Attempt  5	[0.13 s]
-0.0.Hts: Trace Attempt 1592	[0.52 s]
-0.0.Hts: Per property time limit expired (4.00 s) [5.52 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[5.52 s].
+0.0.Hts: Trace Attempt 1306	[0.34 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.07 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[4.07 s].
 0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[0.00 s].
 0.0.Hts: Trace Attempt  1	[0.01 s]
 0.0.Hts: Trace Attempt  2	[0.01 s]
 0.0.Hts: Trace Attempt  3	[0.01 s]
 0.0.Hts: Trace Attempt  4	[0.01 s]
 0.0.Hts: Trace Attempt  5	[0.01 s]
-0.0.Bm: Trace Attempt 434	[14.22 s]
-0.0.Ht: Trace Attempt 1607	[256.37 s]
-0.0.AM: Trace Attempt 321	[3.37 s]
-0.0.AM: Per property time limit expired (4.00 s) [4.02 s]
-0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[4.02 s].
+0.0.AM: Trace Attempt  1	[0.15 s]
+0.0.AM: Trace Attempt  2	[0.15 s]
+0.0.AM: Trace Attempt  3	[0.15 s]
+0.0.AM: Trace Attempt  5	[0.15 s]
+0.0.Bm: Trace Attempt 413	[16.14 s]
+0.0.AM: Trace Attempt 321	[2.92 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.05 s]
+0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[4.05 s].
 0.0.AM: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[3.99 s].
+0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.02 s]
 0.0.AM: Trace Attempt  2	[0.02 s]
 0.0.AM: Trace Attempt  3	[0.02 s]
 0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.09 s]
-0.0.AM: Trace Attempt  2	[0.09 s]
-0.0.AM: Trace Attempt  3	[0.09 s]
-0.0.AM: Trace Attempt  5	[0.09 s]
-0.0.Bm: Trace Attempt 450	[18.23 s]
-0.0.Hts: Trace Attempt 1603	[0.25 s]
-0.0.Hts: Per property time limit expired (4.00 s) [4.30 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800"	[4.30 s].
-0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
-0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.00 s]
-0.0.Hts: Trace Attempt  2	[0.00 s]
-0.0.Hts: Trace Attempt  3	[0.00 s]
-0.0.Hts: Trace Attempt  4	[0.00 s]
-0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.82 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.10 s]
+0.0.AM: Trace Attempt  2	[0.10 s]
+0.0.AM: Trace Attempt  3	[0.10 s]
+0.0.AM: Trace Attempt  5	[0.10 s]
+0.0.AM: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.42 s].
 0.0.AM: Morphing to K
-0.0.AM: Trace Attempt 320	[1.78 s]
+0.0.AM: Trace Attempt 280	[1.41 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
 0.0.K: Trace Attempt 445	[0.01 s]
-0.0.Ht: Trace Attempt 1623	[260.81 s]
-0.0.Bm: Trace Attempt 521	[22.47 s]
-0.0.Ht: Trace Attempt 1637	[265.07 s]
-0.0.Hts: Trace Attempt 2920	[0.35 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[1.43 s].
+0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 1320	[260.26 s]
+0.0.Ht: Trace Attempt 1335	[264.69 s]
+0.0.Bm: Trace Attempt 434	[24.91 s]
+0.0.Hts: Trace Attempt 2921	[0.33 s]
 0.0.Hts: Per property time limit expired (8.00 s) [8.00 s]
 0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[8.00 s].
 0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[7.99 s].
+0.0.Hts: Trace Attempt  1	[0.02 s]
+0.0.Hts: Trace Attempt  2	[0.02 s]
+0.0.Hts: Trace Attempt  3	[0.02 s]
+0.0.Hts: Trace Attempt  4	[0.02 s]
+0.0.Hts: Trace Attempt  5	[0.02 s]
+0.0.K: Per property time limit expired (8.00 s) [8.05 s]
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[8.05 s].
 0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[0.00 s].
 0.0.K: Trace Attempt  1	[0.00 s]
 0.0.K: Trace Attempt  2	[0.00 s]
 0.0.K: Trace Attempt  3	[0.00 s]
 0.0.K: Trace Attempt  4	[0.00 s]
 0.0.K: Trace Attempt  5	[0.00 s]
-0.0.Hts: Trace Attempt  1	[0.02 s]
-0.0.Hts: Trace Attempt  2	[0.02 s]
-0.0.Hts: Trace Attempt  3	[0.02 s]
-0.0.Hts: Trace Attempt  4	[0.02 s]
-0.0.Hts: Trace Attempt  5	[0.02 s]
-0.0.Bm: Trace Attempt 525	[26.69 s]
-0.0.Ht: Trace Attempt 1649	[269.27 s]
-0.0.K: Trace Attempt 299	[4.09 s]
-0.0.Bm: Trace Attempt 572	[31.42 s]
-0.0.Ht: Trace Attempt 1662	[273.93 s]
-0.0.K: Trace Attempt 339	[7.59 s]
-0.0.K: Per property time limit expired (8.00 s) [8.00 s]
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[8.00 s].
-0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 463	[0.01 s]
-0.0.Hts: Trace Attempt 1643	[0.23 s]
-0.0.Hts: Per property time limit expired (8.00 s) [8.31 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[8.31 s].
+0.0.Ht: Trace Attempt 1350	[268.83 s]
+0.0.Bm: Trace Attempt 436	[29.29 s]
+0.0.K: Trace Attempt 289	[4.02 s]
+0.0.Ht: Trace Attempt 1352	[273.88 s]
+0.0.Bm: Trace Attempt 470	[33.32 s]
+0.0.Hts: Trace Attempt 1345	[0.17 s]
+0.0.Hts: Per property time limit expired (8.00 s) [8.00 s]
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[8.00 s].
 0.0.Hts: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.03 s]
-0.0.Hts: Trace Attempt  2	[0.03 s]
-0.0.Hts: Trace Attempt  3	[0.03 s]
-0.0.Hts: Trace Attempt  4	[0.03 s]
-0.0.Hts: Trace Attempt  5	[0.03 s]
-0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.04 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801"	[7.98 s].
+0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.00 s].
+0.0.Hts: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[2.84 s].
 0.0.Hts: Morphing to Tri
-0.0.Hts: Trace Attempt 85	[0.04 s]
+0.0.Hts: Trace Attempt 1354	[0.12 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[0.34 s].
+0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1"	[2.85 s].
 0.0.K: Morphing to AB
+0.0.K: Trace Attempt 463	[0.01 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
@@ -1657,27 +1679,43 @@ INFO (IPF057): 0.0.N: The property "pwm_out.auto_sva_inst.check_rdreq_clear_afte
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
 0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt 1365	[277.90 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.23" ---- Launching abstraction thread ----
-0.0.Tri:    0.25" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.47 s]
-0.0.Tri: Trace Attempt  3	[0.47 s]
-0.0.Tri: Trace Attempt  4	[0.47 s]
-0.0.Tri: Trace Attempt  5	[0.47 s]
-0.0.Ht: Trace Attempt 1673	[278.06 s]
-0.0.Tri:    1.77" Simplification phase 1 complete
-0.0.Tri: Trace Attempt 4099	[2.42 s]
-0.0.Tri: A trace with 4099 cycles was found. [2.47 s]
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1" was covered in 4099 cycles in 2.65 s.
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1" was covered in 4099 cycles in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4099 cycles was found for the property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800" in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1" was covered in 4099 cycles in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1" was covered in 4099 cycles in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1" was covered in 4099 cycles in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1" was covered in 4099 cycles in 2.65 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
-0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[2.71 s].
+0.0.Tri:    0.39" ---- Launching abstraction thread ----
+0.0.Bm: Trace Attempt 513	[37.46 s]
+0.0.Tri:    0.43" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.65 s]
+0.0.Tri: Trace Attempt  3	[0.65 s]
+0.0.Tri: Trace Attempt  4	[0.65 s]
+0.0.Tri: Trace Attempt  5	[0.65 s]
+0.0.Tri:    1.73" Simplification phase 1 complete
+0.0.Tri:    1.83" Simplification phase 2 complete
+0.0.Tri:    1.93" Simplification phase 3 complete
+   1.93" ---- Completed simplification thread ----
+0.0.Tri:    1.93" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    2.22" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Trace Attempt 4099	[3.59 s]
+0.0.Tri: A trace with 4099 cycles was found. [3.61 s]
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1" was covered in 4099 cycles in 3.77 s.
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801:precondition1" was covered in 4099 cycles in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4099 cycles was found for the property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800" in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_rise_requires_not_empty_800:precondition1" was covered in 4099 cycles in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_rdreq_one_cycle_pulse:precondition1" was covered in 4099 cycles in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_capture_data_on_801:precondition1" was covered in 4099 cycles in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801:precondition1" was covered in 4099 cycles in 3.77 s by the incidental trace "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1".
+0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[3.83 s].
 0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
@@ -1699,802 +1737,182 @@ INFO (IPF047): 0.0.Tri: The cover property "pwm_out.auto_sva_inst.check_data_rdy
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[2.82 s].
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_clear_after_801:precondition1"	[3.95 s].
 0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    2.65" ---- Launching main thread ----
-0.0.Tri:    2.77" ---- Launching abstraction thread ----
-0.0.Tri:    2.79" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.20 s]
-0.0.Tri: Trace Attempt  3	[0.20 s]
-0.0.Tri: Trace Attempt  4	[0.20 s]
-0.0.Tri: Trace Attempt  5	[0.20 s]
+0.0.Tri:    3.82" ---- Launching main thread ----
+0.0.Tri:    4.05" ---- Launching abstraction thread ----
+0.0.Tri:    4.08" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.33 s]
+0.0.Tri: Trace Attempt  3	[0.33 s]
+0.0.Tri: Trace Attempt  4	[0.33 s]
+0.0.Tri: Trace Attempt  5	[0.33 s]
 0: ProofGrid usable level: 4
-0.0.Tri:    3.64" Simplification phase 1 complete
-0.0.Tri:    3.69" Simplification phase 2 complete
-0.0.Tri:    3.74" Simplification phase 3 complete
-   3.74" ---- Completed simplification thread ----
-   3.74" ---- Restarting main thread on simplified netlist ----
-0.0.Bm: Trace Attempt 575	[38.92 s]
-0.0.Tri:    3.87" ---- Restarting abstraction thread on simplified netlist ----
-0.0.AB: Trace Attempt  1	[3.54 s]
-0.0.AB: Trace Attempt  2	[3.54 s]
-0.0.AB: Trace Attempt  3	[3.54 s]
-0.0.AB: Trace Attempt  4	[3.54 s]
-0.0.AB: Trace Attempt  5	[3.54 s]
-0.0.Tri: Trace Attempt 4101	[2.80 s]
-0.0.Tri: A trace with 4101 cycles was found. [4.52 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4101 cycles was found for the property "pwm_out.auto_sva_inst.check_capture_data_on_801" in 4.77 s.
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4101 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801" in 4.77 s by the incidental trace "pwm_out.auto_sva_inst.check_capture_data_on_801".
-0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[4.93 s].
+0.0.Bm: Trace Attempt 522	[41.70 s]
+0.0.Ht: Trace Attempt 1372	[282.69 s]
+0.0.Tri:    5.13" Simplification phase 1 complete
+0.0.Tri:    5.20" Simplification phase 2 complete
+0.0.Tri:    5.31" Simplification phase 3 complete
+   5.31" ---- Completed simplification thread ----
+   5.31" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    5.55" ---- Restarting abstraction thread on simplified netlist ----
+0.0.AB: Trace Attempt 223	[4.05 s]
+0.0.Bm: Trace Attempt 545	[45.89 s]
+0.0.Tri: Trace Attempt 4101	[3.36 s]
+0.0.Tri: A trace with 4101 cycles was found. [4.92 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4101 cycles was found for the property "pwm_out.auto_sva_inst.check_capture_data_on_801" in 5.12 s.
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4101 cycles was found for the property "pwm_out.auto_sva_inst.check_data_rdy_set_after_801" in 5.12 s by the incidental trace "pwm_out.auto_sva_inst.check_capture_data_on_801".
+0.0.AB: Trace Attempt  1	[5.28 s]
+0.0.AB: Trace Attempt  2	[5.28 s]
+0.0.AB: Trace Attempt  3	[5.28 s]
+0.0.AB: Trace Attempt  4	[5.28 s]
+0.0.AB: Trace Attempt  5	[5.28 s]
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[5.13 s].
+0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    8.92" ---- Launching main thread ----
+0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[5.35 s].
 0.0.AB: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_capture_data_on_801"	[4.94 s].
-0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    7.59" ---- Launching main thread ----
-0.0.Tri:    7.71" ---- Launching abstraction thread ----
-0.0.Tri:    7.73" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.19 s]
-0.0.Tri: Trace Attempt  3	[0.19 s]
-0.0.Tri: Trace Attempt  4	[0.19 s]
-0.0.Tri: Trace Attempt  5	[0.19 s]
+0.0.Ht: Trace Attempt 1379	[287.07 s]
+0.0.Tri:    9.15" ---- Launching abstraction thread ----
+0.0.Tri:    9.19" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.34 s]
+0.0.Tri: Trace Attempt  3	[0.34 s]
+0.0.Tri: Trace Attempt  4	[0.34 s]
+0.0.Tri: Trace Attempt  5	[0.34 s]
 0: ProofGrid usable level: 2
-0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.82 s].
+0.0.Tri:    9.99" Simplification phase 1 complete
+0.0.Tri:   10.05" Simplification phase 2 complete
+0.0.Tri:   10.12" Simplification phase 3 complete
+  10.12" ---- Completed simplification thread ----
+  10.12" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   10.35" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.86 s].
+0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.AB: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[1.82 s].
 0.0.AB: Morphing to D
-0.0.AB: Trace Attempt 126	[0.84 s]
+0.0.AB: Trace Attempt 139	[1.80 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.D: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.66 s].
-0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.D: Trace Attempt  1	[0.00 s]
-0.0.D: Trace Attempt  2	[0.00 s]
-0.0.D: Trace Attempt  3	[0.00 s]
-0.0.D: Trace Attempt  5	[0.01 s]
-0.0.Tri:    8.25" ---- Launching main thread ----
-0.0.Tri:    8.37" ---- Launching abstraction thread ----
-0.0.Tri:    8.39" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.20 s]
-0.0.Tri: Trace Attempt  3	[0.20 s]
-0.0.Tri: Trace Attempt  4	[0.20 s]
-0.0.Tri: Trace Attempt  5	[0.20 s]
-0.0.Tri:    9.51" Simplification phase 1 complete
-0.0.Tri:    9.56" Simplification phase 2 complete
-0.0.Tri:    9.61" Simplification phase 3 complete
-   9.61" ---- Completed simplification thread ----
-   9.61" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    9.73" ---- Restarting abstraction thread on simplified netlist ----
-0.0.Bm: Trace Attempt 578	[45.61 s]
-0.0.Tri: Trace Attempt 4099	[0.82 s]
-0.0.Tri: A trace with 4099 cycles was found. [3.19 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4099 cycles was found for the property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801" in 3.39 s.
-0.0.D: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[3.40 s].
+0.0.Tri:   10.83" ---- Launching main thread ----
+0.0.D: Trace Attempt  1	[0.07 s]
+0.0.D: Trace Attempt  2	[0.07 s]
+0.0.D: Trace Attempt  3	[0.09 s]
+0.0.D: Trace Attempt  5	[0.09 s]
+0.0.Tri:   11.06" ---- Launching abstraction thread ----
+0.0.Tri:   11.10" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.36 s]
+0.0.Tri: Trace Attempt  3	[0.36 s]
+0.0.Tri: Trace Attempt  4	[0.36 s]
+0.0.Tri: Trace Attempt  5	[0.36 s]
+0.0.Tri:   12.32" Simplification phase 1 complete
+0.0.Tri:   12.43" Simplification phase 2 complete
+0.0.Tri:   12.55" Simplification phase 3 complete
+  12.55" ---- Completed simplification thread ----
+  12.55" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   12.91" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1384	[291.61 s]
+0.0.Tri: Trace Attempt 4099	[1.18 s]
+0.0.Tri: A trace with 4099 cycles was found. [3.10 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 4099 cycles was found for the property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801" in 3.31 s.
+0.0.D: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[3.30 s].
 0.0.D: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.D: Trace Attempt  1	[0.00 s]
 0.0.D: Trace Attempt  2	[0.00 s]
 0.0.D: Trace Attempt  3	[0.00 s]
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[3.56 s].
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_rdreq_high_only_at_801"	[3.48 s].
 0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:   11.81" ---- Launching main thread ----
-0.0.Tri:   11.93" ---- Launching abstraction thread ----
-0.0.Tri:   11.95" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   14.28" ---- Launching main thread ----
 0: ProofGrid usable level: 1
-0.0.Tri:   12.74" Simplification phase 1 complete
-0.0.Tri:   12.78" Simplification phase 2 complete
-0.0.Tri:   12.84" Simplification phase 3 complete
-  12.84" ---- Completed simplification thread ----
-  12.84" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:   12.97" ---- Restarting abstraction thread on simplified netlist ----
-0.0.Ht: Trace Attempt 1686	[289.47 s]
-0.0.Bm: Trace Attempt 738	[49.61 s]
-0.0.Tri: Trace Attempt 3063	[4.66 s]
-0.0.D: Trace Attempt 27	[0.06 s]
+0.0.Bm: Trace Attempt 560	[51.56 s]
+0.0.Tri:   14.51" ---- Launching abstraction thread ----
+0.0.Tri:   14.55" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   15.34" Simplification phase 1 complete
+0.0.Tri:   15.40" Simplification phase 2 complete
+0.0.Tri:   15.47" Simplification phase 3 complete
+  15.47" ---- Completed simplification thread ----
+0.0.Tri:   15.47" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   15.69" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1762	[295.61 s]
+0.0.Tri: Trace Attempt 2883	[4.00 s]
+0.0.Bm: Trace Attempt 743	[55.56 s]
+0.0.D: Trace Attempt 27	[0.05 s]
 0.0.D: Per property time limit expired (5.00 s) [5.00 s]
 0.0.D: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[4.97 s].
 0.0.D: Last scan. Per property time limit: 0s
 0.0.D: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.D: Trace Attempt 27	[0.00 s]
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[4.81 s].
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[4.94 s].
 0.0.Tri: Last scan. Per property time limit: 0s
 0.0.Tri: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:   16.68" ---- Launching main thread ----
-0.0.Tri:   16.81" ---- Launching abstraction thread ----
-0.0.Tri:   16.83" ---- Launching multi-phase simplification thread ----
-0.0.Tri:   17.63" Simplification phase 1 complete
-0.0.Tri:   17.68" Simplification phase 2 complete
-0.0.Tri:   17.73" Simplification phase 3 complete
-  17.73" ---- Completed simplification thread ----
-  17.73" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:   17.86" ---- Restarting abstraction thread on simplified netlist ----
-0.0.Bm: Trace Attempt 875	[53.66 s]
-0.0.Tri: Trace Attempt 3772	[4.45 s]
-0.0.D: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[4.62 s].
-0.0.D: Morphing to K
-0.0.D: All properties determined. [0.00 s]
-0.0.D: Exited with Success (@ 0.00 s)
-0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
-0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[4.61 s].
-0.0.K: Trace Attempt  3	[0.00 s]
-0.0.K: Trace Attempt  1	[0.00 s]
-0.0.K: Trace Attempt  2	[0.01 s]
-0.0.K: Trace Attempt  3	[0.01 s]
-0.0.K: Trace Attempt  4	[0.01 s]
-0.0.K: Trace Attempt  5	[0.01 s]
-0.0.Tri: Morphing to Ncustom1
-0.0.Tri: Trace Attempt 4398	[4.61 s]
-0.0.Tri: All properties determined. [0.00 s]
-0.0.Tri: Exited with Success (@ 0.00 s)
-0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Ncustom1: Starting proof for property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[0.00 s].
-0.0.Ncustom1: Trace Attempt  3	[0.00 s]
-0.0.Ncustom1: Trace Attempt  4	[0.00 s]
-0.0.Ncustom1: Trace Attempt  5	[0.00 s]
-0.0.Ncustom1: Trace Attempt  1	[0.01 s]
-0.0.Ncustom1: Trace Attempt  2	[0.01 s]
-0.0.Ncustom1: Trace Attempt  3	[0.01 s]
-0.0.Bm: Trace Attempt 954	[57.69 s]
-0.0.K: Trace Attempt 247	[4.03 s]
-0.0.Ncustom1: Trace Attempt 129	[4.05 s]
-0.0.Bm: Trace Attempt 1030	[61.74 s]
-0.0.K: Trace Attempt 292	[8.16 s]
-0.0.Ncustom1: Trace Attempt 181	[8.60 s]
-0.0.Bm: Trace Attempt 1089	[65.77 s]
-0.0.K: Trace Attempt 332	[12.24 s]
-0.0.Ncustom1: Trace Attempt 397	[12.71 s]
-0.0.Bm: Trace Attempt 1130	[71.93 s]
-0.0.K: Trace Attempt 347	[16.73 s]
-0.0.Ncustom1: Trace Attempt 457	[16.73 s]
-0.0.Bm: Trace Attempt 1169	[75.94 s]
-0.0.K: Trace Attempt 361	[20.74 s]
-0.0.Bm: Trace Attempt 1208	[80.03 s]
-0.0.K: Trace Attempt 377	[25.45 s]
-0.0.Ncustom1: Trace Attempt 482	[27.41 s]
-0.0.Bm: Trace Attempt 1243	[84.05 s]
-0.0.K: Trace Attempt 389	[29.76 s]
-0.0.Ncustom1: Trace Attempt 642	[31.43 s]
-0.0.Bm: Trace Attempt 1259	[89.92 s]
-0.0.K: Trace Attempt 398	[35.62 s]
-0.0.Ncustom1: Trace Attempt 712	[39.07 s]
-0.0.Bm: Trace Attempt 1281	[96.02 s]
-0.0.K: Trace Attempt 403	[39.75 s]
-0.0.Ncustom1: Trace Attempt 907	[43.12 s]
-0.0.K: Trace Attempt 407	[44.73 s]
-0.0.Ncustom1: Trace Attempt 973	[47.25 s]
-0.0.Bm: Trace Attempt 1299	[105.34 s]
-0.0.K: Trace Attempt 411	[49.69 s]
-0.0.Ncustom1: Trace Attempt 981	[51.60 s]
-0.0.Bm: Trace Attempt 1301	[109.39 s]
-0.0.K: Trace Attempt 417	[54.28 s]
-0.0.Ncustom1: Trace Attempt 1136	[55.66 s]
-0.0.Bm: Trace Attempt 1326	[113.43 s]
-0.0.K: Trace Attempt 423	[59.39 s]
-0.0.Ncustom1: Trace Attempt 1193	[59.68 s]
-0.0.Bm: Trace Attempt 1368	[117.47 s]
-0.0.K: Trace Attempt 427	[63.73 s]
-0.0.Ncustom1: Trace Attempt 1244	[63.73 s]
-0.0.Bm: Trace Attempt 1398	[121.47 s]
-0.0.Ncustom1: Trace Attempt 1384	[67.79 s]
-0.0.K: Trace Attempt 430	[69.28 s]
-0.0.Bm: Trace Attempt 1410	[126.55 s]
-0.0.Ncustom1: Trace Attempt 1450	[71.80 s]
-0.0.K: Trace Attempt 433	[73.93 s]
-0.0.Bm: Trace Attempt 1442	[130.62 s]
-0.0.Ncustom1: Trace Attempt 1460	[77.36 s]
-0.0.Bm: Trace Attempt 1477	[134.69 s]
-0.0.K: Trace Attempt 436	[78.42 s]
-0.0.Ncustom1: Trace Attempt 1638	[81.46 s]
-0.0.K: Trace Attempt 439	[83.68 s]
-0.0.Ncustom1: Trace Attempt 1690	[85.47 s]
-0.0.Bm: Trace Attempt 1487	[143.32 s]
-0.0.K: Trace Attempt 442	[88.44 s]
-0.0.Ncustom1: Trace Attempt 1713	[90.18 s]
-0.0.Bm: Trace Attempt 1488	[147.90 s]
-0.0.K: Trace Attempt 445	[93.23 s]
-0.0.Ncustom1: Trace Attempt 1850	[94.18 s]
-0.0.K: Trace Attempt 447	[97.43 s]
-0.0.Ncustom1: Trace Attempt 1897	[99.10 s]
-0.0.Bm: Trace Attempt 1489	[156.84 s]
-0.0.K: Trace Attempt 450	[103.02 s]
-0.0.Ncustom1: Trace Attempt 2079	[103.18 s]
-0.0.K: Trace Attempt 453	[107.88 s]
-0.0.Ncustom1: Trace Attempt 2136	[110.35 s]
-0.0.K: Trace Attempt 456	[112.74 s]
-0.0.Bm: Trace Attempt 1490	[170.67 s]
-0.0.Ncustom1: Trace Attempt 2312	[114.40 s]
-0.0.K: Trace Attempt 459	[118.07 s]
-0.0.Bm: Trace Attempt 1508	[174.75 s]
-0.0.Ncustom1: Trace Attempt 2373	[118.50 s]
-0.0.Ncustom1: Trace Attempt 2420	[122.51 s]
-0.0.K: Trace Attempt 462	[123.76 s]
-0.0.Bm: Trace Attempt 1520	[180.99 s]
-0.0.Ncustom1: Trace Attempt 2581	[126.51 s]
-0.0.K: Trace Attempt 465	[128.49 s]
-0.0.Bm: Trace Attempt 1524	[188.51 s]
-0.0.K: Trace Attempt 468	[133.56 s]
-0.0.Ncustom1: Trace Attempt 2640	[134.22 s]
-0.0.Bm: Trace Attempt 1536	[192.55 s]
-0.0.Ncustom1: Trace Attempt 2794	[138.38 s]
-0.0.K: Trace Attempt 471	[138.83 s]
-0.0.Ncustom1: Trace Attempt 2829	[142.46 s]
-0.0.Bm: Trace Attempt 1548	[199.06 s]
-0.0.K: Trace Attempt 474	[144.47 s]
-0.0.Ncustom1: Trace Attempt 2879	[149.01 s]
-0.0.K: Trace Attempt 476	[149.23 s]
-0.0.Bm: Trace Attempt 1555	[206.51 s]
-0.0.Ncustom1: Trace Attempt 3032	[153.03 s]
-0.0.Bm: Trace Attempt 1567	[211.20 s]
-0.0.K: Trace Attempt 479	[155.00 s]
-0.0.Bm: Trace Attempt 1605	[216.13 s]
-0.0.Ncustom1: Trace Attempt 3093	[160.06 s]
-0.0.K: Trace Attempt 482	[160.70 s]
-0.0.Bm: Trace Attempt 1622	[220.19 s]
-0.0.Ncustom1: Trace Attempt 3230	[164.09 s]
-0.0.K: Trace Attempt 485	[166.33 s]
-0.0.Ncustom1: Trace Attempt 3288	[168.11 s]
-0.0.Bm: Trace Attempt 1632	[225.70 s]
-0.0.K: Trace Attempt 487	[170.51 s]
-0.0.Ncustom1: Trace Attempt 3378	[172.18 s]
-0.0.K: Trace Attempt 490	[176.11 s]
-0.0.Ncustom1: Trace Attempt 3444	[176.23 s]
-0.0.K: Trace Attempt 493	[182.16 s]
-0.0.Ncustom1: Trace Attempt 3478	[182.38 s]
-0.0.Ncustom1: Trace Attempt 3638	[186.47 s]
-0.0.K: Trace Attempt 496	[188.07 s]
-0.0.Ncustom1: Trace Attempt 3698	[190.48 s]
-0.0.K: Trace Attempt 498	[192.73 s]
-0.0.Bm: Trace Attempt 1633	[249.17 s]
-0.0.Ncustom1: Trace Attempt 3727	[194.49 s]
-0.0.K: Trace Attempt 500	[196.78 s]
-0.0.Ncustom1: Trace Attempt 3835	[198.57 s]
-0.0.K: Trace Attempt 502	[201.04 s]
-0.0.Bm: Trace Attempt 1634	[259.38 s]
-0.0.Ncustom1: Trace Attempt 3898	[203.91 s]
-0.0.K: Trace Attempt 504	[205.84 s]
-0.0.Bm: Trace Attempt 1658	[263.56 s]
-0.0.Ncustom1: Trace Attempt 4041	[207.91 s]
-0.0.K: Trace Attempt 506	[209.97 s]
-0.0.Ncustom1: Trace Attempt 4095	[213.04 s]
-0.0.K: Trace Attempt 508	[214.64 s]
-0.0.Ncustom1: Trace Attempt 4223	[217.14 s]
-0.0.K: Trace Attempt 510	[219.96 s]
-0.0.Ncustom1: Trace Attempt 4283	[224.23 s]
-0.0.K: Trace Attempt 512	[225.19 s]
-0.0.Ncustom1: Trace Attempt 4432	[228.32 s]
-0.0.K: Trace Attempt 514	[230.36 s]
-0.0.Ncustom1: Trace Attempt 4493	[233.42 s]
-0.0.K: Trace Attempt 516	[234.41 s]
-0.0.Ncustom1: Trace Attempt 4617	[237.49 s]
-0.0.Bm: Trace Attempt 1665	[295.13 s]
-0.0.K: Trace Attempt 518	[239.91 s]
-0.0.Ncustom1: Trace Attempt 4672	[241.82 s]
-0.0.K: Trace Attempt 520	[245.16 s]
-0.0.Ncustom1: Trace Attempt 4830	[245.86 s]
-0.0.Ncustom1: Trace Attempt 4890	[249.96 s]
-0.0.K: Trace Attempt 522	[250.12 s]
-0.0.Bm: Trace Attempt 1666	[308.15 s]
-0.0.Ncustom1: Trace Attempt 4986	[253.97 s]
-0.0.K: Trace Attempt 524	[254.98 s]
-0.0.Bm: Trace Attempt 1684	[312.19 s]
-0.0.K: Trace Attempt 526	[259.79 s]
-0.0.K: Trace Attempt 528	[265.02 s]
-0.0.Ncustom1: Trace Attempt 5013	[267.87 s]
-0.0.K: Trace Attempt 530	[271.14 s]
-0.0.Bm: Trace Attempt 1686	[330.98 s]
-0.0.K: Trace Attempt 532	[276.66 s]
-0.0.Bm: Trace Attempt 1687	[336.97 s]
-0.0.K: Trace Attempt 534	[282.64 s]
-0.0.K: Trace Attempt 536	[288.35 s]
-0.0.K: Trace Attempt 538	[293.56 s]
-0.0.Ht: Trace Attempt 3063	[591.95 s]
-0.0.Bm: Trace Attempt 1688	[354.53 s]
-0.0.K: Trace Attempt 540	[298.97 s]
-0.0.Bm: Trace Attempt 1689	[360.94 s]
-0.0.K: Trace Attempt 542	[305.13 s]
-0.0.K: Trace Attempt 544	[311.05 s]
-0.0.K: Trace Attempt 546	[316.38 s]
-0.0.Bm: Trace Attempt 1690	[375.57 s]
-0.0.K: Trace Attempt 548	[322.43 s]
-0.0.Bm: Trace Attempt 1691	[382.59 s]
-0.0.K: Trace Attempt 550	[327.87 s]
-0.0.Bm: Trace Attempt 1693	[386.91 s]
-0.0.K: Trace Attempt 552	[334.47 s]
-0.0.K: Trace Attempt 554	[341.27 s]
-0.0.K: Trace Attempt 556	[346.10 s]
-0.0.K: Trace Attempt 558	[353.28 s]
-0.0.Bm: Trace Attempt 1694	[411.61 s]
-0.0.K: Trace Attempt 560	[360.04 s]
-0.0.K: Trace Attempt 562	[366.57 s]
-0.0.Bm: Trace Attempt 1695	[427.24 s]
-0.0.K: Trace Attempt 564	[373.43 s]
-0.0.K: Trace Attempt 566	[381.96 s]
-0.0.K: Trace Attempt 568	[388.24 s]
-0.0.Bm: Trace Attempt 1696	[445.23 s]
-0.0.K: Trace Attempt 570	[394.93 s]
-0.0.K: Trace Attempt 572	[401.44 s]
-0.0.Bm: Trace Attempt 1697	[465.00 s]
-0.0.K: Trace Attempt 574	[409.16 s]
-0.0.K: Trace Attempt 575	[413.65 s]
-0.0.Bm: Trace Attempt 1698	[477.06 s]
-0.0.K: Trace Attempt 577	[421.51 s]
-0.0.K: Trace Attempt 578	[425.99 s]
-0.0.Bm: Trace Attempt 1711	[484.46 s]
-0.0.K: Trace Attempt 580	[433.72 s]
-0.0.K: Trace Attempt 582	[440.49 s]
-0.0.K: Trace Attempt 583	[444.77 s]
-0.0.K: Trace Attempt 585	[452.74 s]
-0.0.Bm: Trace Attempt 1712	[511.42 s]
-0.0.K: Trace Attempt 586	[456.97 s]
-0.0.K: Trace Attempt 587	[461.89 s]
-0.0.Bm: Trace Attempt 1713	[519.60 s]
-0.0.K: Trace Attempt 588	[467.49 s]
-0.0.K: Trace Attempt 590	[475.37 s]
-0.0.Bm: Trace Attempt 1714	[533.00 s]
-0.0.K: Trace Attempt 591	[479.87 s]
-0.0.K: Trace Attempt 592	[484.37 s]
-0.0.Bm: Trace Attempt 1715	[540.73 s]
-0.0.K: Trace Attempt 593	[489.19 s]
-0.0.Bm: Trace Attempt 1744	[547.35 s]
-0.0.K: Trace Attempt 594	[493.26 s]
-0.0.K: Trace Attempt 595	[497.38 s]
-0.0.K: Trace Attempt 596	[501.62 s]
-0.0.K: Trace Attempt 597	[505.73 s]
-0.0.Ncustom1: Trace Attempt 5064	[510.83 s]
-0.0.K: Trace Attempt 599	[512.07 s]
-0.0.Ncustom1: Trace Attempt 5116	[514.83 s]
-0.0.Ncustom1: Trace Attempt 5130	[518.95 s]
-0.0.K: Trace Attempt 601	[520.42 s]
-0.0.Bm: Trace Attempt 1745	[580.39 s]
-0.0.Ncustom1: Trace Attempt 5144	[524.61 s]
-0.0.K: Trace Attempt 603	[528.49 s]
-0.0.K: Trace Attempt 604	[532.52 s]
-0.0.Ncustom1: Trace Attempt 5145	[532.75 s]
-0.0.Bm: Trace Attempt 1746	[590.59 s]
-0.0.K: Trace Attempt 605	[537.47 s]
-0.0.Ncustom1: Trace Attempt 5191	[537.69 s]
-0.0.Bm: Trace Attempt 1757	[596.14 s]
-0.0.K: Trace Attempt 607	[544.96 s]
-0.0.K: Trace Attempt 608	[550.23 s]
-0.0.K: Trace Attempt 610	[557.94 s]
-0.0.Ncustom1: Trace Attempt 5192	[558.98 s]
-0.0.Bm: Trace Attempt 1758	[620.65 s]
-0.0.K: Trace Attempt 612	[564.70 s]
-0.0.Bm: Trace Attempt 1759	[624.82 s]
-0.0.K: Trace Attempt 613	[568.75 s]
-0.0.Bm: Trace Attempt 1762	[628.95 s]
-0.0.K: Trace Attempt 615	[576.08 s]
-0.0.K: Trace Attempt 616	[580.42 s]
-0.0.Ncustom1: Trace Attempt 5193	[583.12 s]
-0.0.K: Trace Attempt 617	[584.44 s]
-0.0.Bm: Trace Attempt 1763	[642.82 s]
-0.0.K: Trace Attempt 618	[589.11 s]
-0.0.Ncustom1: Trace Attempt 5223	[591.07 s]
-0.0.K: Trace Attempt 619	[593.68 s]
-0.0.Ncustom1: Trace Attempt 5248	[595.55 s]
-0.0.K: Trace Attempt 620	[598.54 s]
-0.0.K: Trace Attempt 621	[603.77 s]
-0.0.Bm: Trace Attempt 1764	[661.41 s]
-0.0.K: Trace Attempt 622	[608.89 s]
-0.0.Bm: Trace Attempt 1766	[665.70 s]
-0.0.K: Trace Attempt 623	[613.16 s]
-0.0.Bm: Trace Attempt 1772	[673.19 s]
-0.0.K: Trace Attempt 624	[617.38 s]
-0.0.Bm: Trace Attempt 1773	[678.56 s]
-0.0.K: Trace Attempt 626	[625.98 s]
-0.0.Bm: Trace Attempt 1774	[685.19 s]
-0.0.K: Trace Attempt 627	[630.92 s]
-0.0.K: Trace Attempt 628	[636.47 s]
-0.0.K: Trace Attempt 629	[641.08 s]
-0.0.K: Trace Attempt 630	[647.45 s]
-0.0.Bm: Trace Attempt 1775	[705.35 s]
-0.0.K: Trace Attempt 631	[652.67 s]
-0.0.Bm: Trace Attempt 1776	[710.05 s]
-0.0.K: Trace Attempt 632	[657.42 s]
-0.0.K: Trace Attempt 633	[664.05 s]
-0.0.Bm: Trace Attempt 1789	[721.75 s]
-0.0.K: Trace Attempt 634	[669.76 s]
-0.0.K: Trace Attempt 635	[674.83 s]
-0.0.K: Trace Attempt 636	[679.67 s]
-0.0.K: Trace Attempt 637	[684.68 s]
-0.0.Bm: Trace Attempt 1790	[744.04 s]
-0.0.K: Trace Attempt 638	[689.88 s]
-0.0.K: Trace Attempt 639	[694.65 s]
-0.0.Bm: Trace Attempt 1791	[754.05 s]
-0.0.K: Trace Attempt 640	[699.12 s]
-0.0.K: Trace Attempt 641	[703.94 s]
-0.0.K: Trace Attempt 642	[709.61 s]
-0.0.K: Trace Attempt 643	[715.01 s]
-0.0.K: Trace Attempt 644	[720.67 s]
-0.0.K: Trace Attempt 645	[725.76 s]
-0.0.Bm: Trace Attempt 1792	[783.59 s]
-0.0.K: Trace Attempt 646	[730.37 s]
-0.0.Bm: Trace Attempt 1793	[789.87 s]
-0.0.K: Trace Attempt 647	[735.14 s]
-0.0.Bm: Trace Attempt 1795	[793.95 s]
-0.0.K: Trace Attempt 648	[741.96 s]
-0.0.K: Trace Attempt 650	[750.55 s]
-0.0.Bm: Trace Attempt 1802	[810.74 s]
-0.0.K: Trace Attempt 651	[756.38 s]
-0.0.K: Trace Attempt 652	[760.76 s]
-0.0.K: Trace Attempt 653	[766.21 s]
-0.0.Bm: Trace Attempt 1803	[825.32 s]
-0.0.K: Trace Attempt 654	[771.11 s]
-0.0.Bm: Trace Attempt 1804	[829.52 s]
-0.0.K: Trace Attempt 655	[775.24 s]
-0.0.K: Trace Attempt 656	[779.41 s]
-0.0.K: Trace Attempt 657	[785.07 s]
-0.0.Bm: Trace Attempt 1807	[846.15 s]
-0.0.K: Trace Attempt 658	[790.78 s]
-0.0.K: Trace Attempt 659	[795.80 s]
-0.0.K: Trace Attempt 660	[802.76 s]
-0.0.Bm: Trace Attempt 1808	[863.76 s]
-0.0.K: Trace Attempt 661	[807.62 s]
-0.0.K: Trace Attempt 662	[814.18 s]
-0.0.Bm: Trace Attempt 1810	[870.99 s]
-0.0.K: Trace Attempt 663	[819.41 s]
-0.0.Bm: Trace Attempt 1811	[875.72 s]
-0.0.K: Trace Attempt 664	[824.84 s]
-0.0.K: Trace Attempt 665	[829.89 s]
-0.0.K: Trace Attempt 666	[837.61 s]
-0.0.K: Trace Attempt 667	[843.39 s]
-0.0.Bm: Trace Attempt 1812	[904.41 s]
-0.0.K: Trace Attempt 668	[849.01 s]
-0.0.K: Trace Attempt 669	[853.38 s]
-0.0.Bm: Trace Attempt 1813	[912.02 s]
-0.0.K: Trace Attempt 670	[859.90 s]
-0.0.K: Trace Attempt 671	[864.62 s]
-0.0.Bm: Trace Attempt 1821	[922.49 s]
-0.0.K: Trace Attempt 672	[870.20 s]
-0.0.K: Trace Attempt 673	[875.39 s]
-0.0.Bm: Trace Attempt 1822	[932.77 s]
-0.0.K: Trace Attempt 674	[881.99 s]
-0.0.K: Trace Attempt 675	[889.54 s]
-0.0.Bm: Trace Attempt 1826	[948.02 s]
-0.0.K: Trace Attempt 676	[894.33 s]
-0.0.K: Trace Attempt 677	[899.49 s]
-0.0.K: Trace Attempt 678	[906.09 s]
-0.0.K: Trace Attempt 679	[911.60 s]
-0.0.Bm: Trace Attempt 1827	[971.51 s]
-0.0.K: Trace Attempt 680	[917.90 s]
-0.0.K: Trace Attempt 681	[924.05 s]
-0.0.Bm: Trace Attempt 1828	[982.47 s]
-0.0.K: Trace Attempt 682	[929.62 s]
-0.0.K: Trace Attempt 683	[938.18 s]
-0.0.K: Trace Attempt 684	[944.68 s]
-0.0.K: Trace Attempt 685	[951.00 s]
-0.0.Bm: Trace Attempt 1829	[1011.76 s]
-0.0.K: Trace Attempt 686	[956.62 s]
-0.0.K: Trace Attempt 687	[964.14 s]
-0.0.Bm: Trace Attempt 1830	[1022.74 s]
-0.0.K: Trace Attempt 688	[970.23 s]
-0.0.K: Trace Attempt 689	[976.21 s]
-0.0.K: Trace Attempt 690	[981.87 s]
-0.0.Bm: Trace Attempt 1831	[1042.07 s]
-0.0.K: Trace Attempt 691	[988.33 s]
-0.0.Bm: Trace Attempt 1832	[1048.83 s]
-0.0.K: Trace Attempt 692	[993.65 s]
-0.0.K: Trace Attempt 693	[999.59 s]
-0.0.Bm: Trace Attempt 1833	[1059.48 s]
-0.0.K: Trace Attempt 694	[1006.66 s]
-0.0.Bm: Trace Attempt 1836	[1065.72 s]
-0.0.K: Trace Attempt 695	[1013.83 s]
-0.0.Bm: Trace Attempt 1837	[1079.09 s]
-0.0.K: Trace Attempt 696	[1023.05 s]
-0.0.K: Trace Attempt 697	[1028.57 s]
-0.0.Bm: Trace Attempt 1838	[1087.40 s]
-0.0.K: Trace Attempt 698	[1036.46 s]
-0.0.K: Trace Attempt 699	[1043.05 s]
-0.0.K: Trace Attempt 700	[1049.90 s]
-0.0.Bm: Trace Attempt 1839	[1112.14 s]
-0.0.K: Trace Attempt 701	[1056.44 s]
-0.0.K: Trace Attempt 702	[1062.96 s]
-0.0.Bm: Trace Attempt 1840	[1123.26 s]
-0.0.K: Trace Attempt 703	[1069.56 s]
-0.0.K: Trace Attempt 704	[1074.61 s]
-0.0.K: Trace Attempt 705	[1081.73 s]
-0.0.K: Trace Attempt 706	[1091.37 s]
-0.0.Bm: Trace Attempt 1842	[1149.30 s]
-0.0.K: Trace Attempt 707	[1096.25 s]
-0.0.Bm: Trace Attempt 1843	[1154.80 s]
-0.0.K: Trace Attempt 708	[1102.54 s]
-0.0.Bm: Trace Attempt 1844	[1159.01 s]
-0.0.K: Trace Attempt 709	[1108.56 s]
-0.0.K: Trace Attempt 710	[1115.15 s]
-0.0.K: Trace Attempt 711	[1121.88 s]
-0.0.Bm: Trace Attempt 1845	[1184.27 s]
-0.0.K: Trace Attempt 712	[1128.53 s]
-0.0.K: Trace Attempt 713	[1135.18 s]
-0.0.Bm: Trace Attempt 1846	[1196.35 s]
-0.0.K: Trace Attempt 714	[1142.32 s]
-0.0.Bm: Trace Attempt 1859	[1200.58 s]
-0.0.K: Trace Attempt 715	[1148.44 s]
-0.0.K: Trace Attempt 716	[1154.06 s]
-0.0.K: Trace Attempt 717	[1161.03 s]
-0.0.K: Trace Attempt 718	[1168.78 s]
-0.0.Bm: Trace Attempt 1860	[1229.82 s]
-0.0.K: Trace Attempt 719	[1176.01 s]
-0.0.K: Trace Attempt 720	[1182.57 s]
-0.0.K: Trace Attempt 721	[1190.32 s]
-0.0.K: Trace Attempt 722	[1197.18 s]
-0.0.K: Trace Attempt 723	[1204.54 s]
-0.0.Bm: Trace Attempt 1861	[1265.77 s]
-0.0.K: Trace Attempt 724	[1211.06 s]
-0.0.K: Trace Attempt 725	[1217.79 s]
-0.0.Bm: Trace Attempt 1862	[1275.04 s]
-0.0.K: Trace Attempt 726	[1224.62 s]
-0.0.K: Trace Attempt 727	[1230.20 s]
-0.0.Bm: Trace Attempt 1877	[1286.94 s]
-0.0.K: Trace Attempt 728	[1236.48 s]
-0.0.K: Trace Attempt 729	[1244.10 s]
-0.0.K: Trace Attempt 730	[1251.01 s]
-0.0.K: Trace Attempt 731	[1258.51 s]
-0.0.Bm: Trace Attempt 1878	[1315.12 s]
-0.0.K: Trace Attempt 732	[1264.87 s]
-0.0.K: Trace Attempt 733	[1271.34 s]
-0.0.Bm: Trace Attempt 1879	[1327.75 s]
-0.0.K: Trace Attempt 734	[1278.67 s]
-0.0.K: Trace Attempt 735	[1285.72 s]
-0.0.Bm: Trace Attempt 1880	[1346.75 s]
-0.0.K: Trace Attempt 736	[1293.58 s]
-0.0.K: Trace Attempt 737	[1300.74 s]
-0.0.Bm: Trace Attempt 1881	[1362.56 s]
-0.0.K: Trace Attempt 738	[1307.03 s]
-0.0.K: Trace Attempt 739	[1313.91 s]
-0.0.K: Trace Attempt 740	[1321.44 s]
-0.0.K: Trace Attempt 741	[1330.85 s]
-0.0.Bm: Trace Attempt 1886	[1392.32 s]
-0.0.K: Trace Attempt 742	[1340.39 s]
-0.0.Bm: Trace Attempt 1887	[1401.05 s]
-0.0.K: Trace Attempt 743	[1347.65 s]
-0.0.Bm: Trace Attempt 1898	[1408.75 s]
-0.0.K: Trace Attempt 744	[1356.91 s]
-0.0.K: Trace Attempt 745	[1365.77 s]
-0.0.K: Trace Attempt 746	[1374.38 s]
-0.0.Bm: Trace Attempt 1899	[1432.17 s]
-0.0.K: Trace Attempt 747	[1381.92 s]
-0.0.Bm: Trace Attempt 1900	[1438.81 s]
-0.0.K: Trace Attempt 748	[1389.06 s]
-0.0.K: Trace Attempt 749	[1397.59 s]
-0.0.K: Trace Attempt 750	[1405.10 s]
-0.0.Bm: Trace Attempt 1901	[1464.10 s]
-0.0.K: Trace Attempt 751	[1414.42 s]
-0.0.K: Trace Attempt 752	[1422.47 s]
-0.0.Bm: Trace Attempt 1902	[1486.69 s]
-0.0.K: Trace Attempt 753	[1430.66 s]
-0.0.Bm: Trace Attempt 1903	[1492.93 s]
-0.0.K: Trace Attempt 754	[1438.53 s]
-0.0.K: Trace Attempt 755	[1446.32 s]
-0.0.K: Trace Attempt 756	[1454.73 s]
-0.0.Bm: Trace Attempt 1904	[1515.10 s]
-0.0.K: Trace Attempt 757	[1461.52 s]
-0.0.Bm: Trace Attempt 1905	[1521.09 s]
-0.0.K: Trace Attempt 758	[1470.58 s]
-0.0.K: Trace Attempt 759	[1477.26 s]
-0.0.Bm: Trace Attempt 1906	[1539.31 s]
-0.0.K: Trace Attempt 760	[1487.68 s]
-0.0.K: Trace Attempt 761	[1497.66 s]
-0.0.K: Trace Attempt 762	[1507.08 s]
-0.0.Bm: Trace Attempt 1907	[1563.67 s]
-0.0.K: Trace Attempt 763	[1514.76 s]
-0.0.Bm: Trace Attempt 1908	[1573.29 s]
-0.0.Bm: Trace Attempt 1923	[1577.44 s]
-0.0.K: Trace Attempt 764	[1522.57 s]
-0.0.K: Trace Attempt 765	[1532.39 s]
-0.0.K: Trace Attempt 766	[1538.54 s]
-0.0.K: Trace Attempt 767	[1547.00 s]
-0.0.K: Trace Attempt 768	[1555.87 s]
-0.0.K: Trace Attempt 769	[1564.32 s]
-0.0.Bm: Trace Attempt 1924	[1622.40 s]
-0.0.K: Trace Attempt 770	[1573.61 s]
-0.0.K: Trace Attempt 771	[1581.85 s]
-0.0.Bm: Trace Attempt 1925	[1644.32 s]
-0.0.K: Trace Attempt 772	[1590.40 s]
-0.0.K: Trace Attempt 773	[1596.86 s]
-0.0.Bm: Trace Attempt 1926	[1658.18 s]
-0.0.K: Trace Attempt 774	[1606.58 s]
-0.0.K: Trace Attempt 775	[1614.93 s]
-0.0.K: Trace Attempt 5275	[1620.12 s]
-0.0.Ncustom1: Trace Attempt 5275	[1620.20 s]
-0.0.Bm: Trace Attempt 1927	[1687.87 s]
-0.0.Bm: Trace Attempt 1928	[1692.06 s]
-0.0.Bm: Trace Attempt 1929	[1717.85 s]
-0.0.Bm: Trace Attempt 1930	[1729.24 s]
-0.0.Bm: Trace Attempt 1943	[1769.93 s]
-0.0.Bm: Trace Attempt 1944	[1781.40 s]
-0.0.Bm: Trace Attempt 1964	[1832.01 s]
-0.0.Bm: Trace Attempt 1965	[1847.31 s]
-0.0.Bm: Trace Attempt 1967	[1880.18 s]
-0.0.Bm: Trace Attempt 1968	[1886.23 s]
-0.0.Bm: Trace Attempt 1969	[1906.26 s]
-0.0.Bm: Trace Attempt 1970	[1925.70 s]
-0.0.Bm: Trace Attempt 1972	[1974.68 s]
-0.0.Bm: Trace Attempt 1973	[1986.63 s]
-0.0.Bm: Trace Attempt 1975	[2034.33 s]
-0.0.Bm: Trace Attempt 1976	[2066.88 s]
-0.0.Bm: Trace Attempt 1977	[2077.16 s]
-0.0.Bm: Trace Attempt 1978	[2104.17 s]
-0.0.Bm: Trace Attempt 1979	[2111.96 s]
-0.0.Bm: Trace Attempt 1981	[2154.97 s]
-0.0.Bm: Trace Attempt 1982	[2175.72 s]
-0.0.Bm: Trace Attempt 1984	[2222.85 s]
-0.0.Bm: Trace Attempt 1985	[2237.51 s]
-0.0.Bm: Trace Attempt 1986	[2254.34 s]
-0.0.Bm: Trace Attempt 1987	[2283.32 s]
-0.0.Bm: Trace Attempt 1988	[2291.56 s]
-0.0.Bm: Trace Attempt 1989	[2321.45 s]
-0.0.Bm: Trace Attempt 1990	[2329.51 s]
-0.0.Bm: Trace Attempt 1991	[2362.20 s]
-0.0.Bm: Trace Attempt 1992	[2373.63 s]
-0.0.Bm: Trace Attempt 1993	[2389.29 s]
-0.0.Bm: Trace Attempt 1994	[2415.72 s]
-0.0.Bm: Trace Attempt 1995	[2446.68 s]
-0.0.Bm: Trace Attempt 1996	[2452.16 s]
-0.0.Bm: Trace Attempt 1997	[2503.39 s]
-0.0.Bm: Trace Attempt 1998	[2515.00 s]
-0.0.Bm: Trace Attempt 2005	[2560.89 s]
-0.0.Bm: Trace Attempt 2006	[2568.61 s]
-0.0.Bm: Trace Attempt 2007	[2591.08 s]
-0.0.Bm: Trace Attempt 2008	[2609.23 s]
-0.0.Bm: Trace Attempt 2010	[2648.80 s]
-0.0.Bm: Trace Attempt 2011	[2660.81 s]
-0.0.Bm: Trace Attempt 2012	[2666.12 s]
-0.0.Bm: Trace Attempt 2013	[2700.00 s]
-0.0.Bm: Trace Attempt 2014	[2717.23 s]
-0.0.Bm: Trace Attempt 2015	[2721.63 s]
-0.0.Bm: Trace Attempt 2016	[2765.11 s]
-0.0.Bm: Trace Attempt 2017	[2787.26 s]
-0.0.Bm: Trace Attempt 2018	[2819.09 s]
-0.0.Ht: Trace Attempt 5063	[3083.04 s]
-0.0.Bm: Trace Attempt 2019	[2873.94 s]
-0.0.Bm: Trace Attempt 2020	[2887.38 s]
-0.0.Bm: Trace Attempt 2022	[2925.36 s]
-0.0.Bm: Trace Attempt 2023	[2975.36 s]
-0.0.Bm: Trace Attempt 2024	[3022.98 s]
-0.0.Bm: Trace Attempt 2025	[3089.35 s]
-0.0.Bm: Morphing to Mp
-0.0.Bm: All properties determined. [0.00 s]
-0.0.Bm: Exited with Success (@ 0.00 s)
-0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Mp: Trace Attempt  1	[0.00 s]
-0.0.Mp: Trace Attempt  2	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  3	[0.01 s]
-0.0.Mp: Trace Attempt  4	[0.01 s]
-0.0.Mp: Trace Attempt  5	[0.01 s]
-0.0.Mp: Trace Attempt 122	[4.15 s]
-0.0.Mp: Trace Attempt 179	[8.15 s]
-0.0.Mp: Trace Attempt 182	[12.23 s]
-0.0.Mp: Trace Attempt 298	[16.53 s]
-0.0.Mp: Trace Attempt 346	[20.64 s]
-0.0.Mp: Trace Attempt 387	[24.80 s]
-0.0.Mp: Trace Attempt 387	[29.81 s]
-0.0.Mp: Trace Attempt 387	[34.43 s]
-0.0.Mp: Trace Attempt 387	[39.32 s]
-0.0.Mp: Trace Attempt 387	[43.49 s]
-0.0.Mp: Trace Attempt 387	[47.82 s]
-0.0.Mp: Trace Attempt 447	[51.82 s]
-0.0.Ht: Trace Attempt 5276	[3421.78 s]
-0.0.Mp: Trace Attempt 498	[55.89 s]
-0.0.Mp: Trace Attempt 523	[60.96 s]
-0.0.Mp: Trace Attempt 523	[66.44 s]
-0.0.Mp: Trace Attempt 523	[72.07 s]
-0.0.Mp: Trace Attempt 523	[77.99 s]
-0.0.Ht: Trace Attempt 5277	[3446.39 s]
-0.0.Mp: Trace Attempt 523	[82.13 s]
-0.0.Ht: Trace Attempt 5278	[3452.65 s]
-0.0.Mp: Trace Attempt 523	[86.30 s]
-0.0.Mp: Trace Attempt 523	[90.69 s]
-0.0.Ht: Trace Attempt 5281	[3457.69 s]
-0.0.Mp: Trace Attempt 523	[95.18 s]
-0.0.Ht: Trace Attempt 5284	[3462.70 s]
-0.0.Mp: Trace Attempt 585	[99.18 s]
-0.0.Ht: Trace Attempt 5286	[3466.95 s]
-0.0.Mp: Trace Attempt 640	[103.20 s]
-0.0.Ht: Trace Attempt 5291	[3472.01 s]
-0.0.Mp: Trace Attempt 673	[107.25 s]
-0.0.Ht: Trace Attempt 5295	[3476.69 s]
-0.0.Mp: Trace Attempt 713	[111.37 s]
-0.0.Mp: Trace Attempt 730	[117.92 s]
-0.0.Ht: Trace Attempt 5298	[3487.84 s]
-0.0.Mp: Trace Attempt 730	[123.44 s]
-0.0.Ht: Trace Attempt 5303	[3493.89 s]
-0.0.Mp: Trace Attempt 730	[129.00 s]
-0.0.Ht: Trace Attempt 5308	[3498.29 s]
-0.0.Mp: Trace Attempt 730	[134.79 s]
-0.0.Ht: Trace Attempt 5314	[3504.23 s]
-0.0.Mp: Trace Attempt 730	[140.44 s]
-0.0.Mp: Trace Attempt 730	[146.55 s]
-0.0.Ht: Trace Attempt 5315	[3513.59 s]
-0.0.Ht: Trace Attempt 5322	[3518.84 s]
-0.0.Mp: Trace Attempt 730	[152.86 s]
-0.0.Ht: Trace Attempt 5326	[3523.23 s]
-0.0.Mp: Trace Attempt 730	[159.14 s]
-0.0.Ht: Trace Attempt 5330	[3528.39 s]
-0.0.Mp: Trace Attempt 730	[165.24 s]
-0.0.Ht: Trace Attempt 5333	[3533.63 s]
-0.0.Ht: Trace Attempt 5335	[3537.76 s]
-0.0.Mp: Trace Attempt 730	[171.29 s]
-0.0.Ht: Trace Attempt 5337	[3542.24 s]
-0.0.Mp: Trace Attempt 730	[177.21 s]
-0.0.Ht: Trace Attempt 5340	[3547.45 s]
-0.0.Mp: Trace Attempt 730	[184.22 s]
-0.0.Ht: Trace Attempt 5343	[3551.66 s]
-0.0.Mp: Trace Attempt 774	[188.25 s]
-0.0.Mp: Trace Attempt 820	[192.34 s]
-0.0.Ht: Trace Attempt 5345	[3561.98 s]
-0.0.Mp: Trace Attempt 842	[196.76 s]
-0.0.Ht: Trace Attempt 5354	[3567.09 s]
-0.0.Mp: Trace Attempt 842	[202.25 s]
-0.0.Mp: Trace Attempt 842	[207.28 s]
-0.0.Mp: Trace Attempt 842	[211.75 s]
-0.0.Ht: Trace Attempt 5360	[3583.58 s]
-0.0.Mp: Trace Attempt 842	[217.64 s]
-0.0.Ht: Trace Attempt 5364	[3587.97 s]
-0.0.Mp: Trace Attempt 842	[222.25 s]
-0.0.Ht: Trace Attempt 5367	[3592.42 s]
-0.0.Mp: Trace Attempt 871	[226.61 s]
-0.0.Mp: Trace Attempt 931	[230.73 s]
-INFO (IPF144): 0: Initiating shutdown of proof [3600.07 s]
-0.0.Ht: Trace Attempt 5370	[3596.31 s]
-0.0.Ht: Time limit expired (3600.00 s) [3600.00 s]
-0.0.Ht: Exited with Success (@ 3600.38 s)
-0.0.Mp: Trace Attempt 963	[233.13 s]
-0.0.Mp: Time limit expired (3600.00 s) [233.80 s]
-0.0.Mp: Exited with Success (@ 3600.71 s)
-0.0.K: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[3303.10 s].
-0.0.K: Time limit expired (3600.00 s) [3303.10 s]
-0.0.Ncustom1: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[3303.08 s].
-0.0.Ncustom1: Time limit expired (3600.00 s) [3303.08 s]
-0.0.K: Exited with Success (@ 3600.95 s)
-0.0.Ncustom1: Exited with Success (@ 3600.95 s)
+0.0.Tri:   19.22" ---- Launching main thread ----
+0.0.Tri:   19.45" ---- Launching abstraction thread ----
+0.0.Tri:   19.49" ---- Launching multi-phase simplification thread ----
+0.0.Tri:   20.28" Simplification phase 1 complete
+0.0.Tri:   20.35" Simplification phase 2 complete
+0.0.Tri:   20.46" Simplification phase 3 complete
+  20.46" ---- Completed simplification thread ----
+  20.46" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:   20.70" ---- Restarting abstraction thread on simplified netlist ----
+INFO (IPF144): 0: Initiating shutdown of proof [300.01 s]
+0.0.D: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[2.85 s].
+0.0.D: Time limit expired (300.00 s) [2.85 s]
+0.0.Tri: Stopped processing property "pwm_out.auto_sva_inst.check_pwms_equal_when_thresholds_equal"	[2.88 s].
+0.0.D: Exited with Success (@ 300.19 s)
+0.0.Tri: Time limit expired (300.00 s) [2.89 s]
+0.0.Tri: Exited with Success (@ 300.27 s)
+0.0.Bm: Trace Attempt 784	[59.00 s]
+0.0.Bm: Time limit expired (300.00 s) [59.27 s]
+0.0.Bm: Sending SIGKILL
+0.0.Ht: Sending SIGKILL
+0.0.Bm: Exited with Success (@ 302.10 s)
+0.0.Ht: Trace Attempt 2002	[295.85 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 302.10 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 100.00 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
-     engines started                               :    13
+     engines started                               :    11
      engine jobs started                           :     4
 
     Average time in state (seconds)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.07     3600.00        0.00      100.00 %
-      K        0.05     3600.65        0.00      100.00 %
-    Ncustom1        0.07     3600.61        0.00      100.00 %
-     Mp        0.05     3599.81        0.00      100.00 %
-    all        0.06     3600.27        0.00      100.00 %
+     Ht        0.08      301.98        0.00       99.97 %
+     Bm        0.07      300.23        0.00       99.98 %
+    Tri        0.10      299.55        0.00       99.97 %
+      D        0.07      299.92        0.00       99.98 %
+    all        0.08      300.42        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.23    14401.07        0.00
+               0.32     1201.69        0.00
 
-    Data read    : 13.61 MiB
-    Data written : 539.54 kiB
+    Data read    : 9.49 MiB
+    Data written : 479.12 kiB
 
 0: All pending notifications were processed.
 ----------------------------------------
 | INFO (ICD005): 0: The proof thread was terminated because of a time_limit expiration.
-|     The current limit is 3600 seconds.
+|     The current limit is 300 seconds.
 |     Modify it with the "-time_limit" switch or "set_prove_time_limit" command.
 ----------------------------------------
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -2525,6 +1943,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00581/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 6 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 6 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/00581/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -2574,8 +2050,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -2590,6 +2070,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 10.674 GB.
+INFO (IPL018): The peak resident set memory use for this session was 1.803 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

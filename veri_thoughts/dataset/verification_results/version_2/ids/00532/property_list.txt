@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+adder_subtractor.auto_sva_inst.check_reset_clears_outputs
+adder_subtractor.auto_sva_inst.check_add_mode_update
+adder_subtractor.auto_sva_inst.check_sub_mode_update
+adder_subtractor.auto_sva_inst.check_carry_zero_after_update
+
+COVER PROPERTIES:
+adder_subtractor.auto_sva_inst.check_reset_clears_outputs:precondition1
+adder_subtractor.auto_sva_inst.check_add_mode_update:precondition1
+adder_subtractor.auto_sva_inst.check_sub_mode_update:precondition1
+adder_subtractor.auto_sva_inst.check_carry_zero_after_update:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00255",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.884810",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e25bf988190a59458b7276832c5",
+  "custom_id": "comparator_6b8f05f0",
+  "module_name": "comparator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `comparator`.\nThis module should have two 2-bit inputs, `in_0` and `in_1`, and a single 2-bit output named `out`.\nThe module should compare the two inputs and set the output `out` based on the comparison result according to the following rules:\n- If `in_0` is greater than `in_1`, the output `out` should be `2'b01`.\n- If `in_0` is equal to `in_1`, the output `out` should be `2'b10`.\n- If `in_0` is less than `in_1`, the output `out` should be `2'b00`.\nEnsure the output is declared correctly for assignment within a procedural block that is sensitive to changes in the inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "dcf9c5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.463064",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

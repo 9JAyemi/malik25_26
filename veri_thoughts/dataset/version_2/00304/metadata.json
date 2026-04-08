@@ -1,0 +1,29 @@
+{
+  "id": "00304",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.805499",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f76988190801895c225f556a5",
+  "custom_id": "j1_peripheral_mux_84da20d4",
+  "module_name": "j1_peripheral_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `j1_peripheral_mux` that acts as an address decoder and data multiplexer for a system bus interface.\n\nThe module should have the following interface:\n\nInputs:\n`sys_clk_i`\n`sys_rst_i`\n`j1_io_rd`\n`j1_io_wr`\n`j1_io_addr` (16 bits)\n`mult_dout` (16 bits)\n`div_dout` (16 bits)\n`uart_dout` (1 bit)\n`dp_ram_dout` (16 bits)\n`bt_dout` (16 bits)\n`audio_dout` (16 bits)\n`ultra_dout` (16 bits)\n`echo`\n\nOutputs:\n`j1_io_din` (16 bits)\n`cs` (8 bits)\n\nThe module's logic should be purely combinational, responding directly to the `j1_io_addr` input and the peripheral data inputs. The `sys_clk_i`, `sys_rst_i`, `j1_io_rd`, `j1_io_wr`, and `echo` inputs are part of the interface but do not control the combinational logic for the `cs` and `j1_io_din` outputs.\n\nThe functionality is as follows:\n1.  **Address Decoding:** The module should decode the most significant byte (`[15:8]`) of the `j1_io_addr` input to generate an 8-bit chip select signal `cs`. For specific address ranges, a single bit of `cs` should be asserted high, while all other bits are low.\n    *   If `j1_io_addr[15:8]` is `8'h63`, assert `cs[7]`.\n    *   If `j1_io_addr[15:8]` is `8'h64`, assert `cs[6]`.\n    *   If `j1_io_addr[15:8]` is `8'h65`, assert `cs[5]`.\n    *   If `j1_io_addr[15:8]` is `8'h66`, assert `cs[4]`.\n    *   If `j1_io_addr[15:8]` is `8'h67`, assert `cs[3]`.\n    *   If `j1_io_addr[15:8]` is `8'h68`, assert `cs[2]`.\n    *   If `j1_io_addr[15:8]` is `8'h69`, assert `cs[1]`.\n    *   If `j1_io_addr[15:8]` is `8'h70`, assert `cs[0]`.\n    *   For any other value of `j1_io_addr[15:8]`, `cs` should be all zeros.\n\n2.  **Data Multiplexing:** The module should select one of the peripheral data inputs to drive the `j1_io_din` output based on the same address decoding logic applied to `j1_io_addr[15:8]`.\n    *   If `j1_io_addr[15:8]` is `8'h63`, select `audio_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h64`, select `ultra_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h65`, select `audio_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h66`, select `bt_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h67`, select `mult_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h68`, select `div_dout` for `j1_io_din`.\n    *   If `j1_io_addr[15:8]` is `8'h69`, select the 1-bit `uart_dout` for `j1_io_din` (implicitly zero-extended to 16 bits).\n    *   If `j1_io_addr[15:8]` is `8'h70`, select `dp_ram_dout` for `j1_io_din`.\n    *   For any other value of `j1_io_addr[15:8]`, `j1_io_din` should be `16'h0000`.\n\nImplement this functionality in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "bf5b3d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 19
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.475161",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

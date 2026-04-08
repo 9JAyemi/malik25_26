@@ -1,0 +1,29 @@
+{
+  "id": "00457",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.238681",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3dac448190be60fb59feb0a79b",
+  "custom_id": "alu_f8e17c63",
+  "module_name": "alu",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `alu`. This module implements an Arithmetic Logic Unit (ALU) with the following interface:\n\nInputs:\n- `Aval`: 8-bit data input\n- `Bval`: 8-bit data input\n- `cin`: 1-bit carry-in\n- `op`: 2-bit operation code\n\nOutputs:\n- `ALUout`: 8-bit result output\n- `cout`: 1-bit carry-out or status bit\n\nBoth `ALUout` and `cout` should be registered outputs.\n\nThe module's behavior is determined by the `op` input using a combinational `always @(*)` block and a `case` statement:\n\n- When `op` is `2'b00`, the module performs 8-bit addition of `Aval`, `Bval`, and `cin`. The 9-bit result should be assigned such that the most significant bit becomes `cout` and the lower 8 bits become `ALUout`.\n- When `op` is `2'b10`, the module performs a bitwise AND operation between `Aval` and `Bval`. The 8-bit result should be assigned to `ALUout`, and `cout` should be set to 0.\n- When `op` is `2'b01`, the module calculates the 9-bit sum of `Aval`, `Bval`, and 1. The resulting 9-bit value should then have its most significant bit (bit 8) flipped. The modified 9-bit result is assigned to `{cout, ALUout}`.\n- When `op` is `2'b11`, if the value of `Bval` is greater than 7, both `ALUout` and `cout` should be set to 0. Otherwise, `Aval` should be left-shifted by the value specified in `Bval`. The 8-bit result of the shift is assigned to `ALUout`, and `cout` is set to 0.\n- For any other value of `op`, both `ALUout` and `cout` should be set to 0.\n\nImplement this logic in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "68e4ef",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.878910",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

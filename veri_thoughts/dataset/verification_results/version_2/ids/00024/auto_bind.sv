@@ -1,0 +1,30 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): function, automatic, encode_pos, endfunction, expected_diff, check_pos_diff_matches_encoded_difference, assert, property, global_clock, check_in1_bit0_maps_to_zero, check_in1_bit1_maps_to_one, check_in1_bit2_maps_to_two, check_in1_bit3_maps_to_three, check_in1_bit4_maps_to_four, check_in1_bit5_maps_to_five, check_in1_bit6_maps_to_six, check_in1_default_maps_to_seven, check_in2_default_maps_to_one
+bind priority_encoder top_module_sva auto_sva_inst (
+    .in1(in1),
+    .in2(in2),
+    .pos_diff(pos_diff),
+    .in(in),
+    .begin(begin),
+    .case(case),
+    .b0000_0001(b0000_0001),
+    .b000(b000),
+    .b0000_0010(b0000_0010),
+    .b001(b001),
+    .b0000_0100(b0000_0100),
+    .b010(b010),
+    .b0000_1000(b0000_1000),
+    .b011(b011),
+    .b0001_0000(b0001_0000),
+    .b100(b100),
+    .b0010_0000(b0010_0000),
+    .b101(b101),
+    .b0100_0000(b0100_0000),
+    .b110(b110),
+    .default(default),
+    .b111(b111),
+    .endcase(endcase),
+    .end(end),
+    .a(a),
+    .b(b)
+);

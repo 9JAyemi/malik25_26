@@ -1,0 +1,29 @@
+{
+  "id": "00166",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.601962",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df816c8819090aea5649ac46d3d",
+  "custom_id": "sky130_fd_sc_hdll__o21ai_84552fc6",
+  "module_name": "sky130_fd_sc_hdll__o21ai",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_hdll__o21ai`.\nThis module should have the following interface:\nInputs: `A1`, `A2`, `B1`\nOutput: `Y`\nThe module should implement the boolean function `Y = ~(B1 & (A1 | A2))`.\n",
+  "original_verified": true,
+  "prompt_hash": "2c4caf",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.410499",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

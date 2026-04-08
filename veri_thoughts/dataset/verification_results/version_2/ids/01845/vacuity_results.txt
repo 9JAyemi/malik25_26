@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=01845
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::binary_counter.auto_sva_inst.reset_outputs_zero | error
+<embedded>::binary_counter.auto_sva_inst.trans_00_to_01 | error
+<embedded>::binary_counter.auto_sva_inst.trans_01_to_10 | error
+<embedded>::binary_counter.auto_sva_inst.trans_10_to_11 | error
+<embedded>::binary_counter.auto_sva_inst.trans_11_to_00_overflow | error
+<embedded>::binary_counter.auto_sva_inst.overflow_implies_zero | error
+<embedded>::binary_counter.auto_sva_inst.no_overflow_when_count_nonzero | error
+<embedded>::binary_counter.auto_sva_inst.overflow_single_cycle | error
+<embedded>::binary_counter.auto_sva_inst.post_reset_first_step | error
+<embedded>::binary_counter.auto_sva_inst.wrap_two_step_progress | error

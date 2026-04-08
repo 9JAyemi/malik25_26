@@ -318,6 +318,43 @@ INFO: Using TOP = ClkDiv_5Hz
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -549,53 +586,57 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 13
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 13710@della-i13n6(local) jg_13638_della-i13n6_1
-0.0.N: Proofgrid shell started at 13709@della-i13n6(local) jg_13638_della-i13n6_1
+0.0.Hp: Proofgrid shell started at 2601272@della-h16n1(local) jg_2601105_della-h16n1_1
+0.0.N: Proofgrid shell started at 2601271@della-h16n1(local) jg_2601105_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range"	[0.00 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 33554432 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 33554432 was found for the property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.03 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_count_advances_or_resets:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_output_holds_or_resets_low:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_reset_release_state_cleared:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_first_cycle_after_reset_release:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.03 s]
+INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_count_advances_or_resets:precondition1" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_output_holds_or_resets_low:precondition1" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_reset_release_state_cleared:precondition1" was covered in 1 cycles in 0.07 s.
+INFO (IPF047): 0.0.Hp: The cover property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_first_cycle_after_reset_release:precondition1" was covered in 1 cycles in 0.07 s.
+0.0.Hp: Trace Attempt  2	[0.03 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
+0.0.Hp: Trace Attempt  3	[0.03 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range" was proven in 0.03 s.
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_count_advances_or_resets" was proven in 0.03 s.
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_output_holds_or_resets_low" was proven in 0.03 s.
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero" was proven in 0.03 s.
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low" was proven in 0.03 s.
-0.0.Hp: A proof was found: No trace exists. [0.03 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_reset_release_state_cleared" was proven in 0.03 s.
-0.0.Hp: Trace Attempt  4	[0.03 s]
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range"	[0.03 s].
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range" was proven in 0.07 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_count_advances_or_resets" was proven in 0.07 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_nonterminal_output_holds_or_resets_low" was proven in 0.07 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero" was proven in 0.07 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low" was proven in 0.07 s.
+0.0.Hp: A proof was found: No trace exists. [0.07 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_reset_release_state_cleared" was proven in 0.07 s.
+0.0.Hp: Trace Attempt  4	[0.07 s]
+0.0.Hp: Trace Attempt  5	[0.08 s]
+0.0.Hp: Lemmas used(6): ?6
+0.0.Hp: A proof was found: No trace exists. [0.09 s]
+INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_first_cycle_after_reset_release" was proven in 0.07 s.
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_count_within_range"	[0.08 s].
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 67108864 cycles. [0.00 s]
@@ -607,22 +648,23 @@ INFO (IPF008): 0.0.N: A max_length bound of 67108864 was found for the property 
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.04 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.02 s]
-0.0.N: Trace Attempt  3	[0.02 s]
-0.0.N: Trace Attempt  5	[0.02 s]
-0.0.Hp: Lemmas used(6): ?6
-0.0.Hp: A proof was found: No trace exists. [0.05 s]
-INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_first_cycle_after_reset_release" was proven in 0.05 s.
-0.0.B: Proofgrid shell started at 13724@della-i13n6(local) jg_13638_della-i13n6_1
-0.0.B: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: Proofgrid shell started at 13723@della-i13n6(local) jg_13638_della-i13n6_1
+0.0.N: Trace Attempt  1	[0.05 s]
+0.0.N: Trace Attempt  2	[0.05 s]
+0.0.N: Trace Attempt  3	[0.05 s]
+0.0.N: Trace Attempt  5	[0.05 s]
+0.0.Ht: Proofgrid shell started at 2601285@della-h16n1(local) jg_2601105_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
-0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.01 s]
+0.0.Ht: Trace Attempt  2	[0.01 s]
+0.0.Ht: Trace Attempt  3	[0.01 s]
+0.0.Ht: Trace Attempt  4	[0.01 s]
+0.0.Ht: Trace Attempt  5	[0.01 s]
+0.0.B: Proofgrid shell started at 2601286@della-h16n1(local) jg_2601105_della-h16n1_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.B: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -630,15 +672,10 @@ INFO (IPF057): 0.0.Hp: The property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_first_cyc
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 2
-0.0.B: Trace Attempt 151	[0.96 s]
-0.0.B: Per property time limit expired (0.97 s) [0.97 s]
-0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.97 s].
+0.0.B: Trace Attempt 144	[0.87 s]
+0.0.B: Per property time limit expired (0.88 s) [0.88 s]
+0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.88 s].
 0.0.B: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.B: A max_length bound was found. The shortest trace is no longer than 67108864 cycles. [0.00 s]
 INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1" in 0.00 s.
@@ -647,9 +684,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 217	[0.78 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[1.01 s].
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.98 s].
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -665,9 +700,9 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.N: Trace Attempt  2	[0.02 s]
 0.0.N: Trace Attempt  3	[0.02 s]
 0.0.N: Trace Attempt  5	[0.02 s]
-0.0.B: Trace Attempt 154	[1.00 s]
+0.0.B: Trace Attempt 154	[0.99 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
-0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.00 s].
+0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.01 s].
 0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.B: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -675,16 +710,16 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.01 s].
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.02 s].
 0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
-0.0.Ht: Trace Attempt 262	[4.01 s]
-0.0.Hp: Trace Attempt 218	[4.71 s]
-0.0.B: Trace Attempt 277	[4.08 s]
-0.0.Ht: Trace Attempt 332	[8.03 s]
-0.0.Hp: Trace Attempt 339	[9.36 s]
-0.0.B: Trace Attempt 337	[8.16 s]
-0.0.B: Trace Attempt 354	[9.86 s]
+0.0.Hp: Trace Attempt 218	[4.19 s]
+0.0.Ht: Trace Attempt 218	[5.28 s]
+0.0.B: Trace Attempt 275	[4.11 s]
+0.0.Hp: Trace Attempt 316	[8.52 s]
+0.0.B: Trace Attempt 325	[8.14 s]
+0.0.Ht: Trace Attempt 320	[10.17 s]
+0.0.B: Trace Attempt 349	[9.95 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
@@ -693,19 +728,16 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 217	[0.01 s]
-0.0.N: Per property time limit expired (10.00 s) [10.01 s]
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[10.01 s].
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[10.02 s].
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 217	[0.01 s]
-0.0.Ht: Trace Attempt 386	[12.06 s]
-0.0.Hp: Trace Attempt 416	[13.36 s]
-0.0.B: Trace Attempt 276	[4.00 s]
-0.0.Hp: Trace Attempt 464	[17.39 s]
-0.0.Ht: Trace Attempt 449	[17.78 s]
-0.0.B: Trace Attempt 333	[8.04 s]
-0.0.Hp: Trace Attempt 512	[21.45 s]
-0.0.B: Trace Attempt 354	[9.90 s]
+0.0.Hp: Trace Attempt 369	[12.61 s]
+0.0.Ht: Trace Attempt 367	[15.29 s]
+0.0.B: Trace Attempt 277	[4.01 s]
+0.0.Hp: Trace Attempt 415	[16.86 s]
+0.0.B: Trace Attempt 329	[8.03 s]
+0.0.Hp: Trace Attempt 467	[20.87 s]
+0.0.Ht: Trace Attempt 442	[20.75 s]
+0.0.B: Trace Attempt 351	[9.89 s]
 0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[10.01 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
@@ -718,127 +750,122 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[10.01 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
-0.0.Ht: Trace Attempt 509	[22.35 s]
-0.0.Hp: Trace Attempt 548	[25.45 s]
-0.0.B: Trace Attempt 277	[4.05 s]
-0.0.Ht: Trace Attempt 550	[27.83 s]
-0.0.Hp: Trace Attempt 573	[29.50 s]
-0.0.B: Trace Attempt 337	[8.12 s]
-0.0.Ht: Trace Attempt 579	[31.89 s]
-0.0.Hp: Trace Attempt 606	[33.51 s]
-0.0.B: Trace Attempt 380	[12.15 s]
-0.0.Hp: Trace Attempt 629	[37.53 s]
-0.0.B: Trace Attempt 423	[16.47 s]
-0.0.Ht: Trace Attempt 628	[38.57 s]
-0.0.N: Trace Attempt 218	[17.60 s]
-0.0.N: Trace Attempt  1	[17.93 s]
-0.0.N: Trace Attempt  2	[17.93 s]
-0.0.N: Trace Attempt  3	[17.93 s]
-0.0.N: Trace Attempt  5	[17.93 s]
-0.0.Hp: Trace Attempt 655	[41.97 s]
-0.0.Ht: Trace Attempt 674	[42.66 s]
-0.0.B: Trace Attempt 439	[21.20 s]
-0.0.Ht: Trace Attempt 702	[46.69 s]
-0.0.N: Trace Attempt 139	[25.30 s]
-0.0.B: Trace Attempt 450	[26.08 s]
-0.0.Ht: Trace Attempt 741	[51.12 s]
-0.0.N: Trace Attempt 283	[30.58 s]
-0.0.Hp: Trace Attempt 697	[52.81 s]
-0.0.B: Trace Attempt 490	[31.03 s]
-0.0.N: Trace Attempt 716	[34.61 s]
-0.0.B: Trace Attempt 504	[35.38 s]
-0.0.Ht: Trace Attempt 768	[57.53 s]
-0.0.Ht: Trace Attempt 803	[61.53 s]
-0.0.B: Trace Attempt 506	[39.66 s]
-0.0.Ht: Trace Attempt 834	[66.00 s]
-0.0.Ht: Trace Attempt 843	[70.03 s]
-0.0.B: Trace Attempt 514	[48.29 s]
-0.0.Ht: Trace Attempt 872	[74.05 s]
-0.0.B: Trace Attempt 529	[52.35 s]
-0.0.Hp: Trace Attempt 747	[74.95 s]
-0.0.N: Trace Attempt 798	[55.60 s]
-0.0.Ht: Trace Attempt 907	[78.11 s]
-0.0.B: Trace Attempt 546	[59.11 s]
-0.0.Ht: Trace Attempt 914	[82.97 s]
-0.0.B: Trace Attempt 571	[64.68 s]
-0.0.Ht: Trace Attempt 945	[87.06 s]
-0.0.N: Trace Attempt 868	[67.40 s]
-0.0.Ht: Trace Attempt 969	[91.14 s]
-0.0.Ht: Trace Attempt 993	[95.86 s]
-0.0.B: Trace Attempt 573	[74.85 s]
-0.0.Ht: Trace Attempt 998	[100.80 s]
-0.0.Hp: Trace Attempt 881	[102.30 s]
-0.0.N: Trace Attempt 1003	[80.64 s]
-0.0.Ht: Trace Attempt 1030	[104.89 s]
-0.0.B: Trace Attempt 574	[83.35 s]
-0.0.Ht: Trace Attempt 1050	[108.93 s]
-0.0.B: Trace Attempt 575	[90.43 s]
-0.0.Ht: Trace Attempt 1077	[113.07 s]
-0.0.N: Trace Attempt 1087	[95.95 s]
-0.0.B: Trace Attempt 584	[96.41 s]
-0.0.Ht: Trace Attempt 1085	[119.74 s]
-0.0.B: Trace Attempt 586	[96.70 s]
-0.0.B: Per property time limit expired (100.00 s) [100.01 s]
-0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[100.01 s].
+0.0.Ht: Trace Attempt 507	[24.76 s]
+0.0.B: Trace Attempt 260	[4.01 s]
+0.0.Hp: Trace Attempt 491	[27.81 s]
+0.0.Ht: Trace Attempt 565	[28.81 s]
+0.0.B: Trace Attempt 300	[8.08 s]
+0.0.Ht: Trace Attempt 605	[32.83 s]
+0.0.B: Trace Attempt 319	[12.15 s]
+0.0.Ht: Trace Attempt 644	[37.05 s]
+0.0.Hp: Trace Attempt 558	[38.30 s]
+0.0.B: Trace Attempt 354	[16.32 s]
+0.0.Ht: Trace Attempt 685	[41.31 s]
+0.0.B: Trace Attempt 375	[20.38 s]
+0.0.Ht: Trace Attempt 710	[45.32 s]
+0.0.B: Trace Attempt 407	[24.67 s]
+0.0.Ht: Trace Attempt 759	[49.34 s]
+0.0.N: Trace Attempt 218	[28.90 s]
+0.0.N: Trace Attempt  1	[29.23 s]
+0.0.N: Trace Attempt  2	[29.23 s]
+0.0.N: Trace Attempt  3	[29.23 s]
+0.0.N: Trace Attempt  5	[29.23 s]
+0.0.B: Trace Attempt 424	[29.38 s]
+0.0.Ht: Trace Attempt 775	[55.08 s]
+0.0.B: Trace Attempt 436	[33.97 s]
+0.0.N: Trace Attempt 139	[35.73 s]
+0.0.Ht: Trace Attempt 808	[59.21 s]
+0.0.B: Trace Attempt 441	[38.99 s]
+0.0.N: Trace Attempt 283	[40.70 s]
+0.0.Ht: Trace Attempt 826	[63.33 s]
+0.0.Hp: Trace Attempt 659	[65.48 s]
+0.0.N: Trace Attempt 747	[44.73 s]
+0.0.B: Trace Attempt 450	[44.84 s]
+0.0.Ht: Trace Attempt 845	[67.47 s]
+0.0.B: Trace Attempt 489	[49.51 s]
+0.0.Ht: Trace Attempt 849	[71.79 s]
+0.0.B: Trace Attempt 490	[53.85 s]
+0.0.Ht: Trace Attempt 873	[76.23 s]
+0.0.B: Trace Attempt 501	[57.87 s]
+0.0.Ht: Trace Attempt 893	[80.56 s]
+0.0.N: Trace Attempt 798	[61.45 s]
+0.0.Ht: Trace Attempt 906	[84.59 s]
+0.0.Hp: Trace Attempt 839	[88.10 s]
+0.0.B: Trace Attempt 505	[66.26 s]
+0.0.Ht: Trace Attempt 922	[88.76 s]
+0.0.N: Trace Attempt 868	[71.02 s]
+0.0.B: Trace Attempt 507	[72.05 s]
+0.0.Hp: Trace Attempt 921	[96.27 s]
+0.0.Ht: Trace Attempt 930	[97.99 s]
+0.0.Hp: Trace Attempt 967	[100.29 s]
+0.0.N: Trace Attempt 1003	[81.87 s]
+0.0.Hp: Trace Attempt 992	[104.32 s]
+0.0.Ht: Trace Attempt 977	[107.23 s]
+0.0.B: Trace Attempt 514	[85.70 s]
+0.0.Hp: Trace Attempt 1052	[108.38 s]
+0.0.B: Trace Attempt 518	[92.21 s]
+0.0.Hp: Trace Attempt 1087	[114.43 s]
+0.0.N: Trace Attempt 1087	[94.22 s]
+0.0.Hp: Trace Attempt 1114	[118.49 s]
+0.0.B: Trace Attempt 545	[98.44 s]
+0.0.B: Per property time limit expired (100.00 s) [100.08 s]
+0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[100.08 s].
 0.0.B: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 1149	[98.76 s]
-0.0.N: Per property time limit expired (100.00 s) [100.22 s]
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[100.22 s].
+0.0.N: Trace Attempt 1149	[96.54 s]
+0.0.N: Per property time limit expired (100.00 s) [100.23 s]
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[100.23 s].
 0.0.N: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.N: Trace Attempt 217	[0.02 s]
-0.0.Ht: Trace Attempt 1107	[124.10 s]
-0.0.B: Trace Attempt 277	[4.07 s]
-0.0.Ht: Trace Attempt 1134	[128.25 s]
-0.0.B: Trace Attempt 334	[8.07 s]
-0.0.Ht: Trace Attempt 1156	[132.38 s]
-0.0.B: Trace Attempt 375	[12.08 s]
-0.0.Ht: Trace Attempt 1176	[136.51 s]
-0.0.B: Trace Attempt 423	[16.64 s]
-0.0.N: Trace Attempt 218	[17.63 s]
-0.0.N: Trace Attempt  1	[17.96 s]
-0.0.N: Trace Attempt  2	[17.96 s]
-0.0.N: Trace Attempt  3	[17.96 s]
-0.0.N: Trace Attempt  5	[17.97 s]
-0.0.Ht: Trace Attempt 1178	[140.58 s]
-0.0.B: Trace Attempt 439	[21.37 s]
-0.0.Ht: Trace Attempt 1196	[145.37 s]
-0.0.N: Trace Attempt 139	[25.34 s]
-0.0.B: Trace Attempt 450	[26.33 s]
-0.0.Ht: Trace Attempt 1225	[150.07 s]
-0.0.Hp: Trace Attempt 1008	[151.77 s]
-0.0.N: Trace Attempt 283	[30.64 s]
-0.0.B: Trace Attempt 490	[31.35 s]
-0.0.Ht: Trace Attempt 1247	[154.56 s]
-0.0.N: Trace Attempt 716	[34.66 s]
-0.0.B: Trace Attempt 504	[35.79 s]
-0.0.Ht: Trace Attempt 1263	[158.72 s]
-0.0.B: Trace Attempt 506	[40.15 s]
-0.0.Ht: Trace Attempt 1265	[162.90 s]
-0.0.Ht: Trace Attempt 1284	[167.05 s]
-0.0.B: Trace Attempt 514	[48.95 s]
-0.0.Ht: Trace Attempt 1304	[171.17 s]
-0.0.B: Trace Attempt 529	[53.12 s]
-0.0.Ht: Trace Attempt 1318	[175.26 s]
-0.0.N: Trace Attempt 798	[55.63 s]
-0.0.Ht: Trace Attempt 1336	[179.89 s]
-0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[59.26 s].
+0.0.B: Trace Attempt 250	[4.01 s]
+0.0.Hp: Trace Attempt 1150	[126.61 s]
+0.0.B: Trace Attempt 295	[8.03 s]
+0.0.Hp: Trace Attempt 1171	[131.13 s]
+0.0.B: Trace Attempt 333	[12.06 s]
+0.0.Hp: Trace Attempt 1180	[136.14 s]
+0.0.B: Trace Attempt 356	[16.10 s]
+0.0.Hp: Trace Attempt 1205	[140.15 s]
+0.0.N: Trace Attempt 218	[18.44 s]
+0.0.N: Trace Attempt  1	[18.78 s]
+0.0.N: Trace Attempt  2	[18.78 s]
+0.0.N: Trace Attempt  3	[18.78 s]
+0.0.N: Trace Attempt  5	[18.78 s]
+0.0.B: Trace Attempt 388	[20.23 s]
+0.0.Ht: Trace Attempt 1041	[142.34 s]
+0.0.Hp: Trace Attempt 1226	[144.17 s]
+0.0.B: Trace Attempt 421	[24.45 s]
+0.0.N: Trace Attempt 139	[24.84 s]
+0.0.Hp: Trace Attempt 1243	[148.18 s]
+0.0.B: Trace Attempt 429	[28.66 s]
+0.0.N: Trace Attempt 283	[29.27 s]
+0.0.Hp: Trace Attempt 1261	[152.31 s]
+0.0.B: Trace Attempt 439	[33.23 s]
+0.0.N: Trace Attempt 752	[33.28 s]
+0.0.Hp: Trace Attempt 1274	[156.50 s]
+0.0.B: Trace Attempt 445	[37.58 s]
+0.0.Hp: Trace Attempt 1276	[160.59 s]
+0.0.B: Trace Attempt 474	[41.62 s]
+0.0.Hp: Trace Attempt 1296	[165.07 s]
+0.0.Hp: Trace Attempt 1314	[169.36 s]
+0.0.B: Trace Attempt 490	[49.29 s]
+0.0.N: Trace Attempt 798	[49.69 s]
+0.0.Hp: Trace Attempt 1327	[173.39 s]
+0.0.Hp: Trace Attempt 1348	[177.59 s]
+0.0.B: Trace Attempt 504	[56.02 s]
+0.0.B: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[59.02 s].
 0.0.B: Morphing to K
-0.0.B: Trace Attempt 545	[55.62 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 217	[0.01 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.01 s].
 0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
-0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[59.14 s].
+0.0.K: Trace Attempt 217	[0.01 s]
+0.0.N: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[58.91 s].
 0.0.N: Morphing to Hts
-0.0.N: Trace Attempt 867	[58.46 s]
+0.0.N: Trace Attempt 867	[52.01 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -848,46 +875,38 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.Hts: Trace Attempt  3	[0.00 s]
 0.0.Hts: Trace Attempt  4	[0.00 s]
 0.0.Hts: Trace Attempt  5	[0.00 s]
+0.0.K: Per property time limit expired (0.97 s) [0.98 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.99 s].
+0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt 1363	[0.16 s]
+0.0.Hts: Per property time limit expired (0.90 s) [0.97 s]
+0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.97 s].
+0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.03 s]
+0.0.Hts: Trace Attempt  2	[0.03 s]
+0.0.Hts: Trace Attempt  3	[0.03 s]
+0.0.Hts: Trace Attempt  4	[0.03 s]
+0.0.Hts: Trace Attempt  5	[0.03 s]
 0.0.K: Trace Attempt 217	[0.01 s]
-0.0.K: Per property time limit expired (1.00 s) [1.00 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[1.00 s].
+0.0.K: Per property time limit expired (1.00 s) [1.01 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.01 s].
 0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.K: Trace Attempt 217	[0.01 s]
-0.0.Hts: Trace Attempt 1343	[0.24 s]
-0.0.Hts: Per property time limit expired (0.91 s) [0.93 s]
-0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.93 s].
+0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.99 s].
 0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.04 s]
-0.0.Hts: Trace Attempt  2	[0.04 s]
-0.0.Hts: Trace Attempt  3	[0.04 s]
-0.0.Hts: Trace Attempt  4	[0.04 s]
-0.0.Hts: Trace Attempt  5	[0.04 s]
-0.0.K: Per property time limit expired (1.00 s) [1.00 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.00 s].
-0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt 1345	[0.28 s]
-0.0.Hts: Per property time limit expired (1.00 s) [1.01 s]
-0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.01 s].
-0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.04 s]
-0.0.Hts: Trace Attempt  2	[0.04 s]
-0.0.Hts: Trace Attempt  3	[0.04 s]
-0.0.Hts: Trace Attempt  4	[0.04 s]
-0.0.Hts: Trace Attempt  5	[0.04 s]
-0.0.Ht: Trace Attempt 1346	[184.22 s]
-0.0.Ht: Trace Attempt 1352	[194.08 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[12.80 s].
+0.0.Hts: Trace Attempt  1	[0.03 s]
+0.0.Hts: Trace Attempt  2	[0.03 s]
+0.0.Hts: Trace Attempt  3	[0.03 s]
+0.0.Hts: Trace Attempt  4	[0.03 s]
+0.0.Hts: Trace Attempt  5	[0.03 s]
+0.0.Hp: Trace Attempt 1364	[184.00 s]
+0.0.Hp: Trace Attempt 1386	[188.12 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[6.38 s].
 0.0.K: Morphing to AB
-0.0.K: Trace Attempt 217	[0.01 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AB: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
@@ -898,19 +917,19 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.02 s]
-0.0.AB: Trace Attempt  2	[0.02 s]
-0.0.AB: Trace Attempt  3	[0.02 s]
-0.0.AB: Trace Attempt  4	[0.02 s]
-0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AB: Trace Attempt  1	[0.07 s]
-0.0.AB: Trace Attempt  2	[0.07 s]
-0.0.AB: Trace Attempt  3	[0.07 s]
-0.0.AB: Trace Attempt  4	[0.07 s]
-0.0.AB: Trace Attempt  5	[0.07 s]
-0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[13.36 s].
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[6.39 s].
 0.0.Hts: Morphing to AM
-0.0.Hts: Trace Attempt 1345	[0.29 s]
+0.0.Hts: Trace Attempt 1363	[0.19 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -927,11 +946,16 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.22 s]
-0.0.AM: Trace Attempt  2	[0.22 s]
-0.0.AM: Trace Attempt  3	[0.22 s]
-0.0.AM: Trace Attempt  5	[0.22 s]
-0.0.AB: Trace Attempt 116	[1.96 s]
+0.0.AB: Trace Attempt  1	[0.08 s]
+0.0.AB: Trace Attempt  2	[0.09 s]
+0.0.AB: Trace Attempt  3	[0.09 s]
+0.0.AB: Trace Attempt  4	[0.09 s]
+0.0.AB: Trace Attempt  5	[0.09 s]
+0.0.AM: Trace Attempt  1	[0.18 s]
+0.0.AM: Trace Attempt  2	[0.18 s]
+0.0.AM: Trace Attempt  3	[0.18 s]
+0.0.AM: Trace Attempt  5	[0.18 s]
+0.0.AB: Trace Attempt 111	[1.96 s]
 0.0.AB: Per property time limit expired (1.98 s) [1.98 s]
 0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[1.98 s].
 0.0.AB: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
@@ -945,23 +969,23 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt 106	[1.15 s]
-0.0.AM: Per property time limit expired (1.40 s) [1.41 s]
-0.0.AM: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[1.41 s].
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt 268	[1.91 s]
+0.0.AM: Per property time limit expired (1.93 s) [1.94 s]
+0.0.AM: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[1.94 s].
 0.0.AM: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
@@ -971,17 +995,17 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AB: Trace Attempt  1	[0.07 s]
-0.0.AB: Trace Attempt  2	[0.07 s]
-0.0.AB: Trace Attempt  3	[0.07 s]
-0.0.AB: Trace Attempt  4	[0.07 s]
-0.0.AB: Trace Attempt  5	[0.07 s]
-0.0.AM: Trace Attempt  1	[0.22 s]
-0.0.AM: Trace Attempt  2	[0.22 s]
-0.0.AM: Trace Attempt  3	[0.22 s]
-0.0.AM: Trace Attempt  5	[0.22 s]
-0.0.Ht: Trace Attempt 1370	[198.41 s]
-0.0.AB: Trace Attempt 116	[1.97 s]
+0.0.AB: Trace Attempt  1	[0.09 s]
+0.0.AB: Trace Attempt  2	[0.09 s]
+0.0.AB: Trace Attempt  3	[0.09 s]
+0.0.AB: Trace Attempt  4	[0.09 s]
+0.0.AB: Trace Attempt  5	[0.09 s]
+0.0.AM: Trace Attempt  1	[0.18 s]
+0.0.AM: Trace Attempt  2	[0.18 s]
+0.0.AM: Trace Attempt  3	[0.18 s]
+0.0.AM: Trace Attempt  5	[0.18 s]
+0.0.Hp: Trace Attempt 1409	[192.13 s]
+0.0.AB: Trace Attempt 112	[1.98 s]
 0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
 0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.00 s].
 0.0.AB: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
@@ -1002,14 +1026,6 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AM: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.01 s].
 0.0.AM: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.02 s]
 0.0.AB: Trace Attempt  2	[0.02 s]
 0.0.AB: Trace Attempt  3	[0.02 s]
@@ -1018,102 +1034,114 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
 0.0.AB: Trace Attempt  1	[0.07 s]
 0.0.AB: Trace Attempt  2	[0.07 s]
 0.0.AB: Trace Attempt  3	[0.07 s]
 0.0.AB: Trace Attempt  4	[0.07 s]
 0.0.AB: Trace Attempt  5	[0.07 s]
-0.0.AM: Trace Attempt  1	[0.22 s]
-0.0.AM: Trace Attempt  2	[0.22 s]
-0.0.AM: Trace Attempt  3	[0.22 s]
-0.0.AM: Trace Attempt  5	[0.22 s]
-0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.82 s].
+0.0.AM: Trace Attempt  1	[0.24 s]
+0.0.AM: Trace Attempt  2	[0.24 s]
+0.0.AM: Trace Attempt  3	[0.24 s]
+0.0.AM: Trace Attempt  5	[0.24 s]
+0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.47 s].
 0.0.AB: Morphing to I
-0.0.AB: Trace Attempt 114	[1.82 s]
+0.0.AB: Trace Attempt 98	[1.45 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.I: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.I: Trace Attempt 17	[0.00 s]
-0.0.AM: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.82 s].
+0.0.AM: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[1.46 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 192	[1.80 s]
+0.0.AM: Trace Attempt 135	[1.45 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.I: Trace Attempt  1	[0.03 s]
-0.0.I: Trace Attempt  2	[0.03 s]
-0.0.I: Trace Attempt  3	[0.03 s]
+0.0.I: Trace Attempt  1	[0.04 s]
+0.0.I: Trace Attempt  2	[0.04 s]
+0.0.I: Trace Attempt  3	[0.05 s]
 0.0.Tri: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.20" ---- Launching abstraction thread ----
-0.0.Tri:    0.22" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.32 s]
-0.0.Tri: Trace Attempt  3	[0.32 s]
-0.0.Tri: Trace Attempt  4	[0.32 s]
-0.0.Tri: Trace Attempt  5	[0.32 s]
-0.0.Ht: Trace Attempt 1383	[202.49 s]
-0.0.Tri:    1.40" Simplification phase 1 complete
-0.0.Tri:    1.44" Simplification phase 2 complete
-0.0.Tri:    1.50" Simplification phase 3 complete
-   1.50" ---- Completed simplification thread ----
-   1.50" ---- Restarting main thread on simplified netlist ----
-0.0.I: Trace Attempt 43	[0.61 s]
-0.0.I: Per property time limit expired (4.00 s) [4.00 s]
-0.0.I: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[4.00 s].
+0.0.Tri:    0.35" ---- Launching abstraction thread ----
+0.0.Tri:    0.39" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.60 s]
+0.0.Tri: Trace Attempt  3	[0.60 s]
+0.0.Tri: Trace Attempt  4	[0.60 s]
+0.0.Tri: Trace Attempt  5	[0.60 s]
+0.0.Hp: Trace Attempt 1430	[196.32 s]
+0.0.Tri:    1.85" Simplification phase 1 complete
+0.0.Tri:    1.99" Simplification phase 2 complete
+0.0.Tri:    2.06" Simplification phase 3 complete
+   2.06" ---- Completed simplification thread ----
+   2.06" ---- Restarting main thread on simplified netlist ----
+0.0.I: Trace Attempt 43	[0.59 s]
+0.0.I: Per property time limit expired (4.00 s) [4.03 s]
+0.0.I: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[4.03 s].
 0.0.I: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.I: Trace Attempt 17	[0.00 s]
-0.0.Tri: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[3.95 s].
-0.0.Tri: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.I: Trace Attempt  1	[0.01 s]
 0.0.I: Trace Attempt  2	[0.01 s]
 0.0.I: Trace Attempt  3	[0.01 s]
-0.0.Tri:    3.99" ---- Launching main thread ----
-0.0.Tri:    4.11" ---- Launching abstraction thread ----
-0.0.Tri:    4.13" ---- Launching multi-phase simplification thread ----
-0.0.Tri:    5.06" Simplification phase 1 complete
-0.0.Tri:    5.10" Simplification phase 2 complete
-0.0.Tri:    5.16" Simplification phase 3 complete
-   5.16" ---- Completed simplification thread ----
-0.0.Tri:    5.16" ---- Restarting main thread on simplified netlist ----
-0.0.I: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.37 s].
+0.0.Tri: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[3.97 s].
+0.0.Tri: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    3.91" ---- Launching main thread ----
+0.0.Tri:    4.14" ---- Launching abstraction thread ----
+0.0.Tri:    4.18" ---- Launching multi-phase simplification thread ----
+0.0.Tri:    5.07" Simplification phase 1 complete
+0.0.Hp: Trace Attempt 1455	[200.39 s]
+0.0.Tri:    5.13" Simplification phase 2 complete
+0.0.Tri:    5.20" Simplification phase 3 complete
+   5.20" ---- Completed simplification thread ----
+   5.20" ---- Restarting main thread on simplified netlist ----
+0.0.I: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.63 s].
 0.0.I: Morphing to AD
-0.0.I: Trace Attempt 43	[0.63 s]
+0.0.I: Trace Attempt 43	[0.51 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
 0.0.AD: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AD: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
-0.0.Tri: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.36 s].
+0.0.Tri: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[2.62 s].
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
 0.0.AD: Trace Attempt  4	[0.00 s]
 0.0.AD: Trace Attempt  5	[0.00 s]
 0.0.AD: Trace Attempt  1	[0.00 s]
-0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.00 s]
+0.0.AD: Trace Attempt  3	[0.00 s]
+0.0.AD: Trace Attempt  4	[0.00 s]
 0.0.Tri: Morphing to K
-0.0.Tri: Trace Attempt 9612	[2.36 s]
+0.0.Tri: Trace Attempt 6956	[2.62 s]
 0.0.Tri: All properties determined. [0.00 s]
 0.0.Tri: Exited with Success (@ 0.00 s)
-0.0.AD: Trace Attempt  3	[0.01 s]
-0.0.AD: Trace Attempt  4	[0.01 s]
-0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.01 s]
 0.0.AD: Trace Attempt  2	[0.01 s]
 0.0.AD: Trace Attempt  3	[0.01 s]
 0.0.AD: Trace Attempt  5	[0.01 s]
-0.0.K: Trace Attempt 217	[0.02 s]
-0.0.AD: Trace Attempt  1	[0.06 s]
-0.0.AD: Trace Attempt  2	[0.06 s]
-0.0.AD: Trace Attempt  3	[0.07 s]
-0.0.AD: Trace Attempt  1	[0.45 s]
-0.0.AD: Trace Attempt  2	[0.45 s]
-0.0.AD: Trace Attempt  3	[0.45 s]
-0.0.AD: Trace Attempt 47	[0.99 s]
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.05 s]
+0.0.AD: Trace Attempt  2	[0.05 s]
+0.0.AD: Trace Attempt  3	[0.05 s]
+0.0.AD: Trace Attempt  1	[0.38 s]
+0.0.AD: Trace Attempt  2	[0.38 s]
+0.0.AD: Trace Attempt  3	[0.38 s]
+0.0.Hp: Trace Attempt 1477	[204.40 s]
+0.0.Hp: Trace Attempt 1502	[208.60 s]
+0.0.Hp: Trace Attempt 1528	[212.72 s]
+0.0.Hp: Trace Attempt 1568	[216.76 s]
+0.0.AD: Trace Attempt 47	[0.84 s]
 0.0.AD: Per property time limit expired (16.00 s) [16.00 s]
 0.0.AD: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[16.00 s].
 0.0.AD: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
@@ -1122,37 +1150,57 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AD: Trace Attempt  3	[0.00 s]
 0.0.AD: Trace Attempt  4	[0.00 s]
 0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.01 s]
+0.0.AD: Trace Attempt  3	[0.01 s]
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.02 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AD: Trace Attempt  3	[0.02 s]
+0.0.AD: Trace Attempt  5	[0.02 s]
+0.0.K: Trace Attempt 217	[0.02 s]
+0.0.K: Per property time limit expired (15.99 s) [16.05 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[16.05 s].
+0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
+0.0.AD: Trace Attempt  1	[0.07 s]
+0.0.AD: Trace Attempt  2	[0.07 s]
+0.0.AD: Trace Attempt  3	[0.07 s]
+0.0.K: Trace Attempt 217	[0.04 s]
+0.0.AD: Trace Attempt  1	[0.44 s]
+0.0.AD: Trace Attempt  2	[0.44 s]
+0.0.AD: Trace Attempt  3	[0.44 s]
+0.0.Hp: Trace Attempt 1607	[220.79 s]
+0.0.Hp: Trace Attempt 1645	[224.82 s]
+0.0.Hp: Trace Attempt 1682	[228.92 s]
+0.0.Ht: Trace Attempt 1218	[231.70 s]
+0.0.AD: Trace Attempt 47	[0.92 s]
+0.0.AD: Per property time limit expired (16.00 s) [16.00 s]
+0.0.AD: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[16.00 s].
+0.0.AD: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.00 s]
 0.0.AD: Trace Attempt  3	[0.00 s]
 0.0.AD: Trace Attempt  4	[0.00 s]
-0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  5	[0.00 s]
+0.0.AD: Trace Attempt  1	[0.00 s]
 0.0.AD: Trace Attempt  2	[0.01 s]
 0.0.AD: Trace Attempt  3	[0.01 s]
-0.0.AD: Trace Attempt  5	[0.01 s]
-0.0.K: Per property time limit expired (15.99 s) [16.01 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[16.01 s].
+0.0.AD: Trace Attempt  4	[0.01 s]
+0.0.AD: Trace Attempt  1	[0.01 s]
+0.0.AD: Trace Attempt  2	[0.02 s]
+0.0.AD: Trace Attempt  3	[0.02 s]
+0.0.AD: Trace Attempt  5	[0.02 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[16.00 s].
 0.0.K: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.AD: Trace Attempt  1	[0.06 s]
-0.0.AD: Trace Attempt  2	[0.06 s]
+0.0.AD: Trace Attempt  2	[0.07 s]
 0.0.AD: Trace Attempt  3	[0.07 s]
-0.0.AD: Trace Attempt  1	[0.45 s]
-0.0.AD: Trace Attempt  2	[0.45 s]
-0.0.AD: Trace Attempt  3	[0.45 s]
-0.0.K: Trace Attempt  1	[17.53 s]
-0.0.K: Trace Attempt  2	[17.53 s]
-0.0.K: Trace Attempt  3	[17.53 s]
-0.0.K: Trace Attempt  4	[17.53 s]
-0.0.K: Trace Attempt  5	[17.53 s]
-0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[17.53 s].
-0.0.K: Morphing to Hts
-0.0.K: Trace Attempt 17	[17.53 s]
-0.0.K: All properties determined. [0.00 s]
-0.0.K: Exited with Success (@ 0.00 s)
-0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
-0.0.AD: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[17.56 s].
+0.0.AD: Trace Attempt  1	[0.43 s]
+0.0.AD: Trace Attempt  2	[0.43 s]
+0.0.AD: Trace Attempt  3	[0.43 s]
+0.0.AD: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[15.15 s].
 0.0.AD: Morphing to AB
-0.0.AD: Trace Attempt 47	[1.00 s]
+0.0.AD: Trace Attempt 47	[0.93 s]
 0.0.AD: All properties determined. [0.00 s]
 0.0.AD: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1164,9 +1212,9 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
@@ -1177,26 +1225,31 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.Hts: Trace Attempt  1	[0.03 s]
-0.0.Hts: Trace Attempt  2	[0.03 s]
-0.0.Hts: Trace Attempt  3	[0.03 s]
-0.0.Hts: Trace Attempt  4	[0.03 s]
-0.0.Hts: Trace Attempt  5	[0.03 s]
-0.0.AB: Trace Attempt  1	[0.07 s]
-0.0.AB: Trace Attempt  2	[0.07 s]
-0.0.AB: Trace Attempt  3	[0.07 s]
-0.0.AB: Trace Attempt  4	[0.07 s]
-0.0.AB: Trace Attempt  5	[0.07 s]
-0.0.AB: Trace Attempt 147	[4.12 s]
-0.0.AB: Trace Attempt 169	[8.84 s]
-0.0.AB: Trace Attempt 176	[13.23 s]
-0.0.AB: Trace Attempt 208	[17.36 s]
-0.0.AB: Trace Attempt 212	[21.83 s]
-0.0.AB: Trace Attempt 219	[25.88 s]
-0.0.AB: Trace Attempt 245	[30.93 s]
-0.0.AB: Trace Attempt 246	[31.48 s]
+0.0.K: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[15.14 s].
+0.0.K: Morphing to Hts
+0.0.K: Trace Attempt 217	[0.05 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.08 s]
+0.0.AB: Trace Attempt  2	[0.08 s]
+0.0.AB: Trace Attempt  3	[0.08 s]
+0.0.AB: Trace Attempt  4	[0.08 s]
+0.0.AB: Trace Attempt  5	[0.08 s]
+0.0.Hts: Trace Attempt  1	[0.07 s]
+0.0.Hts: Trace Attempt  2	[0.07 s]
+0.0.Hts: Trace Attempt  3	[0.07 s]
+0.0.Hts: Trace Attempt  4	[0.07 s]
+0.0.Hts: Trace Attempt  5	[0.07 s]
+0.0.AB: Trace Attempt 136	[4.11 s]
+0.0.AB: Trace Attempt 150	[8.41 s]
+0.0.AB: Trace Attempt 170	[14.06 s]
+0.0.AB: Trace Attempt 177	[19.36 s]
+0.0.AB: Trace Attempt 209	[23.48 s]
+0.0.AB: Trace Attempt 211	[28.06 s]
+0.0.AB: Trace Attempt 216	[30.49 s]
 0.0.AB: Per property time limit expired (32.00 s) [32.00 s]
-0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[32.00 s].
+0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[32.01 s].
 0.0.AB: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
@@ -1207,7 +1260,7 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
@@ -1218,46 +1271,44 @@ INFO (IPF008): 0.0.B: A max_length bound of 67108864 was found for the property 
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AB: Trace Attempt  1	[0.07 s]
-0.0.AB: Trace Attempt  2	[0.07 s]
-0.0.AB: Trace Attempt  3	[0.07 s]
-0.0.AB: Trace Attempt  4	[0.07 s]
-0.0.AB: Trace Attempt  5	[0.07 s]
-0.0.Hts: Trace Attempt 3103	[0.62 s]
-0.0.Hts: Per property time limit expired (32.00 s) [32.95 s]
-0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[32.95 s].
+0.0.AB: Trace Attempt  1	[0.08 s]
+0.0.AB: Trace Attempt  2	[0.08 s]
+0.0.AB: Trace Attempt  3	[0.08 s]
+0.0.AB: Trace Attempt  4	[0.08 s]
+0.0.AB: Trace Attempt  5	[0.08 s]
+0.0.AB: Trace Attempt 137	[4.19 s]
+0.0.Hts: Trace Attempt 6956	[1.73 s]
+0.0.Hts: Per property time limit expired (31.95 s) [38.87 s]
+0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_count_wraps_to_zero:precondition1"	[38.87 s].
 0.0.Hts: Starting proof for property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.05 s]
-0.0.Hts: Trace Attempt  2	[0.05 s]
-0.0.Hts: Trace Attempt  3	[0.05 s]
-0.0.Hts: Trace Attempt  4	[0.05 s]
-0.0.Hts: Trace Attempt  5	[0.05 s]
-0.0.AB: Trace Attempt 147	[4.09 s]
-0.0.AB: Trace Attempt 169	[8.79 s]
-0.0.AB: Trace Attempt 176	[13.17 s]
-0.0.AB: Trace Attempt 208	[17.24 s]
-0.0.AB: Trace Attempt 212	[21.63 s]
-0.0.AB: Trace Attempt 219	[25.64 s]
-INFO (IPF144): 0: Initiating shutdown of proof [300.02 s]
+0.0.Hts: Trace Attempt  1	[0.17 s]
+0.0.Hts: Trace Attempt  2	[0.17 s]
+0.0.Hts: Trace Attempt  3	[0.17 s]
+0.0.Hts: Trace Attempt  4	[0.17 s]
+0.0.Hts: Trace Attempt  5	[0.17 s]
+0.0.AB: Trace Attempt 150	[8.22 s]
+0.0.AB: Trace Attempt 170	[13.82 s]
+0.0.AB: Trace Attempt 177	[18.99 s]
+INFO (IPF144): 0: Initiating shutdown of proof [300.03 s]
+0.0.Hp: Trace Attempt 1709	[231.93 s]
+0.0.Hp: Time limit expired (300.00 s) [300.03 s]
 0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 3103	[203.32 s]
-0.0.Ht: Time limit expired (300.00 s) [299.96 s]
-0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[26.14 s].
-0.0.AB: Trace Attempt 223	[26.14 s]
-0.0.AB: Time limit expired (300.00 s) [26.14 s]
-0.0.Hp: Trace Attempt 1236	[151.82 s]
-0.0.Hp: Time limit expired (300.00 s) [300.05 s]
-0.0.AB: Exited with Success (@ 300.05 s)
-0.0.Ht: Exited with Success (@ 300.05 s)
+0.0.Ht: Trace Attempt 6956	[233.49 s]
+0.0.Ht: Time limit expired (300.00 s) [299.86 s]
+0.0.AB: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[19.16 s].
+0.0.AB: Time limit expired (300.00 s) [19.16 s]
+0.0.AB: Exited with Success (@ 300.07 s)
 0.0.Hts: Sending SIGKILL
 0.0.Hp: Sending SIGKILL
-0.0.Hp: Exited with Success (@ 302.11 s)
-0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[27.29 s].
-0.0.Hts: Trace Attempt 9612	[1.98 s]
-0.0.Hts: Terminated by signal SIGKILL (@ 302.11 s)
+0.0.Ht: Sending SIGKILL
+0.0.Hp: Exited with Success (@ 302.12 s)
+0.0.Ht: Exited with Success (@ 302.12 s)
+0.0.Hts: Stopped processing property "ClkDiv_5Hz.u_ClkDiv_5Hz_sva.check_terminal_output_toggles_or_resets_low:precondition1"	[14.32 s].
+0.0.Hts: Trace Attempt 6956	[1.62 s]
+0.0.Hts: Terminated by signal SIGKILL (@ 302.12 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.96 %)
 --------------------------------------------------------------
      engines started                               :    11
      engine jobs started                           :     4
@@ -1266,20 +1317,20 @@ ProofGrid Summary (utilization 99.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Hp        0.05      300.05        0.00       99.98 %
-     Ht        0.06      299.96        0.00       99.98 %
-    Hts        0.05      301.34        0.00       99.98 %
-     AB        0.06      299.92        0.00       99.98 %
-    all        0.05      300.32        0.00       99.98 %
+     Hp        0.07      300.02        0.00       99.98 %
+     Ht        0.17      299.86        0.00       99.94 %
+    Hts        0.07      301.73        0.00       99.98 %
+     AB        0.19      299.79        0.00       99.94 %
+    all        0.13      300.35        0.00       99.96 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.21     1201.28        0.00
+               0.51     1201.41        0.00
 
-    Data read    : 1.86 MiB
-    Data written : 336.68 kiB
+    Data read    : 2.13 MiB
+    Data written : 364.75 kiB
 
 0: All pending notifications were processed.
 ----------------------------------------
@@ -1315,6 +1366,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04021/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 8 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 8 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/04021/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1365,8 +1474,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1381,6 +1494,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 2.288 GB.
+INFO (IPL018): The peak resident set memory use for this session was 2.367 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

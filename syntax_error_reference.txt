@@ -1,0 +1,183 @@
+JasperGold Syntax Error Code Reference (across all datasets)
+================================================================================
+
+Error Code       IDs  Description
+                      Example
+--------------------------------------------------------------------------------
+
+VERI-1137       2125  syntax error near '['
+                      e.g. sva.sv:19: syntax error near '['
+
+VERI-1072       1782  module 'ripple_carry_adder_sva' ignored due to previous errors
+                      e.g. sva.sv:47: module 'ripple_carry_adder_sva' ignored due to previous errors
+
+VERI-1128       1155  'synch_d' is not declared
+                      e.g. sva.sv:10: 'synch_d' is not declared
+
+VERI-2344        477  SystemVerilog keyword endcase used in incorrect context
+                      e.g. module.v:48: SystemVerilog keyword endcase used in incorrect context
+
+VERI-9011         77  block id 'reset' is already declared
+                      e.g. sva.sv:11: block id 'reset' is already declared
+
+VERI-2369         65  declaration without an explicit type name violates IEEE 1800 syntax, assuming 'logic'
+                      e.g. sva.sv:28: declaration without an explicit type name violates IEEE 1800 syntax, assuming 'logic'
+
+VERI-1130         47  'not_A' is not valid in an expression
+                      e.g. module.v:16: 'not_A' is not valid in an expression
+
+VERI-1188         42  'data' is not a constant
+                      e.g. module.v:22: 'data' is not a constant
+
+VERI-1138         38  unexpected EOF
+                      e.g. module.v:77: unexpected EOF
+
+VERI-9023         36  previous error is within an unterminated design unit
+                      e.g. module.v:77: previous error is within an unterminated design unit
+
+VERI-1952         36  range must be bounded by constant expressions
+                      e.g. sva.sv:3: range must be bounded by constant expressions
+
+VERI-1419         33  illegal operand for operator ||
+                      e.g. sva.sv:45: illegal operand for operator ||
+
+VERI-1321         30  event expression is not allowed here
+                      e.g. sva.sv:14: event expression is not allowed here
+
+VERI-1120         25  'cb' is not a function
+                      e.g. sva.sv:41: 'cb' is not a function
+
+VERI-1243         24  operator |-> is only allowed in a property, not in sequence
+                      e.g. sva.sv:40: operator |-> is only allowed in a property, not in sequence
+
+VERI-1281         24  'd2' is not a type
+                      e.g. sva.sv:31: 'd2' is not a type
+
+VERI-1116         24  'not_A' is already declared
+                      e.g. module.v:13: 'not_A' is already declared
+
+VERI-1140         24  system call 'past' expects one argument
+                      e.g. sva.sv:34: system call 'past' expects one argument
+
+VERI-1413         19  clocking declarations in compilation scope are not allowed
+                      e.g. sva.sv:7: clocking declarations in compilation scope are not allowed
+
+VERI-1158         18  use of undefined macro 'BITS'
+                      e.g. sva.sv:3: use of undefined macro 'BITS'
+
+VERI-1841         13  the system function stable not sensitive to clock
+                      e.g. sva.sv:82: the system function stable not sensitive to clock
+
+VERI-1315         13  property instance 'p_inputs_known' is not allowed in sequence expression
+                      e.g. sva.sv:35: property instance 'p_inputs_known' is not allowed in sequence expression
+
+VERI-2079          9  single value range is not allowed in packed dimension
+                      e.g. sva.sv:12: single value range is not allowed in packed dimension
+
+VERI-1586          9  number of ticks for $past must be 1 or greater
+                      e.g. sva.sv:20: number of ticks for $past must be 1 or greater
+
+VERI-1691          7  assert/assume/cover property statement in root scope violates IEEE 1800 syntax
+                      e.g. sva.sv:9: assert/assume/cover property statement in root scope violates IEEE 1800 syntax
+
+VERI-1314          7  automatic variable not allowed in module
+                      e.g. sva.sv:31: automatic variable not allowed in module
+
+VERI-1906          7  net type must be explicitly specified for 'clk' when default_nettype is none
+                      e.g. sva.sv:7: net type must be explicitly specified for 'clk' when default_nettype is none
+
+VERI-1100          5  procedural assignment to a non-register 'aluresult' is not permitted
+                      e.g. sva.sv:22: procedural assignment to a non-register 'aluresult' is not permitted
+
+VERI-1620          5  invalid use of system task '$error' in expression, expected a system function
+                      e.g. sva.sv:93: invalid use of system task '$error' in expression, expected a system function
+
+VERI-1075          5  name-based port connection not allowed in gate-instantiation
+                      e.g. module.v:29: name-based port connection not allowed in gate-instantiation
+
+VERI-1042          5  illegal expression in target
+                      e.g. module.v:14: illegal expression in target
+
+VERI-1068          4  missing compiler directive
+                      e.g. sva.sv:25: missing compiler directive
+
+VERI-1078          3  need at least one output and one input to this gate
+                      e.g. sva.sv:42: need at least one output and one input to this gate
+
+VERI-1266          3  port 'op' is not connected on function call 'alu'
+                      e.g. sva.sv:94: port 'op' is not connected on function call 'alu'
+
+VERI-1038          2  illegal character 'f' in binary number 64'bFFFFFFFFFFFFFFFF
+                      e.g. sva.sv:48: illegal character 'f' in binary number 64'bFFFFFFFFFFFFFFFF
+
+VERI-1343          2  zero or negative value for size
+                      e.g. sva.sv:12: zero or negative value for size
+
+VERI-1976          2  clocking argument for past is not of type event control
+                      e.g. sva.sv:34: clocking argument for past is not of type event control
+
+VERI-2425          2  illegal cross item, only coverpoint/variable identifier is allowed
+                      e.g. sva.sv:45: illegal cross item, only coverpoint/variable identifier is allowed
+
+VERI-1371          2  inconsistent dimension in declaration
+                      e.g. sva.sv:53: inconsistent dimension in declaration
+
+VERI-1363          2  range is not allowed in a prefix
+                      e.g. sva.sv:75: range is not allowed in a prefix
+
+VERI-1823          2  keyword local is missing for port item with direction
+                      e.g. sva.sv:119: keyword local is missing for port item with direction
+
+VERI-1011          2  cannot index into non-array type logic for 'cin'
+                      e.g. sva.sv:21: cannot index into non-array type logic for 'cin'
+
+VERI-1245          2  cannot open include file 'timescale.v'
+                      e.g. module.v:3: cannot open include file 'timescale.v'
+
+VERI-2285          1  ansi port 'clk' cannot be redeclared
+                      e.g. module.v:2: ansi port 'clk' cannot be redeclared
+
+VERI-1197          1  port declaration not allowed in 'nonblocking_gate_sva' with formal port declaration list
+                      e.g. module.v:2: port declaration not allowed in 'nonblocking_gate_sva' with formal port declaration list
+
+VERI-1384          1  illegal context for assignment pattern
+                      e.g. sva.sv:30: illegal context for assignment pattern
+
+VERI-9024          1  invalid initialization in port declaration
+                      e.g. module.v:56: invalid initialization in port declaration
+
+VERI-1465          1  generate loop index 'i' is not defined as a genvar
+                      e.g. sva.sv:44: generate loop index 'i' is not defined as a genvar
+
+VERI-2515          1  illegal multiple default disable iff in same scope
+                      e.g. sva.sv:16: illegal multiple default disable iff in same scope
+
+VERI-1180          1  constant is not allowed here
+                      e.g. sva.sv:40: constant is not allowed here
+
+VERI-1836          1  cannot omit port identifier for this declarations
+                      e.g. sva.sv:13: cannot omit port identifier for this declarations
+
+VERI-1121          1  'v' is not a genvar
+                      e.g. sva.sv:55: 'v' is not a genvar
+
+VERI-1446          1  only genvar can be assigned here
+                      e.g. sva.sv:55: only genvar can be assigned here
+
+VERI-1126          1  'rd_acc' is not a task
+                      e.g. sva.sv:98: 'rd_acc' is not a task
+
+VERI-1020          1  default case should appear only once
+                      e.g. sva.sv:22: default case should appear only once
+
+VERI-2127          1  illegal direction in checker port, use input or output
+                      e.g. sva.sv:10: illegal direction in checker port, use input or output
+
+VERI-1171          1  port 'clk' is not defined
+                      e.g. sva.sv:10: port 'clk' is not defined
+
+VERI-1311          1  operator = is not allowed in sequence
+                      e.g. sva.sv:43: operator = is not allowed in sequence
+
+================================================================================
+Total unique error codes: 58

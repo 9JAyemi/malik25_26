@@ -33,7 +33,7 @@ Rights at 48 CFR 52.227-19, as applicable.
 
 For technical assistance visit http://support.cadence.com.
 
-JasperGold Apps Analysis Session - /home/ab2113/malik25_26/veri_thoughts/dataset/syntax_results/02255/jgproject/sessionLogs/session_0
+JasperGold Apps Analysis Session - /home/ab2113/malik25_26/veri_thoughts/dataset/syntax_results/version_2/ids/02255/jgproject/sessionLogs/session_0
 
 INFO: successfully checked out license "jasper_fao".
 INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
@@ -86,6 +86,38 @@ sv12
 }
 % set FILES [collect_files $DIR]
 ./02255/sva.sv ./02255/module.v
+% 
+% # ---- Strip markdown code fences from files if present ----
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  set lines [lrange $lines 1 end]
+  set modified 1
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $FILES {
+  strip_markdown_fences $f
+}
 % 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting

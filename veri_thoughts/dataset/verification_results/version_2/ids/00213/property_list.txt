@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+dff.auto_sva_inst.check_reset_loads_init
+dff.auto_sva_inst.check_set_forces_one
+dff.auto_sva_inst.check_enable_loads_zero
+dff.auto_sva_inst.check_enable_loads_one
+dff.auto_sva_inst.check_hold_zero_when_disabled
+dff.auto_sva_inst.check_hold_one_when_disabled
+
+COVER PROPERTIES:
+dff.auto_sva_inst.check_reset_loads_init:precondition1
+dff.auto_sva_inst.check_set_forces_one:precondition1
+dff.auto_sva_inst.check_enable_loads_zero:precondition1
+dff.auto_sva_inst.check_enable_loads_one:precondition1
+dff.auto_sva_inst.check_hold_zero_when_disabled:precondition1
+dff.auto_sva_inst.check_hold_one_when_disabled:precondition1

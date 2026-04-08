@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=01981
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::counter_module.auto_sva_inst.check_reset_now | error
+<embedded>::counter_module.auto_sva_inst.check_reset_next | error
+<embedded>::counter_module.auto_sva_inst.check_increment_when_enabled_below_max | error
+<embedded>::counter_module.auto_sva_inst.check_clear_when_disabled | error
+<embedded>::counter_module.auto_sva_inst.check_clear_when_enabled_at_or_above_max | error
+<embedded>::counter_module.auto_sva_inst.check_no_stutter_on_increment | error
+<embedded>::counter_module.auto_sva_inst.check_wrap_to_zero_from_max_enabled | error
+<embedded>::counter_module.auto_sva_inst.check_nonzero_implies_prev_enable_below_max | error
+<embedded>::counter_module.auto_sva_inst.check_release_with_enable_goes_to_one | error
+<embedded>::counter_module.auto_sva_inst.check_release_with_disable_keeps_zero | error

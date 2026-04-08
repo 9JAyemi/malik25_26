@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+addition_4bit.auto_sva_inst.check_sum_matches_4bit_add
+addition_4bit.auto_sva_inst.check_sum_no_wrap
+addition_4bit.auto_sva_inst.check_sum_wraps_mod_16
+addition_4bit.auto_sva_inst.check_zero_a_passthrough
+addition_4bit.auto_sva_inst.check_zero_b_passthrough
+
+COVER PROPERTIES:
+addition_4bit.auto_sva_inst.check_sum_no_wrap:precondition1
+addition_4bit.auto_sva_inst.check_sum_wraps_mod_16:precondition1
+addition_4bit.auto_sva_inst.check_zero_a_passthrough:precondition1
+addition_4bit.auto_sva_inst.check_zero_b_passthrough:precondition1

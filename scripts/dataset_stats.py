@@ -69,6 +69,7 @@ CHART_CONFIG = {
     "sva_loc":    ["histogram"],
     "sva_properties":  ["histogram"],
     "sva_assertions":  ["histogram"],
+    "assertion_density": ["histogram"],
 
     # ── Relationship metrics (support: scatter) ──
     "module_loc_vs_sva_loc":    [],
@@ -562,6 +563,19 @@ def plot_histogram_single(data, label, xlabel, title, out_path, bins=50, log_y=F
         ax.set_xlabel(xlabel, fontsize=12)
         ax.set_ylabel("Number of Design IDs", fontsize=12)
     ax.set_title(title, fontsize=14, fontweight="bold")
+    # Add stats annotation box
+    stats_text = (
+        f"n = {len(data)}\n"
+        f"min = {min(data):.1f}\n"
+        f"median = {np.median(data):.1f}\n"
+        f"mean = {np.mean(data):.1f}\n"
+        f"max = {max(data):.1f}"
+    )
+    ax.text(0.97, 0.95, stats_text, transform=ax.transAxes,
+            fontsize=10, verticalalignment="top", horizontalalignment="right",
+            bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
+                      edgecolor="gray", alpha=0.85),
+            family="monospace")
     ax.legend(fontsize=11)
     fig.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -914,6 +928,10 @@ def generate_charts_for_dataset(records, label, out_dir):
     sva_loc = [r["sva_loc"] for r in records if r["sva_loc"] > 0]
     sva_props = [r["sva_total_props"] for r in records if r["sva_total_props"] > 0]
     sva_asserts = [r["sva_asserts"] for r in records if r["sva_asserts"] > 0]
+    assertion_density = [
+        r["sva_asserts"] / r["module_loc"] * 100
+        for r in records if r["module_loc"] > 0 and r["sva_asserts"] > 0
+    ]
 
     print(f"\nGenerating individual charts for {label} …")
 
@@ -923,6 +941,7 @@ def generate_charts_for_dataset(records, label, out_dir):
         ("sva_loc",        sva_loc,     "SVA Lines of Code (non-blank, non-comment)",     "SVA LOC"),
         ("sva_properties", sva_props,   "Number of SVA Properties (assert + cover + assume)", "SVA Properties per File"),
         ("sva_assertions", sva_asserts, "Number of Assertions (assert property)",         "Assertions per SVA File"),
+        ("assertion_density", assertion_density, "Assertions per 100 Lines of Module Code", "Assertions per 100 LOC"),
     ]
 
     for metric_key, data, xlabel_long, ylabel_short in dist_metrics:
@@ -940,6 +959,7 @@ def generate_charts_for_dataset(records, label, out_dir):
                 f.write(f"{ylabel_short} — {label}\n")
                 f.write(f"{'=' * 40}\n")
                 f.write(f"count  : {len(data)}\n")
+                f.write(f"sum    : {sum(data)}\n")
                 f.write(f"min    : {min(data)}\n")
                 f.write(f"median : {int(np.median(data))}\n")
                 f.write(f"mean   : {np.mean(data):.2f}\n")
@@ -1500,6 +1520,14 @@ def _process_version(version_dir, dataset_dir, label, version_name, verif_stats)
     # ── Verification/counterexample summary and plots ──
     print_verification_summary(records, version_label, out_dir)
 
+    # ── Assertion totals ──
+    syntax_dir = os.path.join(dataset_dir, "syntax_results", version_name)
+    syntax_passing_ids = parse_syntax_summary(syntax_dir) if os.path.isdir(syntax_dir) else set()
+    verif_ids_dir = os.path.join(dataset_dir, "verification_results", version_name, "ids")
+    verif_property_counts = count_verif_properties(verif_ids_dir)
+    write_assertion_totals(records, version_label, out_dir,
+                           syntax_passing_ids, verif_property_counts)
+
     # ── Interactive pie chart from id_summary.csv ──
     id_summary_csv = os.path.join(
         dataset_dir, "verification_results", version_name, "visual_data", "id_summary.csv"
@@ -1548,6 +1576,148 @@ def process_single_dataset(dataset_dir, label):
         _process_version(vpath, dataset_dir, label, vdir, verif_stats)
 
 
+# ── Assertion totals helpers ─────────────────────────────────────────────────
+
+def parse_syntax_summary(syntax_dir: str) -> set:
+    """Parse syntax summary.csv and return set of passing IDs."""
+    csv_path = os.path.join(syntax_dir, "visual_data", "summary.csv")
+    passing = set()
+    if not os.path.isfile(csv_path):
+        return passing
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get("status", "").strip().lower() == "ok":
+                passing.add(row["id"].strip())
+    return passing
+
+
+def count_verif_properties(verif_ids_dir: str) -> dict:
+    """Walk verification ids/ dir and count proven vs CEX at the property level.
+
+    Only counts IDs that have all three files (summary.txt, property_list.txt,
+    cex_details.txt) to match generate_passing_csv.py behaviour.
+    """
+    result = {
+        "total_assert_props": 0, "total_cover_props": 0,
+        "proven_asserts": 0, "cex_asserts": 0,
+        "proven_covers": 0, "cex_covers": 0,
+        "compiled_ids": 0, "compile_failed_ids": 0,
+    }
+    if not os.path.isdir(verif_ids_dir):
+        return result
+
+    for id_name in sorted(os.listdir(verif_ids_dir)):
+        id_path = os.path.join(verif_ids_dir, id_name)
+        if not os.path.isdir(id_path):
+            continue
+        prop_path = os.path.join(id_path, "property_list.txt")
+        cex_path = os.path.join(id_path, "cex_details.txt")
+        summary_path = os.path.join(id_path, "summary.txt")
+        if not all(os.path.isfile(p) for p in [prop_path, cex_path, summary_path]):
+            result["compile_failed_ids"] += 1
+            continue
+
+        asserts, covers = [], []
+        section = None
+        try:
+            with open(prop_path, "r", encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    line = line.strip()
+                    if line == "ASSERT PROPERTIES:":
+                        section = "assert"; continue
+                    elif line == "COVER PROPERTIES:":
+                        section = "cover"; continue
+                    if section == "assert" and line:
+                        asserts.append(line)
+                    elif section == "cover" and line:
+                        covers.append(line)
+        except (OSError, IOError):
+            result["compile_failed_ids"] += 1
+            continue
+
+        cex_props = set()
+        try:
+            with open(cex_path, "r", encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    parts = line.split("|")
+                    if len(parts) >= 2:
+                        cex_props.add(re.sub(r"^<embedded>::", "", parts[0].strip()))
+        except (OSError, IOError):
+            pass
+
+        n_cex_a = sum(1 for a in asserts if a in cex_props)
+        n_cex_c = sum(1 for c in covers if c in cex_props)
+        result["total_assert_props"] += len(asserts)
+        result["total_cover_props"]  += len(covers)
+        result["proven_asserts"]     += len(asserts) - n_cex_a
+        result["cex_asserts"]        += n_cex_a
+        result["proven_covers"]      += len(covers) - n_cex_c
+        result["cex_covers"]         += n_cex_c
+        result["compiled_ids"]       += 1
+    return result
+
+
+def write_assertion_totals(records, label, out_dir,
+                           syntax_passing_ids, verif_property_counts):
+    """Write assertion_totals.txt into out_dir."""
+    total_assertions = sum(r["sva_asserts"] for r in records)
+    total_props      = sum(r["sva_total_props"] for r in records)
+
+    syntax_assertions = sum(r["sva_asserts"] for r in records if r["id"] in syntax_passing_ids)
+    syntax_props      = sum(r["sva_total_props"] for r in records if r["id"] in syntax_passing_ids)
+
+    n_total_ids  = len(records)
+    n_syntax_ids = sum(1 for r in records if r["id"] in syntax_passing_ids)
+
+    vp = verif_property_counts
+    total_verif_props = vp["total_assert_props"] + vp["total_cover_props"]
+    total_proven = vp["proven_asserts"] + vp["proven_covers"]
+    total_cex    = vp["cex_asserts"] + vp["cex_covers"]
+
+    lines = [
+        f"Assertion Totals — {label}",
+        f"{'=' * 60}",
+        f"",
+        f"Generated (all {n_total_ids} IDs):",
+        f"  Total assertions (assert property) : {total_assertions}",
+        f"  Total properties (assert+cover+assume) : {total_props}",
+        f"",
+    ]
+    if syntax_passing_ids:
+        lines += [
+            f"Syntax-passing ({n_syntax_ids} IDs):",
+            f"  Total assertions (assert property) : {syntax_assertions}",
+            f"  Total properties (assert+cover+assume) : {syntax_props}",
+            f"",
+        ]
+    lines += [
+        f"Verification (property-level, {vp['compiled_ids']} compiled IDs,",
+        f"              {vp['compile_failed_ids']} IDs failed at compile):",
+        f"  Total properties checked            : {total_verif_props}",
+        f"    Assertions                         : {vp['total_assert_props']}",
+        f"    Covers                             : {vp['total_cover_props']}",
+        f"  Proven (no CEX)                      : {total_proven}",
+        f"    Assertions proven                  : {vp['proven_asserts']}",
+        f"    Covers proven                      : {vp['proven_covers']}",
+        f"  Failing (CEX)                        : {total_cex}",
+        f"    Assertions with CEX                : {vp['cex_asserts']}",
+        f"    Covers with CEX                    : {vp['cex_covers']}",
+        f"",
+    ]
+
+    txt = "\n".join(lines)
+    print(f"\n{txt}")
+    os.makedirs(out_dir, exist_ok=True)
+    txt_path = os.path.join(out_dir, "assertion_totals.txt")
+    with open(txt_path, "w", encoding="utf-8") as f:
+        f.write(txt + "\n")
+    print(f"  Saved {txt_path}")
+
+
 def process_inference_outputs(io_dir):
     """Process inference_outputs/ directory where subdirs are model names.
     Structure:
@@ -1556,6 +1726,7 @@ def process_inference_outputs(io_dir):
         io_dir/verification_results/{model}/visual_data/
     """
     verif_base = os.path.join(io_dir, "verification_results")
+    syntax_base = os.path.join(io_dir, "syntax_results")
 
     # Find model dirs: everything in io_dir that isn't syntax_results/verification_results
     model_dirs = sorted(
@@ -1625,6 +1796,17 @@ def process_inference_outputs(io_dir):
 
         # Verification summary and plots
         print_verification_summary(records, label, out_dir)
+
+        # ── Assertion totals ──
+        syntax_passing_ids = set()
+        model_syntax_dir = os.path.join(syntax_base, model_name)
+        if os.path.isdir(model_syntax_dir):
+            syntax_passing_ids = parse_syntax_summary(model_syntax_dir)
+
+        verif_ids_dir = os.path.join(verif_base, model_name, "ids")
+        verif_property_counts = count_verif_properties(verif_ids_dir)
+        write_assertion_totals(records, label, out_dir,
+                               syntax_passing_ids, verif_property_counts)
 
         # Interactive pie chart from id_summary.csv
         if os.path.isdir(model_verif_dir):

@@ -1,0 +1,29 @@
+{
+  "id": "00563",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.631055",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e66c2b481909c9f501d86bdcb9a",
+  "custom_id": "comparator_block_5e059729",
+  "module_name": "comparator_block",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `comparator_block` that compares two `n`-bit unsigned numbers, `a` and `b`, and outputs `gt`, `lt`, and `eq`. The module should have a parameter `n` with a default value of 8. The interface must be exactly as follows:\n```verilog\nmodule comparator_block #(\n  parameter n = 8\n)(\n  input [n-1:0] a,\n  input [n-1:0] b,\n  output gt,\n  output lt,\n  output eq\n);\n// ... module body ...\nendmodule\n```\nImplement the comparison combinatorially using the following bit-wise logic: Conceptually extend both inputs `a` and `b` by one leading zero bit. For each bit position, from 0 up to and including the extended bit position, determine if the bit from the extended `a` is greater than, less than, or equal to the corresponding bit from the extended `b`. The final `gt` output should be true if the 'greater than' condition is met for *at least one* bit position. The final `lt` output should be true if the 'less than' condition is met for *at least one* bit position. The final `eq` output should be true if the 'equal to' condition is met for *all* bit positions.\n",
+  "original_verified": true,
+  "prompt_hash": "1cae36",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.904154",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

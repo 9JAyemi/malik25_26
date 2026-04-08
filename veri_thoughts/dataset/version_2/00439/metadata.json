@@ -1,0 +1,29 @@
+{
+  "id": "00439",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.841065",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ebe4c74819095406c8eec25c19e",
+  "custom_id": "adder_mux_2c14d363",
+  "module_name": "adder_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a set of Verilog modules to implement a system that performs 4-bit binary addition with a selection mechanism.\n\nFirst, design the top-level module named `adder_mux`. This module should have the following interface:\n- Inputs: `input [3:0] a`, `input [3:0] b`, `input control`\n- Output: `output [3:0] sum`\nThe `adder_mux` module should calculate the sum of `a` and `b` and output the result on `sum`. Internally, it should utilize two instances of a 4-bit adder sub-module, and the `control` input should determine which of these instances' outputs is connected to the final `sum` output.\n\nThe `adder_mux` module relies on a sub-module named `four_bit_adder`. Design this module with the following interface:\n- Inputs: `input [3:0] a`, `input [3:0] b`\n- Output: `output [3:0] sum`\nThe `four_bit_adder` module should perform 4-bit binary addition of `a` and `b`, producing the 4-bit sum `sum` (discarding any final carry-out). This module should be constructed by instantiating a fundamental building block: a full adder.\n\nThe `four_bit_adder` module is built using instances of a basic full adder module named `full_adder`. Design this module with the following interface:\n- Inputs: `input a`, `input b`, `input cin`\n- Outputs: `output sum`, `output cout`\nThe `full_adder` module should perform the standard single-bit full addition, taking two input bits (`a`, `b`) and a carry-in bit (`cin`), and producing a sum bit (`sum`) and a carry-out bit (`cout`).\n\nImplement all three modules in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "efc989",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.874604",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

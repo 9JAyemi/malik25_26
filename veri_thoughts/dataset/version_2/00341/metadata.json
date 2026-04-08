@@ -1,0 +1,29 @@
+{
+  "id": "00341",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.916087",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4b3cf081909bbc14266c437665",
+  "custom_id": "my_ff_7849515b",
+  "module_name": "my_ff",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `my_ff`.\nThis module should implement a clocked element with the following interface:\n-   Inputs: `D`, `SET_B`, `CLK`\n-   Output: `Q`\n\nThe module should behave as follows:\n-   On the positive edge of the `CLK` signal:\n    -   If the `SET_B` input is high (`1'b1`), the output `Q` should be synchronously cleared to `0`.\n    -   If the `SET_B` input is low (`1'b0`), the output `Q` should follow the value of the `D` input, acting as a standard D flip-flop.\n",
+  "original_verified": true,
+  "prompt_hash": "798e95",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.485671",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

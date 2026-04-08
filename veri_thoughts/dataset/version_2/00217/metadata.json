@@ -1,0 +1,29 @@
+{
+  "id": "00217",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.792729",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0afa648190b947835150ef2a27",
+  "custom_id": "sky130_fd_sc_hd__o221ai_6842084d",
+  "module_name": "sky130_fd_sc_hd__o221ai",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_hd__o221ai`. The module should have the following interface:\nInputs: `A1`, `A2`, `B1`, `B2`, `C1`\nOutput: `Y`\n\nImplement the logic such that the output `Y` is the logical inverse of the AND combination of three terms. The first term is the logical OR of inputs `A1` and `A2`. The second term is the logical OR of inputs `B1` and `B2`. The third term is input `C1`. Implement this logic using Verilog gate primitives.\n",
+  "original_verified": true,
+  "prompt_hash": "a899ca",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.451845",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=00601
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::synchronous_counter.auto_sva_inst.check_reset_clears_count | error
+<embedded>::synchronous_counter.auto_sva_inst.check_continuous_reset_holds_zero | error
+<embedded>::synchronous_counter.auto_sva_inst.check_increment_when_en_high | error
+<embedded>::synchronous_counter.auto_sva_inst.check_hold_when_en_low | error
+<embedded>::synchronous_counter.auto_sva_inst.check_wrap_on_max | error
+<embedded>::synchronous_counter.auto_sva_inst.check_two_consecutive_en_increments_by2 | error
+<embedded>::synchronous_counter.auto_sva_inst.check_en_then_hold_advances_by1 | error
+<embedded>::synchronous_counter.auto_sva_inst.check_two_cycles_no_en_no_change | error

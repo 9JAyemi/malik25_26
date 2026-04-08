@@ -1,0 +1,14 @@
+# Vacuity check results for DESIGN_ID=05705
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::control_enable_options.auto_sva_inst.reset_clears_all_control_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.write_devoptions_updates_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.write_devopts2_updates_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.write_devoptions_preserves_devopts2_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.write_devopts2_preserves_devoptions_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.no_targeted_write_holds_outputs | error
+<embedded>::control_enable_options.auto_sva_inst.no_read_returns_default_bus | error
+<embedded>::control_enable_options.auto_sva_inst.read_unknown_address_returns_default_bus | error
+<embedded>::control_enable_options.auto_sva_inst.read_devoptions_returns_current_value | error
+<embedded>::control_enable_options.auto_sva_inst.read_devopts2_returns_current_low_bits | error
+<embedded>::control_enable_options.auto_sva_inst.write_then_read_devopts2_returns_written_byte | error

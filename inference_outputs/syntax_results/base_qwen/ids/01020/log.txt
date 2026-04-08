@@ -118,7 +118,6 @@ sv12
 % foreach f $FILES {
   strip_markdown_fences $f
 }
-INFO: Stripped markdown fences from ./01020/sva.sv
 % 
 % puts "INFO: Syntax check starting"
 INFO: Syntax check starting
@@ -204,8 +203,8 @@ ERROR (ENL034): 5 errors detected in the design file(s).
 }
 
 ❌ FAILED: Syntax/elaboration errors detected
-% INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
-INFO (IPL005): Received request to exit from the console.
+% INFO (IPL005): Received request to exit from the console.
+INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO (IPL015): The Tcl-thread exited with status 1.
 INFO (IPL016): Exiting the analysis session with status 1.

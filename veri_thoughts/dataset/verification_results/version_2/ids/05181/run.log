@@ -318,6 +318,43 @@ INFO: Using TOP = Coun_Baud
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -555,64 +592,52 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 12
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 136355@della-i13n6(local) jg_136283_della-i13n6_1
-0.0.N: Proofgrid shell started at 136354@della-i13n6(local) jg_136283_della-i13n6_1
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 2841888@della-h16n1(local) jg_2841722_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 2841889@della-h16n1(local) jg_2841722_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.check_r_next_definition"	[0.00 s].
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "Coun_Baud.auto_sva_inst.check_r_next_definition" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next:precondition1" was covered in 1 cycles in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "Coun_Baud.auto_sva_inst.check_nonterminal_increment:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "Coun_Baud.auto_sva_inst.check_max_tick_definition" in 0.03 s.
+INFO (IPF047): 0.0.Hp: The cover property "Coun_Baud.auto_sva_inst.check_terminal_wrap:precondition1" was covered in 1 cycles in 0.03 s.
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.Hp: The cover property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_preterminal_sets_max_tick:precondition1" was covered in 1 cycles in 0.04 s.
+0.0.Hp: Trace Attempt  2	[0.00 s]
+0.0.Hp: Trace Attempt  3	[0.00 s]
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next" in 0.05 s.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_terminal_wrap" in 0.05 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_nonterminal_increment" in 0.05 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_preterminal_sets_max_tick" in 0.05 s.
+0.0.Hp: Trace Attempt  4	[0.00 s]
+0.0.Hp: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "Coun_Baud.auto_sva_inst.check_r_next_definition" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "Coun_Baud.auto_sva_inst.check_r_next_definition".
-INFO (IPF047): 0.0.N: The cover property "Coun_Baud.auto_sva_inst.check_nonterminal_increment:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "Coun_Baud.auto_sva_inst.check_r_next_definition".
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.check_r_next_definition"	[0.01 s].
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.check_r_next_definition"	[0.07 s].
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.check_max_tick_definition"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 1 cycles was found for the property "Coun_Baud.auto_sva_inst.check_max_tick_definition" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "Coun_Baud.auto_sva_inst.check_terminal_wrap:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "Coun_Baud.auto_sva_inst.check_max_tick_definition".
 0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.check_max_tick_definition"	[0.00 s].
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16384 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16384 was found for the property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_preterminal_sets_max_tick:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next" in 0.00 s.
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_nonterminal_increment" in 0.00 s by the incidental trace "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next".
 0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.check_r_reg_loads_r_next"	[0.00 s].
-0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.check_terminal_wrap"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16 was found for the property "Coun_Baud.auto_sva_inst.check_terminal_wrap" in 0.00 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.check_terminal_wrap" in 0.00 s.
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.check_terminal_wrap"	[0.00 s].
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: A max_length bound was found. The shortest trace is no longer than 32768 cycles. [0.00 s]
 INFO (IPF008): 0.0.N: A max_length bound of 32768 was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.00 s]
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_preterminal_sets_max_tick" in 0.01 s.
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
@@ -621,9 +646,7 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Trace Attempt  4	[0.01 s]
-0.0.Hp: Trace Attempt  5	[0.01 s]
-0.0.Ht: Proofgrid shell started at 136368@della-i13n6(local) jg_136283_della-i13n6_1
+0.0.Ht: Proofgrid shell started at 2841902@della-h16n1(local) jg_2841722_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
@@ -631,7 +654,7 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.B: Proofgrid shell started at 136369@della-i13n6(local) jg_136283_della-i13n6_1
+0.0.B: Proofgrid shell started at 2841903@della-h16n1(local) jg_2841722_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -641,87 +664,84 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.78 s]
-0.0.N: Trace Attempt  2	[0.78 s]
-0.0.N: Trace Attempt  3	[0.78 s]
-0.0.N: Trace Attempt  5	[0.78 s]
+0.0.N: Trace Attempt  1	[0.66 s]
+0.0.N: Trace Attempt  2	[0.66 s]
+0.0.N: Trace Attempt  3	[0.66 s]
+0.0.N: Trace Attempt  5	[0.66 s]
 0: ProofGrid usable level: 2
-0.0.N: Trace Attempt 67	[0.99 s]
+0.0.B: Trace Attempt 190	[0.87 s]
+0.0.B: Per property time limit expired (0.88 s) [0.88 s]
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.88 s].
+0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.N: Trace Attempt 105	[1.00 s]
 0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.99 s].
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.95 s].
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.B: A max_length bound was found. The shortest trace is no longer than 8192 cycles. [0.00 s]
+INFO (IPF008): 0.0.B: A max_length bound of 8192 was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1" in 0.00 s.
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 8192 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 8192 was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1" in 0.00 s.
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.95 s].
-0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.02 s]
-0.0.N: Trace Attempt  3	[0.02 s]
-0.0.N: Trace Attempt  5	[0.02 s]
-0.0.B: Trace Attempt 186	[0.99 s]
-0.0.B: Per property time limit expired (1.00 s) [1.00 s]
-0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[1.00 s].
-0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
-0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
-0.0.N: Trace Attempt 230	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[1.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
-0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 65	[0.00 s]
-0.0.N: Trace Attempt  1	[0.74 s]
-0.0.N: Trace Attempt  2	[0.74 s]
-0.0.N: Trace Attempt  3	[0.74 s]
-0.0.N: Trace Attempt  5	[0.74 s]
-0.0.Ht: Trace Attempt 321	[4.01 s]
-0.0.B: Trace Attempt 260	[4.14 s]
-0.0.N: Trace Attempt 606	[4.74 s]
-0.0.Ht: Trace Attempt 441	[8.07 s]
-0.0.B: Trace Attempt 294	[8.21 s]
-0.0.N: Trace Attempt 858	[8.85 s]
-0.0.B: Trace Attempt 303	[9.52 s]
-0.0.B: Per property time limit expired (10.00 s) [10.00 s]
-0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[10.01 s].
-0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 884	[10.00 s]
-0.0.N: Per property time limit expired (10.00 s) [10.04 s]
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[10.04 s].
-0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 17	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Ht: Trace Attempt 507	[12.10 s]
-0.0.B: Trace Attempt 244	[4.12 s]
-0.0.N: Trace Attempt 786	[4.20 s]
-0.0.B: Trace Attempt 285	[8.28 s]
-0.0.B: Trace Attempt 299	[9.99 s]
+0.0.B: Trace Attempt 195	[0.97 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[1.00 s].
+0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt 305	[0.99 s]
+0.0.N: Per property time limit expired (1.00 s) [1.00 s]
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[1.01 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
+0.0.N: Trace Attempt 65	[0.00 s]
+0.0.N: Trace Attempt  1	[0.62 s]
+0.0.N: Trace Attempt  2	[0.62 s]
+0.0.N: Trace Attempt  3	[0.62 s]
+0.0.N: Trace Attempt  5	[0.62 s]
+0.0.Ht: Trace Attempt 306	[4.67 s]
+0.0.B: Trace Attempt 266	[4.01 s]
+0.0.N: Trace Attempt 776	[4.62 s]
+0.0.Ht: Trace Attempt 364	[9.31 s]
+0.0.B: Trace Attempt 303	[8.06 s]
+0.0.B: Trace Attempt 317	[9.95 s]
+0.0.B: Per property time limit expired (10.00 s) [10.00 s]
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[10.00 s].
+0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[10.00 s].
+0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.Ht: Trace Attempt 423	[14.33 s]
+0.0.B: Trace Attempt 253	[4.14 s]
+0.0.B: Trace Attempt 297	[8.37 s]
+0.0.B: Trace Attempt 307	[10.00 s]
 0.0.B: Per property time limit expired (10.00 s) [10.00 s]
 0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[10.00 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
@@ -731,85 +751,115 @@ INFO (IPF008): 0.0.N: A max_length bound of 8192 was found for the property "Cou
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[9.99 s].
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[10.01 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.73 s]
-0.0.N: Trace Attempt  2	[0.73 s]
-0.0.N: Trace Attempt  3	[0.73 s]
-0.0.N: Trace Attempt  5	[0.73 s]
-0.0.B: Trace Attempt 260	[4.13 s]
-0.0.Ht: Trace Attempt 641	[26.68 s]
-0.0.N: Trace Attempt 621	[4.73 s]
-0.0.B: Trace Attempt 294	[8.20 s]
-0.0.N: Trace Attempt 859	[8.84 s]
-0.0.B: Trace Attempt 318	[12.31 s]
-0.0.B: Trace Attempt 344	[17.07 s]
-0.0.Ht: Trace Attempt 789	[39.85 s]
-0.0.Ht: Trace Attempt 804	[43.86 s]
-0.0.B: Trace Attempt 356	[22.00 s]
-0.0.Ht: Trace Attempt 842	[47.90 s]
-0.0.B: Trace Attempt 364	[26.67 s]
-0.0.Ht: Trace Attempt 870	[52.20 s]
-0.0.B: Trace Attempt 372	[30.92 s]
-0.0.Ht: Trace Attempt 913	[56.21 s]
-0.0.B: Trace Attempt 379	[35.23 s]
-0.0.Ht: Trace Attempt 940	[60.43 s]
-0.0.B: Trace Attempt 386	[39.43 s]
-0.0.Ht: Trace Attempt 977	[64.57 s]
-0.0.B: Trace Attempt 393	[43.99 s]
-0.0.Ht: Trace Attempt 1016	[68.84 s]
-0.0.B: Trace Attempt 399	[48.05 s]
-0.0.Ht: Trace Attempt 1053	[73.26 s]
-0.0.B: Trace Attempt 404	[52.15 s]
-0.0.Ht: Trace Attempt 1081	[77.53 s]
-0.0.B: Trace Attempt 410	[56.49 s]
-0.0.Ht: Trace Attempt 1110	[81.57 s]
-0.0.B: Trace Attempt 416	[60.58 s]
-0.0.Ht: Trace Attempt 1121	[86.47 s]
-0.0.B: Trace Attempt 421	[64.64 s]
-0.0.Ht: Trace Attempt 1138	[90.64 s]
-0.0.B: Trace Attempt 427	[68.89 s]
-0.0.Ht: Trace Attempt 1178	[94.81 s]
-0.0.B: Trace Attempt 434	[73.20 s]
-0.0.Ht: Trace Attempt 1199	[98.89 s]
-0.0.B: Trace Attempt 440	[77.49 s]
-0.0.Ht: Trace Attempt 1211	[103.06 s]
-0.0.B: Trace Attempt 447	[81.90 s]
-0.0.Ht: Trace Attempt 1240	[107.16 s]
-0.0.B: Trace Attempt 455	[86.46 s]
-0.0.Ht: Trace Attempt 1276	[111.22 s]
-0.0.B: Trace Attempt 462	[90.81 s]
-0.0.Ht: Trace Attempt 1305	[115.41 s]
-0.0.Ht: Trace Attempt 1310	[116.04 s]
-0.0.Ht: A trace with 1310 cycles was found. [116.05 s]
-INFO (IPF047): 0.0.Ht: The cover property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1" was covered in 1310 cycles in 116.06 s.
-0.0.Ht: Trace Attempt 1311	[116.06 s]
+0.0.Ht: Trace Attempt 547	[22.53 s]
+0.0.B: Trace Attempt 268	[4.34 s]
+0.0.B: Trace Attempt 304	[8.49 s]
+0.0.B: Trace Attempt 330	[12.52 s]
+0.0.B: Trace Attempt 350	[16.80 s]
+0.0.B: Trace Attempt 362	[21.21 s]
+0.0.B: Trace Attempt 371	[25.35 s]
+0.0.Ht: Trace Attempt 789	[47.67 s]
+0.0.B: Trace Attempt 379	[29.54 s]
+0.0.Ht: Trace Attempt 790	[54.53 s]
+0.0.B: Trace Attempt 388	[33.71 s]
+0.0.Ht: Trace Attempt 828	[58.55 s]
+0.0.B: Trace Attempt 395	[37.78 s]
+0.0.Ht: Trace Attempt 860	[63.50 s]
+0.0.B: Trace Attempt 402	[41.95 s]
+0.0.Ht: Trace Attempt 911	[67.78 s]
+0.0.B: Trace Attempt 409	[46.26 s]
+0.0.Ht: Trace Attempt 959	[72.12 s]
+0.0.B: Trace Attempt 416	[50.26 s]
+0.0.Ht: Trace Attempt 984	[76.19 s]
+0.0.B: Trace Attempt 423	[54.78 s]
+0.0.Ht: Trace Attempt 1017	[80.57 s]
+0.0.B: Trace Attempt 431	[59.09 s]
+0.0.Ht: Trace Attempt 1057	[84.61 s]
+0.0.B: Trace Attempt 439	[63.34 s]
+0.0.B: Trace Attempt 447	[67.65 s]
+0.0.Ht: Trace Attempt 1084	[90.65 s]
+0.0.B: Trace Attempt 456	[71.95 s]
+0.0.Ht: Trace Attempt 1111	[94.70 s]
+0.0.B: Trace Attempt 464	[76.00 s]
+0.0.Ht: Trace Attempt 1144	[98.72 s]
+0.0.B: Trace Attempt 472	[80.31 s]
+0.0.Ht: Trace Attempt 1176	[102.90 s]
+0.0.B: Trace Attempt 481	[84.62 s]
+0.0.Ht: Trace Attempt 1188	[109.87 s]
+0.0.B: Trace Attempt 490	[88.95 s]
+0.0.Ht: Trace Attempt 1197	[113.92 s]
+0.0.B: Trace Attempt 499	[93.28 s]
+0.0.Ht: Trace Attempt 1211	[117.94 s]
+0.0.B: Trace Attempt 507	[97.33 s]
+0.0.B: Trace Attempt 512	[99.55 s]
+0.0.B: Per property time limit expired (100.00 s) [100.01 s]
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[100.01 s].
+0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[100.05 s].
+0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[0.00 s].
+0.0.Ht: Trace Attempt 1225	[122.10 s]
+0.0.B: Trace Attempt 253	[4.20 s]
+0.0.Ht: Trace Attempt 1235	[126.25 s]
+0.0.B: Trace Attempt 297	[8.47 s]
+0.0.Ht: Trace Attempt 1252	[130.60 s]
+0.0.B: Trace Attempt 317	[13.04 s]
+0.0.Ht: Trace Attempt 1267	[136.81 s]
+0.0.B: Trace Attempt 327	[17.25 s]
+0.0.Ht: Trace Attempt 1275	[141.05 s]
+0.0.B: Trace Attempt 336	[21.35 s]
+0.0.Ht: Trace Attempt 1289	[145.11 s]
+0.0.B: Trace Attempt 345	[25.88 s]
+0.0.Ht: Trace Attempt 1298	[149.62 s]
+0.0.B: Trace Attempt 355	[30.09 s]
+0.0.Ht: Trace Attempt 1305	[153.88 s]
+0.0.Ht: Trace Attempt 1310	[155.81 s]
+0.0.Ht: A trace with 1310 cycles was found. [155.98 s]
+INFO (IPF047): 0.0.Ht: The cover property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1" was covered in 1310 cycles in 155.98 s.
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[34.02 s].
+0.0.B: Last scan. Per property time limit: 0s
+0.0.B: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt 1311	[155.99 s]
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle:precondition1"	[33.98 s].
+0.0.N: Last scan. Per property time limit: 0s
+0.0.N: Starting proof for property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.00 s].
 0.0.N: Requesting engine job to stop
 0.0.B: Requesting engine job to stop
 0.0.Hp: Requesting engine job to terminate
 0.0.Ht: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [116.12 s]
-0.0.Ht: Trace Attempt 1312	[116.06 s]
-0.0.Ht: A trace with 1312 cycles was found. [116.07 s]
-INFO (IPF055): 0.0.Ht: A counterexample (cex) with 1312 cycles was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle" in 116.07 s.
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Trace Attempt 16	[0.04 s]
-0.0.Hp: All properties determined. [116.12 s]
-0.0.Ht: All properties determined. [116.08 s]
-0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[94.11 s].
-0.0.B: Trace Attempt 467	[93.92 s]
-0.0.B: All properties determined. [94.11 s]
-0.0.Hp: Exited with Success (@ 116.13 s)
+INFO (IPF144): 0: Initiating shutdown of proof [156.07 s]
+0.0.Ht: Trace Attempt 1312	[155.99 s]
+0.0.Ht: A trace with 1312 cycles was found. [156.00 s]
+INFO (IPF055): 0.0.Ht: A counterexample (cex) with 1312 cycles was found for the property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle" in 156.00 s.
+0.0.B: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.02 s].
+0.0.B: Trace Attempt 55	[0.02 s]
+0.0.B: All properties determined. [0.02 s]
+0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[0.01 s].
+0.0.N: Trace Attempt 788	[0.01 s]
+0.0.N: All properties determined. [0.01 s]
+0.0.B: Exited with Success (@ 156.08 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Exited with Success (@ 116.13 s)
-0.0.N: Stopped processing property "Coun_Baud.auto_sva_inst.gen_m_gt_1.check_max_tick_single_cycle"	[94.39 s].
-0.0.B: Exited with Success (@ 116.42 s)
-0.0.N: Trace Attempt 893	[10.65 s]
-0.0.N: All properties determined. [94.39 s]
-0.0.N: Exited with Success (@ 116.43 s)
+0.0.Ht: All properties determined. [156.01 s]
+0.0.N: Exited with Success (@ 156.10 s)
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Trace Attempt 17	[0.03 s]
+0.0.Hp: All properties determined. [156.10 s]
+0.0.Ht: Exited with Success (@ 156.10 s)
+0.0.Hp: Exited with Success (@ 156.12 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.96 %)
+ProofGrid Summary (utilization 99.95 %)
 --------------------------------------------------------------
      engines started                               :     4
      engine jobs started                           :     4
@@ -818,20 +868,20 @@ ProofGrid Summary (utilization 99.96 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-      N        0.05      116.12        0.00       99.96 %
-     Hp        0.04      116.12        0.00       99.96 %
-     Ht        0.05      116.07        0.00       99.96 %
-      B        0.06      116.06        0.00       99.95 %
-    all        0.05      116.09        0.00       99.96 %
+      N        0.07      156.07        0.00       99.96 %
+     Hp        0.07      156.07        0.00       99.96 %
+     Ht        0.07      156.01        0.00       99.96 %
+      B        0.14      155.94        0.00       99.91 %
+    all        0.08      156.02        0.00       99.95 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.20      464.37        0.00
+               0.34      624.09        0.00
 
-    Data read    : 1.04 MiB
-    Data written : 63.50 kiB
+    Data read    : 807.59 kiB
+    Data written : 66.37 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -862,6 +912,65 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05181/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: No proven assertions to check for vacuity
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 0 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05181/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -911,8 +1020,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -927,6 +1040,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 1.104 GB.
+INFO (IPL018): The peak resident set memory use for this session was 1.283 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

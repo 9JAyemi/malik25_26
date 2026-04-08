@@ -1,0 +1,29 @@
+{
+  "id": "00522",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.475173",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e514b708190a68ebede00359319",
+  "custom_id": "final__8dcefe1f",
+  "module_name": "final_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following Verilog modules:\n\n1.  **`comparator`**: A combinational module with inputs `input [3:0] A`, `input [3:0] B`, and output `output reg [1:0] OUT`. This module should compare A and B and set OUT as follows: `2'b01` if A is greater than B, `2'b10` if A is less than B, and `2'b00` otherwise.\n\n2.  **`up_down_counter`**: A sequential module with inputs `input clk`, `input reset`, `input up_down`, and output `output reg [2:0] count`. This module should implement a 3-bit up/down counter. It should have an asynchronous reset (active high) that sets the count to zero. On the positive edge of the clock, if `up_down` is high, the counter should increment; otherwise (if `up_down` is low), it should decrement.\n\n3.  **`final_module`**: A combinational module with inputs `input [1:0] comparator_output`, `input [2:0] up_down_output`, `input [3:0] A`, `input [3:0] B`, and output `output [4:0] final_output`. This module should use the `comparator_output` to determine the final value. If `comparator_output` is `2'b01`, the `final_output` should be the sum of `up_down_output` and A. If `comparator_output` is `2'b10`, the `final_output` should be the sum of `up_down_output` and B. Otherwise, the `final_output` should be equal to `up_down_output`. The output should be 5 bits wide.\n\n4.  **`top_module`**: A top-level module with inputs `input clk`, `input reset`, `input [3:0] A`, `input [3:0] B`, `input up_down`, and output `output [4:0] final_output`. This module should instantiate the `comparator`, `up_down_counter`, and `final_module`, connecting them to implement the overall system. The `comparator` should compare the inputs A and B. The `up_down_counter` should be controlled by `clk`, `reset`, and `up_down`. The outputs of the `comparator` and `up_down_counter`, along with the original inputs A and B, should be connected to the `final_module` to generate the `final_output`.\n\nWrite the Verilog code for all four modules.\n",
+  "original_verified": true,
+  "prompt_hash": "19af0b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.894556",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

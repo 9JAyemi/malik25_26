@@ -1,0 +1,29 @@
+{
+  "id": "00144",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.514940",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df62e708190b339672ab8d95a19",
+  "custom_id": "reg_unit_23250aa2",
+  "module_name": "reg_unit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `reg_unit` that implements a register with a configurable width specified by the parameter `ff_sz`, which defaults to 8. The module should have the following interface:\nInputs:\n- `data_in`: An input bus of width `ff_sz`.\n- `load`: A single-bit input for enabling the data load.\n- `clk`: The clock signal.\n- `rst`: The asynchronous reset signal (active low).\n\nOutput:\n- `data_out`: An output bus of width `ff_sz`.\n\nThe module should behave as follows:\n- When the `rst` signal is low, the `data_out` should be asynchronously reset to all zeros, regardless of the clock or other inputs.\n- When `rst` is high, on the positive edge of the `clk` signal:\n    - If the `load` signal is high, `data_out` should be updated with the value of `data_in`.\n    - If the `load` signal is low, `data_out` should retain its current value.\n\nEnsure the output `data_out` is declared as a `reg` type.\n",
+  "original_verified": true,
+  "prompt_hash": "c31b3d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.404523",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

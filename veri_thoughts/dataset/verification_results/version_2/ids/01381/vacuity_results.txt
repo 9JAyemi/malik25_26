@@ -1,0 +1,18 @@
+# Vacuity check results for DESIGN_ID=01381
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::controlunit.auto_sva_inst.check_decode_rtype | error
+<embedded>::controlunit.auto_sva_inst.check_decode_lw | error
+<embedded>::controlunit.auto_sva_inst.check_decode_sw | error
+<embedded>::controlunit.auto_sva_inst.check_decode_beq | error
+<embedded>::controlunit.auto_sva_inst.check_decode_default | error
+<embedded>::controlunit.auto_sva_inst.check_rd_wr_mutex | error
+<embedded>::controlunit.auto_sva_inst.check_aluop_only_rtype | error
+<embedded>::controlunit.auto_sva_inst.check_regdst_only_rtype | error
+<embedded>::controlunit.auto_sva_inst.check_memtoreg_only_rtype | error
+<embedded>::controlunit.auto_sva_inst.check_alusrc_lw_or_sw | error
+<embedded>::controlunit.auto_sva_inst.check_regw_rtype_or_lw | error
+<embedded>::controlunit.auto_sva_inst.check_memoryread_implies_lw | error
+<embedded>::controlunit.auto_sva_inst.check_memorywrite_implies_sw | error
+<embedded>::controlunit.auto_sva_inst.check_branch_implies_beq_no_mem | error
+<embedded>::controlunit.auto_sva_inst.check_memtoreg_implies_regw | error

@@ -1,0 +1,29 @@
+{
+  "id": "00041",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.695336",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de95da48190963d1f7ae4b5b33b",
+  "custom_id": "karnaugh_map_eaa11b41",
+  "module_name": "karnaugh_map",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `karnaugh_map` with inputs `wire A, B, C, D` and an output `reg F`. Implement a combinational logic function such that the output F is logic '1' when the input combination (A, B, C, D) is 0101, 0110, 1001, or 1010, and logic '0' for all other input combinations. Use a single `always @*` block to describe the behavior.\n",
+  "original_verified": true,
+  "prompt_hash": "f7c89d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.371108",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

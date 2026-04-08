@@ -318,6 +318,43 @@ INFO: Using TOP = binary_counter
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -560,37 +597,37 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 10
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 5119@della-i13n6(local) jg_5043_della-i13n6_1
-0.0.Hp: Proofgrid shell started at 5120@della-i13n6(local) jg_5043_della-i13n6_1
+0.0.N: Proofgrid shell started at 2584156@della-h16n1(local) jg_2583990_della-h16n1_1
+0.0.Hp: Proofgrid shell started at 2584157@della-h16n1(local) jg_2583990_della-h16n1_1
 0.0.N: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max"	[0.00 s].
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.00 s]
-INFO (IPF047): 0.0.Hp: The cover property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "binary_counter.auto_sva_inst.check_update_is_increment_or_zero:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "binary_counter.auto_sva_inst.check_zero_moves_to_zero_or_one:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "binary_counter.auto_sva_inst.check_zero_max_keeps_zero:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
-0.0.N: Trace Attempt 34	[0.02 s]
-0.0.N: A proof was found: No trace exists. [0.02 s]
-INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max" was proven in 0.02 s.
-0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max"	[0.02 s].
+0.0.N: Trace Attempt 34	[0.01 s]
+0.0.N: A proof was found: No trace exists. [0.01 s]
+INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max" was proven in 0.00 s.
+0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max"	[0.00 s].
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Starting proof for property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF047): 0.0.N: The cover property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.N: The cover property "binary_counter.auto_sva_inst.check_update_is_increment_or_zero:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1".
+INFO (IPF047): 0.0.N: The cover property "binary_counter.auto_sva_inst.check_zero_moves_to_zero_or_one:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1".
+INFO (IPF047): 0.0.N: The cover property "binary_counter.auto_sva_inst.check_zero_max_keeps_zero:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1".
+0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_wraps_to_zero_at_max:precondition1"	[0.01 s].
 0.0.N: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -600,12 +637,14 @@ INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_wraps_to_
 0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
+0.0.Hp: Trace Attempt  1	[0.03 s]
+0.0.Hp: Trace Attempt  2	[0.03 s]
 0.0.N: Validation of fixpoint was successful. Time = 0.00
 0.0.N: A proof was found: No trace exists. [0.01 s]
-INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero" was proven in 0.01 s.
-0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero"	[0.01 s].
+INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero" was proven in 0.00 s.
+0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero"	[0.00 s].
 0.0.N: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
@@ -613,28 +652,19 @@ INFO (IPF057): 0.0.N: The property "binary_counter.auto_sva_inst.check_all_ones_
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
 0.0.N: Trace Attempt  5	[0.00 s]
-0.0.Hp: Lemmas used(4): ?2
-0.0.Hp: A proof was found: No trace exists. [0.04 s]
-INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_update_is_increment_or_zero" was proven in 0.04 s.
-0.0.Hp: A proof was found: No trace exists. [0.04 s]
-INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_moves_to_zero_or_one" was proven in 0.04 s.
-0.0.Hp: A proof was found: No trace exists. [0.04 s]
-INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max_keeps_zero" was proven in 0.04 s.
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.B: Proofgrid shell started at 5134@della-i13n6(local) jg_5043_della-i13n6_1
-0.0.B: OS RSS memory limit : 68719476736 / 68719476736
-0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
-0.0.B: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Proofgrid shell started at 5133@della-i13n6(local) jg_5043_della-i13n6_1
+0.0.Hp: Trace Attempt  3	[0.04 s]
+0.0.Hp: Lemmas used(4): ?4 |33
+0.0.Hp: A proof was found: No trace exists. [0.06 s]
+INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_update_is_increment_or_zero" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.06 s]
+INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_moves_to_zero_or_one" was proven in 0.04 s.
+0.0.Hp: A proof was found: No trace exists. [0.06 s]
+INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max_keeps_zero" was proven in 0.04 s.
+0.0.Ht: Proofgrid shell started at 2584170@della-h16n1(local) jg_2583990_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
 0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ht: Trace Attempt  1	[0.00 s]
@@ -642,122 +672,155 @@ INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max
 0.0.Ht: Trace Attempt  3	[0.00 s]
 0.0.Ht: Trace Attempt  4	[0.00 s]
 0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.09 s]
-0.0.N: Trace Attempt  2	[0.09 s]
-0.0.N: Trace Attempt  3	[0.10 s]
-0.0.N: Trace Attempt  5	[0.10 s]
+0.0.B: Proofgrid shell started at 2584171@della-h16n1(local) jg_2583990_della-h16n1_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
+0.0.B: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  1	[0.07 s]
+0.0.N: Trace Attempt  2	[0.07 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.07 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.07 s]
+0.0.B: Trace Attempt  5	[0.00 s]
 0: ProofGrid usable level: 1
-0.0.N: Trace Attempt 77	[0.99 s]
+0.0.N: Trace Attempt 87	[0.99 s]
 0.0.N: Per property time limit expired (1.00 s) [1.00 s]
 0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[1.00 s].
 0.0.N: Last scan. Per property time limit: 0s
 0.0.N: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 34	[0.00 s]
-0.0.B: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[1.00 s].
+0.0.B: Trace Attempt 191	[0.93 s]
+0.0.B: Per property time limit expired (0.93 s) [0.93 s]
+0.0.B: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.93 s].
 0.0.B: Last scan. Per property time limit: 0s
 0.0.B: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt 34	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.06 s]
-0.0.N: Trace Attempt  2	[0.06 s]
-0.0.N: Trace Attempt  3	[0.06 s]
-0.0.N: Trace Attempt  5	[0.06 s]
-0.0.Hp: Trace Attempt  4	[2.13 s]
-0.0.Hp: Trace Attempt  5	[2.13 s]
-0.0.Ht: Trace Attempt 243	[4.03 s]
-0.0.B: Trace Attempt 301	[4.04 s]
-0.0.N: Trace Attempt 273	[5.28 s]
-0.0.Ht: Trace Attempt 338	[8.84 s]
-0.0.B: Trace Attempt 335	[8.12 s]
-0.0.Hp: Trace Attempt 317	[10.33 s]
-0.0.N: Trace Attempt 380	[10.41 s]
-0.0.B: Trace Attempt 376	[12.17 s]
-0.0.Hp: Trace Attempt 379	[15.44 s]
-0.0.Ht: Trace Attempt 459	[17.13 s]
-0.0.B: Trace Attempt 393	[16.19 s]
-0.0.N: Trace Attempt 460	[16.63 s]
-0.0.B: Trace Attempt 422	[20.31 s]
-0.0.Ht: Trace Attempt 526	[21.48 s]
-0.0.N: Trace Attempt 526	[23.80 s]
-0.0.B: Trace Attempt 445	[24.38 s]
-0.0.Ht: Trace Attempt 533	[25.74 s]
-0.0.Hp: Trace Attempt 459	[26.73 s]
-0.0.N: Trace Attempt 571	[27.84 s]
-0.0.B: Trace Attempt 460	[28.62 s]
-0.0.Ht: Trace Attempt 567	[31.95 s]
-0.0.N: Trace Attempt 734	[31.87 s]
-0.0.B: Trace Attempt 462	[33.58 s]
-0.0.B: Trace Attempt 514	[37.64 s]
-0.0.Ht: Trace Attempt 628	[38.66 s]
-0.0.N: Trace Attempt 861	[38.06 s]
-0.0.B: Trace Attempt 538	[43.06 s]
-0.0.N: Trace Attempt 940	[43.12 s]
-0.0.B: Trace Attempt 539	[47.80 s]
-0.0.N: Trace Attempt 1003	[49.44 s]
-0.0.N: Trace Attempt 1088	[54.99 s]
-0.0.B: Trace Attempt 550	[55.69 s]
-0.0.N: Trace Attempt 1263	[59.02 s]
-0.0.B: Trace Attempt 553	[60.06 s]
-0.0.N: Trace Attempt 1306	[63.02 s]
-0.0.B: Trace Attempt 595	[64.19 s]
-0.0.N: Trace Attempt 1369	[68.47 s]
-0.0.B: Trace Attempt 627	[72.03 s]
-0.0.N: Trace Attempt 1430	[72.67 s]
-0.0.N: Trace Attempt 1625	[76.69 s]
-0.0.B: Trace Attempt 628	[80.75 s]
-0.0.N: Trace Attempt 1679	[82.12 s]
-0.0.B: Trace Attempt 650	[84.99 s]
-0.0.Ht: Trace Attempt 859	[87.41 s]
-0.0.N: Trace Attempt 1741	[87.26 s]
-0.0.B: Trace Attempt 652	[89.08 s]
-0.0.N: Trace Attempt 1791	[91.31 s]
-0.0.N: Trace Attempt 1872	[95.33 s]
-0.0.N: Trace Attempt 2043	[99.34 s]
-0.0.N: Trace Attempt 2079	[103.36 s]
-0.0.B: Trace Attempt 653	[105.52 s]
-0.0.N: Trace Attempt 2150	[108.30 s]
-0.0.B: Trace Attempt 679	[109.52 s]
-0.0.N: Trace Attempt 2202	[112.30 s]
-0.0.N: Trace Attempt 2259	[116.31 s]
-0.0.N: Trace Attempt 2412	[120.31 s]
-0.0.N: Trace Attempt 2547	[124.41 s]
-0.0.B: Trace Attempt 712	[126.02 s]
-0.0.N: Trace Attempt 2628	[129.90 s]
-0.0.N: Trace Attempt 2691	[133.91 s]
-0.0.N: Trace Attempt 2843	[137.91 s]
-0.0.N: Trace Attempt 2961	[144.14 s]
-0.0.B: Trace Attempt 714	[147.32 s]
-0.0.N: Trace Attempt 3029	[148.99 s]
-0.0.N: Trace Attempt 3117	[154.22 s]
-0.0.B: Trace Attempt 716	[158.83 s]
-0.0.N: Trace Attempt 3278	[159.15 s]
-0.0.N: Trace Attempt 3366	[165.68 s]
-0.0.B: Trace Attempt 718	[168.66 s]
-0.0.N: Trace Attempt 3413	[169.72 s]
-0.0.B: Trace Attempt 764	[172.73 s]
-0.0.N: Trace Attempt 3549	[173.73 s]
-0.0.B: Trace Attempt 793	[176.89 s]
-0.0.N: Trace Attempt 3657	[177.74 s]
-0.0.N: Trace Attempt 3681	[181.75 s]
-0.0.B: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[182.83 s].
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0.0.B: Trace Attempt 314	[4.01 s]
+0.0.N: Trace Attempt 273	[4.35 s]
+0.0.Ht: Trace Attempt 267	[5.46 s]
+0.0.B: Trace Attempt 342	[8.07 s]
+0.0.N: Trace Attempt 380	[8.51 s]
+0.0.Ht: Trace Attempt 379	[13.17 s]
+0.0.B: Trace Attempt 387	[12.45 s]
+0.0.N: Trace Attempt 460	[13.49 s]
+0.0.B: Trace Attempt 416	[16.46 s]
+0.0.Ht: Trace Attempt 459	[17.95 s]
+0.0.N: Trace Attempt 526	[19.19 s]
+0.0.B: Trace Attempt 447	[20.89 s]
+0.0.Ht: Trace Attempt 526	[23.49 s]
+0.0.N: Trace Attempt 588	[23.19 s]
+0.0.B: Trace Attempt 461	[26.18 s]
+0.0.N: Trace Attempt 771	[27.30 s]
+0.0.Ht: Trace Attempt 573	[29.47 s]
+0.0.B: Trace Attempt 515	[30.25 s]
+0.0.N: Trace Attempt 915	[31.30 s]
+0.0.B: Trace Attempt 538	[34.88 s]
+0.0.N: Trace Attempt 982	[35.30 s]
+0.0.B: Trace Attempt 539	[38.89 s]
+0.0.N: Trace Attempt 1003	[39.41 s]
+0.0.N: Trace Attempt 1088	[44.01 s]
+0.0.B: Trace Attempt 550	[46.85 s]
+0.0.N: Trace Attempt 1285	[50.20 s]
+0.0.B: Trace Attempt 553	[51.70 s]
+0.0.N: Trace Attempt 1369	[55.25 s]
+0.0.B: Trace Attempt 594	[55.80 s]
+0.0.N: Trace Attempt 1493	[59.28 s]
+0.0.B: Trace Attempt 627	[63.33 s]
+0.0.N: Trace Attempt 1679	[66.42 s]
+0.0.Ht: Trace Attempt 859	[67.76 s]
+0.0.N: Trace Attempt 1741	[70.61 s]
+0.0.B: Trace Attempt 628	[72.05 s]
+0.0.N: Trace Attempt 1804	[74.63 s]
+0.0.B: Trace Attempt 648	[76.08 s]
+0.0.N: Trace Attempt 1964	[79.80 s]
+0.0.B: Trace Attempt 652	[80.46 s]
+0.0.N: Trace Attempt 2073	[83.92 s]
+0.0.N: Trace Attempt 2152	[87.95 s]
+0.0.N: Trace Attempt 2217	[91.95 s]
+0.0.B: Trace Attempt 653	[93.60 s]
+0.0.N: Trace Attempt 2360	[95.98 s]
+0.0.B: Trace Attempt 710	[97.70 s]
+0.0.N: Trace Attempt 2547	[100.32 s]
+0.0.N: Trace Attempt 2628	[104.70 s]
+0.0.N: Trace Attempt 2729	[110.43 s]
+0.0.B: Trace Attempt 712	[112.27 s]
+0.0.N: Trace Attempt 2961	[116.12 s]
+0.0.N: Trace Attempt 3036	[120.16 s]
+0.0.N: Trace Attempt 3163	[124.16 s]
+0.0.N: Trace Attempt 3310	[128.19 s]
+0.0.B: Trace Attempt 714	[128.93 s]
+0.0.N: Trace Attempt 3366	[132.74 s]
+0.0.N: Trace Attempt 3457	[137.75 s]
+0.0.B: Trace Attempt 716	[138.35 s]
+0.0.N: Trace Attempt 3638	[141.75 s]
+0.0.N: Trace Attempt 3708	[145.77 s]
+0.0.B: Trace Attempt 718	[149.10 s]
+0.0.N: Trace Attempt 3737	[150.17 s]
+0.0.B: Trace Attempt 761	[153.29 s]
+0.0.N: Trace Attempt 3802	[154.18 s]
+0.0.B: Trace Attempt 785	[157.31 s]
+0.0.N: Trace Attempt 4007	[158.19 s]
+0.0.N: Trace Attempt 4157	[164.41 s]
+0.0.N: Trace Attempt 4341	[168.42 s]
+0.0.N: Trace Attempt 4417	[172.42 s]
+0.0.N: Trace Attempt 4551	[177.23 s]
+0.0.B: Trace Attempt 798	[178.44 s]
+0.0.N: Trace Attempt 4659	[181.24 s]
+0.0.N: Trace Attempt 4779	[185.25 s]
+0.0.B: Trace Attempt 799	[185.40 s]
+0.0.N: Trace Attempt 4922	[189.26 s]
+0.0.B: Trace Attempt 800	[193.83 s]
+0.0.N: Trace Attempt 5013	[195.06 s]
+0.0.B: Trace Attempt 828	[197.86 s]
+0.0.N: Trace Attempt 5268	[200.41 s]
+0.0.N: Trace Attempt 5304	[208.12 s]
+0.0.B: Trace Attempt 829	[214.31 s]
+0.0.N: Trace Attempt 5343	[216.20 s]
+0.0.Ht: Trace Attempt 1695	[223.30 s]
+0.0.N: Trace Attempt 5386	[224.90 s]
+0.0.B: Trace Attempt 830	[229.58 s]
+0.0.B: Trace Attempt 833	[236.36 s]
+0.0.N: Trace Attempt 5424	[236.82 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Mp
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Mp: Trace Attempt  1	[0.00 s]
+0.0.Mp: Trace Attempt  2	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  3	[0.00 s]
+0.0.Mp: Trace Attempt  4	[0.00 s]
+0.0.Mp: Trace Attempt  5	[0.00 s]
+0.0.B: Trace Attempt 839	[240.62 s]
+0.0.B: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[240.73 s].
 0.0.B: Morphing to K
-0.0.B: Trace Attempt 797	[177.45 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
 0.0.K: Trace Attempt 34	[0.00 s]
-0.0.K: Trace Attempt  1	[0.05 s]
-0.0.K: Trace Attempt  2	[0.05 s]
-0.0.K: Trace Attempt  3	[0.05 s]
-0.0.K: Trace Attempt  4	[0.05 s]
-0.0.K: Trace Attempt  5	[0.05 s]
-0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[183.30 s].
+0.0.K: Trace Attempt  1	[0.04 s]
+0.0.K: Trace Attempt  2	[0.04 s]
+0.0.K: Trace Attempt  3	[0.04 s]
+0.0.K: Trace Attempt  4	[0.04 s]
+0.0.K: Trace Attempt  5	[0.04 s]
+0.0.N: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[241.19 s].
 0.0.N: Morphing to AM
-0.0.N: Trace Attempt 3714	[182.76 s]
+0.0.N: Trace Attempt 5447	[240.63 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -775,21 +838,22 @@ INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.04 s]
-0.0.AM: Trace Attempt  2	[0.04 s]
-0.0.AM: Trace Attempt  3	[0.04 s]
-0.0.AM: Trace Attempt  5	[0.04 s]
-0.0.K: Trace Attempt 288	[4.09 s]
-0.0.AM: Trace Attempt 124	[4.97 s]
-0.0.K: Trace Attempt 332	[8.16 s]
-0.0.AM: Trace Attempt 212	[9.98 s]
-0.0.K: Trace Attempt 349	[12.30 s]
-0.0.AM: Trace Attempt 288	[15.95 s]
-0.0.K: Trace Attempt 360	[16.79 s]
-0.0.AM: Trace Attempt 324	[19.99 s]
-0.0.K: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[20.72 s].
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  5	[0.02 s]
+0.0.Mp: Trace Attempt 101	[4.24 s]
+0.0.K: Trace Attempt 272	[4.04 s]
+0.0.AM: Trace Attempt 140	[4.04 s]
+0.0.Mp: Trace Attempt 129	[9.09 s]
+0.0.K: Trace Attempt 314	[8.71 s]
+0.0.AM: Trace Attempt 212	[8.32 s]
+0.0.K: Trace Attempt 346	[13.46 s]
+0.0.Mp: Trace Attempt 129	[14.45 s]
+0.0.AM: Trace Attempt 288	[13.52 s]
+0.0.K: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[14.54 s].
 0.0.K: Morphing to AB
-0.0.K: Trace Attempt 363	[20.19 s]
+0.0.K: Trace Attempt 347	[13.49 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -803,7 +867,7 @@ INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
@@ -814,122 +878,84 @@ INFO (IPF057): 0.0.Hp: The property "binary_counter.auto_sva_inst.check_zero_max
 0.0.AB: Trace Attempt  3	[0.04 s]
 0.0.AB: Trace Attempt  4	[0.04 s]
 0.0.AB: Trace Attempt  5	[0.04 s]
-0.0.AM: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[20.30 s].
+0.0.AM: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[14.16 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 327	[20.21 s]
+0.0.AM: Trace Attempt 294	[13.93 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Tri: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.21" ---- Launching abstraction thread ----
-0.0.Tri:    0.23" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.47 s]
-0.0.Tri: Trace Attempt  3	[0.47 s]
-0.0.Tri: Trace Attempt  4	[0.47 s]
-0.0.Tri: Trace Attempt  5	[0.47 s]
-0.0.Tri:    1.34" Simplification phase 1 complete
-0.0.Tri:    3.15" Simplification phase 2 complete
-0.0.AB: Trace Attempt 225	[4.04 s]
-0.0.Tri:    4.26" Simplification phase 3 complete
-   4.26" ---- Completed simplification thread ----
-   4.26" ---- Restarting main thread on simplified netlist ----
-0.0.Tri: Trace Attempt 10305	[6.36 s]
-0.0.AB: Trace Attempt 330	[8.05 s]
-0.0.Tri: Trace Attempt 20515	[10.54 s]
-0.0.AB: Trace Attempt 410	[12.07 s]
-0.0.Tri: Trace Attempt 32147	[14.54 s]
-0.0.AB: Trace Attempt 499	[16.22 s]
-0.0.Tri: Trace Attempt 42274	[18.54 s]
-0.0.AB: Trace Attempt 537	[20.33 s]
-0.0.Tri: Trace Attempt 52828	[22.80 s]
-0.0.AB: Trace Attempt 577	[24.39 s]
-0.0.Tri: Trace Attempt 64751	[26.80 s]
-0.0.AB: Trace Attempt 611	[28.40 s]
-0.0.Tri: Trace Attempt 73440	[30.80 s]
-0.0.AB: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[31.81 s].
+0.0.Tri:    0.39" ---- Launching abstraction thread ----
+0.0.Tri:    0.42" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.58 s]
+0.0.Tri: Trace Attempt  3	[0.58 s]
+0.0.Tri: Trace Attempt  4	[0.58 s]
+0.0.Tri: Trace Attempt  5	[0.58 s]
+0.0.Tri:    1.38" Simplification phase 1 complete
+0.0.Tri:    2.62" Simplification phase 2 complete
+0.0.Tri:    2.70" Simplification phase 3 complete
+   2.70" ---- Completed simplification thread ----
+   2.70" ---- Restarting main thread on simplified netlist ----
+0.0.Mp: Trace Attempt 170	[18.93 s]
+0.0.AB: Trace Attempt 212	[4.15 s]
+0.0.Tri: Trace Attempt 5725	[4.59 s]
+0.0.Mp: Trace Attempt 198	[23.09 s]
+0.0.AB: Trace Attempt 266	[8.16 s]
+0.0.Tri: Trace Attempt 18313	[8.66 s]
+0.0.AB: Trace Attempt 332	[12.30 s]
+0.0.Mp: Trace Attempt 209	[27.54 s]
+0.0.Tri: Trace Attempt 40727	[12.66 s]
+0.0.AB: Trace Attempt 383	[16.30 s]
+0.0.Tri: Trace Attempt 52748	[16.66 s]
+0.0.Mp: Trace Attempt 242	[33.45 s]
+0.0.AB: Trace Attempt 450	[20.52 s]
+0.0.Tri: Trace Attempt 63933	[20.66 s]
+0.0.AB: Trace Attempt 504	[24.52 s]
+0.0.Mp: Trace Attempt 242	[40.09 s]
+0.0.Tri: Trace Attempt 72981	[24.66 s]
+0.0.AB: Trace Attempt 517	[28.58 s]
+0.0.Tri: Trace Attempt 83885	[28.66 s]
+0.0.AB: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[31.70 s].
 0.0.AB: Morphing to K
-0.0.AB: Trace Attempt 654	[31.72 s]
+0.0.AB: Trace Attempt 542	[31.38 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[0.00 s].
 0.0.K: Trace Attempt 34	[0.00 s]
-0.0.K: Trace Attempt  1	[0.07 s]
-0.0.K: Trace Attempt  2	[0.07 s]
-0.0.K: Trace Attempt  3	[0.07 s]
-0.0.K: Trace Attempt  4	[0.07 s]
-0.0.K: Trace Attempt  5	[0.07 s]
-0.0.Tri: Trace Attempt 84507	[34.80 s]
-0.0.K: Trace Attempt 280	[4.08 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Morphing to Mp
-0.0.Hp: Trace Attempt 543	[26.76 s]
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.00 s)
-0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Mp: Trace Attempt  1	[0.00 s]
-0.0.Mp: Trace Attempt  2	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  3	[0.00 s]
-0.0.Mp: Trace Attempt  4	[0.00 s]
-0.0.Mp: Trace Attempt  5	[0.00 s]
-0.0.Tri: Trace Attempt 91498	[39.35 s]
-0.0.K: Trace Attempt 318	[8.10 s]
-0.0.Mp: Trace Attempt 99	[4.43 s]
-0.0.Tri: Trace Attempt 104125	[43.35 s]
-0.0.K: Trace Attempt 348	[12.91 s]
-0.0.Mp: Trace Attempt 121	[8.47 s]
-0.0.Tri: Trace Attempt 116422	[47.35 s]
-0.0.K: Trace Attempt 359	[17.51 s]
-0.0.Mp: Trace Attempt 129	[13.23 s]
-0.0.Tri: Trace Attempt 128455	[51.35 s]
-0.0.K: Trace Attempt 363	[22.18 s]
-0.0.Tri: Trace Attempt 132631	[55.36 s]
-0.0.Mp: Trace Attempt 129	[19.15 s]
-0.0.K: Trace Attempt 367	[26.55 s]
-0.0.Tri: Trace Attempt 144672	[59.61 s]
-0.0.Mp: Trace Attempt 167	[23.29 s]
-0.0.K: Trace Attempt 371	[31.49 s]
-0.0.Tri: Trace Attempt 157790	[63.61 s]
-0.0.Mp: Trace Attempt 189	[27.50 s]
-0.0.Tri: Trace Attempt 170634	[67.95 s]
-0.0.Mp: Trace Attempt 202	[31.61 s]
-0.0.K: Trace Attempt 374	[36.98 s]
-0.0.Tri: Trace Attempt 184194	[71.96 s]
-0.0.Mp: Trace Attempt 221	[35.95 s]
-0.0.K: Trace Attempt 377	[42.04 s]
-0.0.Tri: Trace Attempt 195495	[76.02 s]
-0.0.Mp: Trace Attempt 242	[41.56 s]
-0.0.K: Trace Attempt 381	[47.35 s]
-0.0.K: Trace Attempt 385	[51.71 s]
-0.0.Tri: Trace Attempt 202913	[84.44 s]
-0.0.Mp: Trace Attempt 242	[49.84 s]
-0.0.K: Trace Attempt 388	[56.33 s]
-0.0.Tri: Trace Attempt 214817	[88.44 s]
-0.0.Mp: Trace Attempt 242	[54.28 s]
-0.0.K: Trace Attempt 391	[60.69 s]
-0.0.Tri: Trace Attempt 226883	[92.44 s]
-INFO (IPF144): 0: Initiating shutdown of proof [300.00 s]
-0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 1739	[87.70 s]
-0.0.Ht: Time limit expired (300.00 s) [299.94 s]
-0.0.K: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[63.60 s].
-0.0.K: Trace Attempt 393	[62.92 s]
-0.0.K: Time limit expired (300.00 s) [63.60 s]
-0.0.K: Exited with Success (@ 300.01 s)
-0.0.Ht: Exited with Success (@ 300.01 s)
-0.0.Tri: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[95.31 s].
-0.0.Tri: Trace Attempt 234699	[95.31 s]
-0.0.Tri: Time limit expired (300.00 s) [95.31 s]
-0.0.Mp: Time limit expired (300.00 s) [59.02 s]
-0.0.Tri: Exited with Success (@ 300.10 s)
-0.0.Mp: Exited with Success (@ 300.10 s)
+0.0.K: Trace Attempt  1	[0.06 s]
+0.0.K: Trace Attempt  2	[0.06 s]
+0.0.K: Trace Attempt  3	[0.06 s]
+0.0.K: Trace Attempt  4	[0.06 s]
+0.0.K: Trace Attempt  5	[0.06 s]
+0.0.Mp: Trace Attempt 242	[47.44 s]
+0.0.Tri: Trace Attempt 91498	[33.44 s]
+0.0.K: Trace Attempt 260	[4.07 s]
+0.0.Tri: Trace Attempt 108826	[37.63 s]
+0.0.K: Trace Attempt 303	[8.35 s]
+0.0.Mp: Trace Attempt 242	[56.17 s]
+0.0.Tri: Trace Attempt 126510	[41.92 s]
+INFO (IPF144): 0: Initiating shutdown of proof [300.13 s]
+0.0.K: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[12.11 s].
+0.0.K: Trace Attempt 332	[12.10 s]
+0.0.K: Time limit expired (300.00 s) [12.11 s]
+0.0.Tri: Stopped processing property "binary_counter.auto_sva_inst.check_all_ones_wraps_to_zero:precondition1"	[43.70 s].
+0.0.K: Exited with Success (@ 300.31 s)
+0.0.Tri: Trace Attempt 131906	[43.09 s]
+0.0.Tri: Time limit expired (300.00 s) [43.70 s]
+0.0.Mp: Time limit expired (300.00 s) [59.27 s]
+0.0.Tri: Sending SIGKILL
+0.0.Mp: Sending SIGKILL
+0.0.Ht: Sending SIGKILL
+0.0.Tri: Exited with Success (@ 302.26 s)
+0.0.Mp: Exited with Success (@ 302.26 s)
+0.0.Ht: Trace Attempt 5385	[224.37 s]
+0.0.Ht: Terminated by signal SIGKILL (@ 302.26 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
      engines started                               :     9
      engine jobs started                           :     4
@@ -938,20 +964,20 @@ ProofGrid Summary (utilization 99.98 %)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.06      299.94        0.00       99.98 %
-      K        0.04      299.87        0.00       99.99 %
-    Tri        0.05      299.46        0.00       99.98 %
-     Mp        0.05      299.98        0.00       99.98 %
-    all        0.05      299.81        0.00       99.98 %
+     Ht        0.10      302.11        0.00       99.97 %
+     Mp        0.08      300.32        0.00       99.97 %
+      K        0.11      299.90        0.00       99.96 %
+    Tri        0.07      299.65        0.00       99.98 %
+    all        0.09      300.49        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.19     1199.26        0.00
+               0.36     1201.98        0.00
 
-    Data read    : 9.86 MiB
-    Data written : 8.10 MiB
+    Data read    : 7.29 MiB
+    Data written : 3.36 MiB
 
 0: All pending notifications were processed.
 ----------------------------------------
@@ -987,6 +1013,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/03945/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 7 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 7 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/03945/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1037,8 +1121,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1053,6 +1141,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 2.564 GB.
+INFO (IPL018): The peak resident set memory use for this session was 3.305 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

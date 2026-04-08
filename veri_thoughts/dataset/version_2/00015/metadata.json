@@ -1,0 +1,29 @@
+{
+  "id": "00015",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.645285",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de647e48190bd0037158472fb82",
+  "custom_id": "MUX_2_TO_1_990a6c84",
+  "module_name": "MUX_2_TO_1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `MUX_2_TO_1`.\nThis module should have the following interface:\n- Inputs: `A` (1-bit), `B` (1-bit), `S` (1-bit)\n- Output: `Z` (1-bit)\n\nThe module should implement a 2-to-1 multiplexer. The output `Z` should select input `A` when the select signal `S` is logic '0', and select input `B` when the select signal `S` is logic '1'.\n",
+  "original_verified": true,
+  "prompt_hash": "1a6216",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.363341",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

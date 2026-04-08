@@ -1,0 +1,29 @@
+{
+  "id": "00462",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.276524",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3e787481909a9bd5bad208303a",
+  "custom_id": "binary_counter_a3e96545",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_counter`. Define the following interface: inputs `CLK`, `RST`, `COUNT_EN`, and a 4-bit output register `Q`. Implement a synchronous 4-bit binary counter. On the positive edge of `CLK`, if `RST` is high, the output `Q` should be reset to 4'b0000. Otherwise, if `COUNT_EN` is high, the output `Q` should increment by one. If neither `RST` nor `COUNT_EN` is high, the output should retain its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "05ae8f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.880341",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

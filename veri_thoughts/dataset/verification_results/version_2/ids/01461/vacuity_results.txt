@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=01461
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::top_module.auto_sva_inst.counter_increments_when_enabled | error
+<embedded>::top_module.auto_sva_inst.counter_holds_when_disabled | error
+<embedded>::top_module.auto_sva_inst.q_selects_counter_on_011 | error
+<embedded>::top_module.auto_sva_inst.q_equals_w_when_not_011 | error
+<embedded>::top_module.auto_sva_inst.w_selects_a_on_000 | error
+<embedded>::top_module.auto_sva_inst.w_selects_b_on_001 | error
+<embedded>::top_module.auto_sva_inst.w_selects_c_on_010 | error
+<embedded>::top_module.auto_sva_inst.w_zero_on_other_selects | error

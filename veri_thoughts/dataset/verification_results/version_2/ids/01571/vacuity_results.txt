@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01571
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::r_FAULT_STATUS.auto_sva_inst.reset_sets_zero_next | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.reset_overrides_write | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.write_captures_in_data | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.hold_on_wenb_high | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.reset_while_asserted_holds_zero | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.no_update_when_wenb_high_despite_data_change | error
+<embedded>::r_FAULT_STATUS.auto_sva_inst.write_with_different_data_changes_reg | error

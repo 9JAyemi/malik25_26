@@ -1,0 +1,29 @@
+{
+  "id": "00117",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.838944",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd36ec819087873f3dbf0e0353",
+  "custom_id": "register_4bit_aefbe236",
+  "module_name": "register_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a 4-bit synchronous register module named `register_4bit`.\n\nThe module should have the following interface:\n*   `input CLK` (Clock signal)\n*   `input [3:0] D` (4-bit data input)\n*   `input LD` (Load enable signal)\n*   `input RST` (Asynchronous reset signal)\n*   `output reg [3:0] Q` (4-bit data output)\n\nThe register should behave as follows:\n*   It should be a positive-edge triggered register based on the `CLK` signal.\n*   When the `RST` signal is high, the register should asynchronously reset its output `Q` to 4'b0, regardless of the clock edge or other inputs.\n*   When `RST` is low, the register's value should update on the positive edge of `CLK`.\n*   On the positive edge of `CLK` (when `RST` is low):\n    *   If the `LD` signal is high, the register should load the value from the `D` input.\n    *   If the `LD` signal is low, the register should retain its current value.\n*   The output `Q` should always reflect the current state of the internal register value.\n",
+  "original_verified": true,
+  "prompt_hash": "e7ec5d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.396311",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

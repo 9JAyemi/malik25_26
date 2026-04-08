@@ -1,0 +1,29 @@
+{
+  "id": "00465",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.284727",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3e79948190977f6aa962fe1b9e",
+  "custom_id": "up_counter_2bit_c545430e",
+  "module_name": "up_counter_2bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `up_counter_2bit`.\nThis module has the following ports: inputs `clk`, `reset`, and `enable`, and a 2-bit output `count`.\nThe module should implement a 2-bit binary up-counter.\nThe counter should increment on the positive edge of the `clk` signal, but only when the `enable` input is high.\nWhen the `enable` input is low, the counter should hold its current value.\nThe counter should have an asynchronous reset: a high level on the `reset` input should immediately set the `count` output to `2'b00`, overriding the clock and enable signals.\nSince it is a 2-bit counter, it should naturally wrap around from `2'b11` to `2'b00` when incrementing.\n",
+  "original_verified": true,
+  "prompt_hash": "b2d9ba",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.880944",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=03019
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_reset_clears_all_stages_next_clock | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_signal_meta_captures_input | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_signal_d_captures_signal_meta | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_output_captures_signal_d | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_signal_d_matches_input_after_two_clocks | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_output_matches_input_after_three_clocks | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_signal_d_stays_init_two_clocks_after_reset | error
+<embedded>::cdc_3ff.cdc_3ff_sva_i.check_output_stays_init_three_clocks_after_reset | error

@@ -1,0 +1,29 @@
+{
+  "id": "00573",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.674848",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6a61a08190a45099fe0c9341da",
+  "custom_id": "sky130_fd_sc_hd__nor4b_682d3687",
+  "module_name": "sky130_fd_sc_hd__nor4b",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `sky130_fd_sc_hd__nor4b`.\nThe module should have the following interface:\nInputs: `A`, `B`, `C`, `D_N`, `VPWR`, `VGND`, `VPB`, `VNB`\nOutput: `Y`\n\nImplement the combinational logic such that the output `Y` is the logical inverse of the OR combination of the inputs `A`, `B`, `C`, and `D_N`.\n",
+  "original_verified": true,
+  "prompt_hash": "ff9748",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.906292",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

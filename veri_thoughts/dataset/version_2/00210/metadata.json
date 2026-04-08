@@ -1,0 +1,29 @@
+{
+  "id": "00210",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.775962",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e095318819080b40f084d92656c",
+  "custom_id": "draw_block_02c9804e",
+  "module_name": "draw_block",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `draw_block` that generates a pixel color output (`out`) based on screen coordinates (`hcounter`, `vcounter`), a block type (`block`), and a clock signal. The module is responsible for drawing different block patterns within a specific region of a display.\n\nThe module interface is defined as follows:\n-   Inputs:\n    -   `clock`: The system clock.\n    -   `vcounter [10:0]`: The current vertical coordinate.\n    -   `hcounter [11:0]`: The current horizontal coordinate.\n    -   `block [2:0]`: A code indicating the type of block to draw at the current grid cell.\n\n-   Outputs:\n    -   `sel_row [4:0]`: The calculated row index of the current coordinate within the drawing grid.\n    -   `sel_col [4:0]`: The calculated column index of the current coordinate within the drawing grid.\n    -   `out [3:0]`: The 4-bit color value for the pixel at the current coordinate.\n\nDefine the following parameters within the module:\n-   `LEFT = 160`\n-   `TOP = 0`\n-   `MAXX = 320`\n-   `MAXY = 480`\n\nThe outputs `sel_col` and `sel_row` should represent the grid coordinates based on the input `hcounter` and `vcounter` relative to the `LEFT` and `TOP` parameters. Specifically, `sel_col` is the horizontal offset divided by 32, and `sel_row` is the vertical offset divided by 16.\n\nThe output `out` should be determined based on the current coordinate and the `block` input:\n-   If the current coordinate (`hcounter`, `vcounter`) falls outside the rectangular area defined by (`LEFT`, `TOP`) as the top-left corner and dimensions `MAXX` by `MAXY`, the output `out` should be `4'b0000`.\n-   If the current coordinate is inside this area:\n    -   If `block` is `3'b000`, the output `out` should be `4'b0000`.\n    -   If the most significant bit of `block` (`block[2]`) is 0 (representing \"Type A\" blocks, which occupy a 32x16 pixel cell but draw a pattern effectively within a 10x10 area):\n        -   Calculate the local horizontal (`i`) and vertical (`j`) coordinates within the current 32x16 pixel cell (e.g., `i` is the horizontal offset from the cell's left edge, `j` is the vertical offset from the cell's top edge).\n        -   Draw a border (color `4'b1000`) if `i` is 8 or 23, or if `i` is between 9 and 22 (inclusive) and `j` is 0 or 15.\n        -   Inside this border (i.e., `i` between 9 and 22 inclusive and `j` between 1 and 14 inclusive), the color depends on the lower two bits of `block` (`block[1:0]`): `2'b00` results in `4'b0000`, `2'b01` results in `4'b1100`, `2'b10` results in `4'b1011`, and `2'b11` results in `4'b1101`.\n        -   For areas outside the inner border and inner fill: if `block[1:0]` is `2'b11`, draw an outer border (color `4'b1000`) if `i` is 0 or 31 or `j` is 0 or 15; otherwise, fill with color `4'b1110`. For any other value of `block[1:0]` (`2'b00`, `2'b01`, `2'b10`), this outer area should be `4'b0000`.\n    -   If the most significant bit of `block` (`block[2]`) is 1 (representing \"Type B\" blocks, which occupy a 32x16 pixel cell and draw a pattern effectively within a 20x10 area):\n        -   Calculate the local horizontal (`i`) and vertical (`j`) coordinates within the current 32x16 pixel cell.\n        -   Draw a border (color `4'b1000`) if `i` is 0 or 31 or `j` is 0 or 15.\n        -   Inside this border, the color depends on `block[1:0]`: `2'b00` results in `4'b1001`, `2'b01` results in `4'b1010`, `2'b10` results in `4'b1110`, and `2'b11` results in `4'b1111`.\n\nImplement this logic in Verilog, ensuring the module and port names match exactly.\n",
+  "original_verified": true,
+  "prompt_hash": "bd00dd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 18
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.449562",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

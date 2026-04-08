@@ -1,0 +1,29 @@
+{
+  "id": "00279",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.745169",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3d94ec81909825c3ea3099f907",
+  "custom_id": "manchester_05f2bfae",
+  "module_name": "manchester",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `manchester` with a single input `in` and a single output `out`.\n\nThe module's behavior is synchronized to the positive transitions of the `in` signal itself. It uses two internal registers to hold state: one representing the output value (`out_reg`) and one to remember the input's state before the transition (`prev_in`). The output `out` directly follows `out_reg`.\n\nOn each positive edge of `in`, the register storing the previous input value (`prev_in`) is updated to the new value of `in`. Simultaneously, the output state register (`out_reg`) is updated based on a comparison between the current value of `in` and the *old* value stored in `prev_in`: if they match, `out_reg` toggles its state; otherwise, `out_reg` is set to the current value of `in`.\n",
+  "original_verified": true,
+  "prompt_hash": "a5cca3",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.469386",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

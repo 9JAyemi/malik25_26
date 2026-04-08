@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=02753
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::synchronous_counter.auto_sva_inst.reset_clears_next | error
+<embedded>::synchronous_counter.auto_sva_inst.load_captures_data_in | error
+<embedded>::synchronous_counter.auto_sva_inst.load_overrides_en | error
+<embedded>::synchronous_counter.auto_sva_inst.en_increments_nonmax | error
+<embedded>::synchronous_counter.auto_sva_inst.en_wraps_at_max_to_zero | error
+<embedded>::synchronous_counter.auto_sva_inst.holds_when_idle | error
+<embedded>::synchronous_counter.auto_sva_inst.en_causes_change | error
+<embedded>::synchronous_counter.auto_sva_inst.allowed_transitions_without_load | error

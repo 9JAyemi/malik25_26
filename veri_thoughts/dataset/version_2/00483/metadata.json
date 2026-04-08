@@ -1,0 +1,29 @@
+{
+  "id": "00483",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.334407",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4073088190aed2b8f40c963011",
+  "custom_id": "priority_encoder_8cf24c58",
+  "module_name": "priority_encoder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `priority_encoder` that implements a 4-to-2 priority encoder. The module should have the following interface:\n\n```verilog\nmodule priority_encoder(\n  input [3:0] in,\n  output [1:0] out\n);\n// ... module body ...\nendmodule\n```\n\nThe functionality should be as follows:\n- If multiple bits in the input `in` are asserted, the output `out` should indicate the index of the *highest-priority* asserted bit.\n- The priority order is `in[3]` (highest), `in[2]`, `in[1]`, `in[0]` (lowest).\n- The output `out` should be the 2-bit binary encoding of the index of the highest-priority asserted input bit (e.g., if `in[3]` is the highest asserted, `out` is `2'b11`).\n- If *none* of the input bits are asserted, the output `out` should be `2'bxx` (undefined).\n- Implement this functionality using a single continuous assignment statement.\n",
+  "original_verified": true,
+  "prompt_hash": "efb1af",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.885036",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

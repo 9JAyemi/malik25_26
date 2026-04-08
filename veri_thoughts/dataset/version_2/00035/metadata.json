@@ -1,0 +1,29 @@
+{
+  "id": "00035",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.684746",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de7c3088190af279761e3ae7f05",
+  "custom_id": "math_op_955e5e4b",
+  "module_name": "math_op",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `math_op` that performs different arithmetic operations based on a control input. The module should have the following interface:\n\nInputs:\n*   `a`: An 8-bit input (`[7:0]`)\n*   `b`: An 8-bit input (`[7:0]`)\n*   `op`: A 2-bit input (`[1:0]`) to select the operation.\n\nOutput:\n*   `result`: An 8-bit output (`reg [7:0]`) representing the result of the operation.\n\nThe module should perform the following operations based on the value of the `op` input:\n*   If `op` is `2'b00`, `result` should be the sum of `a` and `b`.\n*   If `op` is `2'b01`, `result` should be the difference between `a` and `b` (`a - b`).\n*   If `op` is `2'b10`, `result` should be the product of `a` and `b`.\n*   If `op` is `2'b11`, `result` should be the integer division of `a` by `b` (`a / b`). Handle the case where `b` is zero during division by setting `result` to `8'd0`.\n\nThe output `result` should be assigned within an `always` block sensitive to the inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "799c30",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.369253",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

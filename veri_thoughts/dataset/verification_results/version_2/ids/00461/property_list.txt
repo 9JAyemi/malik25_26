@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_sum_matches_addition
+adder.auto_sva_inst.check_c_matches_sum_sign
+adder.auto_sva_inst.check_zero_left_identity
+adder.auto_sva_inst.check_zero_right_identity
+adder.auto_sva_inst.check_zero_plus_zero
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_zero_left_identity:precondition1
+adder.auto_sva_inst.check_zero_right_identity:precondition1
+adder.auto_sva_inst.check_zero_plus_zero:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00511",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.440389",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4ded9c819090bc524f505ae940",
+  "custom_id": "alu_a7bebd6a",
+  "module_name": "alu",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `alu` that implements a simple Arithmetic Logic Unit. The module should have the following interface:\n\n*   Inputs:\n    *   `A`: 4-bit operand\n    *   `B`: 4-bit operand\n    *   `Op`: 3-bit operation select code\n*   Output:\n    *   `result`: 4-bit output, which should be declared as `reg`.\n\nThe module should perform the following operations based on the value of the `Op` input:\n\n*   `3'b000`: Addition of `A` and `B`.\n*   `3'b001`: Subtraction of `B` from `A`.\n*   `3'b010`: Bitwise AND of `A` and `B`.\n*   `3'b011`: Bitwise OR of `A` and `B`.\n*   `3'b100`: Bitwise XOR of `A` and `B`.\n*   `3'b101`: Logical left shift of `A` by one bit.\n*   `3'b110`: Logical right shift of `A` by one bit.\n*   `3'b111`: Increment `A` by one.\n*   For any other value of `Op`: Decrement `A` by one.\n\nEnsure the output updates combinatorially based on the inputs using an appropriate `always` block.\n",
+  "original_verified": true,
+  "prompt_hash": "77847a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.891773",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00521",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.472386",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5131b88190ae8fb19881781aa4",
+  "custom_id": "And_Module_11296511",
+  "module_name": "And_Module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `And_Module`. This module should perform a bitwise AND operation on two 8-bit input vectors, `a` and `b`. The operation should be synchronous, triggered by the positive edge of the input clock `clk`. The 8-bit result of the AND operation should be assigned to the output `out`. Additionally, provide a single-bit output `out_valid` that indicates when the output `out` is valid. The module interface is defined as follows:\nInputs:\n- `clk`: 1-bit clock signal\n- `a`: 8-bit input vector\n- `b`: 8-bit input vector\nOutputs:\n- `out`: 8-bit output vector\n- `out_valid`: 1-bit output valid signal\n",
+  "original_verified": true,
+  "prompt_hash": "9589d2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.894350",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

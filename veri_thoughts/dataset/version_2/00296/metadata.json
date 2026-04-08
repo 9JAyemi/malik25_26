@@ -1,0 +1,29 @@
+{
+  "id": "00296",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.786504",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3eebd8819090a2fbe181836ea1",
+  "custom_id": "four_bit_adder_d7552382",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following two modules:\n\n1.  A module named `full_adder` that implements a standard 1-bit full adder. It should take three 1-bit inputs: `A`, `B`, and `Cin`, and produce two 1-bit outputs: `S` (sum) and `C` (carry).\n\n2.  A module named `four_bit_adder` that implements a 4-bit ripple-carry adder. It should utilize instances of the `full_adder` module you defined. The `four_bit_adder` module should have the following interface:\n    *   Inputs: `A` (4-bit), `B` (4-bit), `Cin` (1-bit)\n    *   Outputs: `S` (4-bit sum), `Cout` (1-bit carry-out)\n\nYour implementation should connect the full adder instances appropriately to form the 4-bit adder, propagating the carry from one stage to the next.\n",
+  "original_verified": true,
+  "prompt_hash": "0514b1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.473401",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

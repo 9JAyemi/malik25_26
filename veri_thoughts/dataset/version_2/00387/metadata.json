@@ -1,0 +1,29 @@
+{
+  "id": "00387",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.675810",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6bba548190ac7e9d12d94ac890",
+  "custom_id": "FSM_896cd906",
+  "module_name": "FSM",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a synchronous Moore Finite State Machine (FSM) module named `FSM`.\n\nThe module should have the following interface:\n-   Parameters: `n` (default 4, representing the number of input signals) and `m` (default 2, representing the number of output signals).\n-   Inputs: `input [n-1:0] in`, `input clk`.\n-   Outputs: `output [m-1:0] out`.\n\nThe FSM should have 8 states. Let's refer to these states as S0, S1, S2, S3, S4, S5, S6, and S7.\n\nThe output `out` is determined solely by the current state:\n-   `out[0]` should be high (`1'b1`) when the FSM is in states S0, S1, S2, or S3. Otherwise, `out[0]` should be low (`1'b0`).\n-   `out[1]` should be high (`1'b1`) when the FSM is in states S4, S5, S6, or S7. Otherwise, `out[1]` should be low (`1'b0`).\n\nThe state transitions should occur on the positive edge of the `clk` signal based on the current state and the input vector `in` as follows:\n-   From state S0: Transition to S1 if the least significant bit of `in` (`in[0]`) is high; otherwise, remain in S0.\n-   From state S1: Transition to S3 if `in[1]` is high; otherwise, transition to S2.\n-   From state S2: Transition to S3 if `in[2]` is high; otherwise, transition to S1.\n-   From state S3: Transition to S4 if the most significant bit of `in` (`in[3]`) is high; otherwise, transition to S0.\n-   From state S4: Transition to S5 if `in[0]` is high; otherwise, remain in S4.\n-   From state S5: Transition to S7 if `in[1]` is high; otherwise, transition to S6.\n-   From state S6: Transition to S7 if `in[2]` is high; otherwise, transition to S5.\n-   From state S7: Transition to S0 if `in[3]` is high; otherwise, transition to S4.\n",
+  "original_verified": true,
+  "prompt_hash": "ea91ed",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 12
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.497469",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

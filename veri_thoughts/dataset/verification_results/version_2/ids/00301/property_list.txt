@@ -1,0 +1,17 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_sum_function
+full_adder.auto_sva_inst.check_carry_function
+full_adder.auto_sva_inst.check_all_zero_case
+full_adder.auto_sva_inst.check_single_one_case
+full_adder.auto_sva_inst.check_two_ones_case
+full_adder.auto_sva_inst.check_all_one_case
+full_adder.auto_sva_inst.check_half_adder_mode
+full_adder.auto_sva_inst.check_cin_high_mode
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_all_zero_case:precondition1
+full_adder.auto_sva_inst.check_single_one_case:precondition1
+full_adder.auto_sva_inst.check_two_ones_case:precondition1
+full_adder.auto_sva_inst.check_all_one_case:precondition1
+full_adder.auto_sva_inst.check_half_adder_mode:precondition1
+full_adder.auto_sva_inst.check_cin_high_mode:precondition1

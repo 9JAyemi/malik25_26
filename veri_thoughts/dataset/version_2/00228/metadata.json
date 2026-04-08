@@ -1,0 +1,29 @@
+{
+  "id": "00228",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.813732",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e12e4008190ba684ebaebbc4fd7",
+  "custom_id": "and_logic_6f492be1",
+  "module_name": "and_logic",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `and_logic`.\nThe module should have the following interface:\n- Inputs: `A` (4 bits), `B` (4 bits), `reset` (1 bit)\n- Output: `C` (4 bits, registered)\n\nImplement the following logic:\n- When the `reset` input is high, the output `C` should be forced to all zero bits.\n- When the `reset` input is low, the output `C` should be the result of a bitwise AND operation between inputs `A` and `B`.\n\nEnsure the output `C` is implemented using a register.\n",
+  "original_verified": true,
+  "prompt_hash": "23a057",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.455485",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

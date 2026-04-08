@@ -1,0 +1,9 @@
+# Vacuity check results for DESIGN_ID=04479
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::NAND8_reducer.auto_sva_inst.check_reduced_nand_matches_function | error
+<embedded>::NAND8_reducer.auto_sva_inst.check_high_output_requires_exact_pattern | error
+<embedded>::NAND8_reducer.auto_sva_inst.check_exact_pattern_drives_high_output | error
+<embedded>::NAND8_reducer.auto_sva_inst.check_nonmatching_pattern_drives_low_output | error
+<embedded>::NAND8_reducer.auto_sva_inst.check_lower_bits_force_low_output | error
+<embedded>::NAND8_reducer.auto_sva_inst.check_msb_low_forces_low_output | error

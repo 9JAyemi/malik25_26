@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+adc_fifo.auto_sva_inst.check_status_constant
+adc_fifo.auto_sva_inst.check_enable_pipeline
+adc_fifo.auto_sva_inst.check_valid_pipeline
+adc_fifo.auto_sva_inst.check_data_pipeline
+
+COVER PROPERTIES:
+adc_fifo.auto_sva_inst.check_enable_pipeline:precondition1
+adc_fifo.auto_sva_inst.check_valid_pipeline:precondition1
+adc_fifo.auto_sva_inst.check_data_pipeline:precondition1

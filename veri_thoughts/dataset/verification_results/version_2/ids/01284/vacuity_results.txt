@@ -1,0 +1,24 @@
+# Vacuity check results for DESIGN_ID=01284
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::hazard_unit.auto_sva_inst.check_stall_fetch_const_zero | error
+<embedded>::hazard_unit.auto_sva_inst.check_stall_iss_const_zero | error
+<embedded>::hazard_unit.auto_sva_inst.check_flush_ex_definition | error
+<embedded>::hazard_unit.auto_sva_inst.check_flush_iss_definition | error
+<embedded>::hazard_unit.auto_sva_inst.check_flush_ex_implies_taken_mispred | error
+<embedded>::hazard_unit.auto_sva_inst.check_flush_ex_implies_flush_iss | error
+<embedded>::hazard_unit.auto_sva_inst.check_jump_sets_flush_iss | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_memwb_select | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_wbret_select | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_default_zero | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_when_10_implies_memwb | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_when_01_implies_wbret | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_when_00_implies_none | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p1_never_11 | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_memwb_select | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_wbret_select | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_default_zero | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_when_10_implies_memwb | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_when_01_implies_wbret | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_when_00_implies_none | error
+<embedded>::hazard_unit.auto_sva_inst.check_fwd_p2_never_11 | error

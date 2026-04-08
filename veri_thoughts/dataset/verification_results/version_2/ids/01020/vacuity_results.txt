@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01020
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::nand_decoder.auto_sva_inst.check_out_matches_and_broadcast | error
+<embedded>::nand_decoder.auto_sva_inst.check_all_outs_equal | error
+<embedded>::nand_decoder.auto_sva_inst.check_out_zero_when_any_input_zero | error
+<embedded>::nand_decoder.auto_sva_inst.check_out_one_when_both_inputs_one | error
+<embedded>::nand_decoder.auto_sva_inst.check_out_rise_implies_inputs_high | error
+<embedded>::nand_decoder.auto_sva_inst.check_out_fall_implies_any_input_low | error
+<embedded>::nand_decoder.auto_sva_inst.check_out_is_const_bus | error

@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=00195
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::global_reset.global_reset_sva_i.check_limited_reset_decode | error
+<embedded>::global_reset.global_reset_sva_i.check_reset_decode | error
+<embedded>::global_reset.global_reset_sva_i.check_reset_is_masked_limited_reset | error
+<embedded>::global_reset.global_reset_sva_i.check_forced_reset_forces_n_reset_low | error
+<embedded>::global_reset.global_reset_sva_i.check_counter_increments_while_nonzero | error
+<embedded>::global_reset.global_reset_sva_i.check_counter_holds_at_zero | error
+<embedded>::global_reset.global_reset_sva_i.check_counter_wraps_to_zero | error
+<embedded>::global_reset.global_reset_sva_i.check_midcount_outputs_low | error

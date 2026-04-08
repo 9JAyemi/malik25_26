@@ -1,0 +1,29 @@
+{
+  "id": "00066",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.747740",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df1b05481909105aa2919879d4b",
+  "custom_id": "vga_output_5cf17eab",
+  "module_name": "vga_output",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `vga_output` that generates the necessary signals for a standard 640x480 VGA display.\n\nThe module should operate based on a pixel clock input and produce registered outputs for horizontal sync, vertical sync, and 5-bit red, 6-bit green, and 5-bit blue color components.\n\nThe module should have the following interface:\n-   Input: `clk` (the pixel clock)\n-   Outputs (registered):\n    -   `vga_hs` (Horizontal Sync)\n    -   `vga_vs` (Vertical Sync)\n    -   `vga_r` (5-bit Red component)\n    -   `vga_g` (6-bit Green component)\n    -   `vga_b` (5-bit Blue component)\n\nYour module should:\n1.  Implement the necessary horizontal and vertical counters to track the current pixel position within the display frame, incrementing on the rising edge of the input clock. These counters should wrap around at the end of the total horizontal and vertical periods, respectively.\n2.  Generate the `vga_hs` and `vga_vs` signals according to standard 640x480 VGA timing parameters. These signals should be active low during their respective sync pulse periods and high otherwise.\n3.  Generate the `vga_r`, `vga_g`, and `vga_b` color signals. For a simple test pattern, output a specific color (e.g., white) when the horizontal counter is within a defined range, and output black otherwise.\n\nYou should define appropriate local parameters for the 640x480 timing parameters (e.g., horizontal/vertical resolution, front porch, sync pulse duration, back porch) to manage the timing logic clearly.\n\nDo not hardcode the timing values directly in the logic; use the defined parameters.\n",
+  "original_verified": true,
+  "prompt_hash": "5fea2c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 12
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.379216",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

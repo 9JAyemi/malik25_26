@@ -1,0 +1,29 @@
+{
+  "id": "00171",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.612130",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfb49488190b211d321d51c15ab",
+  "custom_id": "karnaugh_map_6c47f782",
+  "module_name": "karnaugh_map",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `karnaugh_map`.\nThe module should have four single-bit inputs named `A`, `B`, `C`, and `D`.\nThe module should have one single-bit output named `F`.\nImplement the combinational logic behaviorally such that the output `F` is the result of the logical XOR operation between inputs `B`, `C`, and `D`. The input `A` should not affect the output `F`.\n",
+  "original_verified": true,
+  "prompt_hash": "3bb123",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.411893",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

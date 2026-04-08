@@ -1,0 +1,29 @@
+{
+  "id": "00282",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.754960",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3d9b0c8190871e7694cbf464ad",
+  "custom_id": "dff_rs_b22b0752",
+  "module_name": "dff_rs",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `dff_rs`.\nThe module should have the following inputs: `clk`, `rst`, `set`, and `d`.\nThe module should have a single output: `q`.\nImplement a D-type flip-flop with synchronous reset and synchronous set.\nThe output `q` should update on the positive edge of the `clk` signal.\nThe `rst` input should provide a synchronous reset function, forcing `q` to 0 when high. This reset should have the highest priority.\nIf `rst` is not high, the `set` input should provide a synchronous set function, forcing `q` to 1 when high. This set should have lower priority than reset.\nIf neither `rst` nor `set` is high, the output `q` should capture the value of the input `d` on the clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "613a19",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.469991",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

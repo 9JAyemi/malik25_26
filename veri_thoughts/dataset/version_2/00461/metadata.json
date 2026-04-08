@@ -1,0 +1,29 @@
+{
+  "id": "00461",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.263104",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3e6f208190982167412bfd0afc",
+  "custom_id": "adder_0071f640",
+  "module_name": "adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `adder`.\nThe module should perform 8-bit signed addition.\nIt takes two 8-bit signed inputs: `A` and `B`.\nIt should output the 8-bit signed result of the addition as `sum`.\nIt should also output a single bit `C` which represents the carry (or overflow into the 9th bit position) resulting from the 8-bit signed addition.\nThe interface should be defined as:\ninputs: `input signed [7:0] A`, `input signed [7:0] B`\noutputs: `output signed [7:0] sum`, `output reg C`\n",
+  "original_verified": true,
+  "prompt_hash": "247756",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.880044",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

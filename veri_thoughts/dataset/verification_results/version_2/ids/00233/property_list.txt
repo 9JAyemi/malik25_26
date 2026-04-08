@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+comparator.auto_sva_inst.check_output_matches_rtl
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_gt_high
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_lt_low
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_equal_inputs_low
+
+COVER PROPERTIES:
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_gt_high:precondition1
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_lt_low:precondition1
+comparator.auto_sva_inst.gen_unsigned.check_unsigned_equal_inputs_low:precondition1

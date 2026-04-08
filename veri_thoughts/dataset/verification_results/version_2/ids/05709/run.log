@@ -318,6 +318,43 @@ INFO: Using TOP = test_LEDState
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -558,7 +595,7 @@ INFO (IPF057): 0.0.PRE: The property "test_LEDState.u_test_LEDState_sva.check_ou
 0: Found proofs for 4 properties in preprocessing
 0: Using multistage preprocessing
 0: Starting reduce
-0: Finished reduce in 0.001s
+0: Finished reduce in 0s
 0.0.PRE: Performing Proof Simplification...
 0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Proof Simplification Iteration 1	[0.00 s]
@@ -572,130 +609,95 @@ INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
     Use check_assumptions -show to show this property in the property table.
 INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
     Use check_assumptions -show -live to show this property in the property table.
-0.0.PRE: Proof Simplification completed in 0.01 s
+0.0.PRE: Proof Simplification completed in 0.00 s
 0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 14
 0: ProofGrid is starting event handling
-0.0.Hp: Proofgrid shell started at 193790@della-i13n6(local) jg_193718_della-i13n6_1
-0.0.N: Proofgrid shell started at 193789@della-i13n6(local) jg_193718_della-i13n6_1
+0.0.Hp: Proofgrid shell started at 2950407@della-h16n1(local) jg_2950236_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
-0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: Proofgrid shell started at 2950406@della-h16n1(local) jg_2950236_della-h16n1_1
 0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.01 s]
-0.0.Hp: A trace with 1 cycles was found. [0.01 s]
-INFO (IPF047): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Hp: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  4	[0.01 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.03 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Hp: Trace Attempt  3	[0.03 s]
-0.0.N: Trace Attempt  4	[0.03 s]
-0.0.N: Trace Attempt  5	[0.03 s]
-0.0.B: Proofgrid shell started at 193804@della-i13n6(local) jg_193718_della-i13n6_1
-0.0.B: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: Proofgrid shell started at 193803@della-i13n6(local) jg_193718_della-i13n6_1
-0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.02 s]
+0.0.N: Trace Attempt  5	[0.02 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  4	[0.05 s]
+0.0.N: Trace Attempt  5	[0.05 s]
+0.0.Ht: Proofgrid shell started at 2950425@della-h16n1(local) jg_2950236_della-h16n1_1
 0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.B: Proofgrid shell started at 2950426@della-h16n1(local) jg_2950236_della-h16n1_1
+0.0.B: OS RSS memory limit : 68719476736 / 68719476736
+0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.00 s].
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.Ht: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Validation of fixpoint was successful. Time = 0.01
-0.0.N: Trace Attempt 39	[0.26 s]
-0.0.N: A proof was found: No trace exists. [0.28 s]
-INFO (IPF057): 0.0.N: The property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments" was proven in 0.28 s.
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.28 s].
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.23 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color"	[0.00 s].
-0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.B: Trace Attempt  4	[0.01 s]
-0.0.B: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.02 s]
-0.0.N: Trace Attempt  3	[0.02 s]
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.03 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.Hp: Lemmas used(5): ?1
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_illegal_state_recovers" was proven in 0.54 s.
-0.0.Hp: A proof was found: No trace exists. [0.54 s]
-INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.check_illegal_state_recovers:precondition1" was proven unreachable in 0.54 s.
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color"	[0.26 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color"	[0.27 s].
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.01 s]
+0.0.Ht: Trace Attempt  5	[0.01 s]
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF057): 0.0.Hp: The property "test_LEDState.u_test_LEDState_sva.check_illegal_state_recovers" was proven in 0.24 s.
+0.0.Hp: A proof was found: No trace exists. [0.25 s]
+INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.check_illegal_state_recovers:precondition1" was proven unreachable in 0.24 s.
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.16 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_ramp_delay_increments"	[0.23 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.02 s]
 0.0.N: Trace Attempt  2	[0.02 s]
 0.0.N: Trace Attempt  3	[0.02 s]
 0.0.N: Trace Attempt  5	[0.02 s]
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
 0: ProofGrid usable level: 5
-0.0.N: Trace Attempt 115	[0.33 s]
-0.0.N: Per property time limit expired (1.00 s) [1.01 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[1.01 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Trace Attempt 183	[0.98 s]
+0.0.B: Trace Attempt 197	[0.99 s]
 0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
@@ -704,6 +706,14 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[1.02 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.03 s]
 0.0.N: Trace Attempt  2	[0.03 s]
 0.0.N: Trace Attempt  3	[0.03 s]
@@ -711,38 +721,30 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.N: Trace Attempt  1	[0.20 s]
 0.0.N: Trace Attempt  2	[0.20 s]
 0.0.N: Trace Attempt  3	[0.20 s]
-0.0.N: Trace Attempt  5	[0.21 s]
-0.0.N: Trace Attempt 44	[0.95 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.00 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.01 s].
+0.0.N: Trace Attempt  5	[0.20 s]
+0.0.B: Trace Attempt 190	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  4	[0.01 s]
-0.0.N: Trace Attempt 105	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[1.00 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.99 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt 159	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[1.00 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -750,36 +752,41 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[1.01 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 242	[4.08 s]
-0.0.N: Trace Attempt 143	[0.99 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[1.00 s].
+0.0.Ht: Trace Attempt 208	[4.03 s]
+0.0.B: Trace Attempt 98	[0.98 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[1.00 s].
+0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
+0.0.B: Trace Attempt  1	[0.00 s]
+0.0.B: Trace Attempt  2	[0.00 s]
+0.0.B: Trace Attempt  3	[0.00 s]
+0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.99 s].
 0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[1.00 s].
-0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  4	[0.01 s]
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt 115	[0.86 s]
-0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.00 s].
-0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
+0.0.B: Trace Attempt 153	[0.99 s]
+0.0.B: Per property time limit expired (1.00 s) [1.00 s]
 0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.00 s].
 0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
@@ -788,21 +795,15 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 115	[0.02 s]
-0.0.Ht: Trace Attempt 332	[8.09 s]
-0.0.B: Trace Attempt 287	[4.07 s]
-0.0.Ht: Trace Attempt 395	[12.54 s]
-0.0.B: Trace Attempt 371	[8.07 s]
-0.0.N: Trace Attempt 116	[8.30 s]
-0.0.N: Trace Attempt  1	[8.46 s]
-0.0.N: Trace Attempt  2	[8.46 s]
-0.0.N: Trace Attempt  3	[8.46 s]
-0.0.N: Trace Attempt  5	[8.46 s]
-0.0.N: Trace Attempt 89	[9.93 s]
-0.0.N: Per property time limit expired (10.00 s) [10.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[10.00 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 23	[0.00 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.01 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
+0.0.Ht: Trace Attempt 292	[8.04 s]
+0.0.B: Trace Attempt 320	[4.02 s]
+0.0.Ht: Trace Attempt 346	[12.12 s]
+0.0.B: Trace Attempt 413	[8.10 s]
+0.0.B: Trace Attempt 450	[9.94 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
 0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -810,74 +811,77 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.24 s]
-0.0.N: Trace Attempt  2	[0.25 s]
-0.0.N: Trace Attempt  3	[0.25 s]
-0.0.N: Trace Attempt  5	[0.25 s]
-0.0.Ht: Trace Attempt 454	[16.90 s]
-0.0.B: Trace Attempt 266	[4.01 s]
-0.0.N: Trace Attempt 85	[4.28 s]
-0.0.Ht: Trace Attempt 520	[21.28 s]
-0.0.B: Trace Attempt 340	[8.03 s]
-0.0.N: Trace Attempt 108	[8.73 s]
-0.0.N: Trace Attempt 115	[9.58 s]
-0.0.N: Per property time limit expired (10.00 s) [10.01 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[10.01 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
-0.0.N: Trace Attempt  4	[0.01 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[10.02 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[10.01 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.08 s]
+0.0.N: Trace Attempt  2	[0.08 s]
+0.0.N: Trace Attempt  3	[0.09 s]
+0.0.N: Trace Attempt  5	[0.09 s]
+0.0.Ht: Trace Attempt 387	[16.20 s]
+0.0.B: Trace Attempt 291	[4.00 s]
+0.0.N: Trace Attempt 89	[4.10 s]
+0.0.Ht: Trace Attempt 413	[20.29 s]
+0.0.B: Trace Attempt 382	[8.04 s]
+0.0.N: Trace Attempt 108	[8.38 s]
+0.0.Ht: Trace Attempt 429	[24.35 s]
+0.0.B: Trace Attempt 409	[9.93 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt 601	[25.86 s]
-0.0.N: Trace Attempt 358	[4.02 s]
-0.0.B: Trace Attempt 242	[4.02 s]
-0.0.Ht: Trace Attempt 659	[29.98 s]
-0.0.B: Trace Attempt 332	[8.03 s]
-0.0.Ht: Trace Attempt 689	[34.11 s]
-0.0.N: Trace Attempt 393	[6.79 s]
+0.0.N: Trace Attempt 115	[9.89 s]
 0.0.N: Per property time limit expired (10.00 s) [10.04 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[10.04 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt 355	[9.93 s]
-0.0.B: Per property time limit expired (10.00 s) [10.03 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[10.03 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[10.04 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.01 s]
+0.0.N: Trace Attempt  2	[0.01 s]
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.02 s]
+0.0.Ht: Trace Attempt 470	[28.36 s]
+0.0.B: Trace Attempt 287	[4.00 s]
+0.0.N: Trace Attempt 402	[4.04 s]
+0.0.Ht: Trace Attempt 484	[32.76 s]
+0.0.B: Trace Attempt 369	[8.06 s]
+0.0.B: Trace Attempt 400	[9.96 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[10.02 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  4	[0.00 s]
+0.0.N: Trace Attempt  5	[0.00 s]
 0.0.N: Trace Attempt  1	[0.01 s]
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
-0.0.Ht: Trace Attempt 746	[38.14 s]
-0.0.B: Trace Attempt 141	[4.03 s]
-0.0.N: Trace Attempt 388	[4.11 s]
-0.0.Ht: Trace Attempt 772	[42.17 s]
-0.0.B: Trace Attempt 186	[8.10 s]
-0.0.B: Trace Attempt 214	[9.96 s]
-0.0.B: Per property time limit expired (10.00 s) [10.02 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[10.02 s].
+0.0.Ht: Trace Attempt 509	[36.89 s]
+0.0.B: Trace Attempt 156	[4.06 s]
+0.0.N: Trace Attempt 394	[4.08 s]
+0.0.Ht: Trace Attempt 527	[40.94 s]
+0.0.B: Trace Attempt 219	[8.09 s]
+0.0.Ht: Trace Attempt 533	[45.13 s]
+0.0.B: Trace Attempt 234	[9.56 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[10.01 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[10.06 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[10.09 s].
 0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
@@ -886,15 +890,14 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.N: Trace Attempt  2	[0.01 s]
 0.0.N: Trace Attempt  3	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Ht: Trace Attempt 810	[46.35 s]
-0.0.B: Trace Attempt 198	[4.03 s]
-0.0.N: Trace Attempt 386	[4.13 s]
-0.0.Ht: Trace Attempt 825	[50.58 s]
-0.0.B: Trace Attempt 264	[8.09 s]
-0.0.Ht: Trace Attempt 852	[54.66 s]
-0.0.B: Trace Attempt 289	[9.91 s]
-0.0.B: Per property time limit expired (10.00 s) [10.02 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[10.02 s].
+0.0.Ht: Trace Attempt 558	[49.18 s]
+0.0.B: Trace Attempt 222	[4.00 s]
+0.0.N: Trace Attempt 411	[4.07 s]
+0.0.B: Trace Attempt 302	[8.03 s]
+0.0.Ht: Trace Attempt 583	[53.30 s]
+0.0.B: Trace Attempt 325	[9.99 s]
+0.0.B: Per property time limit expired (10.00 s) [10.01 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[10.01 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
@@ -902,100 +905,94 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[10.01 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[9.98 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
-0.0.Ht: Trace Attempt 883	[58.90 s]
-0.0.B: Trace Attempt 287	[4.00 s]
-0.0.Ht: Trace Attempt 899	[63.00 s]
-0.0.B: Trace Attempt 372	[8.07 s]
-0.0.N: Trace Attempt 116	[8.19 s]
-0.0.N: Trace Attempt  1	[8.35 s]
-0.0.N: Trace Attempt  2	[8.36 s]
-0.0.N: Trace Attempt  3	[8.36 s]
-0.0.N: Trace Attempt  5	[8.36 s]
-0.0.Ht: Trace Attempt 927	[67.06 s]
-0.0.B: Trace Attempt 427	[12.21 s]
-0.0.N: Trace Attempt 118	[13.92 s]
-0.0.Ht: Trace Attempt 952	[71.18 s]
-0.0.B: Trace Attempt 484	[16.33 s]
-0.0.Ht: Trace Attempt 981	[75.29 s]
-0.0.N: Trace Attempt 238	[20.08 s]
-0.0.B: Trace Attempt 525	[20.39 s]
-0.0.Ht: Trace Attempt 988	[79.34 s]
-0.0.B: Trace Attempt 564	[24.46 s]
-0.0.Ht: Trace Attempt 1009	[83.77 s]
-0.0.B: Trace Attempt 599	[28.50 s]
-0.0.Ht: Trace Attempt 1031	[88.06 s]
-0.0.B: Trace Attempt 635	[32.56 s]
-0.0.N: Trace Attempt 350	[33.65 s]
-0.0.Ht: Trace Attempt 1052	[92.19 s]
-0.0.B: Trace Attempt 665	[36.66 s]
-0.0.B: Trace Attempt 689	[40.77 s]
-0.0.Ht: Trace Attempt 1062	[97.39 s]
-0.0.B: Trace Attempt 712	[44.90 s]
-0.0.Ht: Trace Attempt 1092	[101.45 s]
-0.0.N: Trace Attempt 410	[45.84 s]
-0.0.B: Trace Attempt 732	[49.07 s]
-0.0.Ht: Trace Attempt 1119	[105.53 s]
-0.0.N: Trace Attempt 424	[49.94 s]
-0.0.B: Trace Attempt 754	[53.24 s]
-0.0.N: Trace Attempt 439	[54.03 s]
-0.0.Ht: Trace Attempt 1139	[109.94 s]
-0.0.B: Trace Attempt 775	[57.33 s]
-0.0.N: Trace Attempt 458	[58.12 s]
-0.0.Ht: Trace Attempt 1149	[115.19 s]
-0.0.B: Trace Attempt 796	[61.44 s]
-0.0.N: Trace Attempt 490	[62.19 s]
-0.0.Ht: Trace Attempt 1168	[119.58 s]
-0.0.B: Trace Attempt 817	[65.63 s]
-0.0.Ht: Trace Attempt 1192	[123.63 s]
-0.0.B: Trace Attempt 836	[69.71 s]
-0.0.N: Trace Attempt 536	[69.92 s]
-0.0.Ht: Trace Attempt 1209	[127.68 s]
-0.0.B: Trace Attempt 853	[74.23 s]
-0.0.Ht: Trace Attempt 1227	[131.95 s]
-0.0.N: Trace Attempt 812	[77.30 s]
-0.0.Ht: Trace Attempt 1234	[136.84 s]
-0.0.Ht: Trace Attempt 1259	[141.00 s]
-0.0.N: Trace Attempt 916	[89.09 s]
-0.0.Ht: Trace Attempt 1276	[145.00 s]
-0.0.N: Trace Attempt 1077	[93.10 s]
-0.0.Ht: Trace Attempt 1290	[149.28 s]
-0.0.Ht: Trace Attempt 1308	[153.59 s]
-0.0.N: Trace Attempt 1101	[98.45 s]
-0.0.N: Trace Attempt 1175	[99.96 s]
-0.0.N: Per property time limit expired (100.00 s) [100.24 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[100.24 s].
-0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.N: Trace Attempt 23	[0.01 s]
-0.0.N: Trace Attempt  1	[0.14 s]
-0.0.N: Trace Attempt  2	[0.14 s]
-0.0.N: Trace Attempt  3	[0.14 s]
-0.0.N: Trace Attempt  4	[0.14 s]
-0.0.N: Trace Attempt  5	[0.15 s]
-0.0.Ht: Trace Attempt 1318	[159.96 s]
-0.0.N: Trace Attempt 79	[4.51 s]
-0.0.N: Trace Attempt 101	[8.59 s]
-0.0.Ht: Trace Attempt 1329	[164.88 s]
-0.0.N: Trace Attempt 119	[12.71 s]
-0.0.Ht: Trace Attempt 1358	[168.94 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[113.55 s].
+0.0.Ht: Trace Attempt 594	[57.77 s]
+0.0.B: Trace Attempt 312	[4.02 s]
+0.0.Ht: Trace Attempt 600	[61.86 s]
+0.0.B: Trace Attempt 405	[8.03 s]
+0.0.Ht: Trace Attempt 619	[65.87 s]
+0.0.B: Trace Attempt 481	[12.06 s]
+0.0.N: Trace Attempt 116	[14.05 s]
+0.0.N: Trace Attempt  1	[14.22 s]
+0.0.N: Trace Attempt  2	[14.23 s]
+0.0.N: Trace Attempt  3	[14.23 s]
+0.0.N: Trace Attempt  5	[14.23 s]
+0.0.Ht: Trace Attempt 637	[69.88 s]
+0.0.B: Trace Attempt 535	[16.08 s]
+0.0.Ht: Trace Attempt 649	[73.88 s]
+0.0.N: Trace Attempt 118	[19.52 s]
+0.0.B: Trace Attempt 585	[20.12 s]
+0.0.B: Trace Attempt 634	[24.12 s]
+0.0.Ht: Trace Attempt 660	[80.51 s]
+0.0.N: Trace Attempt 238	[25.39 s]
+0.0.B: Trace Attempt 674	[28.16 s]
+0.0.Ht: Trace Attempt 677	[84.58 s]
+0.0.B: Trace Attempt 704	[32.23 s]
+0.0.Ht: Trace Attempt 695	[88.75 s]
+0.0.B: Trace Attempt 732	[36.26 s]
+0.0.Ht: Trace Attempt 714	[92.88 s]
+0.0.N: Trace Attempt 350	[38.40 s]
+0.0.B: Trace Attempt 763	[40.43 s]
+0.0.Ht: Trace Attempt 724	[97.00 s]
+0.0.B: Trace Attempt 791	[44.53 s]
+0.0.B: Trace Attempt 819	[48.59 s]
+0.0.Ht: Trace Attempt 728	[104.99 s]
+0.0.N: Trace Attempt 410	[50.00 s]
+0.0.B: Trace Attempt 843	[52.61 s]
+0.0.N: Trace Attempt 425	[54.03 s]
+0.0.Ht: Trace Attempt 746	[109.59 s]
+0.0.N: Trace Attempt 442	[58.13 s]
+0.0.Ht: Trace Attempt 764	[113.84 s]
+0.0.N: Trace Attempt 464	[62.21 s]
+0.0.Ht: Trace Attempt 781	[117.93 s]
+0.0.N: Trace Attempt 506	[66.23 s]
+0.0.Ht: Trace Attempt 795	[121.96 s]
+0.0.Ht: Trace Attempt 809	[126.37 s]
+0.0.N: Trace Attempt 536	[75.55 s]
+0.0.Ht: Trace Attempt 813	[134.56 s]
+0.0.N: Trace Attempt 812	[82.89 s]
+0.0.Ht: Trace Attempt 825	[138.59 s]
+0.0.B: Trace Attempt 858	[84.49 s]
+0.0.Ht: Trace Attempt 839	[142.77 s]
+0.0.B: Trace Attempt 888	[88.75 s]
+0.0.Ht: Trace Attempt 850	[147.46 s]
+0.0.B: Trace Attempt 917	[92.92 s]
+0.0.N: Trace Attempt 916	[96.61 s]
+0.0.B: Trace Attempt 943	[97.22 s]
+0.0.B: Trace Attempt 963	[99.99 s]
+0.0.B: Per property time limit expired (100.00 s) [100.02 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[100.02 s].
 0.0.B: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt 133	[16.84 s]
-0.0.Ht: Trace Attempt 1376	[173.00 s]
-0.0.B: Trace Attempt 268	[4.02 s]
-0.0.N: Trace Attempt 144	[21.24 s]
-0.0.B: Trace Attempt 339	[8.03 s]
-0.0.Ht: Trace Attempt 1395	[177.33 s]
-0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[11.76 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[100.37 s].
+0.0.N: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.N: Trace Attempt  1	[0.16 s]
+0.0.N: Trace Attempt  2	[0.16 s]
+0.0.N: Trace Attempt  3	[0.16 s]
+0.0.N: Trace Attempt  4	[0.16 s]
+0.0.N: Trace Attempt  5	[0.16 s]
+0.0.B: Trace Attempt 292	[4.00 s]
+0.0.N: Trace Attempt 95	[4.30 s]
+0.0.B: Trace Attempt 381	[8.04 s]
+0.0.N: Trace Attempt 120	[8.55 s]
+0.0.B: Trace Attempt 430	[12.07 s]
+0.0.N: Trace Attempt 135	[12.96 s]
+0.0.B: Trace Attempt 481	[16.31 s]
+0.0.N: Trace Attempt 147	[17.05 s]
+0.0.Ht: Trace Attempt 933	[173.59 s]
+0.0.B: Trace Attempt 538	[20.35 s]
+0.0.Ht: Trace Attempt 945	[177.68 s]
+0.0.N: Trace Attempt 162	[22.61 s]
+0.0.B: Trace Attempt 577	[24.47 s]
+0.0.B: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[25.63 s].
 0.0.B: Morphing to Hts
-0.0.B: Trace Attempt 386	[11.66 s]
+0.0.B: Trace Attempt 587	[25.59 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1005,9 +1002,9 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.Hts: Trace Attempt  3	[0.00 s]
 0.0.Hts: Trace Attempt  4	[0.00 s]
 0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[25.07 s].
+0.0.N: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[25.29 s].
 0.0.N: Morphing to AM
-0.0.N: Trace Attempt 153	[24.83 s]
+0.0.N: Trace Attempt 354	[25.10 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1023,12 +1020,10 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AM: Trace Attempt  1	[0.03 s]
 0.0.AM: Trace Attempt  2	[0.03 s]
 0.0.AM: Trace Attempt  3	[0.03 s]
-0.0.Ht: Trace Attempt 1407	[181.39 s]
-0.0.Hts: Trace Attempt 1406	[0.99 s]
-0.0.Hts: Per property time limit expired (1.00 s) [1.00 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[1.00 s].
-0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.98 s].
+0.0.Ht: Trace Attempt 971	[181.87 s]
+0.0.AM: Trace Attempt 69	[0.61 s]
+0.0.AM: Per property time limit expired (0.88 s) [0.90 s]
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.90 s].
 0.0.AM: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1047,54 +1042,57 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AM: Trace Attempt  2	[0.03 s]
 0.0.AM: Trace Attempt  3	[0.03 s]
 0.0.AM: Trace Attempt  5	[0.03 s]
-0.0.Hts: Trace Attempt  1	[0.24 s]
-0.0.Hts: Trace Attempt  2	[0.24 s]
-0.0.Hts: Trace Attempt  3	[0.24 s]
-0.0.Hts: Trace Attempt  4	[0.24 s]
-0.0.Hts: Trace Attempt  5	[0.24 s]
-0.0.AM: Trace Attempt 170	[1.00 s]
-0.0.AM: Per property time limit expired (1.00 s) [1.00 s]
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.01 s].
+0.0.Hts: Trace Attempt 964	[0.42 s]
+0.0.Hts: Per property time limit expired (0.98 s) [1.03 s]
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[1.03 s].
+0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.18 s]
+0.0.Hts: Trace Attempt  2	[0.18 s]
+0.0.Hts: Trace Attempt  3	[0.18 s]
+0.0.Hts: Trace Attempt  4	[0.18 s]
+0.0.Hts: Trace Attempt  5	[0.18 s]
+0.0.AM: Trace Attempt 182	[0.99 s]
+0.0.AM: Per property time limit expired (1.00 s) [1.02 s]
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.02 s].
 0.0.AM: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
 0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.Hts: Trace Attempt 1410	[0.75 s]
-0.0.Hts: Per property time limit expired (1.00 s) [1.01 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.01 s].
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  4	[0.03 s]
+0.0.Hts: Trace Attempt 974	[0.40 s]
+0.0.Hts: Per property time limit expired (1.00 s) [1.04 s]
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[1.04 s].
 0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt  1	[0.02 s]
-0.0.AM: Trace Attempt  2	[0.02 s]
-0.0.AM: Trace Attempt  3	[0.02 s]
-0.0.AM: Trace Attempt  4	[0.02 s]
-0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.Hts: Trace Attempt  1	[0.09 s]
-0.0.Hts: Trace Attempt  2	[0.09 s]
-0.0.Hts: Trace Attempt  3	[0.09 s]
-0.0.Hts: Trace Attempt  4	[0.10 s]
-0.0.Hts: Trace Attempt  5	[0.10 s]
-0.0.AM: Trace Attempt  1	[2.77 s]
-0.0.AM: Trace Attempt  2	[2.77 s]
-0.0.AM: Trace Attempt  3	[2.77 s]
-0.0.AM: Trace Attempt  4	[2.77 s]
-0.0.AM: Trace Attempt  5	[2.77 s]
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[2.93 s].
+0.0.Hts: Trace Attempt  1	[0.03 s]
+0.0.Hts: Trace Attempt  2	[0.03 s]
+0.0.Hts: Trace Attempt  3	[0.03 s]
+0.0.Hts: Trace Attempt  4	[0.03 s]
+0.0.Hts: Trace Attempt  5	[0.03 s]
+0.0.AM: Trace Attempt  1	[3.26 s]
+0.0.AM: Trace Attempt  2	[3.26 s]
+0.0.AM: Trace Attempt  3	[3.26 s]
+0.0.AM: Trace Attempt  4	[3.26 s]
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[3.32 s].
 0.0.AM: Morphing to K
-0.0.AM: Trace Attempt 49	[2.93 s]
+0.0.AM: Trace Attempt 31	[3.31 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 393	[0.07 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[3.32 s].
+0.0.K: Trace Attempt 422	[0.06 s]
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[3.38 s].
 0.0.Hts: Morphing to AB
-0.0.Hts: Trace Attempt 1413	[0.47 s]
+0.0.Hts: Trace Attempt 974	[0.18 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1109,24 +1107,24 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.02 s]
-0.0.AB: Trace Attempt  2	[0.02 s]
-0.0.AB: Trace Attempt  3	[0.02 s]
-0.0.AB: Trace Attempt  4	[0.02 s]
-0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AB: Trace Attempt  1	[0.14 s]
-0.0.AB: Trace Attempt  2	[0.14 s]
-0.0.AB: Trace Attempt  3	[0.14 s]
-0.0.AB: Trace Attempt  4	[0.14 s]
-0.0.AB: Trace Attempt  5	[0.14 s]
-0.0.AB: Trace Attempt  1	[0.89 s]
-0.0.AB: Trace Attempt  2	[0.89 s]
-0.0.AB: Trace Attempt  3	[0.89 s]
-0.0.AB: Trace Attempt  4	[0.89 s]
-0.0.AB: Trace Attempt  5	[0.89 s]
-0.0.AB: Trace Attempt 91	[1.59 s]
-0.0.AB: Per property time limit expired (1.60 s) [1.60 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[1.61 s].
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.10 s]
+0.0.AB: Trace Attempt  2	[0.10 s]
+0.0.AB: Trace Attempt  3	[0.10 s]
+0.0.AB: Trace Attempt  4	[0.10 s]
+0.0.AB: Trace Attempt  5	[0.10 s]
+0.0.AB: Trace Attempt  1	[0.62 s]
+0.0.AB: Trace Attempt  2	[0.62 s]
+0.0.AB: Trace Attempt  3	[0.62 s]
+0.0.AB: Trace Attempt  4	[0.62 s]
+0.0.AB: Trace Attempt  5	[0.62 s]
+0.0.AB: Trace Attempt 126	[1.87 s]
+0.0.AB: Per property time limit expired (1.88 s) [1.88 s]
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[1.88 s].
 0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
@@ -1138,34 +1136,37 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.K: Per property time limit expired (2.00 s) [2.02 s]
-0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[2.02 s].
-0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.03 s]
-0.0.AB: Trace Attempt  2	[0.03 s]
-0.0.AB: Trace Attempt  3	[0.04 s]
-0.0.AB: Trace Attempt  4	[0.04 s]
-0.0.AB: Trace Attempt  5	[0.04 s]
-0.0.Ht: Trace Attempt 1415	[188.31 s]
-0.0.AB: Trace Attempt 68	[2.00 s]
-0.0.AB: Per property time limit expired (2.00 s) [2.01 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[2.01 s].
-0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.AB: Trace Attempt  1	[0.02 s]
 0.0.AB: Trace Attempt  2	[0.02 s]
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[2.07 s].
+0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[1.77 s]
+0.0.AB: Trace Attempt  2	[1.77 s]
+0.0.AB: Trace Attempt  3	[1.77 s]
+0.0.AB: Trace Attempt  4	[1.77 s]
+0.0.AB: Trace Attempt  5	[1.77 s]
+0.0.AB: Trace Attempt 64	[2.00 s]
+0.0.AB: Per property time limit expired (2.00 s) [2.00 s]
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[2.00 s].
+0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
 0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[2.02 s].
 0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.K: Trace Attempt  1	[0.07 s]
@@ -1173,15 +1174,21 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.K: Trace Attempt  3	[0.07 s]
 0.0.K: Trace Attempt  4	[0.07 s]
 0.0.K: Trace Attempt  5	[0.07 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.16 s].
+0.0.Ht: Trace Attempt 977	[191.50 s]
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.37 s].
 0.0.AB: Morphing to Hts
-0.0.AB: Trace Attempt 31	[0.15 s]
+0.0.AB: Trace Attempt 12	[1.36 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.13 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.29 s].
 0.0.K: Morphing to AM
-0.0.K: Trace Attempt 73	[0.12 s]
+0.0.K: Trace Attempt 167	[1.25 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -1191,27 +1198,29 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.02 s]
-0.0.AM: Trace Attempt  2	[0.02 s]
-0.0.AM: Trace Attempt  3	[0.02 s]
-0.0.Hts: Trace Attempt  1	[0.03 s]
-0.0.Hts: Trace Attempt  2	[0.03 s]
-0.0.Hts: Trace Attempt  3	[0.03 s]
-0.0.Hts: Trace Attempt  4	[0.03 s]
-0.0.Hts: Trace Attempt  5	[0.03 s]
-0.0.AM: Trace Attempt  1	[0.10 s]
-0.0.AM: Trace Attempt  2	[0.10 s]
-0.0.AM: Trace Attempt  3	[0.10 s]
-0.0.AM: Trace Attempt  1	[0.53 s]
-0.0.AM: Trace Attempt  2	[0.53 s]
-0.0.AM: Trace Attempt  3	[0.53 s]
-0.0.Ht: Trace Attempt 1427	[192.47 s]
-0.0.AM: Trace Attempt 439	[3.98 s]
-0.0.AM: Per property time limit expired (4.00 s) [4.01 s]
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[4.01 s].
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.14 s]
+0.0.AM: Trace Attempt  2	[0.14 s]
+0.0.AM: Trace Attempt  3	[0.14 s]
+0.0.AM: Trace Attempt  1	[0.59 s]
+0.0.AM: Trace Attempt  2	[0.59 s]
+0.0.AM: Trace Attempt  3	[0.60 s]
+0.0.Ht: Trace Attempt 1003	[195.54 s]
+0.0.Hts: Trace Attempt 977	[0.19 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.00 s]
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[4.00 s].
+0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.01 s]
+0.0.Hts: Trace Attempt  2	[0.01 s]
+0.0.Hts: Trace Attempt  3	[0.01 s]
+0.0.Hts: Trace Attempt  4	[0.01 s]
+0.0.Hts: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[4.03 s].
 0.0.AM: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
@@ -1220,149 +1229,135 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.02 s]
-0.0.AM: Trace Attempt  2	[0.02 s]
-0.0.AM: Trace Attempt  3	[0.02 s]
-0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.05 s]
-0.0.AM: Trace Attempt  2	[0.05 s]
-0.0.AM: Trace Attempt  3	[0.05 s]
-0.0.AM: Trace Attempt  5	[0.05 s]
-0.0.AM: Trace Attempt  1	[0.20 s]
-0.0.AM: Trace Attempt  2	[0.20 s]
-0.0.AM: Trace Attempt  3	[0.20 s]
-0.0.AM: Trace Attempt  5	[0.20 s]
-0.0.AM: Trace Attempt  1	[0.98 s]
-0.0.AM: Trace Attempt  2	[0.98 s]
-0.0.AM: Trace Attempt  3	[0.98 s]
-0.0.AM: Trace Attempt  5	[0.98 s]
-0.0.Ht: Trace Attempt 1446	[196.47 s]
-0.0.Hts: Trace Attempt 1420	[0.44 s]
-0.0.Hts: Per property time limit expired (4.00 s) [6.98 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[6.98 s].
-0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.02 s]
-0.0.Hts: Trace Attempt  2	[0.02 s]
-0.0.Hts: Trace Attempt  3	[0.02 s]
-0.0.Hts: Trace Attempt  4	[0.02 s]
-0.0.Hts: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt 362	[3.49 s]
-0.0.AM: Per property time limit expired (4.00 s) [4.02 s]
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[4.02 s].
-0.0.AM: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.01 s]
-0.0.AM: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  3	[0.01 s]
-0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  1	[0.02 s]
-0.0.AM: Trace Attempt  2	[0.02 s]
-0.0.AM: Trace Attempt  3	[0.02 s]
-0.0.AM: Trace Attempt  4	[0.02 s]
-0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[1.44 s].
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.AM: Trace Attempt  5	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.07 s]
+0.0.AM: Trace Attempt  2	[0.07 s]
+0.0.AM: Trace Attempt  3	[0.07 s]
+0.0.AM: Trace Attempt  5	[0.07 s]
+0.0.AM: Trace Attempt  1	[0.27 s]
+0.0.AM: Trace Attempt  2	[0.27 s]
+0.0.AM: Trace Attempt  3	[0.28 s]
+0.0.AM: Trace Attempt  5	[0.28 s]
+0.0.AM: Trace Attempt  1	[1.14 s]
+0.0.AM: Trace Attempt  2	[1.14 s]
+0.0.AM: Trace Attempt  3	[1.15 s]
+0.0.AM: Trace Attempt  5	[1.15 s]
+0.0.Hts: Trace Attempt 1069	[0.15 s]
+0.0.Hts: Per property time limit expired (4.00 s) [4.00 s]
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[4.00 s].
 0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.Hts: Trace Attempt  1	[0.01 s]
 0.0.Hts: Trace Attempt  2	[0.01 s]
 0.0.Hts: Trace Attempt  3	[0.01 s]
 0.0.Hts: Trace Attempt  4	[0.01 s]
 0.0.Hts: Trace Attempt  5	[0.01 s]
-0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[2.18 s].
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[3.98 s].
+0.0.AM: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.02 s]
+0.0.AM: Trace Attempt  3	[0.02 s]
+0.0.AM: Trace Attempt  4	[0.02 s]
+0.0.Ht: Trace Attempt 1011	[200.79 s]
+0.0.AM: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.18 s].
 0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 105	[2.18 s]
+0.0.AM: Trace Attempt 73	[1.17 s]
 0.0.AM: All properties determined. [0.00 s]
 0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Tri: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.14" ---- Launching abstraction thread ----
-0.0.Tri:    0.16" ---- Launching multi-phase simplification thread ----
-0.0.Ht: Trace Attempt 1462	[200.51 s]
-0.0.Tri: Trace Attempt  2	[0.26 s]
-0.0.Tri: Trace Attempt  3	[0.26 s]
-0.0.Tri: Trace Attempt  4	[0.26 s]
-0.0.Tri: Trace Attempt  5	[0.26 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[2.49 s].
+0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.36 s].
 0.0.Hts: Morphing to K
-0.0.Hts: Trace Attempt 1456	[0.40 s]
+0.0.Hts: Trace Attempt 1010	[0.18 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[0.00 s].
-0.0.K: Trace Attempt 115	[0.03 s]
-0.0.Tri:    1.13" Simplification phase 1 complete
-0.0.Tri:    3.03" Simplification phase 2 complete
-0.0.Tri:    3.12" Simplification phase 3 complete
-   3.12" ---- Completed simplification thread ----
-   3.12" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    3.26" ---- Restarting abstraction thread on simplified netlist ----
-0.0.Ht: Trace Attempt 3037	[204.51 s]
-0.0.Tri: Trace Attempt 5279	[5.96 s]
-0.0.K: Per property time limit expired (7.30 s) [7.33 s]
-0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[7.33 s].
+0.0.K: Trace Attempt 115	[0.01 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.35" ---- Launching abstraction thread ----
+0.0.Tri:    0.39" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.57 s]
+0.0.Tri: Trace Attempt  3	[0.57 s]
+0.0.Tri: Trace Attempt  4	[0.57 s]
+0.0.Tri: Trace Attempt  5	[0.57 s]
+0.0.Tri:    1.90" Simplification phase 1 complete
+0.0.Tri:    3.53" Simplification phase 2 complete
+0.0.Tri:    3.63" Simplification phase 3 complete
+   3.63" ---- Completed simplification thread ----
+0.0.Tri:    3.63" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    3.86" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Ht: Trace Attempt 1021	[205.23 s]
+0.0.Tri: Trace Attempt 8491	[6.65 s]
+0.0.K: Per property time limit expired (7.85 s) [7.88 s]
+0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[7.88 s].
 0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.Tri: Trace Attempt 11428	[8.01 s]
-0.0.Tri: Per property time limit expired (8.00 s) [8.02 s]
-0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[8.02 s].
+0.0.Tri: Trace Attempt 11819	[7.22 s]
+0.0.Tri: Per property time limit expired (7.99 s) [8.03 s]
+0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_terminal_delay_updates_active_color:precondition1"	[8.03 s].
 0.0.Tri: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    8.01" ---- Launching main thread ----
-0.0.K: Trace Attempt  1	[0.08 s]
-0.0.K: Trace Attempt  2	[0.08 s]
-0.0.K: Trace Attempt  3	[0.08 s]
-0.0.K: Trace Attempt  4	[0.08 s]
-0.0.K: Trace Attempt  5	[0.08 s]
-0.0.Tri:    8.14" ---- Launching abstraction thread ----
-0.0.Tri:    8.16" ---- Launching multi-phase simplification thread ----
-0.0.Ht: Trace Attempt 4412	[208.51 s]
-0.0.Tri: Trace Attempt  2	[0.24 s]
-0.0.Tri: Trace Attempt  3	[0.24 s]
-0.0.Tri: Trace Attempt  4	[0.24 s]
-0.0.Tri: Trace Attempt  5	[0.24 s]
-0.0.Tri:    9.27" Simplification phase 1 complete
-0.0.Tri:    9.33" Simplification phase 2 complete
-0.0.Tri:   10.60" Simplification phase 3 complete
-  10.60" ---- Completed simplification thread ----
-0.0.Tri:   10.60" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:   10.75" ---- Restarting abstraction thread on simplified netlist ----
-0.0.K: Trace Attempt 302	[4.09 s]
-0.0.Ht: Trace Attempt 5434	[213.00 s]
-0.0.Tri: Trace Attempt 8419	[5.42 s]
-0.0.K: Trace Attempt 386	[7.97 s]
+0.0.K: Trace Attempt  1	[0.12 s]
+0.0.K: Trace Attempt  2	[0.12 s]
+0.0.K: Trace Attempt  3	[0.12 s]
+0.0.K: Trace Attempt  4	[0.12 s]
+0.0.K: Trace Attempt  5	[0.12 s]
+0.0.Tri:    7.99" ---- Launching main thread ----
+0.0.Ht: Trace Attempt 1031	[209.23 s]
+0.0.Tri:    8.28" ---- Launching abstraction thread ----
+0.0.Tri:    8.32" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.48 s]
+0.0.Tri: Trace Attempt  3	[0.48 s]
+0.0.Tri: Trace Attempt  4	[0.48 s]
+0.0.Tri: Trace Attempt  5	[0.48 s]
+0.0.Tri:    9.43" Simplification phase 1 complete
+0.0.Tri:    9.50" Simplification phase 2 complete
+0.0.Tri:    9.69" Simplification phase 3 complete
+   9.69" ---- Completed simplification thread ----
+   9.69" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    9.91" ---- Restarting abstraction thread on simplified netlist ----
+0.0.K: Trace Attempt 230	[4.20 s]
+0.0.Tri: Trace Attempt 6535	[4.59 s]
+0.0.Ht: Trace Attempt 1039	[213.75 s]
+0.0.K: Trace Attempt 310	[7.94 s]
 0.0.K: Per property time limit expired (8.00 s) [8.02 s]
 0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[8.02 s].
 0.0.K: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.Tri: Trace Attempt 14133	[8.00 s]
-0.0.Tri: Per property time limit expired (8.00 s) [8.00 s]
-0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[8.00 s].
+0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[7.91 s].
 0.0.Tri: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.K: Trace Attempt 23	[0.01 s]
-0.0.Tri:   16.02" ---- Launching main thread ----
-0.0.K: Trace Attempt  1	[0.09 s]
-0.0.K: Trace Attempt  2	[0.09 s]
-0.0.K: Trace Attempt  3	[0.09 s]
-0.0.K: Trace Attempt  4	[0.09 s]
-0.0.K: Trace Attempt  5	[0.09 s]
-0.0.Tri:   16.15" ---- Launching abstraction thread ----
-0.0.Tri:   16.17" ---- Launching multi-phase simplification thread ----
-0.0.Ht: Trace Attempt 6284	[217.00 s]
-0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.72 s].
-0.0.K: Morphing to AB
-0.0.K: Trace Attempt 157	[0.70 s]
+0.0.K: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.03 s].
+0.0.K: Morphing to I
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
+0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
+0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.03 s].
+0.0.I: Trace Attempt  4	[0.00 s]
+0.0.Tri: Morphing to AB
+0.0.Tri: Trace Attempt 17041	[0.03 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
@@ -1370,6 +1365,37 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.I: Trace Attempt  5	[0.04 s]
+0.0.I: Trace Attempt  5	[0.05 s]
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.I: Trace Attempt  1	[0.11 s]
+0.0.I: Trace Attempt  2	[0.11 s]
+0.0.AB: Trace Attempt  1	[0.09 s]
+0.0.I: Trace Attempt  3	[0.12 s]
+0.0.AB: Trace Attempt  2	[0.09 s]
+0.0.AB: Trace Attempt  3	[0.09 s]
+0.0.AB: Trace Attempt  4	[0.09 s]
+0.0.AB: Trace Attempt  5	[0.09 s]
+0.0.Ht: Trace Attempt 1968	[219.31 s]
+0.0.AB: Trace Attempt 113	[4.25 s]
+0.0.AB: Trace Attempt 177	[8.27 s]
+0.0.AB: Trace Attempt 227	[12.27 s]
+0.0.I: Trace Attempt 59	[1.08 s]
+0.0.I: Per property time limit expired (16.00 s) [16.00 s]
+0.0.I: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[16.00 s].
+0.0.I: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.I: Trace Attempt  7	[0.00 s]
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[15.98 s].
+0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
@@ -1380,53 +1406,22 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.03 s]
-0.0.AB: Trace Attempt  2	[0.03 s]
-0.0.AB: Trace Attempt  3	[0.03 s]
-0.0.AB: Trace Attempt  4	[0.03 s]
-0.0.AB: Trace Attempt  5	[0.03 s]
-0.0.Tri: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.80 s].
-0.0.Tri: Morphing to Hts
-0.0.Tri: Trace Attempt 14250	[0.03 s]
-0.0.Tri: All properties determined. [0.00 s]
-0.0.Tri: Exited with Success (@ 0.00 s)
-0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.00 s]
-0.0.Hts: Trace Attempt  2	[0.00 s]
-0.0.Hts: Trace Attempt  3	[0.00 s]
-0.0.Hts: Trace Attempt  4	[0.00 s]
-0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.Ht: Trace Attempt 7100	[221.00 s]
-0.0.AB: Trace Attempt 116	[4.09 s]
-0.0.Ht: Trace Attempt 7765	[225.00 s]
-0.0.AB: Trace Attempt 198	[8.10 s]
-0.0.AB: Trace Attempt 252	[12.15 s]
-0.0.AB: Trace Attempt 165	[15.99 s]
-0.0.AB: Per property time limit expired (15.99 s) [16.00 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[16.00 s].
-0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AB: Trace Attempt  2	[0.00 s]
-0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AB: Trace Attempt  4	[0.00 s]
-0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.03 s]
-0.0.AB: Trace Attempt  2	[0.03 s]
-0.0.AB: Trace Attempt  3	[0.03 s]
-0.0.AB: Trace Attempt  4	[0.03 s]
-0.0.AB: Trace Attempt  5	[0.03 s]
-0.0.AB: Trace Attempt  1	[2.42 s]
-0.0.AB: Trace Attempt  2	[2.42 s]
-0.0.AB: Trace Attempt  3	[2.42 s]
-0.0.AB: Trace Attempt  4	[2.42 s]
-0.0.AB: Trace Attempt  5	[2.42 s]
-0.0.AB: Trace Attempt 145	[6.55 s]
+0.0.Ht: Trace Attempt 2098	[232.91 s]
+0.0.I: Trace Attempt  1	[0.03 s]
+0.0.I: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  1	[0.02 s]
+0.0.AB: Trace Attempt  2	[0.02 s]
+0.0.I: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.02 s]
+0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.Ht: Trace Attempt 3730	[236.91 s]
+0.0.AB: Trace Attempt 122	[4.13 s]
+0.0.AB: Trace Attempt  1	[4.16 s]
+0.0.AB: Trace Attempt  2	[4.16 s]
+0.0.AB: Trace Attempt  3	[4.16 s]
+0.0.AB: Trace Attempt  4	[4.16 s]
+0.0.AB: Trace Attempt  5	[4.16 s]
 0.0.Hp: Interrupted (multi)
 0.0.Hp: Morphing to Bm
 0.0.Hp: All properties determined. [0.00 s]
@@ -1437,111 +1432,136 @@ INFO (IPF051): 0.0.Hp: The cover property "test_LEDState.u_test_LEDState_sva.che
 0.0.Bm: Trace Attempt  3	[0.00 s]
 0.0.Bm: Trace Attempt  4	[0.00 s]
 0.0.Bm: Trace Attempt  5	[0.00 s]
-0.0.AB: Trace Attempt 166	[10.66 s]
-0.0.Bm: Trace Attempt 291	[4.02 s]
-0.0.AB: Trace Attempt 183	[15.06 s]
-0.0.Bm: Trace Attempt 378	[8.08 s]
-0.0.AB: Trace Attempt 184	[15.55 s]
-0.0.AB: Per property time limit expired (16.00 s) [16.01 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[16.01 s].
+0.0.Ht: Trace Attempt 4988	[240.91 s]
+0.0.AB: Trace Attempt 151	[8.21 s]
+0.0.Bm: Trace Attempt 321	[4.01 s]
+0.0.Ht: Trace Attempt 5649	[244.91 s]
+0.0.AB: Trace Attempt 229	[12.29 s]
+0.0.I: Trace Attempt 50	[14.12 s]
+0.0.I: Per property time limit expired (16.00 s) [16.00 s]
+0.0.I: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[16.00 s].
+0.0.I: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[16.01 s].
 0.0.AB: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.I: Trace Attempt  1	[0.03 s]
+0.0.I: Trace Attempt  2	[0.03 s]
+0.0.I: Trace Attempt  3	[0.03 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.01 s]
-0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AB: Trace Attempt  3	[0.01 s]
-0.0.AB: Trace Attempt  4	[0.01 s]
-0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.97 s].
+0.0.Bm: Trace Attempt 423	[8.03 s]
+0.0.Ht: Trace Attempt 5880	[248.92 s]
+0.0.I: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.14 s].
+0.0.I: Morphing to Tricustom6
+0.0.I: Trace Attempt 27	[0.41 s]
+0.0.I: All properties determined. [0.00 s]
+0.0.I: Exited with Success (@ 0.00 s)
+0.0.AB: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_full_scale_phase_transitions:precondition1"	[1.13 s].
 0.0.AB: Morphing to Ncustom5
-0.0.AB: Trace Attempt 45	[1.97 s]
+0.0.AB: Trace Attempt 88	[1.12 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.Ncustom5: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.Ncustom5: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.Ncustom5: Trace Attempt 416	[0.08 s]
-0.0.Bm: Trace Attempt 435	[12.15 s]
-0.0.Hts: Trace Attempt 6689	[2.81 s]
-0.0.Hts: Per property time limit expired (15.90 s) [37.22 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_clear_states_advance:precondition1"	[37.22 s].
-0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[0.18 s]
-0.0.Hts: Trace Attempt  2	[0.18 s]
-0.0.Hts: Trace Attempt  3	[0.18 s]
-0.0.Hts: Trace Attempt  4	[0.18 s]
-0.0.Hts: Trace Attempt  5	[0.18 s]
-0.0.Bm: Trace Attempt 475	[16.18 s]
-0.0.Hts: Trace Attempt 8264	[5.96 s]
-0.0.Bm: Trace Attempt 517	[20.21 s]
-0.0.Bm: Trace Attempt 559	[24.31 s]
-0.0.Ht: Trace Attempt 8265	[268.47 s]
-0.0.Bm: Trace Attempt 586	[28.39 s]
-0.0.Ht: Trace Attempt 8808	[273.00 s]
-0.0.Bm: Trace Attempt 612	[32.44 s]
-0.0.Ht: Trace Attempt 10042	[277.31 s]
-0.0.Ncustom5: Per property time limit expired (32.00 s) [32.15 s]
-0.0.Ncustom5: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[32.15 s].
+0.0.Ncustom5: Trace Attempt 414	[0.08 s]
+0.0.Tricustom6: Starting clock optimization
+0.0.Tricustom6: Finished clock optimization
+0.0.Tricustom6: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Tricustom6: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:    0.00" ---- Launching main thread ----
+0.0.Tricustom6:    0.23" ---- Launching abstraction thread ----
+0.0.Tricustom6:    0.26" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:    2.00" Simplification phase 1 complete
+0.0.Ht: Trace Attempt 6424	[252.92 s]
+0.0.Bm: Trace Attempt 481	[12.11 s]
+0.0.Tricustom6:    3.58" Simplification phase 2 complete
+0.0.Tricustom6: Trace Attempt 8204	[5.62 s]
+0.0.Bm: Trace Attempt 501	[16.36 s]
+0.0.Ht: Trace Attempt 7094	[258.55 s]
+0.0.Tricustom6:    9.16" Simplification phase 3 complete
+   9.16" ---- Completed simplification thread ----
+   9.16" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:    9.47" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Bm: Trace Attempt 526	[20.44 s]
+0.0.Bm: Trace Attempt 547	[24.55 s]
+0.0.Tricustom6: Trace Attempt 27064	[17.26 s]
+0.0.Bm: Trace Attempt 564	[28.66 s]
+0.0.Tricustom6: Trace Attempt 44300	[21.36 s]
+0.0.Ht: Trace Attempt 10062	[272.38 s]
+0.0.Bm: Trace Attempt 575	[32.86 s]
+0.0.Bm: Trace Attempt 591	[36.97 s]
+0.0.Tricustom6: Trace Attempt 59440	[30.02 s]
+0.0.Bm: Trace Attempt 603	[40.99 s]
+0.0.Ncustom5: Per property time limit expired (32.00 s) [32.03 s]
+0.0.Ncustom5: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[32.03 s].
 0.0.Ncustom5: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.Bm: Trace Attempt 625	[42.27 s]
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[29.38 s].
-0.0.Hts: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
-0.0.Hts: Trace Attempt  1	[1.75 s]
-0.0.Hts: Trace Attempt  2	[1.75 s]
-0.0.Hts: Trace Attempt  3	[1.75 s]
-0.0.Hts: Trace Attempt  4	[1.75 s]
-0.0.Hts: Trace Attempt  5	[1.75 s]
-0.0.Bm: Trace Attempt 626	[48.04 s]
-0.0.Ht: Trace Attempt 10390	[290.80 s]
-0.0.Bm: Trace Attempt 672	[52.06 s]
-0.0.Bm: Trace Attempt 705	[56.13 s]
-INFO (IPF144): 0: Initiating shutdown of proof [300.03 s]
-0.0.Bm: Trace Attempt 729	[59.07 s]
-0.0.Bm: Time limit expired (300.00 s) [59.12 s]
-0.0.Ncustom5: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[16.88 s].
-0.0.Ncustom5: Trace Attempt 393	[0.08 s]
-0.0.Ncustom5: Time limit expired (300.00 s) [16.88 s]
-0.0.Ncustom5: Exited with Success (@ 300.14 s)
-0.0.Hts: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[16.38 s].
-0.0.Bm: Exited with Success (@ 300.14 s)
-0.0.Hts: Trace Attempt 10390	[5.17 s]
-0.0.Hts: Time limit expired (300.00 s) [16.38 s]
-0.0.Hts: Sending SIGKILL
-0.0.Ht: Sending SIGKILL
-0.0.Hts: Exited with Success (@ 302.26 s)
-0.0.Ht: Terminated by signal SIGKILL (@ 302.26 s)
+0.0.Tricustom6: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_zero_scale_phase_transitions:precondition1"	[31.90 s].
+0.0.Tricustom6: Starting proof for property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[0.00 s].
+0.0.Tricustom6: Trace Attempt  4	[0.00 s]
+0.0.Tricustom6:   32.05" ---- Launching main thread ----
+0.0.Tricustom6:   32.44" ---- Launching abstraction thread ----
+0.0.Tricustom6:   32.48" ---- Launching multi-phase simplification thread ----
+0.0.Tricustom6:   34.21" Simplification phase 1 complete
+0.0.Bm: Trace Attempt 615	[45.01 s]
+0.0.Tricustom6:   35.87" Simplification phase 2 complete
+0.0.Bm: Trace Attempt 622	[49.25 s]
+0.0.Tricustom6:   43.16" Simplification phase 3 complete
+  43.16" ---- Completed simplification thread ----
+0.0.Tricustom6:   43.16" ---- Restarting main thread on simplified netlist ----
+0.0.Tricustom6:   43.40" ---- Restarting abstraction thread on simplified netlist ----
+INFO (IPF144): 0: Initiating shutdown of proof [300.32 s]
+0.0.Bm: Trace Attempt 624	[49.91 s]
+0.0.Bm: Time limit expired (300.00 s) [59.44 s]
+0.0.Ncustom5: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[18.28 s].
+0.0.Ncustom5: Trace Attempt 422	[0.04 s]
+0.0.Ncustom5: Time limit expired (300.00 s) [18.28 s]
+0.0.Bm: Exited with Success (@ 300.52 s)
+0.0.Tricustom6: Stopped processing property "test_LEDState.u_test_LEDState_sva.check_transition_states_advance:precondition1"	[18.36 s].
+0.0.Ncustom5: Exited with Success (@ 300.55 s)
+0.0.Tricustom6: Trace Attempt 68344	[0.03 s]
+0.0.Tricustom6: Time limit expired (300.00 s) [50.43 s]
+0.0.Tricustom6: Exited with Success (@ 301.11 s)
+0.0.Ht: Trace Attempt 10121	[272.45 s]
+0.0.Ht: Time limit expired (300.00 s) [301.02 s]
+0.0.Ht: Exited with Success (@ 301.15 s)
 0: ProofGrid usable level: 0
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
-     engines started                               :    11
+     engines started                               :    13
      engine jobs started                           :     4
 
     Average time in state (seconds)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.05      302.18        0.00       99.98 %
-    Hts        0.05      299.99        0.00       99.98 %
-     Bm        0.05      300.08        0.00       99.98 %
-    Ncustom5        0.05      298.91        0.00       99.98 %
-    all        0.05      300.29        0.00       99.98 %
+     Ht        0.09      301.02        0.00       99.97 %
+     Bm        0.07      300.38        0.00       99.98 %
+    Ncustom5        0.07      300.23        0.00       99.98 %
+    Tricustom6        0.09      300.16        0.00       99.97 %
+    all        0.08      300.45        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.19     1201.15        0.00
+               0.31     1201.79        0.00
 
-    Data read    : 4.22 MiB
-    Data written : 1.08 MiB
+    Data read    : 4.20 MiB
+    Data written : 1.70 MiB
 
 0: All pending notifications were processed.
 ----------------------------------------
@@ -1577,6 +1597,64 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05709/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: Running vacuity check on 10 proven assertions
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 10 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05709/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1627,8 +1705,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1643,6 +1725,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 4.301 GB.
+INFO (IPL018): The peak resident set memory use for this session was 2.599 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

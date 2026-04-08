@@ -1,0 +1,9 @@
+# Vacuity check results for DESIGN_ID=04511
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::mux2.auto_sva_inst.check_b_high_selects_a | error
+<embedded>::mux2.auto_sva_inst.check_b_not_high_selects_b | error
+<embedded>::mux2.auto_sva_inst.check_b_low_forces_q_low | error
+<embedded>::mux2.auto_sva_inst.check_a_and_b_high_drive_q_high | error
+<embedded>::mux2.auto_sva_inst.check_a_low_with_b_high_drives_q_low | error
+<embedded>::mux2.auto_sva_inst.check_q_high_implies_a_and_b_high | error

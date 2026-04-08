@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+bitwise_shift.auto_sva_inst.check_shift_result
+bitwise_shift.auto_sva_inst.check_shift_by_zero
+bitwise_shift.auto_sva_inst.check_large_shift_zero
+bitwise_shift.auto_sva_inst.check_upper_bits_zero
+
+COVER PROPERTIES:
+bitwise_shift.auto_sva_inst.check_shift_by_zero:precondition1
+bitwise_shift.auto_sva_inst.check_large_shift_zero:precondition1

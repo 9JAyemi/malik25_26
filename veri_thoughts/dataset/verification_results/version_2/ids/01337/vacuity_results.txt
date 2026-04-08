@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01337
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::and_gate.auto_sva_inst.check_x_equals_or | error
+<embedded>::and_gate.auto_sva_inst.check_x_zero_when_both_zero | error
+<embedded>::and_gate.auto_sva_inst.check_x_one_when_a_one | error
+<embedded>::and_gate.auto_sva_inst.check_x_one_when_b_one | error
+<embedded>::and_gate.auto_sva_inst.check_inputs_low_when_x_low | error
+<embedded>::and_gate.auto_sva_inst.check_some_input_high_when_x_high | error
+<embedded>::and_gate.auto_sva_inst.check_idempotent | error

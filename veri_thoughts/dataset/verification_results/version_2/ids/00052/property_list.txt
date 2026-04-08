@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+nand_gate.auto_sva_inst.check_output_equation
+nand_gate.auto_sva_inst.check_out3_constant_low
+nand_gate.auto_sva_inst.check_out2_equation
+nand_gate.auto_sva_inst.check_out1_equation
+nand_gate.auto_sva_inst.check_out0_equation
+nand_gate.auto_sva_inst.check_output_onehot
+nand_gate.auto_sva_inst.check_low_in0_case
+nand_gate.auto_sva_inst.check_input_01_case
+nand_gate.auto_sva_inst.check_input_11_case
+
+COVER PROPERTIES:
+nand_gate.auto_sva_inst.check_low_in0_case:precondition1
+nand_gate.auto_sva_inst.check_input_01_case:precondition1
+nand_gate.auto_sva_inst.check_input_11_case:precondition1

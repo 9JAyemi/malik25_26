@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+xor_adder.auto_sva_inst.check_sum_registers_prev_xor
+xor_adder.auto_sva_inst.check_equal_inputs_produce_zero
+xor_adder.auto_sva_inst.check_zero_a_passthrough_b
+xor_adder.auto_sva_inst.check_zero_b_passthrough_a
+
+COVER PROPERTIES:
+xor_adder.auto_sva_inst.check_sum_registers_prev_xor:precondition1
+xor_adder.auto_sva_inst.check_equal_inputs_produce_zero:precondition1
+xor_adder.auto_sva_inst.check_zero_a_passthrough_b:precondition1
+xor_adder.auto_sva_inst.check_zero_b_passthrough_a:precondition1

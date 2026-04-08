@@ -1,0 +1,12 @@
+# Vacuity check results for DESIGN_ID=01123
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::sync_counter.auto_sva_inst.check_reset_clears_next | error
+<embedded>::sync_counter.auto_sva_inst.check_load_updates_and_clears_flags | error
+<embedded>::sync_counter.auto_sva_inst.check_countup_wrap_sets_overflow | error
+<embedded>::sync_counter.auto_sva_inst.check_countup_increment_clears_flags | error
+<embedded>::sync_counter.auto_sva_inst.check_countdown_wrap_sets_underflow | error
+<embedded>::sync_counter.auto_sva_inst.check_countdown_decrement_clears_flags | error
+<embedded>::sync_counter.auto_sva_inst.check_no_overflow_on_countdown | error
+<embedded>::sync_counter.auto_sva_inst.check_no_underflow_on_countup | error
+<embedded>::sync_counter.auto_sva_inst.check_no_hold_without_load | error

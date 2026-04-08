@@ -1,0 +1,29 @@
+{
+  "id": "00540",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.540913",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e59abd88190a20b777d3e3607c6",
+  "custom_id": "priority_mux_e965d194",
+  "module_name": "priority_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `priority_mux`. The module should have the following interface:\nInputs:\n`input [3:0] in0`\n`input [3:0] in1`\n`input [3:0] in2`\n`input [3:0] in3`\n`input PRI`\n`input [1:0] SEL`\nOutput:\n`output reg [3:0] out`\n\nThe module should implement the following logic for the `out` signal:\n- When the `PRI` input is low (0), the module acts as a standard 4-to-1 multiplexer. The `SEL` input selects which of the `in0`, `in1`, `in2`, or `in3` inputs is routed to the `out` output (00 selects in0, 01 selects in1, 10 selects in2, 11 selects in3).\n- When the `PRI` input is high (1), the module operates in a priority mode. The output `out` should be assigned the value of the highest indexed input (from `in3` down to `in1`) whose value is *not equal to 0*. If `in3`, `in2`, and `in1` are all equal to 0, then `out` should be assigned the value of `in0`.\n",
+  "original_verified": true,
+  "prompt_hash": "5dccb3",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.898961",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

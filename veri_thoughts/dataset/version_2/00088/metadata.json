@@ -1,0 +1,29 @@
+{
+  "id": "00088",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.787197",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df3da68819092885fdb570fd296",
+  "custom_id": "and_delayed_ebbbf96d",
+  "module_name": "and_delayed",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `and_delayed` that implements a synchronous logic function. The module should have three inputs: `a`, `b`, and `clk`, and one output: `out`. The logic should operate on the positive edge of the `clk` signal. The output `out` should be the logical AND of the `a` and `b` inputs, delayed by exactly one clock cycle.\n",
+  "original_verified": true,
+  "prompt_hash": "78cc66",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.387010",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

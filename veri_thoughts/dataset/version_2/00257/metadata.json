@@ -1,0 +1,29 @@
+{
+  "id": "00257",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.888133",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e25cf2081908d7f51b2aa51205c",
+  "custom_id": "ripple_carry_adder_46d5dabe",
+  "module_name": "ripple_carry_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two modules in Verilog:\n\n1.  A single-bit `full_adder` module. This module should take three single-bit inputs (two data bits and a carry-in) and produce a single-bit sum and a single-bit carry-out.\n    *   Module Name: `full_adder`\n    *   Inputs: `A`, `B`, `CIN`\n    *   Outputs: `SUM`, `COUT`\n\n2.  A 4-bit `ripple_carry_adder` module. This module should add two 4-bit numbers along with a carry-in bit, producing a 4-bit sum and a carry-out bit. Your design should implement a ripple-carry structure by instantiating the `full_adder` module defined above.\n    *   Module Name: `ripple_carry_adder`\n    *   Inputs: `A` [3:0], `B` [3:0], `CIN`\n    *   Outputs: `SUM` [3:0], `COUT`\n\nImplement the logic and structural connections required for these modules.\n",
+  "original_verified": true,
+  "prompt_hash": "34a071",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.463518",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

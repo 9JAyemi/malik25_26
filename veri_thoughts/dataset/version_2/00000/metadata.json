@@ -1,0 +1,29 @@
+{
+  "id": "00000",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.616152",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de5b1208190a4520765c8a40b59",
+  "custom_id": "mux_4to1_case_1e89cb69",
+  "module_name": "mux_4to1_case",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for two different implementations of a 4-to-1 multiplexer. Both modules should have the following interface:\nInputs:\n-   `in0`: 4-bit wide\n-   `in1`: 4-bit wide\n-   `in2`: 4-bit wide\n-   `in3`: 4-bit wide\n-   `sel`: 2-bit wide select signal\nOutput:\n-   `out`: 4-bit wide\n\nThe functionality should be such that `out` is equal to `in0` when `sel` is 2'b00, `in1` when `sel` is 2'b01, `in2` when `sel` is 2'b10, and `in3` when `sel` is 2'b11. For any other value of `sel`, the output should be 4'b0.\n\nYour first module, named `mux_4to1_case`, should implement this logic primarily using a `case` statement.\nYour second module, named `mux_4to1_if`, should implement this logic primarily using `if-else if` statements.\n",
+  "original_verified": true,
+  "prompt_hash": "72bedb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.358044",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

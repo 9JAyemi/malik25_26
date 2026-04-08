@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_packed_output
+adder.auto_sva_inst.check_carry_low
+adder.auto_sva_inst.check_sum_result
+adder.auto_sva_inst.check_a_zero_passthrough
+adder.auto_sva_inst.check_b_zero_passthrough
+adder.auto_sva_inst.check_f_plus_one_truncates
+adder.auto_sva_inst.check_max_plus_max_truncates
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_a_zero_passthrough:precondition1
+adder.auto_sva_inst.check_b_zero_passthrough:precondition1
+adder.auto_sva_inst.check_f_plus_one_truncates:precondition1
+adder.auto_sva_inst.check_max_plus_max_truncates:precondition1

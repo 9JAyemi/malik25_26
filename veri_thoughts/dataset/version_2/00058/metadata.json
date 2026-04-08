@@ -1,0 +1,29 @@
+{
+  "id": "00058",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.734262",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65def0f9c81908c9f7ab542ed0a79",
+  "custom_id": "calculator_a143f705",
+  "module_name": "calculator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `calculator`. This module should implement a combinational arithmetic unit that performs one of four operations on two 8-bit inputs based on a 2-bit operation select input.\n\nThe module should have the following interface:\n- Two 8-bit inputs: `num1` and `num2`.\n- A 2-bit input: `op`, which selects the operation.\n- An 8-bit output: `result`.\n\nThe functionality should be as follows, based on the value of the `op` input:\n- When `op` is 2'b00, the output `result` should be the sum of `num1` and `num2`.\n- When `op` is 2'b01, the output `result` should be the difference between `num1` and `num2` (`num1` - `num2`).\n- When `op` is 2'b10, the output `result` should be the product of `num1` and `num2`.\n- When `op` is 2'b11, the output `result` should be the quotient of `num1` divided by `num2` (`num1` / `num2`).\n\nImplement this using a combinational `always` block.\n",
+  "original_verified": true,
+  "prompt_hash": "2f1078",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.377118",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

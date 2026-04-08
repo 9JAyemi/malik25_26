@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+calculator.auto_sva_inst.check_add_result
+calculator.auto_sva_inst.check_sub_result
+calculator.auto_sva_inst.check_mul_result
+calculator.auto_sva_inst.check_div_result
+calculator.auto_sva_inst.check_overflow_always_low
+calculator.auto_sva_inst.check_outputs_stable_for_stable_inputs
+
+COVER PROPERTIES:
+calculator.auto_sva_inst.check_add_result:precondition1
+calculator.auto_sva_inst.check_sub_result:precondition1
+calculator.auto_sva_inst.check_mul_result:precondition1
+calculator.auto_sva_inst.check_div_result:precondition1
+calculator.auto_sva_inst.check_outputs_stable_for_stable_inputs:precondition1

@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=01251
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::my_uart_rx7to7.auto_sva_inst.reset_outputs_zero | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.reset_release_clears_outputs | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.outputs_known_when_active | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.data_sign_single_cycle | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.data_sign_no_back_to_back_rise | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.data_in_stable_when_sign_high | error
+<embedded>::my_uart_rx7to7.auto_sva_inst.data_in_change_implies_sign_low | error

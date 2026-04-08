@@ -1,0 +1,29 @@
+{
+  "id": "00300",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.795728",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3efa10819097a3c8716aa866bf",
+  "custom_id": "edge_detector_cde76e2b",
+  "module_name": "edge_detector",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two Verilog modules:\n\n1.  **Module Name:** `edge_detector`\n    *   **Inputs:** `input clk`, `input [7:0] in`\n    *   **Output:** `output reg [7:0] anyedge`\n    *   **Functionality:** This module should operate synchronously on the positive edge of `clk`. It needs to detect if the 8-bit input `in` has changed its value compared to the previous clock cycle. The 8-bit output `anyedge` should function as a history register. On each clock cycle, if `in` is different from its value in the previous cycle, shift a '1' into the LSB of `anyedge` (shifting the previous contents left); otherwise, shift a '0' into the LSB. Thus, `anyedge[0]` indicates if a change occurred in the current cycle, `anyedge[1]` for the previous cycle, and so on, storing the history for the last 8 cycles. The module should also include a small, free-running counter (you can choose a suitable width) that increments on each clock cycle, although its output is not part of the specified interface.\n\n2.  **Module Name:** `top_module`\n    *   **Inputs:** `input clk`, `input [7:0] in`\n    *   **Output:** `output [7:0] anyedge`\n    *   **Functionality:** This module acts as a simple wrapper. It should instantiate the `edge_detector` module and connect its own top-level inputs (`clk`, `in`) and output (`anyedge`) directly to the corresponding ports of the instantiated `edge_detector` module.\n\nYour answer should provide the Verilog code for both modules.\n",
+  "original_verified": true,
+  "prompt_hash": "3de641",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.474202",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

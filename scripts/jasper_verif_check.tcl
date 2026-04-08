@@ -448,6 +448,56 @@ if {[catch { prove -all } pmsg]} {
 # ---- Covers (best effort) ----
 catch { cover -all }
 
+# ---- Vacuity checking on proven assertions ----
+set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+set proven_props {}
+catch { set proven_props [get_property_list -include {status proven}] }
+
+set fp_vac [open $VACUITY_TXT "w"]
+puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+puts $fp_vac ""
+
+set n_vacuous 0
+set n_non_vacuous 0
+set n_vac_error 0
+
+if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts "WARNING: check_vacuity failed for $prop: $vac_msg"
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+
+close $fp_vac
+puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+puts "INFO: Wrote $VACUITY_TXT"
+
 # ---- Collect CEX details ----
 set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
 set cex_props {}
@@ -486,8 +536,12 @@ puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
 puts $fp "COVER_COUNT=[llength $COVERS]"
 puts $fp "CEX_COUNT=$n_cex"
 puts $fp "AR_CEX_COUNT=$n_ar_cex"
+puts $fp "VACUOUS_COUNT=$n_vacuous"
+puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 puts $fp "PROP_LIST=$PROP_LIST_TXT"
 puts $fp "CEX_DETAILS=$CEX_TXT"
+puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 close $fp
 
 puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"

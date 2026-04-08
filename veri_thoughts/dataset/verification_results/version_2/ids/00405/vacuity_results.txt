@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=00405
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::binary_adder.auto_sva_inst.check_reset_clears_outputs | error
+<embedded>::binary_adder.auto_sva_inst.check_reset_keeps_outputs_cleared_next_cycle | error
+<embedded>::binary_adder.auto_sva_inst.check_next_output_is_sum_or_reset_value | error
+<embedded>::binary_adder.auto_sva_inst.check_b_zero_cin_zero_passthrough_or_reset | error
+<embedded>::binary_adder.auto_sva_inst.check_a_zero_cin_zero_passthrough_or_reset | error
+<embedded>::binary_adder.auto_sva_inst.check_zero_inputs_produce_zero_output | error
+<embedded>::binary_adder.auto_sva_inst.check_no_overflow_keeps_carry_low | error

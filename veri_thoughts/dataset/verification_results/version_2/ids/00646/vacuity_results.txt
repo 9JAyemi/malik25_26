@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=00646
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_eq_xnor_when_cin_high | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_eq_and_when_cin_low | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_known_when_inputs_known | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_allones_when_cin_high_and_a_eq_b | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_allzeros_when_cin_high_and_a_eq_notb | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_eq_a_when_cin_low_and_b_allones | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_eq_b_when_cin_low_and_a_allones | error
+<embedded>::carry_select_adder_32bit.auto_sva_inst.check_s_zero_when_cin_low_and_any_zero | error

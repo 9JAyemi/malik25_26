@@ -1,0 +1,29 @@
+{
+  "id": "00069",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.753707",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df1e28c81908564fbc261ac835b",
+  "custom_id": "adder_251c2fdd",
+  "module_name": "adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `adder` that performs unsigned 4-bit binary addition. The module should take two 4-bit inputs, `a` and `b`, and produce a 4-bit sum output, `sum`, and a single-bit carry output, `carry`. Ensure the module signature exactly matches the specified inputs and outputs.\n",
+  "original_verified": true,
+  "prompt_hash": "2266e6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.380009",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00024",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.662798",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de78c5881908b6a4dbb135c7765",
+  "custom_id": "priority_encoder_4cf344cc",
+  "module_name": "priority_encoder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following three modules:\n\n1.  **Module Name:** `priority_encoder`\n    *   **Inputs:** `input [7:0] in`\n    *   **Outputs:** `output reg [2:0] pos`\n    *   **Functionality:** This module should take an 8-bit input. If the input value corresponds to a power of 2 from 2^0 up to 2^6 (meaning exactly one bit is set in positions 0 through 6), the output `pos` should be the 3-bit index (position) of that single set bit. For any other input value (including zero, multiple bits set, or only bit 7 set), the output `pos` should be `3'b111`.\n\n2.  **Module Name:** `adder`\n    *   **Inputs:** `input [2:0] a`, `input [2:0] b`\n    *   **Outputs:** `output reg [2:0] sum`\n    *   **Functionality:** This module should compute the difference between the two 3-bit inputs, specifically `a - b`, and assign the result to `sum`.\n\n3.  **Module Name:** `top_module`\n    *   **Inputs:** `input [7:0] in1`, `input [7:0] in2`\n    *   **Outputs:** `output [2:0] pos_diff`\n    *   **Functionality:** This top-level module should instantiate two instances of the `priority_encoder` module, one processing `in1` and the other processing `in2`. It should then instantiate the `adder` module to subtract the output position obtained from processing `in2` from the output position obtained from processing `in1`. The final result of this subtraction should be connected to the module's output `pos_diff`.\n\nEnsure all module names and port names match exactly as specified.\n",
+  "original_verified": true,
+  "prompt_hash": "a7ea9a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.365976",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

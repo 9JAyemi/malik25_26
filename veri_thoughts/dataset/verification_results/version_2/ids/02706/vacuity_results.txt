@@ -1,0 +1,10 @@
+# Vacuity check results for DESIGN_ID=02706
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_a_gt_b_drives_a_and_sel00 | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_b_gt_a_drives_b_and_sel01 | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_equal_drives_a_and_sel_passthrough | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_result_is_either_a_or_b | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_sel_msb_one_only_when_equal | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_not_equal_forces_sel_msb_zero | error
+<embedded>::magnitude_comparator_selector.auto_sva_inst.check_result_a_implies_a_ge_b | error

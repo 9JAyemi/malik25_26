@@ -1,0 +1,29 @@
+{
+  "id": "00320",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.858678",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4266608190b562767eb9daeff6",
+  "custom_id": "ClockDivider_e3457231",
+  "module_name": "ClockDivider",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `ClockDivider`.\n\nThe module should accept the following inputs:\n- `clock`: The main clock signal.\n- `reset`: A synchronous reset signal.\n- `fastMode`: A control signal to select the division factor.\n\nIt should provide a single-cycle output pulse named `oneHertz_enable`.\n\nInclude a parameter named `Hz` with a default value of 27,000,000.\n\nThe module should generate the `oneHertz_enable` pulse periodically based on the input clock and the `fastMode` signal. Specifically, the pulse should occur every `(Hz + 1)` clock cycles when `fastMode` is low, and every 4 clock cycles when `fastMode` is high.\n\nImplement a synchronous reset that forces the module into its initial state, keeping `oneHertz_enable` low.\n",
+  "original_verified": true,
+  "prompt_hash": "032eba",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.479472",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

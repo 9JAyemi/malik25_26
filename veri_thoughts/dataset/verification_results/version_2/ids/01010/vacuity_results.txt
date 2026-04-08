@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=01010
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::ab_mux.auto_sva_inst.check_q_is_or | error
+<embedded>::ab_mux.auto_sva_inst.check_zero_zero_results_zero | error
+<embedded>::ab_mux.auto_sva_inst.check_a_zero_drives_b | error
+<embedded>::ab_mux.auto_sva_inst.check_a_one_forces_one | error
+<embedded>::ab_mux.auto_sva_inst.check_b_one_when_a_zero | error
+<embedded>::ab_mux.auto_sva_inst.check_q_one_implies_input_one | error
+<embedded>::ab_mux.auto_sva_inst.check_q_zero_implies_both_zero | error
+<embedded>::ab_mux.auto_sva_inst.check_when_inputs_equal | error

@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+top_module.auto_sva_inst.check_hi_byte_mapping
+top_module.auto_sva_inst.check_lo_byte_mapping
+top_module.auto_sva_inst.check_half_word_concat
+top_module.auto_sva_inst.check_parity_from_inputs
+top_module.auto_sva_inst.check_full_output_encoding
+top_module.auto_sva_inst.check_parity_consistency
+top_module.auto_sva_inst.check_even_output_parity
+top_module.auto_sva_inst.check_stable_inputs_stable_output
+
+COVER PROPERTIES:
+top_module.auto_sva_inst.check_stable_inputs_stable_output:precondition1

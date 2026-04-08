@@ -1,0 +1,29 @@
+{
+  "id": "00303",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.802897",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f4a5081908550bf24e77a3497",
+  "custom_id": "xor_adder_d0f39fdc",
+  "module_name": "xor_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `xor_adder`. This module should have the following inputs: a clock signal `clk`, a 2-bit input `a` (declared as `[1:0]`), and a 2-bit input `b` (declared as `[1:0]`). It should have a 2-bit output named `sum` (declared as `[1:0]`). The module's functionality should be to compute the bitwise XOR of inputs `a` and `b` and register this result to the output `sum` on the positive edge of the clock.\n",
+  "original_verified": true,
+  "prompt_hash": "7132ec",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.474837",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

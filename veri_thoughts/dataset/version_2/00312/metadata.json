@@ -1,0 +1,29 @@
+{
+  "id": "00312",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.833355",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4030a8819087ee773d40212a71",
+  "custom_id": "top__bdb5b483",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog system composed of four modules: `full_adder`, `ripple_carry_adder`, `magnitude_comparator`, and `top_module`.\n\n1.  Implement a single-bit `full_adder` module with the following interface:\n    *   Inputs: `input A`, `input B`, `input CIN`\n    *   Outputs: `output SUM`, `output COUT`\n    This module should compute the sum and carry-out of three input bits.\n\n2.  Implement a 4-bit `ripple_carry_adder` module with the following interface:\n    *   Inputs: `input [3:0] A`, `input [3:0] B`, `input CIN`\n    *   Outputs: `output [3:0] SUM`, `output COUT`\n    This module should perform a 4-bit binary addition of `A` and `B` with carry-in `CIN`, producing a 4-bit sum and a carry-out. You should utilize the `full_adder` module you created.\n\n3.  Implement a 4-bit `magnitude_comparator` module with the following interface:\n    *   Inputs: `input [3:0] A`, `input [3:0] B`\n    *   Outputs: `output LT`\n    This module should output `LT` as 1 if input `A` is strictly less than input `B`, and 0 otherwise.\n\n4.  Implement the main `top_module` with the following interface:\n    *   Inputs: `input [3:0] A`, `input [3:0] B`, `input CIN`\n    *   Outputs: `output [3:0] SUM`, `output COUT`, `output LT`\n    This module should instantiate and connect the `ripple_carry_adder` and `magnitude_comparator` modules. The `ripple_carry_adder` should perform addition on inputs `A` and `B` with carry-in `CIN`, providing the `SUM` and `COUT` outputs. The `magnitude_comparator` should compare inputs `A` and `B`, providing the `LT` output.\n\nProvide the Verilog code for all four modules.\n",
+  "original_verified": true,
+  "prompt_hash": "568eed",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.476980",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

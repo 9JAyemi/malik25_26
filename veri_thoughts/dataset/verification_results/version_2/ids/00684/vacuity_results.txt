@@ -1,0 +1,14 @@
+# Vacuity check results for DESIGN_ID=00684
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::comparator.auto_sva_inst.check_eq_matches_definition | error
+<embedded>::comparator.auto_sva_inst.check_gt_matches_definition | error
+<embedded>::comparator.auto_sva_inst.check_eq_implies_gt | error
+<embedded>::comparator.auto_sva_inst.check_a_gt_e_implies_gt | error
+<embedded>::comparator.auto_sva_inst.check_b_gt_f_implies_gt_when_a_eq_e | error
+<embedded>::comparator.auto_sva_inst.check_c_gt_g_implies_gt_when_prefix_equal | error
+<embedded>::comparator.auto_sva_inst.check_d_ge_h_implies_gt_when_prefix_equal | error
+<embedded>::comparator.auto_sva_inst.check_a_lt_e_implies_not_gt | error
+<embedded>::comparator.auto_sva_inst.check_b_lt_f_implies_not_gt_when_a_eq_e | error
+<embedded>::comparator.auto_sva_inst.check_c_lt_g_implies_not_gt_when_prefix_equal | error
+<embedded>::comparator.auto_sva_inst.check_d_lt_h_implies_not_gt_when_prefix_equal | error

@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+clock_gate.auto_sva_inst.check_gated_clk_next_state
+clock_gate.auto_sva_inst.check_gate_sets_when_enabled
+clock_gate.auto_sva_inst.check_te_forces_gate_low
+clock_gate.auto_sva_inst.check_en_low_forces_gate_low
+clock_gate.auto_sva_inst.check_enclk_low_on_posedge
+clock_gate.auto_sva_inst.check_enclk_matches_gate_on_negedge
+
+COVER PROPERTIES:
+clock_gate.auto_sva_inst.check_gated_clk_next_state:precondition1
+clock_gate.auto_sva_inst.check_gate_sets_when_enabled:precondition1
+clock_gate.auto_sva_inst.check_te_forces_gate_low:precondition1
+clock_gate.auto_sva_inst.check_en_low_forces_gate_low:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00203",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.750609",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0862848190855406b236cb2806",
+  "custom_id": "BusHold_bc18c976",
+  "module_name": "BusHold",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `BusHold` that implements a synchronous data latching mechanism for an N-bit bus.\n\nThe module should have the following interface:\n-   A parameter `n` with a default value of 8, defining the width of the bus.\n-   An input bus `in` of width `n`.\n-   A clock input `clk`.\n-   A synchronous reset input `rst`.\n-   An output bus `out` of width `n`.\n\nThe functionality should be as follows:\nOn the rising edge of the `clk` signal, the module should capture the current value of the `in` bus and present it on the `out` bus.\nHowever, if the `rst` signal is high on the rising edge of `clk`, the module should instead reset the captured value (and thus the `out` bus) to all zeros.\n\nImplement this module in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "c3c205",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.446790",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

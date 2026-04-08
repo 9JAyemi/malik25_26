@@ -1,0 +1,29 @@
+{
+  "id": "00086",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.783598",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df3b71481908dc83e093398de7f",
+  "custom_id": "barrel_shifter_16bit_70bcc3f8",
+  "module_name": "barrel_shifter_16bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following three modules:\n\n1.  **Module Name:** `barrel_shifter_16bit`\n    *   **Inputs:**\n        *   `D` [15:0]\n        *   `shift_ctrl` [3:0]\n    *   **Output:**\n        *   `Q` [15:0] (declared as `reg`)\n    *   **Functionality:** Implement a combinational 16-bit barrel shifter. The `shift_ctrl` input selects the shift operation. Use a `case` statement based on `shift_ctrl`:\n        *   `4'b0000`: Left shift `D` by 1 bit.\n        *   `4'b0001`: Left shift `D` by 2 bits.\n        *   `4'b0010`: Left shift `D` by 4 bits.\n        *   `4'b0011`: Left shift `D` by 8 bits.\n        *   `4'b0100`: Right shift `D` by 1 bit.\n        *   `4'b0101`: Right shift `D` by 2 bits.\n        *   `4'b0110`: Right shift `D` by 4 bits.\n        *   `4'b0111`: Right shift `D` by 8 bits.\n        *   Any other `shift_ctrl` value (default case): The output `Q` should be equal to the input `D` (no shift).\n\n2.  **Module Name:** `alu_32bit`\n    *   **Inputs:**\n        *   `a` [31:0]\n        *   `b` [31:0]\n        *   `ctrl` [3:0]\n    *   **Output:**\n        *   `result` [31:0] (declared as `reg`)\n    *   **Functionality:** Implement a combinational 32-bit Arithmetic Logic Unit (ALU). The `ctrl` input selects the operation. Use a `case` statement based on `ctrl`:\n        *   `4'b0000`: Perform addition of `a` and `b`.\n        *   `4'b0001`: Perform subtraction of `b` from `a`.\n        *   `4'b0010`: Perform bitwise AND of `a` and `b`.\n        *   `4'b0011`: Perform bitwise OR of `a` and `b`.\n        *   `4'b0100`: Perform bitwise XOR of `a` and `b`.\n        *   Any other `ctrl` value (default case): The output `result` should be equal to the input `a`.\n\n3.  **Module Name:** `top_module`\n    *   **Inputs:**\n        *   `D` [15:0]\n        *   `shift_ctrl` [3:0]\n        *   `a` [31:0]\n        *   `b` [31:0]\n        *   `alu_ctrl` [3:0]\n    *   **Output:**\n        *   `result` [31:0] (declared as `reg`)\n    *   **Functionality:** This module should integrate the `barrel_shifter_16bit` and `alu_32bit` modules.\n        *   Instantiate the `barrel_shifter_16bit` module. Connect its `D` and `shift_ctrl` inputs to the top module's inputs of the same name.\n        *   Instantiate the `alu_32bit` module. Connect its `a`, `b`, and `ctrl` inputs to the top module's inputs `a`, `b`, and `alu_ctrl` respectively.\n        *   Take the 16-bit output from the barrel shifter and the 32-bit output from the ALU. Perform a bitwise OR operation between these two values. Note that the 16-bit value should be treated as a 32-bit value (implicitly zero-extended) for the OR operation.\n        *   Assign the result of this bitwise OR operation to the top module's output `result`.\n\nEnsure all module interfaces (input/output names and widths) match the specifications exactly. Use combinational logic (`always @(*)`) where appropriate.\n",
+  "original_verified": true,
+  "prompt_hash": "8d28e8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.386467",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

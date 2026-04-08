@@ -1,0 +1,31 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_add_result, assert, property, posedge, check_sub_result, check_and_result, check_or_result, check_xor_result, check_com_result, check_ror_result, check_rol_result, check_swap_result, check_default_result, check_zero_flag
+bind alu alu_assertions auto_sva_inst (
+    .op(op),
+    .a(a),
+    .b(b),
+    .y(y),
+    .cin(cin),
+    .cout(cout),
+    .zout(zout),
+    .ALUOP_ADD(ALUOP_ADD),
+    .b0000(b0000),
+    .ALUOP_SUB(ALUOP_SUB),
+    .b1000(b1000),
+    .ALUOP_AND(ALUOP_AND),
+    .b0001(b0001),
+    .ALUOP_OR(ALUOP_OR),
+    .b0010(b0010),
+    .ALUOP_XOR(ALUOP_XOR),
+    .b0011(b0011),
+    .ALUOP_COM(ALUOP_COM),
+    .b0100(b0100),
+    .ALUOP_ROR(ALUOP_ROR),
+    .b0101(b0101),
+    .ALUOP_ROL(ALUOP_ROL),
+    .b0110(b0110),
+    .ALUOP_SWAP(ALUOP_SWAP),
+    .b0111(b0111),
+    .b0(b0),
+    .h00(h00)
+);

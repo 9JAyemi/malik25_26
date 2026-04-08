@@ -1,0 +1,29 @@
+{
+  "id": "00544",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.557301",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5c2c2c819088ee6f8c507fa2a2",
+  "custom_id": "up_counter_01d624d0",
+  "module_name": "up_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `up_counter` that implements a 3-bit synchronous up counter. The module should have the following interface:\nInputs:\n- `clk`: Clock input.\n- `reset`: Synchronous reset input.\n- `enable`: Enable input.\nOutputs:\n- `count`: 3-bit register output.\n\nThe counter should operate as follows:\n- On the positive edge of the `clk`, if `reset` is high, the `count` should be set to 0.\n- Otherwise (if `reset` is low), if `enable` is high, the `count` should increment by 1.\n- If `enable` is low, the `count` should hold its current value.\n- The counter should wrap around from 7 (the maximum 3-bit value) back to 0 when it increments past 7.\n",
+  "original_verified": true,
+  "prompt_hash": "314180",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.899925",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

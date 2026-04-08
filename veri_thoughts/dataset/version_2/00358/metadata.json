@@ -1,0 +1,29 @@
+{
+  "id": "00358",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.963150",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f53db608190a24eaf25f7570de2",
+  "custom_id": "counter_e91dc4ae",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `counter`.\n\nThe module should have the following interface:\n-   Inputs: `input reset`, `input clk`\n-   Output: `output [7:0] count`\n\nThe module should implement a synchronous 8-bit up-counter with the following behavior:\n-   On the positive edge of the `clk` input, the `count` should update.\n-   If the `reset` input is high on the positive edge of `clk`, the `count` should be set to 0.\n-   If `reset` is low, the `count` should increment by 1 on the positive edge of `clk`.\n-   When the `count` reaches its maximum value (255) and `reset` is low, the next value of `count` on the positive edge of `clk` should wrap around to 0.\n",
+  "original_verified": true,
+  "prompt_hash": "08fdbb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.490321",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -21,6 +21,11 @@ import matplotlib.pyplot as plt
 
 BASE_DIR = "/home/ab2113/malik25_26"
 
+# Regex to count SVA properties
+RE_ASSERT = re.compile(r'\bassert\s+property\b', re.IGNORECASE)
+RE_COVER  = re.compile(r'\bcover\s+property\b',  re.IGNORECASE)
+RE_ASSUME = re.compile(r'\bassume\s+property\b',  re.IGNORECASE)
+
 DATASET_CONFIGS = {
     "veri_thoughts": {
         "results_dir": "{base}/veri_thoughts/dataset/verification_results/version_{ver}/ids",
@@ -185,10 +190,9 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
     if total_props == 0 and compile_fail_ids == 0:
         return
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
+    # Bar chart
+    fig1, ax1 = plt.subplots(figsize=(7, 5))
     if total_props > 0:
-        # Bar chart: raw numbers of passing vs failing assertions
         bars = ax1.bar(["Passing", "Failing (CEX)"], [total_passing, total_failing],
                        color=["#4CAF50", "#F44336"], edgecolor="black", linewidth=0.5)
         for bar, val in zip(bars, [total_passing, total_failing]):
@@ -201,7 +205,6 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
         ax1.set_title(f"Passing vs Failing Assertions — {label}\n{subtitle}",
                       fontsize=12, fontweight="bold")
     else:
-        # All IDs failed at compile — show that info
         bars = ax1.bar(["Compile-Failed IDs"], [compile_fail_ids],
                        color=["#9E9E9E"], edgecolor="black", linewidth=0.5)
         ax1.text(0, compile_fail_ids + 0.5, f"{compile_fail_ids:,}",
@@ -209,8 +212,14 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
         ax1.set_ylabel("Number of IDs", fontsize=12)
         ax1.set_title(f"All {compile_fail_ids} IDs Failed at Compile — {label}\n(0 properties extracted)",
                       fontsize=12, fontweight="bold")
+    fig1.tight_layout()
+    bar_path = os.path.join(out_dir, "pass_fail_assertions_bar.png")
+    fig1.savefig(bar_path, dpi=150)
+    plt.close(fig1)
+    print(f"  Saved {bar_path}")
 
-    # Pie chart: percentages
+    # Pie chart
+    fig2, ax2 = plt.subplots(figsize=(7, 5))
     if total_props > 0:
         sizes = [total_passing, total_failing]
         labels_pie = [f"Passing\n({total_passing:,})", f"Failing\n({total_failing:,})"]
@@ -219,7 +228,6 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
         sizes = [compile_fail_ids]
         labels_pie = [f"Compile Failed\n({compile_fail_ids:,} IDs)"]
         colors = ["#9E9E9E"]
-
     filtered = [(s, l, c) for s, l, c in zip(sizes, labels_pie, colors) if s > 0]
     if filtered:
         sizes, labels_pie, colors = zip(*filtered)
@@ -232,12 +240,11 @@ def generate_pass_fail_chart(total_passing, total_failing, label, out_dir,
             t.set_fontsize(12)
             t.set_fontweight("bold")
     ax2.set_title(f"Assertion Pass Rate — {label}", fontsize=13, fontweight="bold")
-
-    fig.tight_layout()
-    out_path = os.path.join(out_dir, "pass_fail_assertions.png")
-    fig.savefig(out_path, dpi=150)
-    plt.close(fig)
-    print(f"  Saved {out_path}")
+    fig2.tight_layout()
+    pie_path = os.path.join(out_dir, "pass_fail_assertions_pie.png")
+    fig2.savefig(pie_path, dpi=150)
+    plt.close(fig2)
+    print(f"  Saved {pie_path}")
 
 
 def generate_auto_bind_chart(results_dir, label, out_dir):
@@ -266,9 +273,9 @@ def generate_auto_bind_chart(results_dir, label, out_dir):
         return
 
     os.makedirs(out_dir, exist_ok=True)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
     # Bar chart
+    fig1, ax1 = plt.subplots(figsize=(7, 5))
     bars = ax1.bar(["Auto-Bind", "No Auto-Bind"],
                    [auto_bind_count, no_auto_bind_count],
                    color=["#FF9800", "#2196F3"], edgecolor="black", linewidth=0.5)
@@ -278,8 +285,14 @@ def generate_auto_bind_chart(results_dir, label, out_dir):
     ax1.set_ylabel("Number of IDs", fontsize=12)
     ax1.set_title(f"Auto-Bind Usage — {label}\n(Total IDs: {total:,})",
                   fontsize=12, fontweight="bold")
+    fig1.tight_layout()
+    bar_path = os.path.join(out_dir, "auto_bind_usage_bar.png")
+    fig1.savefig(bar_path, dpi=150)
+    plt.close(fig1)
+    print(f"  Saved {bar_path}")
 
     # Pie chart
+    fig2, ax2 = plt.subplots(figsize=(7, 5))
     sizes = [auto_bind_count, no_auto_bind_count]
     labels_pie = [f"Auto-Bind\n({auto_bind_count:,})",
                   f"No Auto-Bind\n({no_auto_bind_count:,})"]
@@ -296,12 +309,110 @@ def generate_auto_bind_chart(results_dir, label, out_dir):
             t.set_fontsize(12)
             t.set_fontweight("bold")
     ax2.set_title(f"Auto-Bind Rate — {label}", fontsize=13, fontweight="bold")
+    fig2.tight_layout()
+    pie_path = os.path.join(out_dir, "auto_bind_usage_pie.png")
+    fig2.savefig(pie_path, dpi=150)
+    plt.close(fig2)
+    print(f"  Saved {pie_path}")
 
-    fig.tight_layout()
-    out_path = os.path.join(out_dir, "auto_bind_usage.png")
-    fig.savefig(out_path, dpi=150)
-    plt.close(fig)
-    print(f"  Saved {out_path}")
+
+def parse_vacuity_results(vacuity_path):
+    """Parse vacuity_results.txt and return (vacuous_count, non_vacuous_count, error_count)."""
+    vacuous = 0
+    non_vacuous = 0
+    errors = 0
+    if not os.path.isfile(vacuity_path):
+        return vacuous, non_vacuous, errors
+    with open(vacuity_path, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = [p.strip() for p in line.split("|")]
+            if len(parts) >= 2:
+                result = parts[1].lower()
+                if result == "yes":
+                    vacuous += 1
+                elif result == "no":
+                    non_vacuous += 1
+                elif result == "error":
+                    errors += 1
+    return vacuous, non_vacuous, errors
+
+
+def generate_vacuity_chart(results_dir, label, out_dir):
+    """Generate a PNG showing vacuous (false positive) vs non-vacuous proven assertions."""
+    total_vacuous = 0
+    total_non_vacuous = 0
+    total_errors = 0
+
+    ids_dir = results_dir
+    if not os.path.isdir(ids_dir):
+        return
+
+    for id_name in sorted(os.listdir(ids_dir)):
+        id_path = os.path.join(ids_dir, id_name)
+        if not os.path.isdir(id_path):
+            continue
+        vacuity_path = os.path.join(id_path, "vacuity_results.txt")
+        v, nv, e = parse_vacuity_results(vacuity_path)
+        total_vacuous += v
+        total_non_vacuous += nv
+        total_errors += e
+
+    total_checked = total_vacuous + total_non_vacuous
+    if total_checked == 0:
+        print(f"  No vacuity data found for {label}, skipping vacuity chart")
+        return
+
+    os.makedirs(out_dir, exist_ok=True)
+
+    # Bar chart
+    fig1, ax1 = plt.subplots(figsize=(7, 5))
+    bar_labels = ["Non-Vacuous\n(Genuine)", "Vacuous\n(False Positive)"]
+    bar_vals = [total_non_vacuous, total_vacuous]
+    bar_colors = ["#4CAF50", "#FF9800"]
+    bars = ax1.bar(bar_labels, bar_vals, color=bar_colors, edgecolor="black", linewidth=0.5)
+    for bar, val in zip(bars, bar_vals):
+        pct = val / total_checked * 100
+        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + total_checked * 0.01,
+                 f"{val:,}\n({pct:.1f}%)", ha="center", va="bottom", fontweight="bold", fontsize=12)
+    ax1.set_ylabel("Number of Proven Assertions", fontsize=12)
+    subtitle = f"(Total Proven: {total_checked:,})"
+    if total_errors > 0:
+        subtitle += f"  ({total_errors} vacuity check errors)"
+    ax1.set_title(f"Vacuity of Proven Assertions — {label}\n{subtitle}",
+                  fontsize=12, fontweight="bold")
+    ax1.set_ylim(0, max(bar_vals) * 1.25)
+    fig1.tight_layout()
+    bar_path = os.path.join(out_dir, "vacuity_results_bar.png")
+    fig1.savefig(bar_path, dpi=150)
+    plt.close(fig1)
+    print(f"  Saved {bar_path}")
+
+    # Pie chart
+    fig2, ax2 = plt.subplots(figsize=(7, 5))
+    sizes = [total_non_vacuous, total_vacuous]
+    labels_pie = [f"Non-Vacuous\n({total_non_vacuous:,})",
+                  f"Vacuous\n({total_vacuous:,})"]
+    colors = ["#4CAF50", "#FF9800"]
+    filtered = [(s, l, c) for s, l, c in zip(sizes, labels_pie, colors) if s > 0]
+    if filtered:
+        sizes, labels_pie, colors = zip(*filtered)
+        wedges, texts, autotexts = ax2.pie(
+            sizes, labels=labels_pie, colors=colors, autopct="%1.1f%%",
+            startangle=90, pctdistance=0.6,
+            wedgeprops=dict(edgecolor="black", linewidth=0.5),
+        )
+        for t in autotexts:
+            t.set_fontsize(12)
+            t.set_fontweight("bold")
+    ax2.set_title(f"Vacuity Rate — {label}", fontsize=13, fontweight="bold")
+    fig2.tight_layout()
+    pie_path = os.path.join(out_dir, "vacuity_results_pie.png")
+    fig2.savefig(pie_path, dpi=150)
+    plt.close(fig2)
+    print(f"  Saved {pie_path}")
 
 
 def count_verif_failures(results_dir):
@@ -323,8 +434,13 @@ def count_verif_failures(results_dir):
     return total_ids, fail_ids
 
 
-def run_for_dirs(results_dir, sva_dir, output_csv, chart_label=""):
-    """Process a single results_dir/sva_dir pair and write output_csv."""
+def run_for_dirs(results_dir, sva_dir, output_csv, chart_label="",
+                 syntax_dir=None):
+    """Process a single results_dir/sva_dir pair and write output_csv.
+
+    If syntax_dir is provided, also generate syntax assertion charts and
+    write assertion_totals.txt alongside the output_csv.
+    """
     if not os.path.isdir(results_dir):
         print(f"ERROR: Results directory not found: {results_dir}")
         return
@@ -334,6 +450,8 @@ def run_for_dirs(results_dir, sva_dir, output_csv, chart_label=""):
     rows = []
     total_passing = 0
     total_failing = 0
+    ids_all_pass = set()   # IDs where every property is proven
+    ids_with_cex = set()   # IDs where at least one property has CEX
     id_dirs = sorted(os.listdir(results_dir))
 
     for id_name in id_dirs:
@@ -362,6 +480,13 @@ def run_for_dirs(results_dir, sva_dir, output_csv, chart_label=""):
 
         total_passing += len(passing_asserts) + len(passing_covers)
         total_failing += len(failing_asserts) + len(failing_covers)
+
+        # Track per-ID verification outcome
+        id_has_cex = len(failing_asserts) + len(failing_covers) > 0
+        if id_has_cex:
+            ids_with_cex.add(id_name)
+        else:
+            ids_all_pass.add(id_name)
 
         if not passing_asserts and not passing_covers:
             continue
@@ -411,8 +536,184 @@ def run_for_dirs(results_dir, sva_dir, output_csv, chart_label=""):
         total_ids=total_verif_ids,
     )
 
+    # Generate verification pass/fail by ID count chart
+    generate_verif_id_chart(
+        len(ids_all_pass), len(ids_with_cex), ids_without_properties,
+        chart_label, visual_data_dir,
+    )
+
     # Generate auto-bind usage chart
     generate_auto_bind_chart(results_dir, chart_label, visual_data_dir)
+
+    # Generate vacuity (false positive) chart
+    generate_vacuity_chart(results_dir, chart_label, visual_data_dir)
+
+    # Syntax assertion charts
+    if syntax_dir and os.path.isdir(syntax_dir):
+        generate_syntax_assertion_chart(syntax_dir, sva_dir, chart_label)
+
+
+def generate_verif_id_chart(all_pass_count, cex_count, compile_fail_count,
+                            label, out_dir):
+    """Generate bar chart: verification outcome by ID count."""
+    total = all_pass_count + cex_count + compile_fail_count
+    if total == 0:
+        return
+    os.makedirs(out_dir, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    categories = ["All Proven", "Has CEX", "Compile Failed"]
+    values = [all_pass_count, cex_count, compile_fail_count]
+    colors = ["#4CAF50", "#F44336", "#9E9E9E"]
+    bars = ax.bar(categories, values, color=colors, edgecolor="black", linewidth=0.5)
+    for bar, val in zip(bars, values):
+        if val > 0:
+            pct = val / total * 100
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + total * 0.01,
+                    f"{val:,}\n({pct:.1f}%)", ha="center", va="bottom",
+                    fontweight="bold", fontsize=11)
+    ax.set_ylabel("Number of IDs", fontsize=12)
+    ax.set_title(f"Verification Outcome by ID Count — {label}\n(Total: {total:,} IDs)",
+                 fontsize=12, fontweight="bold")
+    ax.set_ylim(0, max(values + [1]) * 1.25)
+    fig.tight_layout()
+    path = os.path.join(out_dir, "verif_pass_fail_ids_bar.png")
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved {path}")
+
+
+def generate_syntax_assertion_chart(syntax_dir, sva_dir, label):
+    """Generate bar chart of assertions in syntax-passing vs syntax-failing files.
+
+    syntax_dir: e.g. inference_outputs/syntax_results/{model}
+    sva_dir:    e.g. inference_outputs/{model}  (contains {id}/sva.sv)
+    """
+    csv_path = os.path.join(syntax_dir, "visual_data", "summary.csv")
+    if not os.path.isfile(csv_path):
+        print(f"  No syntax summary.csv found for {label}, skipping syntax assertion chart")
+        return
+
+    passing_ids = set()
+    failing_ids = set()
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            sid = row["id"].strip()
+            status = row["status"].strip().lower()
+            if status == "ok":
+                passing_ids.add(sid)
+            elif status == "fail":
+                failing_ids.add(sid)
+
+    pass_assertions = 0
+    fail_assertions = 0
+    pass_props = 0
+    fail_props = 0
+
+    all_ids = passing_ids | failing_ids
+    for sid in all_ids:
+        sva_path = os.path.join(sva_dir, sid, "sva.sv")
+        if not os.path.isfile(sva_path):
+            continue
+        try:
+            with open(sva_path, "r", encoding="utf-8", errors="replace") as f:
+                text = f.read()
+        except (OSError, IOError):
+            continue
+        n_assert = len(RE_ASSERT.findall(text))
+        n_cover  = len(RE_COVER.findall(text))
+        n_assume = len(RE_ASSUME.findall(text))
+        n_total  = n_assert + n_cover + n_assume
+        if sid in passing_ids:
+            pass_assertions += n_assert
+            pass_props += n_total
+        else:
+            fail_assertions += n_assert
+            fail_props += n_total
+
+    total_assertions = pass_assertions + fail_assertions
+    total_props = pass_props + fail_props
+    if total_assertions == 0 and total_props == 0:
+        return
+
+    out_dir = os.path.join(syntax_dir, "visual_data")
+    os.makedirs(out_dir, exist_ok=True)
+
+    # Bar chart — assertions
+    fig, ax = plt.subplots(figsize=(7, 5))
+    bars = ax.bar(
+        ["Passing", "Failing"],
+        [pass_assertions, fail_assertions],
+        color=["#4CAF50", "#F44336"], edgecolor="black", linewidth=0.5,
+    )
+    for bar, val in zip(bars, [pass_assertions, fail_assertions]):
+        ax.text(bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + total_assertions * 0.01,
+                f"{val:,}", ha="center", va="bottom", fontweight="bold", fontsize=12)
+    subtitle = (f"(Total: {total_assertions:,} assertions)\n"
+                f"{len(failing_ids)} of {len(all_ids)} IDs failed syntax")
+    ax.set_ylabel("Number of Assertions", fontsize=12)
+    ax.set_title(f"Syntax Pass/Fail by Assertion Count — {label}\n{subtitle}",
+                 fontsize=12, fontweight="bold")
+    ax.set_ylim(0, max(pass_assertions, fail_assertions, 1) * 1.25)
+    fig.tight_layout()
+    path = os.path.join(out_dir, "syntax_pass_fail_assertions_bar.png")
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved {path}")
+
+    # Bar chart — all properties (assert+cover+assume)
+    if total_props > 0 and total_props != total_assertions:
+        fig2, ax2 = plt.subplots(figsize=(7, 5))
+        bars2 = ax2.bar(
+            ["Passing", "Failing"],
+            [pass_props, fail_props],
+            color=["#4CAF50", "#F44336"], edgecolor="black", linewidth=0.5,
+        )
+        for bar, val in zip(bars2, [pass_props, fail_props]):
+            ax2.text(bar.get_x() + bar.get_width() / 2,
+                     bar.get_height() + total_props * 0.01,
+                     f"{val:,}", ha="center", va="bottom", fontweight="bold", fontsize=12)
+        subtitle2 = (f"(Total: {total_props:,} properties)\n"
+                     f"{len(failing_ids)} of {len(all_ids)} IDs failed syntax")
+        ax2.set_ylabel("Number of Properties", fontsize=12)
+        ax2.set_title(f"Syntax Pass/Fail by Property Count — {label}\n{subtitle2}",
+                      fontsize=12, fontweight="bold")
+        ax2.set_ylim(0, max(pass_props, fail_props, 1) * 1.25)
+        fig2.tight_layout()
+        path2 = os.path.join(out_dir, "syntax_pass_fail_properties_bar.png")
+        fig2.savefig(path2, dpi=150)
+        plt.close(fig2)
+        print(f"  Saved {path2}")
+
+    # Bar chart — IDs
+    n_pass_ids = len(passing_ids)
+    n_fail_ids = len(failing_ids)
+    total_ids = n_pass_ids + n_fail_ids
+    if total_ids > 0:
+        fig3, ax3 = plt.subplots(figsize=(7, 5))
+        bars3 = ax3.bar(
+            ["Passing", "Failing"],
+            [n_pass_ids, n_fail_ids],
+            color=["#4CAF50", "#F44336"], edgecolor="black", linewidth=0.5,
+        )
+        for bar, val in zip(bars3, [n_pass_ids, n_fail_ids]):
+            pct = val / total_ids * 100
+            ax3.text(bar.get_x() + bar.get_width() / 2,
+                     bar.get_height() + total_ids * 0.01,
+                     f"{val:,}\n({pct:.1f}%)", ha="center", va="bottom",
+                     fontweight="bold", fontsize=12)
+        ax3.set_ylabel("Number of IDs", fontsize=12)
+        ax3.set_title(f"Syntax Pass/Fail by ID Count — {label}\n(Total: {total_ids:,} IDs)",
+                      fontsize=12, fontweight="bold")
+        ax3.set_ylim(0, max(n_pass_ids, n_fail_ids, 1) * 1.25)
+        fig3.tight_layout()
+        path3 = os.path.join(out_dir, "syntax_pass_fail_ids_bar.png")
+        fig3.savefig(path3, dpi=150)
+        plt.close(fig3)
+        print(f"  Saved {path3}")
 
 
 def main():
@@ -427,6 +728,7 @@ def main():
     if args.dataset == "inference_outputs":
         io_base = os.path.join(BASE_DIR, "inference_outputs")
         verif_base = os.path.join(io_base, "verification_results")
+        syntax_base = os.path.join(io_base, "syntax_results")
         if not os.path.isdir(verif_base):
             print(f"ERROR: {verif_base} not found")
             return
@@ -438,7 +740,9 @@ def main():
             sva_dir = os.path.join(io_base, model_name)
             output_csv = os.path.join(model_verif, "visual_data", "passing_assertions.csv")
             print(f"\n=== Processing {model_name} ===")
-            run_for_dirs(results_dir, sva_dir, output_csv, chart_label=model_name)
+            model_syntax_dir = os.path.join(syntax_base, model_name)
+            run_for_dirs(results_dir, sva_dir, output_csv, chart_label=model_name,
+                         syntax_dir=model_syntax_dir if os.path.isdir(model_syntax_dir) else None)
     else:
         if args.version is None:
             parser.error("--version is required for veri_thoughts/metrex")
@@ -446,8 +750,14 @@ def main():
         results_dir = cfg["results_dir"].format(base=BASE_DIR, ver=args.version)
         sva_dir = cfg["sva_dir"].format(base=BASE_DIR, ver=args.version)
         output_csv = cfg["output_csv"].format(base=BASE_DIR, ver=args.version)
+        # Detect syntax_results dir
+        syntax_dir = os.path.join(
+            BASE_DIR, args.dataset, "dataset", "syntax_results",
+            f"version_{args.version}",
+        )
         run_for_dirs(results_dir, sva_dir, output_csv,
-                     chart_label=f"{args.dataset} v{args.version}")
+                     chart_label=f"{args.dataset} v{args.version}",
+                     syntax_dir=syntax_dir if os.path.isdir(syntax_dir) else None)
 
 
 if __name__ == "__main__":

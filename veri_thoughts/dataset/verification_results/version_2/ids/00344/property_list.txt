@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+barrel_shifter.auto_sva_inst.check_output_matches_select
+barrel_shifter.auto_sva_inst.check_sel_00_passthrough
+barrel_shifter.auto_sva_inst.check_sel_01_rotate_left_1
+barrel_shifter.auto_sva_inst.check_sel_10_rotate_right_1
+barrel_shifter.auto_sva_inst.check_sel_11_rotate_2
+
+COVER PROPERTIES:
+barrel_shifter.auto_sva_inst.check_sel_00_passthrough:precondition1
+barrel_shifter.auto_sva_inst.check_sel_01_rotate_left_1:precondition1
+barrel_shifter.auto_sva_inst.check_sel_10_rotate_right_1:precondition1
+barrel_shifter.auto_sva_inst.check_sel_11_rotate_2:precondition1

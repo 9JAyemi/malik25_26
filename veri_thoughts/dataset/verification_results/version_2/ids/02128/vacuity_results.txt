@@ -1,0 +1,14 @@
+# Vacuity check results for DESIGN_ID=02128
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_func_equiv | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_a_one_implies_x_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_b_one_implies_x_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_c_one_implies_x_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_dn_zero_implies_x_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_all_zero_and_dn_one_implies_x_zero | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_x_zero_implies_inputs_zero_dn_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_x_one_dn_one_requires_abc_one | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_x_one_with_abc_zero_requires_dn_zero | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_abc_zero_links_x_to_not_dn | error
+<embedded>::sky130_fd_sc_hdll__or4b.auto_sva_inst.check_dn_one_links_x_to_abc_or | error

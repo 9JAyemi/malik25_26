@@ -1,0 +1,29 @@
+{
+  "id": "00507",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.421873",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4aa1808190b2597450446d5209",
+  "custom_id": "ex_mem_b2ca60c6",
+  "module_name": "ex_mem",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `ex_mem` that functions as a pipeline stage register between the Execute (EX) and Memory (MEM) stages of a processor.\n\nThe module should have the following interface:\n\nInputs:\n- `clk`: 1-bit clock signal.\n- `s7_idex`: 1-bit signal.\n- `dmem_wen_idex`: 1-bit signal.\n- `rf_wen_idex`: 1-bit signal.\n- `mem2reg_idex`: 1-bit signal.\n- `branch2_idex`: 1-bit signal.\n- `aluout`: 16-bit data/address.\n- `flag`: 3-bit flags.\n- `extended_16_idex`: 16-bit extended immediate.\n- `rdata2_idex`: 16-bit register data.\n- `rf_waddr`: 4-bit register write address.\n- `pc_added_idex`: 16-bit PC + 4 value.\n- `jal_idex`: 1-bit JAL control signal.\n- `nop_lw_idex`: 1-bit NOP signal for LW.\n- `nop_sw_idex`: 1-bit NOP signal for SW.\n- `branch_target_final_muxout`: 16-bit branch target address.\n\nOutputs:\n- `nop_lw_exmem`: 1-bit NOP signal for LW.\n- `nop_sw_exmem`: 1-bit NOP signal for SW.\n- `branch_target_exmem`: 16-bit branch target address.\n- `dmem_wen_exmem`: 1-bit signal.\n- `rf_wen_exmem`: 1-bit signal.\n- `branch2_exmem`: 1-bit signal.\n- `mem2reg_exmem`: 1-bit signal.\n- `s7_exmem`: 1-bit signal.\n- `extended_exmem`: 16-bit extended immediate.\n- `pc_added_exmem`: 16-bit PC + 4 value.\n- `jal_exmem`: 1-bit JAL control signal.\n- `aluout_exmem`: 16-bit data/address.\n- `flag_exmem`: 3-bit flags.\n- `rdata2_exmem`: 16-bit register data.\n- `rf_waddr_exmem`: 4-bit register write address.\n\nOn the positive edge of the clock signal `clk`, the module should sample the values of all input signals (except `clk`) and hold these values on their corresponding output signals. The output signals should maintain their latched values until the next positive clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "21fe93",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 15
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.890848",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

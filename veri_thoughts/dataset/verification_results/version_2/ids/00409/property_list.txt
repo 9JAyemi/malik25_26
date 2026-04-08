@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+timer.auto_sva_inst.check_up_grant_passthrough
+timer.auto_sva_inst.check_down_ack_passthrough
+timer.auto_sva_inst.check_timeout_definition
+timer.auto_sva_inst.check_down_req_definition
+timer.auto_sva_inst.check_counter_zero_after_reset_release
+timer.auto_sva_inst.check_counter_increment
+timer.auto_sva_inst.check_counter_clear
+
+COVER PROPERTIES:
+timer.auto_sva_inst.check_counter_zero_after_reset_release:precondition1
+timer.auto_sva_inst.check_counter_increment:precondition1
+timer.auto_sva_inst.check_counter_clear:precondition1

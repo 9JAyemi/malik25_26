@@ -1,0 +1,29 @@
+{
+  "id": "00355",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.958030",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f51ea4c81909d17f6bd13a5e1c6",
+  "custom_id": "m_pc_reg_f95c3a7c",
+  "module_name": "m_pc_reg",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `m_pc_reg`.\nThis module should implement an 8-bit register with a synchronous reset.\nThe interface is defined as follows:\nInputs:\n- `w_bus_addr_in` (8 bits)\n- `w_clock` (1 bit)\n- `w_reset` (1 bit)\nOutput:\n- `r_bus_addr_out` (8 bits)\n\nThe module should update its output `r_bus_addr_out` on the positive edge of `w_clock`.\nIf `w_reset` is high at the positive edge of `w_clock`, the output `r_bus_addr_out` should be set to 0.\nOtherwise, if `w_reset` is low at the positive edge of `w_clock`, the output `r_bus_addr_out` should be set to the value of `w_bus_addr_in`.\n",
+  "original_verified": true,
+  "prompt_hash": "e0d3d2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.489147",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

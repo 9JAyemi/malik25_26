@@ -1,0 +1,29 @@
+{
+  "id": "00571",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.666231",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6a00608190a205634d347f30d2",
+  "custom_id": "up_counter_71eabcfb",
+  "module_name": "up_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `up_counter`. The module should have the following interface:\nInputs:\n- `clk`: Clock signal\n- `rst`: Asynchronous reset signal (active-low)\nOutput:\n- `count`: 4-bit wide output representing the current count value\n\nImplement a 4-bit binary counter that increments on the positive edge of the `clk` input. The counter should be reset to 0 asynchronously when the `rst` input is low. The counter should naturally wrap around from its maximum value back to 0.\n",
+  "original_verified": true,
+  "prompt_hash": "bb3748",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.905775",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

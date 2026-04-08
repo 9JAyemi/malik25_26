@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=04416
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::memory_module.auto_sva_inst.reset_clears_outputs | error
+<embedded>::memory_module.auto_sva_inst.write_addr0_updates_out_port | error
+<embedded>::memory_module.auto_sva_inst.no_chipselect_holds_out_port | error
+<embedded>::memory_module.auto_sva_inst.write_high_holds_out_port | error
+<embedded>::memory_module.auto_sva_inst.write_nonzero_addr_ignored | error
+<embedded>::memory_module.auto_sva_inst.read_addr0_returns_out_port | error
+<embedded>::memory_module.auto_sva_inst.read_nonzero_addr_returns_zero | error
+<embedded>::memory_module.auto_sva_inst.readdata_upper_bits_zero | error

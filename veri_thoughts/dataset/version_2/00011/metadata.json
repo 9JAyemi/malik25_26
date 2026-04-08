@@ -1,0 +1,29 @@
+{
+  "id": "00011",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.636306",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de63dac81909bff4eb5cc2ca941",
+  "custom_id": "calculator_3688b6c6",
+  "module_name": "calculator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a combinational logic module in Verilog named `calculator`.\nThe module should have the following interface:\n- Inputs:\n    - `a`: 8-bit wide\n    - `b`: 8-bit wide\n    - `op`: 2-bit wide\n- Outputs:\n    - `result`: 8-bit wide\n    - `valid`: 1-bit wide\n\nThe module should perform an arithmetic operation on inputs `a` and `b` based on the value of the `op` input, and assign the output to `result`. The `valid` output should indicate if the operation was successfully performed.\n\nThe operations corresponding to the `op` values are:\n- `2'b00`: Addition (`a + b`)\n- `2'b01`: Subtraction (`a - b`)\n- `2'b10`: Multiplication (`a * b`)\n- `2'b11`: Integer Division (`a / b`)\n\nFor the division operation (`op == 2'b11`), there is a special condition:\n- If `b` is zero (`8'b0`), the operation is invalid. In this case, `result` should be set to `8'b0` and `valid` should be set to `1'b0`.\n- If `b` is not zero, perform the division and set `valid` to `1'b1`.\n\nFor all other operations (addition, subtraction, multiplication, or division where `b` is not zero), the `valid` output should be `1'b1`.\n",
+  "original_verified": true,
+  "prompt_hash": "da0ceb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.362209",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

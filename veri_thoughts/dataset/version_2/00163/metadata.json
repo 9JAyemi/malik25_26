@@ -1,0 +1,29 @@
+{
+  "id": "00163",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.595172",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df7a52c81908c9c1537512d769a",
+  "custom_id": "decoder_4to16_a0d10546",
+  "module_name": "decoder_4to16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `decoder_4to16` that implements a 4-to-16 decoder.\n\nThe module should have the following interface:\n*   Input: `input [3:0] input_bits`\n*   Output: `output reg [15:0] output_bits`\n\nThe functionality should be as follows:\nWhen the 4-bit input `input_bits` has a value `N` (where `N` is an integer from 0 to 15), the `N`-th bit of the 16-bit output `output_bits` should be set to 1, and all other bits of `output_bits` should be 0. For example, if `input_bits` is 4'b0000 (value 0), `output_bits` should be 16'b0000000000000001 (only bit 0 is high). If `input_bits` is 4'b0001 (value 1), `output_bits` should be 16'b0000000000000010 (only bit 1 is high), and so on, up to 4'b1111 (value 15) which should result in `output_bits` being 16'b1000000000000000 (only bit 15 is high). For any input value not corresponding to one of these 16 cases, the output should be all zeros.\n",
+  "original_verified": true,
+  "prompt_hash": "bbb7cb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 17
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.409878",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

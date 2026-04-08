@@ -1,0 +1,29 @@
+{
+  "id": "00339",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.908521",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4b2d608190b6a6a005cddc923c",
+  "custom_id": "xor_system_a20ef906",
+  "module_name": "xor_system",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following three modules:\n\n1.  **Module Name:** `not_gate`\n    *   **Inputs:** `in`\n    *   **Outputs:** `out`\n    *   **Functionality:** Implement a basic logical NOT gate using a continuous assignment.\n\n2.  **Module Name:** `xor_gate`\n    *   **Inputs:** `a`, `b`\n    *   **Outputs:** `out`\n    *   **Functionality:** Implement a basic logical XOR gate using a continuous assignment.\n\n3.  **Module Name:** `xor_system`\n    *   **Inputs:** `a`, `b`\n    *   **Outputs:** `out`\n    *   **Functionality:** This module should be structured using instantiations of the `not_gate` and `xor_gate` modules you define.\n        *   Declare internal wires named `not_a`, `not_b`, and `not_a_b`.\n        *   Instantiate a `not_gate` to produce the inverted input `not_a` from input `a`.\n        *   Instantiate another `not_gate` to produce the inverted input `not_b` from input `b`.\n        *   Instantiate an `xor_gate` to produce the final output `out` using the `not_a` wire and input `b`.\n        *   Instantiate a second `xor_gate` to produce the intermediate wire `not_a_b` using input `a` and the `not_b` wire.\n        *   Finally, instantiate a third `not_gate` and connect both its input and output ports to the `not_a_b` wire.\n\nProvide the Verilog code for all three modules.\n",
+  "original_verified": true,
+  "prompt_hash": "a1b529",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.485215",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

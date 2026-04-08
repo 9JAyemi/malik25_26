@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+d_ff_sync_reset.auto_sva_inst.check_reset_state
+d_ff_sync_reset.auto_sva_inst.check_q_captures_d
+d_ff_sync_reset.auto_sva_inst.check_qn_captures_inverse_d
+d_ff_sync_reset.auto_sva_inst.check_outputs_are_complements
+
+COVER PROPERTIES:
+d_ff_sync_reset.auto_sva_inst.check_reset_state:precondition1
+d_ff_sync_reset.auto_sva_inst.check_q_captures_d:precondition1
+d_ff_sync_reset.auto_sva_inst.check_qn_captures_inverse_d:precondition1

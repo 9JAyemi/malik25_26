@@ -1,0 +1,9 @@
+# Vacuity check results for DESIGN_ID=03944
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::arr.auto_sva_inst.check_reset_clears_out | error
+<embedded>::arr.auto_sva_inst.check_out_increments_without_reset | error
+<embedded>::arr.auto_sva_inst.check_out_zero_during_held_reset | error
+<embedded>::arr.auto_sva_inst.check_first_cycle_after_reset_release_is_zero | error
+<embedded>::arr.auto_sva_inst.check_second_cycle_after_reset_release_is_one | error
+<embedded>::arr.auto_sva_inst.check_out_wraps_after_max | error

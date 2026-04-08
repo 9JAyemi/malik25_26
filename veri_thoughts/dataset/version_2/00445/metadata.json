@@ -1,0 +1,29 @@
+{
+  "id": "00445",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.863373",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ebf826481908df3ecc70426a6a4",
+  "custom_id": "interstage_buffer_if_id_de575d0f",
+  "module_name": "interstage_buffer_if_id",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `interstage_buffer_if_id` that acts as a pipeline register for control signals passed between the Instruction Fetch (IF) and Instruction Decode (ID) stages of a processor pipeline.\n\nThe module should have the following interface:\n-   An input clock signal named `clock`.\n-   A 4-bit input bus named `if_control_signals` representing the control signals from the IF stage.\n-   A 4-bit output bus named `id_control_signals` representing the control signals passed to the ID stage. This output should be registered.\n\nThe module should capture the value of the `if_control_signals` input on the positive edge of the `clock` and hold this value on the `id_control_signals` output until the next positive clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "d5c3b7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 1
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.875970",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

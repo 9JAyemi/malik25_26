@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=02971
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::counter_4bit.auto_sva_inst.reset_clears_Q | error
+<embedded>::counter_4bit.auto_sva_inst.load_writes_D | error
+<embedded>::counter_4bit.auto_sva_inst.increment_when_up_no_wrap | error
+<embedded>::counter_4bit.auto_sva_inst.decrement_when_down_no_wrap | error
+<embedded>::counter_4bit.auto_sva_inst.wrap_on_increment_from_max | error
+<embedded>::counter_4bit.auto_sva_inst.wrap_on_decrement_from_min | error
+<embedded>::counter_4bit.auto_sva_inst.next_state_function | error
+<embedded>::counter_4bit.auto_sva_inst.count_changes_without_load | error

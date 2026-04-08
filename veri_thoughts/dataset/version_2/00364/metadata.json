@@ -1,0 +1,29 @@
+{
+  "id": "00364",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.974613",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f584754819092542948c62ad93f",
+  "custom_id": "up_counter_d4811df9",
+  "module_name": "up_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `up_counter`.\nThis module should have the following interface:\nInputs: `clk`, `reset`, `load`, `data_in [3:0]`\nOutput: `data_out [3:0]`\n\nImplement a 4-bit synchronous counter with load and reset capabilities. The counter's behavior should be determined on the positive edge of the `clk` signal according to the following priority:\n1.  If the `reset` input is high, the counter's output (`data_out`) should be cleared to 0.\n2.  Otherwise, if the `load` input is high, the counter's output should be loaded with the value from the `data_in` input.\n3.  Otherwise (if neither `reset` nor `load` is high), the counter's output should increment by 1.\n",
+  "original_verified": true,
+  "prompt_hash": "baa6de",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.491770",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

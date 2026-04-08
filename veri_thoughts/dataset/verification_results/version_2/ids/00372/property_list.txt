@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+two_bit_adder.auto_sva_inst.check_total_addition
+two_bit_adder.auto_sva_inst.check_lsb_sum
+two_bit_adder.auto_sva_inst.check_msb_sum
+two_bit_adder.auto_sva_inst.check_cout_function
+two_bit_adder.auto_sva_inst.check_a_passthrough
+two_bit_adder.auto_sva_inst.check_b_passthrough
+two_bit_adder.auto_sva_inst.check_cin_only_increment
+
+COVER PROPERTIES:
+two_bit_adder.auto_sva_inst.check_a_passthrough:precondition1
+two_bit_adder.auto_sva_inst.check_b_passthrough:precondition1
+two_bit_adder.auto_sva_inst.check_cin_only_increment:precondition1

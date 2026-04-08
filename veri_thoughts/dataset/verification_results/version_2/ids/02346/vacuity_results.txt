@@ -1,0 +1,17 @@
+# Vacuity check results for DESIGN_ID=02346
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::controlunit.auto_sva_inst.decode_rtype_match | error
+<embedded>::controlunit.auto_sva_inst.decode_lw_match | error
+<embedded>::controlunit.auto_sva_inst.decode_sw_match | error
+<embedded>::controlunit.auto_sva_inst.decode_beq_match | error
+<embedded>::controlunit.auto_sva_inst.decode_default_zero | error
+<embedded>::controlunit.auto_sva_inst.check_memread_write_mutex | error
+<embedded>::controlunit.auto_sva_inst.unique_brnch_on_beq | error
+<embedded>::controlunit.auto_sva_inst.unique_memoryread_on_lw | error
+<embedded>::controlunit.auto_sva_inst.unique_memorywrite_on_sw | error
+<embedded>::controlunit.auto_sva_inst.unique_memtoreg_on_rtype | error
+<embedded>::controlunit.auto_sva_inst.unique_regdst_on_rtype | error
+<embedded>::controlunit.auto_sva_inst.unique_aluop_on_rtype | error
+<embedded>::controlunit.auto_sva_inst.unique_regw_on_rtype_or_lw | error
+<embedded>::controlunit.auto_sva_inst.unique_alusrc_on_lw_or_sw | error

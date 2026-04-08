@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+VerilogModule.auto_sva_inst.check_out_tied_low
+VerilogModule.auto_sva_inst.check_count_d1_reg_zero
+VerilogModule.auto_sva_inst.check_wdata_captures_tx_fifo_on_ready
+VerilogModule.auto_sva_inst.check_wdata_holds_when_not_ready
+
+COVER PROPERTIES:
+VerilogModule.auto_sva_inst.check_wdata_captures_tx_fifo_on_ready:precondition1
+VerilogModule.auto_sva_inst.check_wdata_holds_when_not_ready:precondition1

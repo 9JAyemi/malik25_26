@@ -318,6 +318,43 @@ INFO: Using TOP = assert_time_assert
 % set SVA_FILES {}
 % foreach p $SVA_INPUTS { set SVA_FILES [concat $SVA_FILES [collect_files_any $p]] }
 % 
+% # ---- Strip markdown code fences from SVA files if present ----
+% # Some LLM outputs wrap code in ```systemverilog ... ``` fences.
+% # Remove those in-place so JasperGold can parse the files.
+% proc strip_markdown_fences {filepath} {
+  if {![file isfile $filepath]} { return }
+  set fd [open $filepath r]
+  set lines [split [read $fd] "\n"]
+  close $fd
+  if {[llength $lines] == 0} { return }
+  set first [string trim [lindex $lines 0]]
+  # Check if first line is a markdown fence (``` optionally followed by language tag)
+  if {![regexp {^```} $first]} { return }
+  set modified 0
+  # Remove first line
+  set lines [lrange $lines 1 end]
+  set modified 1
+  # Remove last non-empty line if it is a closing fence
+  for {set i [expr {[llength $lines] - 1}]} {$i >= 0} {incr i -1} {
+    set l [string trim [lindex $lines $i]]
+    if {$l eq ""} { continue }
+    if {$l eq "```"} {
+      set lines [lreplace $lines $i $i]
+    }
+    break
+  }
+  if {$modified} {
+    set fd [open $filepath w]
+    puts -nonewline $fd [join $lines "\n"]
+    close $fd
+    puts "INFO: Stripped markdown fences from $filepath"
+  }
+}
+% 
+% foreach f $SVA_FILES {
+  strip_markdown_fences $f
+}
+% 
 % # ---- Output dir ----
 % # JG_OUT_DIR: explicit output directory from check_all.sh; fallback to legacy path
 % if {[info exists ::env(JG_OUT_DIR)] && $::env(JG_OUT_DIR) ne ""} {
@@ -531,11 +568,11 @@ INFO (IPF031): Settings used for proof thread 0:
     proofgrid_restarts            = 10
 AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
 Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
-Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
-Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
 0: Using multistage preprocessing
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
 0: Starting reduce
-0: Finished reduce in 0.001s
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0: Finished reduce in 0s
 0.0.PRE: Performing Proof Simplification...
 0.0.N: clocks: 3, declared: 1, disabling: 0, posedge: 3, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Proof Simplification Iteration 1	[0.00 s]
@@ -554,10 +591,38 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0: =============================== ProofGrid start ===============================
 0: ProofGrid usable level: 26
 0: ProofGrid is starting event handling
-0.0.N: Proofgrid shell started at 180555@della-i13n6(local) jg_180484_della-i13n6_1
-0.0.Hp: Proofgrid shell started at 180556@della-i13n6(local) jg_180484_della-i13n6_1
-0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: Proofgrid shell started at 2925341@della-h16n1(local) jg_2925166_della-h16n1_1
+0.0.N: Proofgrid shell started at 2925340@della-h16n1(local) jg_2925166_della-h16n1_1
 0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.01 s]
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_counter_increments:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_ignored_new_start_allows_completion:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_active_increments_before_window:precondition1" was covered in 1 cycles in 0.01 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_active_completes_at_window:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_rearms_timer:precondition1" was covered in 1 cycles in 0.02 s.
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_updates_assertion_at_window:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: A trace with 1 cycles was found. [0.01 s]
+INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_ignored_new_start_does_not_restart_before_window:precondition1" was covered in 1 cycles in 0.02 s.
+0.0.Hp: Trace Attempt  2	[0.01 s]
 0.0.N: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.N: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_counter_increments"	[0.00 s].
@@ -566,127 +631,64 @@ INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
 0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_counter_increments" in 0.01 s.
-INFO (IPF047): 0.0.N: The cover property "assert_time_assert.auto_sva_inst.check_counter_increments:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "assert_time_assert.auto_sva_inst.check_counter_increments".
-INFO (IPF047): 0.0.N: The cover property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts:precondition1" was covered in 1 cycles in 0.01 s by the incidental trace "assert_time_assert.auto_sva_inst.check_counter_increments".
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_counter_increments"	[0.01 s].
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_counter_increments" in 0.00 s.
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_counter_increments"	[0.00 s].
+0.0.Hp: Trace Attempt  3	[0.02 s]
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero" in 0.03 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_ignored_new_start_does_not_restart_before_window" in 0.03 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts" in 0.04 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer" in 0.04 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state" in 0.04 s.
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_active_increments_before_window" in 0.04 s.
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: A max_length bound was found. The shortest trace is no longer than 16 cycles. [0.00 s]
-INFO (IPF008): 0.0.N: A max_length bound of 16 was found for the property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero" in 0.00 s.
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero".
-INFO (IPF047): 0.0.N: The cover property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero".
 0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_counter_wraps_to_zero"	[0.00 s].
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts" in 0.00 s.
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_state_holds_between_terminal_counts"	[0.00 s].
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer" in 0.00 s.
-INFO (IPF047): 0.0.N: The cover property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer:precondition1" was covered in 1 cycles in 0.00 s by the incidental trace "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer".
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_idle_start_arms_timer"	[0.00 s].
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.Hp: Trace Attempt  1	[0.02 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_active_increments_before_window:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Trace Attempt  2	[0.00 s]
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_active_completes_at_window:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state" in 0.00 s.
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_idle_without_start_holds_state"	[0.00 s].
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_rearms_timer:precondition1" was covered in 1 cycles in 0.01 s.
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion:precondition1" was covered in 1 cycles in 0.01 s.
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window:precondition1" was covered in 1 cycles in 0.01 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_new_start_updates_assertion_at_window:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_ignored_new_start_does_not_restart_before_window:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: A trace with 1 cycles was found. [0.02 s]
-INFO (IPF047): 0.0.Hp: The cover property "assert_time_assert.auto_sva_inst.check_ignored_new_start_allows_completion:precondition1" was covered in 1 cycles in 0.02 s.
-0.0.Hp: Trace Attempt  2	[0.03 s]
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_active_increments_before_window"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  2	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: A trace with 3 cycles was found. [0.00 s]
-INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_active_increments_before_window" in 0.00 s.
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_active_increments_before_window"	[0.00 s].
-0.0.Hp: Trace Attempt  3	[0.04 s]
-0.0.Hp: A trace with 3 cycles was found. [0.04 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_active_completes_at_window" in 0.02 s.
-0: ProofGrid is temporarily paused because there are too many pending traces.
-0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
-0.0.Hp: A trace with 3 cycles was found. [0.04 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_rearms_timer" in 0.03 s.
-0.0.Hp: A trace with 3 cycles was found. [0.04 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_updates_assertion_at_window" in 0.03 s.
-0.0.Hp: A trace with 3 cycles was found. [0.04 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_ignored_new_start_does_not_restart_before_window" in 0.03 s.
-0.0.Hp: A trace with 3 cycles was found. [0.04 s]
-INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_ignored_new_start_allows_completion" in 0.03 s.
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_active_completes_at_window"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: Trace Attempt  3	[0.00 s]
+0.0.N: A trace with 3 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.N: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_active_completes_at_window" in 0.00 s.
 0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_active_completes_at_window"	[0.00 s].
+0: ProofGrid is temporarily paused because there are too many pending traces.
+0: ProofGrid is resuming to work after pausing for 0s. The amount of pending traces decreased.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_rearms_timer" in 0.05 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_updates_assertion_at_window" in 0.05 s.
+0.0.Hp: A trace with 3 cycles was found. [0.02 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the property "assert_time_assert.auto_sva_inst.check_ignored_new_start_allows_completion" in 0.05 s.
+0.0.Hp: Trace Attempt  4	[0.04 s]
+0.0.Hp: Trace Attempt  5	[0.05 s]
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
 0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.01 s]
-0.0.N: Trace Attempt  2	[0.01 s]
-0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
 0.0.N: Trace Attempt  5	[0.01 s]
-0.0.Hp: Trace Attempt  4	[0.05 s]
-0.0.Hp: Trace Attempt  5	[0.06 s]
-0.0.Ht: Proofgrid shell started at 180569@della-i13n6(local) jg_180484_della-i13n6_1
-0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
-0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Ht: Trace Attempt  1	[0.00 s]
-0.0.Ht: Trace Attempt  2	[0.00 s]
-0.0.Ht: Trace Attempt  3	[0.00 s]
-0.0.Ht: Trace Attempt  4	[0.00 s]
-0.0.Ht: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.04 s]
-0.0.N: Trace Attempt  2	[0.04 s]
-0.0.N: Trace Attempt  3	[0.04 s]
-0.0.N: Trace Attempt  5	[0.04 s]
-0.0.B: Proofgrid shell started at 180570@della-i13n6(local) jg_180484_della-i13n6_1
+0.0.N: Trace Attempt  1	[0.02 s]
+0.0.N: Trace Attempt  2	[0.02 s]
+0.0.N: Trace Attempt  3	[0.02 s]
+0.0.N: Trace Attempt  5	[0.02 s]
+0.0.B: Proofgrid shell started at 2925355@della-h16n1(local) jg_2925166_della-h16n1_1
 0.0.B: OS RSS memory limit : 68719476736 / 68719476736
 0.0.B: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.B: Next scan (0) will use per property time limit: 1s * 10 ^ 0 = 1s
@@ -695,279 +697,240 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt  1	[0.58 s]
-0.0.N: Trace Attempt  2	[0.58 s]
-0.0.N: Trace Attempt  3	[0.59 s]
-0.0.N: Trace Attempt  5	[0.59 s]
+0.0.B: Trace Attempt  5	[0.00 s]
+0.0.Ht: Proofgrid shell started at 2925354@della-h16n1(local) jg_2925166_della-h16n1_1
+0.0.Ht: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Ht: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ht: Trace Attempt  1	[0.00 s]
+0.0.Ht: Trace Attempt  2	[0.00 s]
+0.0.Ht: Trace Attempt  3	[0.00 s]
+0.0.Ht: Trace Attempt  4	[0.00 s]
+0.0.Ht: Trace Attempt  5	[0.00 s]
+0.0.N: Trace Attempt  1	[0.05 s]
+0.0.N: Trace Attempt  2	[0.05 s]
+0.0.N: Trace Attempt  3	[0.05 s]
+0.0.N: Trace Attempt  5	[0.05 s]
+0.0.N: Trace Attempt  1	[0.62 s]
+0.0.N: Trace Attempt  2	[0.62 s]
+0.0.N: Trace Attempt  3	[0.62 s]
+0.0.N: Trace Attempt  5	[0.62 s]
 0: ProofGrid usable level: 2
-0.0.N: Trace Attempt 84	[0.97 s]
+0.0.N: Trace Attempt 84	[1.00 s]
 0.0.N: Per property time limit expired (1.00 s) [1.00 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.98 s].
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[1.00 s].
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.N: Trace Attempt  1	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  2	[0.00 s]
 0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  3	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt  5	[0.01 s]
-0.0.B: Trace Attempt 142	[0.95 s]
-0.0.B: Per property time limit expired (0.95 s) [0.96 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.96 s].
+0.0.N: Trace Attempt  3	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.N: Trace Attempt  4	[0.01 s]
+0.0.B: Trace Attempt 100	[0.90 s]
+0.0.B: Per property time limit expired (0.97 s) [0.99 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.99 s].
 0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.N: Trace Attempt  5	[0.01 s]
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
 0.0.B: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt  1	[0.03 s]
-0.0.N: Trace Attempt  2	[0.03 s]
-0.0.N: Trace Attempt  3	[0.03 s]
-0.0.N: Trace Attempt  5	[0.03 s]
-0.0.N: Trace Attempt 174	[0.84 s]
-0.0.N: Per property time limit expired (1.00 s) [1.02 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.02 s].
-0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.B: Trace Attempt 119	[0.98 s]
-0.0.B: Per property time limit expired (1.00 s) [1.01 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.01 s].
+0.0.N: Trace Attempt  1	[0.04 s]
+0.0.N: Trace Attempt  2	[0.04 s]
+0.0.N: Trace Attempt  3	[0.04 s]
+0.0.N: Trace Attempt  5	[0.04 s]
+0.0.B: Trace Attempt 97	[0.96 s]
+0.0.B: Per property time limit expired (1.00 s) [1.02 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.02 s].
 0.0.B: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
 0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
+0.0.N: Trace Attempt 174	[0.89 s]
+0.0.N: Per property time limit expired (1.00 s) [1.03 s]
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.03 s].
+0.0.N: Next scan (1) will use per property time limit: 1s * 10 ^ 1 = 10s
+0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.N: Trace Attempt 30	[0.01 s]
 0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.54 s]
-0.0.N: Trace Attempt  2	[0.54 s]
-0.0.N: Trace Attempt  3	[0.54 s]
-0.0.N: Trace Attempt  5	[0.54 s]
-0.0.Ht: Trace Attempt 143	[5.79 s]
-0.0.B: Trace Attempt 255	[5.10 s]
-0.0.N: Trace Attempt 249	[5.49 s]
-0.0.Ht: Trace Attempt 195	[10.03 s]
-0.0.B: Trace Attempt 293	[9.14 s]
-0.0.N: Trace Attempt 365	[9.81 s]
-0.0.N: Trace Attempt 394	[9.99 s]
-0.0.N: Per property time limit expired (10.00 s) [10.03 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[10.03 s].
+0.0.N: Trace Attempt 30	[0.00 s]
+0.0.N: Trace Attempt  1	[0.56 s]
+0.0.N: Trace Attempt  2	[0.56 s]
+0.0.N: Trace Attempt  3	[0.56 s]
+0.0.N: Trace Attempt  5	[0.56 s]
+0.0.Ht: Trace Attempt 154	[4.33 s]
+0.0.B: Trace Attempt 219	[4.01 s]
+0.0.N: Trace Attempt 249	[5.46 s]
+0.0.Ht: Trace Attempt 212	[8.51 s]
+0.0.B: Trace Attempt 255	[8.37 s]
+0.0.N: Trace Attempt 365	[9.96 s]
+0.0.N: Trace Attempt 371	[9.97 s]
+0.0.N: Per property time limit expired (10.00 s) [10.06 s]
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[10.07 s].
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
-0.0.B: Trace Attempt 301	[9.95 s]
-0.0.B: Per property time limit expired (10.00 s) [10.03 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[10.03 s].
+0.0.B: Trace Attempt 261	[9.91 s]
+0.0.B: Per property time limit expired (10.00 s) [10.07 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[10.07 s].
 0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
 0.0.B: Trace Attempt  5	[0.01 s]
 0.0.N: Trace Attempt 174	[0.05 s]
-0.0.Ht: Trace Attempt 222	[14.12 s]
-0.0.B: Trace Attempt 184	[4.02 s]
-0.0.Ht: Trace Attempt 237	[19.80 s]
-0.0.B: Trace Attempt 242	[8.10 s]
-0.0.N: Per property time limit expired (10.00 s) [10.03 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[10.03 s].
+0.0.Ht: Trace Attempt 270	[13.13 s]
+0.0.B: Trace Attempt 163	[4.54 s]
+0.0.Ht: Trace Attempt 316	[17.62 s]
+0.0.B: Trace Attempt 205	[8.57 s]
+0.0.Ht: Trace Attempt 355	[21.73 s]
+0.0.N: Per property time limit expired (10.00 s) [10.06 s]
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[10.06 s].
 0.0.N: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.B: Trace Attempt 265	[9.98 s]
-0.0.B: Per property time limit expired (10.00 s) [10.03 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[10.03 s].
+0.0.B: Trace Attempt 219	[9.91 s]
+0.0.B: Per property time limit expired (10.00 s) [10.07 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[10.07 s].
 0.0.B: Next scan (2) will use per property time limit: 1s * 10 ^ 2 = 100s
 0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
 0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Trace Attempt  1	[0.53 s]
-0.0.N: Trace Attempt  2	[0.53 s]
-0.0.N: Trace Attempt  3	[0.53 s]
-0.0.N: Trace Attempt  5	[0.53 s]
-0.0.Ht: Trace Attempt 277	[23.82 s]
-0.0.B: Trace Attempt 255	[5.11 s]
-0.0.N: Trace Attempt 249	[5.45 s]
-0.0.Ht: Trace Attempt 310	[27.86 s]
-0.0.B: Trace Attempt 294	[9.12 s]
-0.0.N: Trace Attempt 365	[9.70 s]
-0.0.Ht: Trace Attempt 334	[33.92 s]
-0.0.B: Trace Attempt 333	[13.16 s]
-0.0.N: Trace Attempt 559	[13.71 s]
-0.0.Ht: Trace Attempt 366	[37.96 s]
-0.0.B: Trace Attempt 366	[17.39 s]
-0.0.N: Trace Attempt 583	[19.25 s]
-0.0.Ht: Trace Attempt 384	[42.22 s]
-0.0.B: Trace Attempt 414	[21.44 s]
-0.0.N: Trace Attempt 672	[23.33 s]
-0.0.Ht: Trace Attempt 388	[46.23 s]
-0.0.B: Trace Attempt 446	[25.53 s]
-0.0.N: Trace Attempt 924	[27.89 s]
-0.0.Ht: Trace Attempt 407	[50.44 s]
-0.0.B: Trace Attempt 469	[30.49 s]
-0.0.N: Trace Attempt 1251	[31.93 s]
-0.0.Ht: Trace Attempt 427	[54.47 s]
-0.0.B: Trace Attempt 501	[34.74 s]
-0.0.N: Trace Attempt 1294	[36.12 s]
-0.0.Ht: Trace Attempt 434	[60.10 s]
-0.0.B: Trace Attempt 520	[38.91 s]
-0.0.N: Trace Attempt 1339	[40.22 s]
-0.0.Ht: Trace Attempt 464	[64.12 s]
-0.0.B: Trace Attempt 541	[43.01 s]
-0.0.N: Trace Attempt 1351	[45.43 s]
-0.0.Ht: Trace Attempt 490	[68.14 s]
-0.0.B: Trace Attempt 562	[47.14 s]
-0.0.N: Trace Attempt 1379	[49.51 s]
-0.0.B: Trace Attempt 582	[51.30 s]
-0.0.Ht: Trace Attempt 496	[74.71 s]
-0.0.N: Trace Attempt 1390	[53.58 s]
-0.0.B: Trace Attempt 601	[55.53 s]
-0.0.Ht: Trace Attempt 523	[79.03 s]
-0.0.N: Trace Attempt 1400	[58.73 s]
-0.0.B: Trace Attempt 621	[59.54 s]
-0.0.Ht: Trace Attempt 537	[83.19 s]
-0.0.N: Trace Attempt 1420	[63.21 s]
-0.0.B: Trace Attempt 636	[63.62 s]
-0.0.Ht: Trace Attempt 542	[88.29 s]
-0.0.N: Trace Attempt 1429	[67.34 s]
-0.0.B: Trace Attempt 653	[67.77 s]
-0.0.Ht: Trace Attempt 585	[92.34 s]
-0.0.N: Trace Attempt 1445	[71.51 s]
-0.0.B: Trace Attempt 669	[71.84 s]
-0.0.N: Trace Attempt 1459	[75.71 s]
-0.0.B: Trace Attempt 685	[76.15 s]
-0.0.Ht: Trace Attempt 591	[98.73 s]
-0.0.N: Trace Attempt 1473	[80.50 s]
-0.0.B: Trace Attempt 704	[80.50 s]
-0.0.Ht: Trace Attempt 616	[104.47 s]
-0.0.B: Trace Attempt 718	[84.70 s]
-0.0.N: Trace Attempt 1480	[85.79 s]
-0.0.Ht: Trace Attempt 666	[108.53 s]
-0.0.B: Trace Attempt 746	[88.95 s]
-0.0.N: Trace Attempt 1485	[90.39 s]
-0.0.Ht: Trace Attempt 686	[113.85 s]
-0.0.B: Trace Attempt 759	[93.13 s]
-0.0.N: Trace Attempt 1489	[94.96 s]
-0.0.B: Trace Attempt 770	[98.01 s]
-0.0.Ht: Trace Attempt 687	[120.27 s]
-0.0.B: Trace Attempt 778	[99.80 s]
-0.0.B: Per property time limit expired (100.00 s) [100.10 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[100.10 s].
+0.0.B: Trace Attempt  5	[0.01 s]
+0.0.N: Trace Attempt  1	[0.57 s]
+0.0.N: Trace Attempt  2	[0.57 s]
+0.0.N: Trace Attempt  3	[0.57 s]
+0.0.N: Trace Attempt  5	[0.57 s]
+0.0.Ht: Trace Attempt 371	[25.84 s]
+0.0.B: Trace Attempt 222	[4.06 s]
+0.0.N: Trace Attempt 249	[5.60 s]
+0.0.Ht: Trace Attempt 396	[29.90 s]
+0.0.B: Trace Attempt 255	[8.27 s]
+0.0.N: Trace Attempt 365	[10.04 s]
+0.0.Ht: Trace Attempt 435	[33.90 s]
+0.0.B: Trace Attempt 277	[12.41 s]
+0.0.N: Trace Attempt 551	[14.05 s]
+0.0.Ht: Trace Attempt 467	[37.98 s]
+0.0.B: Trace Attempt 299	[16.41 s]
+0.0.N: Trace Attempt 583	[19.62 s]
+0.0.Ht: Trace Attempt 479	[42.02 s]
+0.0.B: Trace Attempt 321	[20.44 s]
+0.0.N: Trace Attempt 672	[23.89 s]
+0.0.B: Trace Attempt 342	[24.48 s]
+0.0.Ht: Trace Attempt 502	[47.25 s]
+0.0.N: Trace Attempt 924	[28.53 s]
+0.0.B: Trace Attempt 364	[28.59 s]
+0.0.Ht: Trace Attempt 519	[51.68 s]
+0.0.N: Trace Attempt 1253	[32.57 s]
+0.0.B: Trace Attempt 395	[32.71 s]
+0.0.Ht: Trace Attempt 540	[55.95 s]
+0.0.B: Trace Attempt 413	[36.80 s]
+0.0.N: Trace Attempt 1294	[36.82 s]
+0.0.Ht: Trace Attempt 559	[59.98 s]
+0.0.B: Trace Attempt 436	[40.87 s]
+0.0.N: Trace Attempt 1339	[41.09 s]
+0.0.Ht: Trace Attempt 581	[64.02 s]
+0.0.B: Trace Attempt 450	[45.09 s]
+0.0.Ht: Trace Attempt 601	[68.16 s]
+0.0.N: Trace Attempt 1351	[46.50 s]
+0.0.B: Trace Attempt 466	[49.78 s]
+0.0.Ht: Trace Attempt 638	[72.17 s]
+0.0.N: Trace Attempt 1378	[50.71 s]
+0.0.Ht: Trace Attempt 648	[76.61 s]
+0.0.B: Trace Attempt 479	[54.54 s]
+0.0.N: Trace Attempt 1388	[54.98 s]
+0.0.Ht: Trace Attempt 673	[80.68 s]
+0.0.B: Trace Attempt 491	[58.70 s]
+0.0.N: Trace Attempt 1398	[59.04 s]
+0.0.B: Trace Attempt 505	[62.76 s]
+0.0.Ht: Trace Attempt 693	[84.89 s]
+0.0.N: Trace Attempt 1408	[63.27 s]
+0.0.B: Trace Attempt 515	[67.16 s]
+0.0.Ht: Trace Attempt 706	[89.99 s]
+0.0.N: Trace Attempt 1427	[68.28 s]
+0.0.B: Trace Attempt 526	[71.18 s]
+0.0.Ht: Trace Attempt 730	[94.06 s]
+0.0.N: Trace Attempt 1432	[72.39 s]
+0.0.B: Trace Attempt 536	[75.34 s]
+0.0.Ht: Trace Attempt 749	[98.22 s]
+0.0.N: Trace Attempt 1450	[76.50 s]
+0.0.B: Trace Attempt 547	[79.50 s]
+0.0.Ht: Trace Attempt 763	[102.23 s]
+0.0.N: Trace Attempt 1470	[81.17 s]
+0.0.B: Trace Attempt 559	[83.80 s]
+0.0.Ht: Trace Attempt 770	[106.53 s]
+0.0.N: Trace Attempt 1475	[85.22 s]
+0.0.B: Trace Attempt 569	[87.95 s]
+0.0.Ht: Trace Attempt 789	[110.55 s]
+0.0.N: Trace Attempt 1480	[89.49 s]
+0.0.B: Trace Attempt 579	[92.46 s]
+0.0.Ht: Trace Attempt 797	[116.30 s]
+0.0.N: Trace Attempt 1485	[94.32 s]
+0.0.B: Trace Attempt 589	[96.83 s]
+0.0.Ht: Trace Attempt 822	[120.38 s]
+0.0.N: Trace Attempt 1489	[99.28 s]
+0.0.B: Trace Attempt 599	[99.53 s]
+0.0.B: Per property time limit expired (100.00 s) [100.15 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[100.15 s].
 0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.B: Trace Attempt  1	[0.00 s]
 0.0.B: Trace Attempt  2	[0.00 s]
 0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
+0.0.B: Trace Attempt  4	[0.01 s]
 0.0.B: Trace Attempt  5	[0.01 s]
-0.0.N: Trace Attempt 1493	[98.71 s]
-0.0.N: Per property time limit expired (100.00 s) [100.26 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[100.26 s].
+0.0.N: Per property time limit expired (100.00 s) [100.55 s]
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[100.55 s].
 0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
-0.0.N: Trace Attempt 174	[0.04 s]
-0.0.Ht: Trace Attempt 716	[124.29 s]
-0.0.B: Trace Attempt 186	[4.05 s]
-0.0.Ht: Trace Attempt 729	[128.42 s]
-0.0.B: Trace Attempt 243	[8.05 s]
-0.0.Ht: Trace Attempt 734	[132.67 s]
-0.0.B: Trace Attempt 304	[12.08 s]
-0.0.N: Trace Attempt 175	[15.06 s]
-0.0.Ht: Trace Attempt 735	[137.52 s]
-0.0.N: Trace Attempt  1	[15.40 s]
-0.0.N: Trace Attempt  2	[15.40 s]
-0.0.N: Trace Attempt  3	[15.40 s]
-0.0.N: Trace Attempt  5	[15.40 s]
-0.0.B: Trace Attempt 357	[16.09 s]
-0.0.Ht: Trace Attempt 742	[141.86 s]
-0.0.B: Trace Attempt 385	[20.26 s]
-0.0.N: Trace Attempt 370	[20.92 s]
-0.0.Ht: Trace Attempt 744	[146.01 s]
-0.0.B: Trace Attempt 427	[24.31 s]
-0.0.N: Trace Attempt 455	[25.89 s]
-0.0.Ht: Trace Attempt 749	[150.42 s]
-0.0.B: Trace Attempt 462	[28.32 s]
-0.0.N: Trace Attempt 518	[30.79 s]
-0.0.B: Trace Attempt 500	[32.38 s]
-0.0.Ht: Trace Attempt 756	[154.55 s]
-0.0.N: Trace Attempt 739	[35.00 s]
-0.0.B: Trace Attempt 536	[36.42 s]
-0.0.Ht: Trace Attempt 769	[159.44 s]
-0.0.N: Trace Attempt 1063	[39.02 s]
-0.0.B: Trace Attempt 559	[40.58 s]
-0.0.N: Trace Attempt 1232	[43.08 s]
-0.0.B: Trace Attempt 581	[44.93 s]
-0.0.N: Trace Attempt 1263	[47.12 s]
-0.0.B: Trace Attempt 597	[49.04 s]
-0.0.N: Trace Attempt 1305	[51.79 s]
-0.0.B: Trace Attempt 615	[53.55 s]
-0.0.N: Trace Attempt 1326	[55.82 s]
-0.0.B: Trace Attempt 635	[57.69 s]
-0.0.N: Trace Attempt 1345	[60.39 s]
-0.0.B: Trace Attempt 663	[61.84 s]
-0.0.N: Trace Attempt 1362	[64.78 s]
-0.0.B: Trace Attempt 688	[66.10 s]
-0.0.B: Trace Attempt 701	[70.39 s]
-0.0.N: Trace Attempt 1372	[70.45 s]
-0.0.B: Trace Attempt 714	[74.44 s]
-0.0.N: Trace Attempt 1395	[74.67 s]
-0.0.B: Trace Attempt 732	[78.71 s]
-0.0.N: Trace Attempt 1408	[79.08 s]
-0.0.B: Trace Attempt 753	[83.17 s]
-0.0.N: Trace Attempt 1413	[83.29 s]
-0.0.B: Trace Attempt 769	[87.57 s]
-0.0.N: Trace Attempt 1418	[88.35 s]
-0.0.B: Trace Attempt 779	[91.68 s]
-0.0.N: Trace Attempt 1424	[93.69 s]
-0.0.B: Trace Attempt 802	[95.69 s]
-0.0.N: Trace Attempt 1437	[97.72 s]
-0.0.B: Trace Attempt 812	[99.76 s]
-0.0.B: Per property time limit expired (100.00 s) [100.11 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[100.11 s].
-0.0.B: Next scan (3) will use per property time limit: 1s * 10 ^ 3 = 1000s
-0.0.B: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.B: Trace Attempt  1	[0.00 s]
-0.0.B: Trace Attempt  2	[0.00 s]
-0.0.B: Trace Attempt  3	[0.00 s]
-0.0.B: Trace Attempt  4	[0.00 s]
-0.0.B: Trace Attempt  5	[0.00 s]
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[100.17 s].
-0.0.N: Next scan (3) will use per property time limit: 1s * 10 ^ 3 = 1000s
-0.0.N: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.N: Trace Attempt  1	[0.53 s]
-0.0.N: Trace Attempt  2	[0.53 s]
-0.0.N: Trace Attempt  3	[0.53 s]
-0.0.N: Trace Attempt  5	[0.53 s]
-0.0.Ht: Trace Attempt 935	[223.51 s]
-0.0.B: Trace Attempt 255	[5.05 s]
-0.0.N: Trace Attempt 249	[5.44 s]
-0.0.B: Trace Attempt 295	[9.15 s]
-0.0.N: Trace Attempt 365	[9.69 s]
-0.0.B: Trace Attempt 334	[13.18 s]
-0.0.N: Trace Attempt 562	[13.71 s]
-0.0.B: Trace Attempt 368	[17.18 s]
-0.0.Hp: Interrupted (multi)
-0.0.Hp: Morphing to Bm
-0.0.Hp: Trace Attempt  6	[0.08 s]
-0.0.Hp: All properties determined. [0.00 s]
-0.0.Hp: Exited with Success (@ 0.00 s)
-0.0.Bm: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.Bm: Trace Attempt  1	[0.00 s]
-0.0.Bm: Trace Attempt  2	[0.00 s]
-0.0.Bm: Trace Attempt  3	[0.01 s]
-0.0.Bm: Trace Attempt  4	[0.01 s]
-0.0.Bm: Trace Attempt  5	[0.01 s]
-0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[19.18 s].
+0.0.Ht: Trace Attempt 836	[126.72 s]
+0.0.B: Trace Attempt 163	[4.60 s]
+0.0.B: Trace Attempt 204	[8.64 s]
+0.0.Ht: Trace Attempt 843	[131.09 s]
+0.0.B: Trace Attempt 235	[12.68 s]
+0.0.Ht: Trace Attempt 868	[135.44 s]
+0.0.B: Trace Attempt 265	[16.72 s]
+0.0.Ht: Trace Attempt 902	[139.52 s]
+0.0.B: Trace Attempt 301	[20.74 s]
+0.0.Ht: Trace Attempt 923	[146.08 s]
+0.0.B: Trace Attempt 337	[24.75 s]
+0.0.N: Trace Attempt  1	[25.18 s]
+0.0.N: Trace Attempt  2	[25.19 s]
+0.0.N: Trace Attempt  3	[25.19 s]
+0.0.N: Trace Attempt  5	[25.19 s]
+0.0.B: Trace Attempt 358	[28.97 s]
+0.0.Ht: Trace Attempt 958	[151.57 s]
+0.0.N: Trace Attempt 370	[30.44 s]
+0.0.B: Trace Attempt 370	[33.19 s]
+0.0.Ht: Trace Attempt 988	[155.58 s]
+0.0.N: Trace Attempt 455	[35.25 s]
+0.0.B: Trace Attempt 387	[37.34 s]
+0.0.Ht: Trace Attempt 994	[159.73 s]
+0.0.N: Trace Attempt 518	[40.33 s]
+0.0.B: Trace Attempt 411	[42.24 s]
+0.0.Ht: Trace Attempt 997	[165.02 s]
+0.0.N: Trace Attempt 739	[44.60 s]
+0.0.B: Trace Attempt 433	[46.34 s]
+0.0.Ht: Trace Attempt 1007	[170.37 s]
+0.0.N: Trace Attempt 1076	[48.61 s]
+0.0.B: Trace Attempt 455	[50.58 s]
+0.0.N: Trace Attempt 1239	[52.63 s]
+0.0.B: Trace Attempt 479	[54.73 s]
+0.0.N: Trace Attempt 1268	[56.67 s]
+0.0.B: Trace Attempt 500	[58.84 s]
+0.0.N: Trace Attempt 1305	[61.10 s]
+0.0.B: Trace Attempt 523	[62.84 s]
+0.0.B: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[64.37 s].
 0.0.B: Morphing to K
-0.0.B: Trace Attempt 399	[19.12 s]
+0.0.B: Trace Attempt 527	[64.11 s]
 0.0.B: All properties determined. [0.00 s]
 0.0.B: Exited with Success (@ 0.00 s)
 0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
-0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[18.98 s].
+0.0.K: Trace Attempt 174	[0.04 s]
+0.0.N: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[64.07 s].
 0.0.N: Morphing to Hts
-0.0.N: Trace Attempt 580	[13.91 s]
+0.0.N: Trace Attempt 1313	[63.63 s]
 0.0.N: All properties determined. [0.00 s]
 0.0.N: Exited with Success (@ 0.00 s)
 0.0.Hts: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
@@ -977,248 +940,358 @@ INFO (IPF055): 0.0.Hp: A counterexample (cex) with 3 cycles was found for the pr
 0.0.Hts: Trace Attempt  3	[0.00 s]
 0.0.Hts: Trace Attempt  4	[0.00 s]
 0.0.Hts: Trace Attempt  5	[0.00 s]
-0.0.K: Trace Attempt 174	[0.04 s]
-0.0.K: Per property time limit expired (1.97 s) [1.99 s]
-0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.99 s].
-0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.Hts: Trace Attempt 1443	[1.43 s]
-0.0.Hts: Per property time limit expired (1.96 s) [2.05 s]
-0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[2.05 s].
+0.0.Ht: Trace Attempt 1048	[187.66 s]
+0.0.Hts: Trace Attempt 1314	[1.49 s]
+0.0.Hts: Per property time limit expired (1.76 s) [1.78 s]
+0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.78 s].
 0.0.Hts: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.K: Trace Attempt  1	[0.26 s]
-0.0.K: Trace Attempt  2	[0.26 s]
-0.0.K: Trace Attempt  3	[0.26 s]
-0.0.K: Trace Attempt  4	[0.26 s]
-0.0.K: Trace Attempt  5	[0.26 s]
-0.0.Hts: Trace Attempt  1	[0.51 s]
-0.0.Hts: Trace Attempt  2	[0.51 s]
-0.0.Hts: Trace Attempt  3	[0.51 s]
-0.0.Hts: Trace Attempt  4	[0.51 s]
-0.0.Hts: Trace Attempt  5	[0.51 s]
-0.0.Bm: Trace Attempt 208	[4.01 s]
-0.0.K: Trace Attempt 181	[1.97 s]
-0.0.K: Per property time limit expired (2.00 s) [2.00 s]
+0.0.K: Per property time limit expired (1.84 s) [1.89 s]
+0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.89 s].
+0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
+0.0.K: Trace Attempt  1	[0.30 s]
+0.0.K: Trace Attempt  2	[0.30 s]
+0.0.K: Trace Attempt  3	[0.30 s]
+0.0.K: Trace Attempt  4	[0.30 s]
+0.0.K: Trace Attempt  5	[0.30 s]
+0.0.Hts: Trace Attempt  1	[0.72 s]
+0.0.Hts: Trace Attempt  2	[0.72 s]
+0.0.Hts: Trace Attempt  3	[0.72 s]
+0.0.Hts: Trace Attempt  4	[0.72 s]
+0.0.Hts: Trace Attempt  5	[0.72 s]
+0.0.K: Trace Attempt 138	[1.97 s]
+0.0.K: Per property time limit expired (2.00 s) [2.01 s]
 0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[2.01 s].
-0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[1.93 s].
-0.0.Hts: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.K: Trace Attempt 30	[0.01 s]
-0.0.K: Trace Attempt  1	[0.26 s]
-0.0.K: Trace Attempt  2	[0.26 s]
-0.0.K: Trace Attempt  3	[0.26 s]
-0.0.K: Trace Attempt  4	[0.26 s]
-0.0.K: Trace Attempt  5	[0.26 s]
-0.0.Hts: Trace Attempt  1	[0.28 s]
-0.0.Hts: Trace Attempt  2	[0.28 s]
-0.0.Hts: Trace Attempt  3	[0.28 s]
-0.0.Hts: Trace Attempt  4	[0.28 s]
-0.0.Hts: Trace Attempt  5	[0.28 s]
-0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.45 s].
+0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.K: Trace Attempt 174	[0.04 s]
+0.0.Hts: Trace Attempt 1489	[2.33 s]
+0.0.Hts: Per property time limit expired (2.00 s) [2.37 s]
+0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[2.37 s].
+0.0.Hts: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.Hts: Trace Attempt  1	[0.65 s]
+0.0.Hts: Trace Attempt  2	[0.65 s]
+0.0.Hts: Trace Attempt  3	[0.65 s]
+0.0.Hts: Trace Attempt  4	[0.65 s]
+0.0.Hts: Trace Attempt  5	[0.65 s]
+0.0.Hts: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.70 s].
 0.0.Hts: Morphing to AM
-0.0.Hts: Trace Attempt 651	[0.45 s]
+0.0.Hts: Trace Attempt 95	[0.70 s]
 0.0.Hts: All properties determined. [0.00 s]
 0.0.Hts: Exited with Success (@ 0.00 s)
 0.0.AM: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.45 s].
+0.0.AM: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt  1	[0.03 s]
+0.0.AM: Trace Attempt  2	[0.03 s]
+0.0.AM: Trace Attempt  3	[0.03 s]
+0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[1.07 s].
+0.0.AM: Trace Attempt  5	[0.03 s]
 0.0.K: Morphing to AB
-0.0.K: Trace Attempt 79	[0.45 s]
 0.0.K: All properties determined. [0.00 s]
 0.0.K: Exited with Success (@ 0.00 s)
 0.0.AB: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
-0.0.AM: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.AB: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.AB: Trace Attempt 124	[3.91 s]
+0.0.AB: Per property time limit expired (3.96 s) [3.98 s]
+0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[3.98 s].
+0.0.AB: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AM: Trace Attempt 202	[3.96 s]
+0.0.AM: Per property time limit expired (4.00 s) [4.03 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[4.03 s].
+0.0.AM: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
-0.0.AB: Trace Attempt  1	[0.02 s]
-0.0.AB: Trace Attempt  2	[0.02 s]
-0.0.AB: Trace Attempt  3	[0.02 s]
-0.0.AB: Trace Attempt  4	[0.02 s]
-0.0.AB: Trace Attempt  5	[0.02 s]
-0.0.AM: Trace Attempt  1	[0.03 s]
-0.0.AM: Trace Attempt  2	[0.03 s]
-0.0.AM: Trace Attempt  3	[0.03 s]
-0.0.AM: Trace Attempt  5	[0.03 s]
-0.0.Bm: Trace Attempt 263	[8.01 s]
-0.0.AB: Trace Attempt 139	[3.94 s]
-0.0.AB: Per property time limit expired (4.00 s) [4.00 s]
-0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[4.00 s].
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.04 s]
+0.0.AM: Trace Attempt  2	[0.04 s]
+0.0.AM: Trace Attempt  3	[0.04 s]
+0.0.AM: Trace Attempt  5	[0.04 s]
+0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[2.18 s].
 0.0.AB: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.AB: Trace Attempt  1	[0.00 s]
 0.0.AB: Trace Attempt  2	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  5	[0.00 s]
-0.0.AM: Trace Attempt 197	[3.98 s]
-0.0.AM: Per property time limit expired (4.00 s) [4.01 s]
-0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[4.01 s].
+0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[2.18 s].
 0.0.AM: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.AM: Trace Attempt  1	[0.00 s]
-0.0.AM: Trace Attempt  2	[0.00 s]
-0.0.AM: Trace Attempt  3	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  2	[0.01 s]
-0.0.AM: Trace Attempt  4	[0.00 s]
 0.0.AB: Trace Attempt  3	[0.01 s]
 0.0.AB: Trace Attempt  4	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.01 s]
-0.0.AM: Trace Attempt  5	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AM: Trace Attempt  2	[0.01 s]
 0.0.AM: Trace Attempt  3	[0.01 s]
 0.0.AM: Trace Attempt  5	[0.01 s]
+0.0.AB: Trace Attempt  1	[0.03 s]
+0.0.AB: Trace Attempt  2	[0.03 s]
+0.0.AB: Trace Attempt  3	[0.03 s]
+0.0.AB: Trace Attempt  4	[0.03 s]
+0.0.AB: Trace Attempt  5	[0.03 s]
+0.0.AM: Trace Attempt  1	[0.04 s]
+0.0.AM: Trace Attempt  2	[0.04 s]
+0.0.AM: Trace Attempt  3	[0.04 s]
+0.0.AM: Trace Attempt  5	[0.04 s]
+0.0.AB: Trace Attempt 121	[4.04 s]
+0.0.AM: Trace Attempt 217	[4.05 s]
+0.0.AB: Trace Attempt 150	[7.99 s]
+0.0.AB: Per property time limit expired (8.00 s) [8.03 s]
+0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[8.03 s].
+0.0.AB: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.AB: Trace Attempt  1	[0.00 s]
+0.0.AB: Trace Attempt  2	[0.00 s]
+0.0.AB: Trace Attempt  3	[0.00 s]
+0.0.AB: Trace Attempt  4	[0.00 s]
+0.0.AB: Trace Attempt  5	[0.00 s]
+0.0.AB: Trace Attempt  1	[0.01 s]
+0.0.AB: Trace Attempt  2	[0.01 s]
+0.0.AB: Trace Attempt  3	[0.01 s]
+0.0.AB: Trace Attempt  4	[0.01 s]
+0.0.AB: Trace Attempt  5	[0.01 s]
+0.0.AM: Trace Attempt 288	[7.98 s]
+0.0.AM: Per property time limit expired (8.00 s) [8.04 s]
+0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[8.04 s].
+0.0.AM: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.AM: Trace Attempt  1	[0.00 s]
+0.0.AM: Trace Attempt  2	[0.00 s]
+0.0.AM: Trace Attempt  3	[0.00 s]
+0.0.AM: Trace Attempt  4	[0.00 s]
+0.0.AM: Trace Attempt  5	[0.00 s]
 0.0.AB: Trace Attempt  1	[0.02 s]
 0.0.AB: Trace Attempt  2	[0.02 s]
 0.0.AB: Trace Attempt  3	[0.02 s]
 0.0.AB: Trace Attempt  4	[0.02 s]
+0.0.AM: Trace Attempt  1	[0.01 s]
 0.0.AB: Trace Attempt  5	[0.02 s]
+0.0.AM: Trace Attempt  2	[0.01 s]
+0.0.AM: Trace Attempt  3	[0.01 s]
+0.0.AM: Trace Attempt  5	[0.01 s]
 0.0.AM: Trace Attempt  1	[0.02 s]
 0.0.AM: Trace Attempt  2	[0.02 s]
 0.0.AM: Trace Attempt  3	[0.02 s]
 0.0.AM: Trace Attempt  5	[0.02 s]
-0.0.Bm: Trace Attempt 314	[12.05 s]
-0.0.AM: Trace Attempt 217	[4.03 s]
-0.0.AB: Trace Attempt 137	[4.08 s]
-0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[4.75 s].
+0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.66 s].
+0.0.AM: Morphing to Tri
+0.0.AM: Trace Attempt 65	[0.63 s]
+0.0.AM: All properties determined. [0.00 s]
+0.0.AM: Exited with Success (@ 0.00 s)
+0.0.AB: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.68 s].
 0.0.AB: Morphing to I
-0.0.AB: Trace Attempt 147	[4.74 s]
+0.0.AB: Trace Attempt 83	[0.67 s]
 0.0.AB: All properties determined. [0.00 s]
 0.0.AB: Exited with Success (@ 0.00 s)
 0.0.I: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.I: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
-0.0.I: Trace Attempt 13	[0.00 s]
-0.0.AM: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[4.75 s].
-0.0.AM: Morphing to Tri
-0.0.AM: Trace Attempt 228	[4.13 s]
-0.0.AM: All properties determined. [0.00 s]
-0.0.AM: Exited with Success (@ 0.00 s)
 0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.I: Trace Attempt 13	[0.00 s]
 0.0.I: Trace Attempt  1	[0.02 s]
 0.0.I: Trace Attempt  2	[0.02 s]
-0.0.I: Trace Attempt  3	[0.03 s]
-0.0.I: Trace Attempt  4	[0.03 s]
+0.0.I: Trace Attempt  3	[0.02 s]
+0.0.I: Trace Attempt  4	[0.02 s]
 0.0.Tri: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
 0.0.Tri:    0.00" ---- Launching main thread ----
-0.0.Tri:    0.21" ---- Launching abstraction thread ----
-0.0.Tri:    0.23" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.44 s]
-0.0.Tri: Trace Attempt  3	[0.44 s]
-0.0.Tri: Trace Attempt  4	[0.44 s]
-0.0.Tri: Trace Attempt  5	[0.44 s]
-0.0.Tri:    1.21" Simplification phase 1 complete
-0.0.Bm: Trace Attempt 352	[16.05 s]
-0.0.Tri:    2.34" Simplification phase 2 complete
-0.0.Tri:    2.56" Simplification phase 3 complete
-   2.56" ---- Completed simplification thread ----
-   2.56" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    2.68" ---- Restarting abstraction thread on simplified netlist ----
-0.0.I: Trace Attempt 52	[4.81 s]
-0.0.Bm: Trace Attempt 384	[20.09 s]
-0.0.Tri: Trace Attempt 2004	[1.94 s]
-0.0.Tri: A trace with 2004 cycles was found. [6.48 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 2004 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion" in 6.66 s.
-0.0.I: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[6.72 s].
+0.0.Tri:    0.30" ---- Launching abstraction thread ----
+0.0.Tri:    0.35" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.54 s]
+0.0.Tri: Trace Attempt  3	[0.54 s]
+0.0.Tri: Trace Attempt  4	[0.54 s]
+0.0.Tri: Trace Attempt  5	[0.54 s]
+0.0.Tri:    1.32" Simplification phase 1 complete
+0.0.Tri: Trace Attempt 2004	[1.01 s]
+0.0.Tri: A trace with 2004 cycles was found. [2.48 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 2004 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion" in 2.61 s.
+0.0.I: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[2.74 s].
 0.0.I: Last scan. Per property time limit: 0s
 0.0.I: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
-0.0.Tri: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[6.66 s].
+0.0.Tri: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_clears_assertion"	[2.61 s].
 0.0.Tri: Last scan. Per property time limit: 0s
 0.0.Tri: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.Tri: Trace Attempt  1	[0.00 s]
-0.0.Tri:    6.49" ---- Launching main thread ----
+0.0.Tri:    2.48" ---- Launching main thread ----
 0.0.I: Trace Attempt  1	[0.03 s]
 0.0.I: Trace Attempt  2	[0.03 s]
-0.0.I: Trace Attempt  3	[0.03 s]
+0.0.I: Trace Attempt  3	[0.04 s]
 0.0.I: Trace Attempt  4	[0.04 s]
-0.0.Tri:    6.62" ---- Launching abstraction thread ----
-0.0.Tri:    6.64" ---- Launching multi-phase simplification thread ----
-0.0.Tri: Trace Attempt  2	[0.20 s]
-0.0.Tri: Trace Attempt  3	[0.20 s]
-0.0.Tri: Trace Attempt  4	[0.20 s]
-0.0.Tri: Trace Attempt  5	[0.20 s]
+0.0.Tri:    2.76" ---- Launching abstraction thread ----
 0: ProofGrid usable level: 1
-0.0.Tri:    7.44" Simplification phase 1 complete
-0.0.Tri:    7.51" Simplification phase 2 complete
-0.0.Tri:    8.05" Simplification phase 3 complete
-   8.05" ---- Completed simplification thread ----
-   8.05" ---- Restarting main thread on simplified netlist ----
-0.0.Tri:    8.17" ---- Restarting abstraction thread on simplified netlist ----
-0.0.I: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[3.25 s].
-0.0.I: Morphing to D
-0.0.I: Trace Attempt 34	[1.42 s]
+0.0.Tri:    2.80" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.39 s]
+0.0.Tri: Trace Attempt  3	[0.39 s]
+0.0.Tri: Trace Attempt  4	[0.39 s]
+0.0.Tri: Trace Attempt  5	[0.39 s]
+0.0.Tri:    3.60" Simplification phase 1 complete
+0.0.Tri:    3.75" Simplification phase 2 complete
+0.0.Tri:    4.95" Simplification phase 3 complete
+   4.95" ---- Completed simplification thread ----
+   4.95" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    5.18" ---- Restarting abstraction thread on simplified netlist ----
+0.0.I: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[4.07 s].
+0.0.I: Morphing to K
+0.0.I: Trace Attempt 34	[1.45 s]
 0.0.I: All properties determined. [0.00 s]
 0.0.I: Exited with Success (@ 0.00 s)
+0.0.Tri: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[4.08 s].
+0.0.K: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.Tri: Morphing to D
+0.0.Tri: Trace Attempt 238	[4.08 s]
+0.0.Tri: All properties determined. [0.00 s]
+0.0.Tri: Exited with Success (@ 0.00 s)
 0.0.D: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
 0.0.D: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
 0.0.D: Trace Attempt  1	[0.00 s]
 0.0.D: Trace Attempt  2	[0.00 s]
-0.0.D: Trace Attempt  3	[0.01 s]
+0.0.D: Trace Attempt  3	[0.00 s]
 0.0.D: Trace Attempt  4	[0.01 s]
-0.0.Bm: Trace Attempt 411	[24.15 s]
-0.0.Tri: Trace Attempt 981	[4.40 s]
+0.0.D: Trace Attempt 49	[10.21 s]
+0.0.K: Trace Attempt  1	[10.66 s]
+0.0.K: Trace Attempt  2	[10.66 s]
+0.0.K: Trace Attempt  3	[10.66 s]
+0.0.K: Trace Attempt  4	[10.66 s]
+0.0.K: Trace Attempt  5	[10.66 s]
+0.0.K: Trace Attempt 273	[14.68 s]
+0.0.K: Trace Attempt 344	[18.70 s]
+0.0.K: Trace Attempt 396	[22.81 s]
+0.0.K: Trace Attempt 443	[26.93 s]
+0.0.Hp: Interrupted (multi)
+0.0.Hp: Morphing to Mp
+0.0.Hp: Trace Attempt  9	[0.11 s]
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0.0.Mp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Mp: Trace Attempt  1	[0.01 s]
+0.0.Mp: Trace Attempt  2	[0.01 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  3	[0.01 s]
+0.0.Mp: Trace Attempt  4	[0.01 s]
+0.0.Mp: Trace Attempt  4	[0.01 s]
+0.0.Mp: Trace Attempt  5	[0.01 s]
+0.0.D: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[29.30 s].
+0.0.D: Morphing to Tri
+0.0.D: All properties determined. [0.00 s]
+0.0.D: Exited with Success (@ 0.00 s)
+0.0.Tri: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.K: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[29.32 s].
+0.0.K: Morphing to Ncustom1
+0.0.K: Trace Attempt 462	[29.30 s]
+0.0.K: All properties determined. [0.00 s]
+0.0.K: Exited with Success (@ 0.00 s)
+0.0.Ncustom1: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Ncustom1: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.Ncustom1: Trace Attempt 174	[0.02 s]
+0.0.Tri: Starting proof for property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[0.00 s].
+0.0.Tri: Trace Attempt  1	[0.00 s]
+0.0.Tri:    0.00" ---- Launching main thread ----
+0.0.Tri:    0.22" ---- Launching abstraction thread ----
+0.0.Tri:    0.26" ---- Launching multi-phase simplification thread ----
+0.0.Tri: Trace Attempt  2	[0.34 s]
+0.0.Tri: Trace Attempt  3	[0.34 s]
+0.0.Tri: Trace Attempt  4	[0.34 s]
+0.0.Tri: Trace Attempt  5	[0.34 s]
+0.0.Tri:    1.08" Simplification phase 1 complete
+0.0.Tri:    1.17" Simplification phase 2 complete
+0.0.Tri:    1.73" Simplification phase 3 complete
+   1.73" ---- Completed simplification thread ----
+   1.73" ---- Restarting main thread on simplified netlist ----
+0.0.Tri:    1.96" ---- Restarting abstraction thread on simplified netlist ----
+0.0.Mp: Trace Attempt 114	[4.20 s]
 0.0.Tri: Requesting engine job to stop
-0.0.D: Requesting engine job to stop
+0.0.Ncustom1: Requesting engine job to stop
 0.0.Ht: Requesting engine job to terminate
-0.0.Bm: Requesting engine job to terminate
-INFO (IPF144): 0: Initiating shutdown of proof [267.65 s]
-0.0.Tri: Trace Attempt 2004	[4.62 s]
-0.0.Tri: A trace with 2004 cycles was found. [6.02 s]
-INFO (IPF055): 0.0.Tri: A counterexample (cex) with 2004 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window" in 6.20 s.
+0.0.Mp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [248.29 s]
+0.0.Tri: Trace Attempt 2004	[3.77 s]
+0.0.Tri: A trace with 2004 cycles was found. [5.38 s]
+INFO (IPF055): 0.0.Tri: A counterexample (cex) with 2004 cycles was found for the property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window" in 5.53 s.
 0.0.Ht: Interrupted (multi)
-0.0.Ht: Trace Attempt 1443	[223.76 s]
-0.0.Ht: All properties determined. [267.57 s]
-0.0.D: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[2.95 s].
-0.0.D: Trace Attempt 32	[1.95 s]
-0.0.D: All properties determined. [2.93 s]
-0.0.Tri: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[6.21 s].
-0.0.Tri: All properties determined. [6.21 s]
-0.0.D: Exited with Success (@ 267.69 s)
+0.0.Ht: Trace Attempt 1314	[187.77 s]
+0.0.Ht: All properties determined. [248.19 s]
+0.0.Tri: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[5.54 s].
+0.0.Tri: All properties determined. [5.53 s]
+0.0.Ncustom1: Stopped processing property "assert_time_assert.auto_sva_inst.check_new_start_keeps_assertion_before_window"	[5.58 s].
+0.0.Ncustom1: All properties determined. [5.58 s]
+0.0.Ht: Exited with Success (@ 248.32 s)
 0: ProofGrid usable level: 0
-0.0.Ht: Exited with Success (@ 267.72 s)
-0.0.Tri: Exited with Success (@ 267.72 s)
-0.0.Bm: Trace Attempt 425	[26.61 s]
-0.0.Bm: All properties determined. [26.73 s]
-0.0.Bm: Exited with Success (@ 267.74 s)
+0.0.Ncustom1: Exited with Success (@ 248.32 s)
+0.0.Mp: Trace Attempt 133	[6.56 s]
+0.0.Mp: All properties determined. [6.60 s]
+0.0.Tri: Exited with Success (@ 248.35 s)
+0.0.Mp: Exited with Success (@ 248.35 s)
 0: --------------------------------------------------------------
-ProofGrid Summary (utilization 99.98 %)
+ProofGrid Summary (utilization 99.97 %)
 --------------------------------------------------------------
-     engines started                               :    12
+     engines started                               :    13
      engine jobs started                           :     4
 
     Average time in state (seconds)
     ------------------------------------------------------
     Engine  Pending     Running        Dead    Utilization
     ------------------------------------------------------
-     Ht        0.08      267.57        0.00       99.97 %
-     Bm        0.05      267.62        0.00       99.98 %
-    Tri        0.05      267.57        0.00       99.98 %
-      D        0.09      267.50        0.00       99.97 %
-    all        0.07      267.56        0.00       99.98 %
+     Ht        0.10      248.19        0.00       99.96 %
+    Tri        0.07      248.02        0.00       99.97 %
+     Mp        0.06      247.61        0.00       99.97 %
+    Ncustom1        0.08      247.99        0.00       99.97 %
+    all        0.08      247.95        0.00       99.97 %
 
     Total time in state (seconds)
     -----------------------------------------
             Pending     Running        Dead  
     -----------------------------------------
-               0.26     1070.26        0.00
+               0.32      991.81        0.00
 
-    Data read    : 4.71 MiB
-    Data written : 126.71 kiB
+    Data read    : 4.18 MiB
+    Data written : 125.46 kiB
 
 0: All pending notifications were processed.
 INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
@@ -1249,6 +1322,65 @@ SUMMARY
 [<embedded>] % # ---- Covers (best effort) ----
 [<embedded>] % catch { cover -all }
 1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05588/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file43
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: No proven assertions to check for vacuity
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 0 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/version_2/ids/05588/vacuity_results.txt
 [<embedded>] % 
 [<embedded>] % # ---- Collect CEX details ----
 [<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
@@ -1298,8 +1430,12 @@ file43
 [<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
 [<embedded>] % puts $fp "CEX_COUNT=$n_cex"
 [<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
 [<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
 [<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
 [<embedded>] % close $fp
 [<embedded>] % 
 [<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
@@ -1314,6 +1450,6 @@ INFO: Wrote /home/ab2113/malik25_26/veri_thoughts/dataset/verification_results/v
 INFO (IPL014): Waiting for the Tcl-thread to exit.
 INFO: Waiting for proof threads to stop...
 INFO: Proof threads stopped.
-INFO (IPL018): The peak resident set memory use for this session was 2.271 GB.
+INFO (IPL018): The peak resident set memory use for this session was 2.046 GB.
 INFO (IPL015): The Tcl-thread exited with status 0.
 INFO (IPL016): Exiting the analysis session with status 0.

@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=03691
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::dff_chain.dff_chain_sva_i.check_reset_clears_all_stages | error
+<embedded>::dff_chain.dff_chain_sva_i.check_release_all_stages_zero | error
+<embedded>::dff_chain.dff_chain_sva_i.check_release_second_clock_zero_tail | error
+<embedded>::dff_chain.dff_chain_sva_i.check_release_third_clock_zero_tail | error
+<embedded>::dff_chain.dff_chain_sva_i.check_release_fourth_clock_q_zero | error
+<embedded>::dff_chain.dff_chain_sva_i.check_zero_input_captured_into_q1 | error
+<embedded>::dff_chain.dff_chain_sva_i.check_zero_q1_shifts_into_q2 | error
+<embedded>::dff_chain.dff_chain_sva_i.check_zero_q2_shifts_into_q3 | error
+<embedded>::dff_chain.dff_chain_sva_i.check_zero_q3_shifts_into_q | error
+<embedded>::dff_chain.dff_chain_sva_i.check_four_zero_inputs_produce_zero_q | error

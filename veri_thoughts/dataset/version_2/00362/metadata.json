@@ -1,0 +1,29 @@
+{
+  "id": "00362",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.971390",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5656008190b117e8641d8bd546",
+  "custom_id": "sky130_fd_sc_hd__and3b_46881515",
+  "module_name": "sky130_fd_sc_hd__and3b",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a digital logic module.\nThe module should be named `sky130_fd_sc_hd__and3b`.\nIt has the following interface:\n-   Output: `X`\n-   Inputs: `A_N`, `B`, `C`\n\nThe module implements a three-input logic function. The output `X` should be logic high (1) if and only if input `A_N` is logic low (0), AND input `B` is logic high (1), AND input `C` is logic high (1). In all other cases, the output `X` should be logic low (0).\n",
+  "original_verified": true,
+  "prompt_hash": "e96ebb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.491323",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

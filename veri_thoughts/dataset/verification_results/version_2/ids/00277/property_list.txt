@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+my_module.auto_sva_inst.check_function_equivalence
+my_module.auto_sva_inst.check_sleep_forces_low
+my_module.auto_sva_inst.check_awake_passes_a
+my_module.auto_sva_inst.check_high_x_requires_awake_high_a
+
+COVER PROPERTIES:
+my_module.auto_sva_inst.check_sleep_forces_low:precondition1
+my_module.auto_sva_inst.check_awake_passes_a:precondition1
+my_module.auto_sva_inst.check_high_x_requires_awake_high_a:precondition1

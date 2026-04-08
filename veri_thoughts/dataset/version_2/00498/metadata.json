@@ -1,0 +1,29 @@
+{
+  "id": "00498",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.391194",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e46f5d88190bcaa337db7853d1b",
+  "custom_id": "DivFrec_06de5c47",
+  "module_name": "DivFrec",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `DivFrec` with the following interface:\nInputs:\n-   `clk`: System clock input.\n-   `rst`: Asynchronous reset input (active high).\n-   `div`: An 11-bit input (`[10:0]`) specifying a division parameter.\nOutputs:\n-   `clkd`: A clock output.\n-   `clk_1kHz`: A clock output.\n\nThe module should implement two distinct frequency dividers, both driven by the `clk` input and reset by `rst`:\n1.  The `clkd` output should generate a clock signal by dividing the input `clk` frequency. The division ratio is controlled by the `div` input. Specifically, the output `clkd` should toggle its state every (`div` + 1) cycles of the input `clk`.\n2.  The `clk_1kHz` output should generate a clock signal with a frequency of approximately 1kHz. Assume the input `clk` has a frequency of 100MHz.\n\nImplement the logic using positive edge-triggered sequential logic and asynchronous reset.\n",
+  "original_verified": true,
+  "prompt_hash": "359955",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.888583",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

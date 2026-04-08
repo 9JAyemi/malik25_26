@@ -1,0 +1,29 @@
+{
+  "id": "00230",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.817074",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e1336cc8190957dad93fc773b03",
+  "custom_id": "ad_datafmt_26c04e23",
+  "module_name": "ad_datafmt",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `ad_datafmt`.\nThis module has the following parameters:\n- `DATA_WIDTH`: Specifies the width of the input data. Default value is 16.\n- `DISABLE`: A flag to bypass the core logic. Default value is 0.\n\nThe module has the following inputs and outputs:\n- `input clk`: Clock signal.\n- `input valid`: Input valid signal.\n- `input [(DATA_WIDTH-1):0] data`: Input data.\n- `output valid_out`: Output valid signal.\n- `output [15:0] data_out`: Output data.\n- `input dfmt_enable`: Data formatting enable signal.\n- `input dfmt_type`: Data format type signal, affects sign bit modification.\n- `input dfmt_se`: Data format sign extension enable signal.\n\nThe module should implement the following behavior:\n\n1.  **Bypass Mode:** If the `DISABLE` parameter is set to 1, the module should directly assign the `valid` input to `valid_out` and the `data` input to `data_out`. Note that `data_out` is 16 bits wide.\n\n2.  **Normal Operation:** If the `DISABLE` parameter is 0, the module should register the input `valid` to produce `valid_out`, and register a 16-bit processed version of the input `data` to produce `data_out`. The data processing logic is applied to `data` before it is registered, and this logic is controlled by `dfmt_enable`, `dfmt_type`, and `dfmt_se`.\n    *   Consider the 16-bit value that will be registered into `data_out`.\n    *   The lower `DATA_WIDTH-1` bits (from index 0 up to `DATA_WIDTH-2`) of this 16-bit value are copied directly from the input `data`.\n    *   The bit at index `DATA_WIDTH-1` of this 16-bit value is the result of XORing `data[DATA_WIDTH-1]` with the logical AND of `dfmt_enable` and `dfmt_type`.\n    *   If `DATA_WIDTH` is less than 16, the bits from index `DATA_WIDTH` up to 15 of this 16-bit value are filled. If both `dfmt_enable` and `dfmt_se` are high, these bits are filled with the value calculated for index `DATA_WIDTH-1` (the potentially flipped sign bit). Otherwise (if `dfmt_enable` or `dfmt_se` is low), these bits are filled with 0.\n    *   If `DATA_WIDTH` is 16 or greater, the bits at indices 16 and above from the processed `data` are ignored when forming the 16-bit output.\n\n",
+  "original_verified": true,
+  "prompt_hash": "4b294a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.456084",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

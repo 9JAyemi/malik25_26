@@ -1,0 +1,29 @@
+{
+  "id": "00453",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.221070",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3d9fb48190bccdea3a153f08a3",
+  "custom_id": "test_93a43fd5",
+  "module_name": "test",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `test`.\nThe module should have the following inputs:\n- `a1`\n- `s1`\n- `s2`\n- `s3`\n\nThe module should have the following outputs:\n- `i1`\n- `i2`\n- `i3`\n- `i4`\n- `i5`\n- `i6`\n- `i7`\n- `i8`\n\nThe outputs should be combinatorially derived from the inputs according to the following logic:\n- Output `i1` should be asserted if and only if input `a1` is asserted and input `s1` is asserted.\n- Output `i2` should be asserted if and only if input `a1` is asserted and input `s2` is asserted.\n- Output `i3` should be asserted if and only if input `a1` is asserted and input `s3` is asserted.\n- Output `i4` should be asserted if and only if input `a1` is deasserted and input `s1` is asserted.\n- Output `i5` should be asserted if and only if input `a1` is deasserted and input `s2` is asserted.\n- Output `i6` should be asserted if and only if input `a1` is deasserted and input `s3` is asserted.\n- Output `i7` should be asserted if and only if inputs `s1`, `s2`, and `s3` are all asserted.\n- Output `i8` should be asserted if and only if input `a1` is deasserted and inputs `s1`, `s2`, and `s3` are all deasserted.\n",
+  "original_verified": true,
+  "prompt_hash": "8edeb1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.877890",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,12 @@
+# Vacuity check results for DESIGN_ID=02293
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::top_module.auto_sva_inst.check_out_upper_zero | error
+<embedded>::top_module.auto_sva_inst.check_out_lower_eq_hi_and_not_lo | error
+<embedded>::top_module.auto_sva_inst.check_out_lower_eq_hi_and_xor | error
+<embedded>::top_module.auto_sva_inst.check_out_subset_of_hi | error
+<embedded>::top_module.auto_sva_inst.check_out_disjoint_with_lo | error
+<embedded>::top_module.auto_sva_inst.check_hi_zero_implies_out_zero | error
+<embedded>::top_module.auto_sva_inst.check_lo_ones_implies_out_zero | error
+<embedded>::top_module.auto_sva_inst.check_lo_zero_implies_out_eq_hi | error
+<embedded>::top_module.auto_sva_inst.check_equal_bytes_implies_out_zero | error

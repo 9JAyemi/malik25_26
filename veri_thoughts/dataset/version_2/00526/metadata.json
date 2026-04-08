@@ -1,0 +1,29 @@
+{
+  "id": "00526",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.488300",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e540ac8819095bac432b5eb94a6",
+  "custom_id": "DFF_d8fcd982",
+  "module_name": "DFF",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following two modules:\n\n1.  **Module Name:** `DFF`\n    *   **Inputs:** `CLK`, `D`\n    *   **Output:** `Q`\n    *   **Description:** Implement a standard positive edge-triggered D flip-flop.\n\n2.  **Module Name:** `SNPS_CLOCK_GATE_HIGH_Up_counter_COUNTER_WIDTH4`\n    *   **Inputs:** `CLK`, `EN`, `TE`\n    *   **Output:** `ENCLK`\n    *   **Description:** This module generates the `ENCLK` signal. It should contain an internal state element that captures the value of the `EN` input on the positive edge of the `CLK` signal. Let's refer to the output of this internal state element as `latched_EN`. The final output `ENCLK` should be driven low (`0`) when the `TE` input is low (`0`). When `TE` is high (`1`), `ENCLK` should take on the value of the `latched_EN` signal. You must instantiate and use the `DFF` module defined in part 1 as the state element to capture `EN`.\n\n",
+  "original_verified": true,
+  "prompt_hash": "bca3b0",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.895423",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

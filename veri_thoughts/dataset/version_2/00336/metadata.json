@@ -1,0 +1,29 @@
+{
+  "id": "00336",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.897395",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f494d2481908a57ba8aa7bd4667",
+  "custom_id": "xor__6df54c49",
+  "module_name": "xor_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `xor_module`.\n\nThe module should have the following interface:\nParameters:\n- `A_SIGNED = 0`\n- `B_SIGNED = 0`\n- `A_WIDTH = 1`\n- `B_WIDTH = 1`\n- `Y_WIDTH = 1`\n\nInputs:\n- `A` (`A_WIDTH` bits wide)\n- `B` (`B_WIDTH` bits wide)\n\nOutput:\n- `Y` (`Y_WIDTH` bits wide)\n\nThe module should implement a bitwise XNOR operation between inputs `A` and `B`. Before performing the XNOR, both `A` and `B` must be extended to a common width equal to the maximum of `A_WIDTH` and `B_WIDTH`. The extension should be sign extension if the corresponding `_SIGNED` parameter (`A_SIGNED` for `A`, `B_SIGNED` for `B`) is set to 1, and zero extension otherwise. The result of this bitwise XNOR operation should be assigned to the output `Y`.\n",
+  "original_verified": true,
+  "prompt_hash": "e1e856",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.483767",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

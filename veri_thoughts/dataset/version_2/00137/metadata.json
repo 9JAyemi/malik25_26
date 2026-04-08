@@ -1,0 +1,29 @@
+{
+  "id": "00137",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.499403",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df5aad88190b901cf9d01959fce",
+  "custom_id": "arithmetic_fedd2251",
+  "module_name": "arithmetic",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `arithmetic` that performs various operations on two 8-bit inputs `a` and `b`, selected by a 3-bit control input `ctrl`. The module should have the following interface:\n\n```verilog\nmodule arithmetic (\n  input [7:0] a,\n  input [7:0] b,\n  input [2:0] ctrl,\n  output reg [7:0] z\n);\n```\n\nThe module's behavior should be as follows, based on the value of `ctrl`:\n\n*   `3'b000`: Output the sum of `a` and `b`.\n*   `3'b001`: Output the difference of `a` and `b`.\n*   `3'b010`: Output the lower 8 bits of the product of `a` and `b`.\n*   `3'b011`: Output the integer quotient of `a` divided by `b`.\n*   `3'b100`: Output the remainder of `a` divided by `b`.\n*   `3'b101`: Output the bitwise AND of `a` and `b`.\n*   `3'b110`: Output the bitwise OR of `a` and `b`.\n*   `3'b111`: Output the bitwise XOR of `a` and `b`.\n\nImplement the logic to select the appropriate operation based on `ctrl` and assign the result to the output `z`.\n",
+  "original_verified": true,
+  "prompt_hash": "6dd141",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.402521",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

@@ -1,0 +1,12 @@
+# Vacuity check results for DESIGN_ID=00763
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::counter_with_load_reset.auto_sva_inst.check_reset_drives_zero | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_next_state_function | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_load_updates_next | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_increment_updates_next | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_increment_changes_value | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_wrap_on_max_no_load | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_load_priority_over_increment | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_two_cycle_increment_no_load | error
+<embedded>::counter_with_load_reset.auto_sva_inst.check_load_then_increment | error

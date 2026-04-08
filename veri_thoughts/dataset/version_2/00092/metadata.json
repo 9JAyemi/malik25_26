@@ -1,0 +1,29 @@
+{
+  "id": "00092",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.793578",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df421a881908b66df17895dd02b",
+  "custom_id": "up_down_counter_d196745a",
+  "module_name": "up_down_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a synchronous 4-bit up/down counter module named `up_down_counter`.\n\nThe module should have the following inputs and outputs:\n- Inputs:\n    - `clk`: Clock signal.\n    - `reset`: Synchronous reset signal.\n    - `enable`: Counter enable signal.\n    - `up_down`: Direction control signal (high for up, low for down).\n- Outputs:\n    - `count`: A 4-bit output representing the current count.\n\nThe counter should operate as follows:\n- On the positive edge of `clk`, if `reset` is high, the counter should be set to 0.\n- If `reset` is low and `enable` is high, the counter should update its value.\n    - If `up_down` is high, the counter should increment. When counting up, it should wrap around from its maximum value (15) to 0.\n    - If `up_down` is low, the counter should decrement. When counting down, it should wrap around from its minimum value (0) to its maximum value (15).\n- If `enable` is low (and `reset` is low), the counter should hold its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "a05c3a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.388127",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

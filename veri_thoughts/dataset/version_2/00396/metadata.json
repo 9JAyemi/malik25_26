@@ -1,0 +1,29 @@
+{
+  "id": "00396",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.697905",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e7937388190b366d844863c0ce5",
+  "custom_id": "SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4_4d18c4af",
+  "module_name": "SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `SNPS_CLOCK_GATE_HIGH_d_ff_en_W64_0_4`. This module should implement synchronous logic using the input `CLK` as the clock signal. It has two other inputs, `EN` and `TE`, and one output, `ENCLK`.\n\nThe module's behavior should be as follows:\nOn the positive edge of the `CLK` signal:\n- If the input `EN` is high, the output `ENCLK` should capture the current value of the input `TE`.\n- If the input `EN` is low, the output `ENCLK` should be set to a logic low (0).\n",
+  "original_verified": true,
+  "prompt_hash": "f45c73",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.500337",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

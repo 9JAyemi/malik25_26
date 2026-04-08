@@ -1,0 +1,12 @@
+# Vacuity check results for DESIGN_ID=01632
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::binary_to_gray.auto_sva_inst.reset_output_zero | error
+<embedded>::binary_to_gray.auto_sva_inst.check_output_driven_by_greg | error
+<embedded>::binary_to_gray.auto_sva_inst.check_breg_captures_b | error
+<embedded>::binary_to_gray.auto_sva_inst.check_greg_from_prev_breg | error
+<embedded>::binary_to_gray.auto_sva_inst.check_g_from_prev_b | error
+<embedded>::binary_to_gray.auto_sva_inst.check_zero_on_reset_release | error
+<embedded>::binary_to_gray.auto_sva_inst.check_g_stable_when_b_stable | error
+<embedded>::binary_to_gray.auto_sva_inst.check_g_msb_from_prev_b_msb | error
+<embedded>::binary_to_gray.auto_sva_inst.check_greg_msb_from_prev_breg_msb | error

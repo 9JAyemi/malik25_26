@@ -1,0 +1,29 @@
+{
+  "id": "00472",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.304263",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3f5ad08190ad774a73cdab7d9f",
+  "custom_id": "shift_register_d6287db0",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a synchronous digital module in Verilog named `shift_register`.\n\nThe module should have the following interface:\n*   Inputs:\n    *   `CLK`: Clock signal.\n    *   `LOAD_EN`: Load enable signal.\n    *   `SHIFT_EN`: Shift enable signal.\n    *   `DATA_IN`: 4-bit input data (`[3:0]`).\n*   Output:\n    *   `DATA_OUT`: 4-bit output representing the internal register value (`[3:0]`).\n\nThe module should contain a 4-bit internal register whose value is updated on the positive edge of the `CLK` signal according to the following rules:\n1.  If `LOAD_EN` is high, the register should be loaded with the value from `DATA_IN`.\n2.  Else if `SHIFT_EN` is high, the register should perform a 4-bit cyclic left shift (the most significant bit should wrap around and become the new least significant bit).\n3.  Otherwise (if neither `LOAD_EN` nor `SHIFT_EN` is high, considering the priority given to `LOAD_EN`), the register should retain its current value.\n\nThe `DATA_OUT` should always reflect the current value stored in the internal register.\n",
+  "original_verified": true,
+  "prompt_hash": "6d5ef6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.882461",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

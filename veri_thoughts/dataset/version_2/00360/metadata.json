@@ -1,0 +1,29 @@
+{
+  "id": "00360",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.967247",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f56299881909890b7d0d1b38995",
+  "custom_id": "BLOCK1A_54c5588c",
+  "module_name": "BLOCK1A",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `BLOCK1A` with the following interface:\nInputs: `PIN2`, `GIN1`, `GIN2`, `PHI`\nOutput: `GOUT`\n\nThe output `GOUT` should be a registered signal that updates on the positive edge of the input clock `PHI`. The value stored in `GOUT` on each clock edge should be the logical inversion of the result obtained by performing a logical AND operation between the input `GIN2` and the result of a logical OR operation between inputs `PIN2` and `GIN1`.\n",
+  "original_verified": true,
+  "prompt_hash": "37abea",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.490716",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00288",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.768987",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3e4188819097ce95260e6a78cd",
+  "custom_id": "sky130_fd_sc_lp__o32ai_0ac11161",
+  "module_name": "sky130_fd_sc_lp__o32ai",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_lp__o32ai`.\nThe module should have the following interface:\nInputs: `A1`, `A2`, `A3`, `B1`, `B2`\nOutput: `Y`\nImplement the combinational logic such that the output `Y` is a logic high (1) if and only if *either* all three inputs `A1`, `A2`, and `A3` are logic low (0), *or* both inputs `B1` and `B2` are logic low (0).\n",
+  "original_verified": true,
+  "prompt_hash": "14b9c1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.471609",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00190",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.691255",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e06d7308190b0da9e7e73dd203c",
+  "custom_id": "small_fifo_cntr_a581fc60",
+  "module_name": "small_fifo_cntr",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a 3-bit up/down counter module named `small_fifo_cntr`.\n\nThe module should have the following inputs and outputs:\n*   Inputs: `aclr` (asynchronous clear), `clock`, `cnt_en` (count enable), `updown` (up/down select), `sclr` (synchronous clear).\n*   Output: `q` (3-bit counter value).\n\nImplement the counter with the following behavior:\n1.  The counter operates on the positive edge of the `clock`.\n2.  `aclr` is an asynchronous clear signal. If `aclr` is high, the counter should immediately reset to 0, regardless of the clock or other inputs. This clear has the highest priority.\n3.  If `aclr` is low, `sclr` is a synchronous clear signal. If `sclr` is high, the counter should reset to 0 on the next positive edge of `clock`. This clear has the next highest priority after `aclr`.\n4.  If both `aclr` and `sclr` are low, the counter behavior is controlled by `cnt_en` and `updown`.\n5.  If `cnt_en` is high (and `aclr`, `sclr` are low), the counter should increment on the positive clock edge if `updown` is high, and decrement on the positive clock edge if `updown` is low.\n6.  If `cnt_en` is low (and `aclr`, `sclr` are low), the counter should hold its current value on the positive clock edge.\n7.  The output `q` should reflect the current value of the internal counter state.\n",
+  "original_verified": true,
+  "prompt_hash": "3d75ed",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.417393",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

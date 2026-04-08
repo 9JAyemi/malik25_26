@@ -1,0 +1,11 @@
+# Vacuity check results for DESIGN_ID=05009
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::karnaugh_map.auto_sva_inst.check_y_matches_sum_of_products | error
+<embedded>::karnaugh_map.auto_sva_inst.check_x4_low_only_x123_controls_y | error
+<embedded>::karnaugh_map.auto_sva_inst.check_x4_high_reduces_to_or123 | error
+<embedded>::karnaugh_map.auto_sva_inst.check_all_x123_low_forces_y_low | error
+<embedded>::karnaugh_map.auto_sva_inst.check_x123_high_forces_y_high | error
+<embedded>::karnaugh_map.auto_sva_inst.check_x4_with_any_x123_sets_y | error
+<embedded>::karnaugh_map.auto_sva_inst.check_y_high_without_x4_requires_x123 | error
+<embedded>::karnaugh_map.auto_sva_inst.check_y_high_with_x4_requires_any_x123 | error

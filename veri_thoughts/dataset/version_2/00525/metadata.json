@@ -1,0 +1,29 @@
+{
+  "id": "00525",
+  "version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.485347",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e53c4b48190b05859c26f4dc7e3",
+  "custom_id": "bin2gray_9cd55ee8",
+  "module_name": "bin2gray",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `bin2gray`. This module should take a 4-bit binary input `B` and produce a 4-bit Gray code output `G`. The interface should be defined as `input [3:0] B` and `output reg [3:0] G`. Implement the logic required to perform the conversion from binary to Gray code.\n",
+  "original_verified": true,
+  "prompt_hash": "8c33ec",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.895223",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

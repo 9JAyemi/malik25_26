@@ -1,0 +1,20 @@
+ASSERT PROPERTIES:
+Mult4x4.auto_sva_inst.check_result_equation
+Mult4x4.auto_sva_inst.check_result_product_mod64
+Mult4x4.auto_sva_inst.check_result_upper_bits_zero
+Mult4x4.auto_sva_inst.check_zero_a
+Mult4x4.auto_sva_inst.check_zero_b
+Mult4x4.auto_sva_inst.check_low_range_full_product
+Mult4x4.auto_sva_inst.check_upper_path_only
+Mult4x4.auto_sva_inst.check_upper_path_lsb_zero
+Mult4x4.auto_sva_inst.check_b_four
+Mult4x4.auto_sva_inst.check_stable_inputs_stable_result
+
+COVER PROPERTIES:
+Mult4x4.auto_sva_inst.check_zero_a:precondition1
+Mult4x4.auto_sva_inst.check_zero_b:precondition1
+Mult4x4.auto_sva_inst.check_low_range_full_product:precondition1
+Mult4x4.auto_sva_inst.check_upper_path_only:precondition1
+Mult4x4.auto_sva_inst.check_upper_path_lsb_zero:precondition1
+Mult4x4.auto_sva_inst.check_b_four:precondition1
+Mult4x4.auto_sva_inst.check_stable_inputs_stable_result:precondition1
