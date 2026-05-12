@@ -1,0 +1,5 @@
+property ValidDataeotid; @(posedge clk_in_14) (iColumnCount) <= (SizeX + iPosX) && (iRowCount) <= (SizeY + iPosY) &&  (iColumnCount) >= (iPosX) &&  (iRowCount) >= (iPosY) &&  (iEnable) == 1 &&  (imask) == 1 |-> (oRGB) == (iColorSprite) ;endproperty 
+ property ValidRuneotid; @(posedge clk_in_14) (iColumnCount) <= (SizeX + iPosX) && (iRowCount) <= (SizeY + iPosY) &&  (iColumnCount) >= (iPosX) &&  (iRowCount) >= (iPosY) &&  (iEnable) == 1 &&  (imask) == 1 |-> (oRGB) == (iColorSprite) ;endproperty 
+ property ValidRuneotid; @(posedge clk_in_14) (iColumnCount) <= (SizeX + iPosX) && (iRowCount) <= (SizeY + iPosY) &&  (iColumnCount) >= (iPosX) &&  (iRowCount) >= (iPosY) &&  (iEnable) == 1 &&  (imask) == 1 |-> (oRGB) == (iColorSprite) ;endproperty 
+ property ValidRuneotid; @(posedge clk_in_14) (iColumnCount) <= (SizeX + iPosX) && (iRowCount) <= (SizeY + iPosY) &&  (iColumnCount) >= (iPosX) &&  (iRowCount) >= (iPosY) &&  (iEnable) == 1 &&  (imask) == 1 |-> (oRGB) == (iColorSprite) ;endproperty 
+ 
