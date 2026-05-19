@@ -1,23 +1,19 @@
 Assertion Totals — adapter_verified
 ============================================================
 
-Generated (all 578 IDs):
+Generated (all 578 IDs, regex count from SVA source files):
   Total assertions (assert property) : 4170
   Total properties (assert+cover+assume) : 4170
+  NOTE: includes IDs that later failed at compile — not directly
+        comparable to the 'checked' count below.
 
 Syntax-passing (493 IDs):
   Total assertions (assert property) : 3318
   Total properties (assert+cover+assume) : 3318
 
-Verification (property-level, 427 compiled IDs,
+Verification (assertion-level, 427 compiled IDs,
               151 IDs failed at compile):
-  Total properties checked            : 5210
-    Assertions                         : 2844
-    Covers                             : 2366
-  Proven (no CEX)                      : 4461
-    Assertions proven                  : 2095
-    Covers proven                      : 2366
-  Failing (CEX)                        : 749
-    Assertions with CEX                : 749
-    Covers with CEX                    : 0
+  Total assertions checked            : 2844
+  Proven (no CEX)                     : 2095 (73.7%)
+  Failing (CEX)                       : 749 (26.3%)
 

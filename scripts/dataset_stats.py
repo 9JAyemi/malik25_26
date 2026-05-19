@@ -1631,7 +1631,10 @@ def count_verif_properties(verif_ids_dir: str) -> dict:
                     if section == "assert" and line:
                         asserts.append(line)
                     elif section == "cover" and line:
-                        covers.append(line)
+                        # Skip JasperGold auto-generated vacuity precondition covers
+                        # (e.g. "module.inst.prop_name:precondition1") — not user assertions
+                        if ":precondition" not in line:
+                            covers.append(line)
         except (OSError, IOError):
             result["compile_failed_ids"] += 1
             continue
@@ -1674,17 +1677,24 @@ def write_assertion_totals(records, label, out_dir,
     n_syntax_ids = sum(1 for r in records if r["id"] in syntax_passing_ids)
 
     vp = verif_property_counts
-    total_verif_props = vp["total_assert_props"] + vp["total_cover_props"]
-    total_proven = vp["proven_asserts"] + vp["proven_covers"]
-    total_cex    = vp["cex_asserts"] + vp["cex_covers"]
+    # Only count user-written assertion properties (covers are excluded after
+    # filtering out JasperGold auto-generated :preconditionN vacuity covers)
+    proven_assertions = vp["proven_asserts"]
+    cex_assertions    = vp["cex_asserts"]
+    total_checked     = vp["total_assert_props"]
+    pass_rate = (proven_assertions / total_checked * 100) if total_checked else 0.0
 
+    # Note: "generated" covers all IDs via regex; "checked" covers only compiled IDs.
+    # These are different populations and must NOT be used as numerator/denominator.
     lines = [
         f"Assertion Totals — {label}",
         f"{'=' * 60}",
         f"",
-        f"Generated (all {n_total_ids} IDs):",
+        f"Generated (all {n_total_ids} IDs, regex count from SVA source files):",
         f"  Total assertions (assert property) : {total_assertions}",
         f"  Total properties (assert+cover+assume) : {total_props}",
+        f"  NOTE: includes IDs that later failed at compile — not directly",
+        f"        comparable to the 'checked' count below.",
         f"",
     ]
     if syntax_passing_ids:
@@ -1695,19 +1705,19 @@ def write_assertion_totals(records, label, out_dir,
             f"",
         ]
     lines += [
-        f"Verification (property-level, {vp['compiled_ids']} compiled IDs,",
+        f"Verification (assertion-level, {vp['compiled_ids']} compiled IDs,",
         f"              {vp['compile_failed_ids']} IDs failed at compile):",
-        f"  Total properties checked            : {total_verif_props}",
-        f"    Assertions                         : {vp['total_assert_props']}",
-        f"    Covers                             : {vp['total_cover_props']}",
-        f"  Proven (no CEX)                      : {total_proven}",
-        f"    Assertions proven                  : {vp['proven_asserts']}",
-        f"    Covers proven                      : {vp['proven_covers']}",
-        f"  Failing (CEX)                        : {total_cex}",
-        f"    Assertions with CEX                : {vp['cex_asserts']}",
-        f"    Covers with CEX                    : {vp['cex_covers']}",
-        f"",
+        f"  Total assertions checked            : {total_checked}",
+        f"  Proven (no CEX)                     : {proven_assertions} ({pass_rate:.1f}%)",
+        f"  Failing (CEX)                       : {cex_assertions} ({100-pass_rate:.1f}%)",
     ]
+    if vp["total_cover_props"]:
+        lines += [
+            f"  User cover properties               : {vp['total_cover_props']}",
+            f"    Covered                            : {vp['proven_covers']}",
+            f"    With CEX                           : {vp['cex_covers']}",
+        ]
+    lines.append(f"")
 
     txt = "\n".join(lines)
     print(f"\n{txt}")
@@ -1716,6 +1726,119 @@ def write_assertion_totals(records, label, out_dir,
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write(txt + "\n")
     print(f"  Saved {txt_path}")
+
+
+# Model display names and preferred order for comparison charts
+_MODEL_LABELS = {
+    "base_qwen":           "Qwen-7B\n(Base)",
+    "adapter_all":         "Adapter\n(All Data)",
+    "adapter_syntax_pass": "Adapter\n(Syntax Pass)",
+    "adapter_verified":    "Adapter\n(Verified)",
+    "chatgpt_baseline":    "GPT-4o\n(Baseline)",
+}
+_MODEL_ORDER = ["base_qwen", "adapter_all", "adapter_syntax_pass", "adapter_verified", "chatgpt_baseline"]
+
+
+def generate_model_comparison_charts(model_stats: dict, out_dir: str):
+    """Generate grouped comparison bar charts across all models.
+
+    model_stats: dict keyed by model_name with values from count_verif_properties()
+                 plus 'total_ids' and 'compiled_ids' fields.
+    """
+    os.makedirs(out_dir, exist_ok=True)
+
+    models = [m for m in _MODEL_ORDER if m in model_stats]
+    if not models:
+        return
+    labels = [_MODEL_LABELS.get(m, m) for m in models]
+
+    proven  = [model_stats[m]["proven_asserts"]     for m in models]
+    cex     = [model_stats[m]["cex_asserts"]        for m in models]
+    checked = [model_stats[m]["total_assert_props"] for m in models]
+    compiled_ids  = [model_stats[m]["compiled_ids"]       for m in models]
+    failed_ids    = [model_stats[m]["compile_failed_ids"]  for m in models]
+    total_ids     = [c + f for c, f in zip(compiled_ids, failed_ids)]
+
+    x = np.arange(len(models))
+    width = 0.35
+
+    # ── Figure 1: Proven vs CEX assertion counts (grouped bar) ──────────────
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    bars_p = ax1.bar(x - width / 2, proven, width, label="Proven",      color="#4CAF50", edgecolor="black", linewidth=0.5)
+    bars_c = ax1.bar(x + width / 2, cex,    width, label="CEX (Failed)", color="#F44336", edgecolor="black", linewidth=0.5)
+
+    for bar, val, tot in zip(bars_p, proven, checked):
+        pct = val / tot * 100 if tot else 0
+        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(proven + cex) * 0.01,
+                 f"{val:,}\n({pct:.0f}%)", ha="center", va="bottom", fontsize=9, fontweight="bold")
+    for bar, val, tot in zip(bars_c, cex, checked):
+        pct = val / tot * 100 if tot else 0
+        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max(proven + cex) * 0.01,
+                 f"{val:,}\n({pct:.0f}%)", ha="center", va="bottom", fontsize=9, fontweight="bold")
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, fontsize=10)
+    ax1.set_ylabel("Number of Assertions", fontsize=12)
+    ax1.set_title("Assertion Verification Results by Model\n(of assertions actually checked)",
+                  fontsize=13, fontweight="bold")
+    ax1.legend(fontsize=11)
+    ax1.set_ylim(0, max(proven + cex) * 1.25)
+    fig1.tight_layout()
+    p1 = os.path.join(out_dir, "model_comparison_assertions.png")
+    fig1.savefig(p1, dpi=150)
+    plt.close(fig1)
+    print(f"  Saved {p1}")
+
+    # ── Figure 2: Assertion pass rate (%) per model ──────────────────────────
+    pass_rates = [v / t * 100 if t else 0 for v, t in zip(proven, checked)]
+    colors = ["#4CAF50" if r >= 70 else "#FF9800" if r >= 50 else "#F44336" for r in pass_rates]
+
+    fig2, ax2 = plt.subplots(figsize=(9, 5))
+    bars2 = ax2.bar(labels, pass_rates, color=colors, edgecolor="black", linewidth=0.5, width=0.5)
+    for bar, rate, chk in zip(bars2, pass_rates, checked):
+        ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
+                 f"{rate:.1f}%\n(n={chk:,})", ha="center", va="bottom", fontsize=10, fontweight="bold")
+    ax2.axhline(y=50, color="gray", linestyle="--", linewidth=0.8, alpha=0.6)
+    ax2.set_ylabel("Assertion Pass Rate (%)", fontsize=12)
+    ax2.set_ylim(0, 110)
+    ax2.set_title("Assertion Pass Rate by Model\n(proven / total checked assertions)",
+                  fontsize=13, fontweight="bold")
+    fig2.tight_layout()
+    p2 = os.path.join(out_dir, "model_comparison_pass_rate.png")
+    fig2.savefig(p2, dpi=150)
+    plt.close(fig2)
+    print(f"  Saved {p2}")
+
+    # ── Figure 3: ID-level outcome (compiled pass / compiled CEX / failed) ──
+    ids_all_pass = [model_stats[m].get("ids_all_pass", 0) for m in models]
+    ids_has_cex  = [model_stats[m].get("ids_has_cex", 0)  for m in models]
+
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    w3 = 0.25
+    x3 = np.arange(len(models))
+    b3a = ax3.bar(x3 - w3, ids_all_pass, w3, label="All Proven",    color="#4CAF50", edgecolor="black", linewidth=0.5)
+    b3b = ax3.bar(x3,      ids_has_cex,  w3, label="Has CEX",       color="#FF9800", edgecolor="black", linewidth=0.5)
+    b3c = ax3.bar(x3 + w3, failed_ids,   w3, label="Compile Failed", color="#9E9E9E", edgecolor="black", linewidth=0.5)
+
+    top = max(ids_all_pass + ids_has_cex + failed_ids) * 1.2 or 1
+    for bars, vals in [(b3a, ids_all_pass), (b3b, ids_has_cex), (b3c, failed_ids)]:
+        for bar, val, tot in zip(bars, vals, total_ids):
+            if val == 0: continue
+            pct = val / tot * 100 if tot else 0
+            ax3.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + top * 0.01,
+                     f"{val:,}\n({pct:.0f}%)", ha="center", va="bottom", fontsize=8, fontweight="bold")
+    ax3.set_xticks(x3)
+    ax3.set_xticklabels(labels, fontsize=10)
+    ax3.set_ylabel("Number of IDs", fontsize=12)
+    ax3.set_title("Verification Outcome by ID Count\n(per model)",
+                  fontsize=13, fontweight="bold")
+    ax3.legend(fontsize=11)
+    ax3.set_ylim(0, top)
+    fig3.tight_layout()
+    p3 = os.path.join(out_dir, "model_comparison_id_outcomes.png")
+    fig3.savefig(p3, dpi=150)
+    plt.close(fig3)
+    print(f"  Saved {p3}")
 
 
 def process_inference_outputs(io_dir):
@@ -1831,6 +1954,43 @@ def process_inference_outputs(io_dir):
                 generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, label, html_path2)
 
         print(f"\nAll {label} outputs saved to {out_dir}")
+
+    # ── Cross-model comparison charts ────────────────────────────────────────
+    print("\n\nGenerating cross-model comparison charts …")
+    comparison_dir = os.path.join(io_dir, "dataset_stats", "_comparison")
+    os.makedirs(comparison_dir, exist_ok=True)
+
+    all_model_stats = {}
+    for model_name in model_dirs:
+        verif_ids_dir = os.path.join(verif_base, model_name, "ids")
+        vp = count_verif_properties(verif_ids_dir)
+        if vp["compiled_ids"] == 0 and vp["compile_failed_ids"] == 0:
+            continue
+        # Count per-ID pass/fail at the ID level
+        ids_all_pass = 0
+        ids_has_cex  = 0
+        if os.path.isdir(verif_ids_dir):
+            for iid in os.listdir(verif_ids_dir):
+                id_path = os.path.join(verif_ids_dir, iid)
+                if not os.path.isdir(id_path): continue
+                cex_path = os.path.join(id_path, "cex_details.txt")
+                if not os.path.isfile(cex_path): continue
+                has_cex = False
+                with open(cex_path, "r", encoding="utf-8", errors="replace") as f:
+                    for line in f:
+                        if line.strip() and not line.startswith("#"):
+                            has_cex = True; break
+                if has_cex:
+                    ids_has_cex += 1
+                else:
+                    ids_all_pass += 1
+        vp["ids_all_pass"] = ids_all_pass
+        vp["ids_has_cex"]  = ids_has_cex
+        all_model_stats[model_name] = vp
+
+    if all_model_stats:
+        generate_model_comparison_charts(all_model_stats, comparison_dir)
+        print(f"  Comparison charts saved to {comparison_dir}")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────

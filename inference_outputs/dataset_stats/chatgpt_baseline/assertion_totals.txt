@@ -1,23 +1,22 @@
 Assertion Totals — chatgpt_baseline
 ============================================================
 
-Generated (all 578 IDs):
+Generated (all 578 IDs, regex count from SVA source files):
   Total assertions (assert property) : 4555
   Total properties (assert+cover+assume) : 4557
+  NOTE: includes IDs that later failed at compile — not directly
+        comparable to the 'checked' count below.
 
 Syntax-passing (540 IDs):
   Total assertions (assert property) : 4233
   Total properties (assert+cover+assume) : 4235
 
-Verification (property-level, 335 compiled IDs,
+Verification (assertion-level, 335 compiled IDs,
               243 IDs failed at compile):
-  Total properties checked            : 4724
-    Assertions                         : 2629
-    Covers                             : 2095
-  Proven (no CEX)                      : 3980
-    Assertions proven                  : 1885
-    Covers proven                      : 2095
-  Failing (CEX)                        : 744
-    Assertions with CEX                : 744
-    Covers with CEX                    : 0
+  Total assertions checked            : 2629
+  Proven (no CEX)                     : 1885 (71.7%)
+  Failing (CEX)                       : 744 (28.3%)
+  User cover properties               : 2
+    Covered                            : 2
+    With CEX                           : 0
 

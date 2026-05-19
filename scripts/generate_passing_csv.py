@@ -471,6 +471,9 @@ def run_for_dirs(results_dir, sva_dir, output_csv, chart_label="",
             continue
 
         all_asserts, all_covers = parse_properties(prop_path)
+        # Filter JasperGold auto-generated vacuity precondition covers
+        # (e.g. "module.inst.prop_name:precondition1") — not user-written cover properties
+        all_covers = [c for c in all_covers if ":precondition" not in c]
         cex_props = parse_cex_properties(cex_path)
 
         passing_asserts = [a for a in all_asserts if a not in cex_props]
