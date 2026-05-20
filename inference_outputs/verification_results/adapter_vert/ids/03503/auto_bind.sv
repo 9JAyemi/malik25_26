@@ -1,0 +1,32 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): b0xx, clk_in_19, property, ClockSynceotid, posedge, endproperty, assert, SyncIneotid, SyncIneotid_2, SyncIneotid_3, SyncIneotid_4, SyncIneotid_5, SyncIneotid_6, SyncIneotid_7, SyncSafeeotid, SyncSafeeotid_2, SyncSafeeotid_3, SyncSafeeotid_4, SyncSafeeotid_5, SyncSafeeotid_6
+bind jt51_mod jt51_mod_sva auto_sva_inst (
+    .alg_I(alg_I),
+    .alg_hot(alg_hot),
+    .c1_enters(c1_enters),
+    .c2_enters(c2_enters),
+    .m1_enters(m1_enters),
+    .m2_enters(m2_enters),
+    .use_internal_x(use_internal_x),
+    .use_internal_y(use_internal_y),
+    .use_prev1(use_prev1),
+    .use_prev2(use_prev2),
+    .use_prevprev1(use_prevprev1),
+    .d0(d0),
+    .d1(d1),
+    .d2(d2),
+    .d3(d3),
+    .d4(d4),
+    .d5(d5),
+    .d6(d6),
+    .d7(d7),
+    .h1(h1),
+    .h10(h10),
+    .h2(h2),
+    .h20(h20),
+    .h4(h4),
+    .h40(h40),
+    .h8(h8),
+    .h80(h80),
+    .hx(hx)
+);

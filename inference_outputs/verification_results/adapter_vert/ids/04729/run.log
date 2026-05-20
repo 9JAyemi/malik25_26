@@ -177,6 +177,36 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
   return {}
 }
 % 
+% proc extract_module_nets {mod_name files} {
+  # Extract internal wire/reg/logic signal names declared inside a module
+  # (not supply nets, not ports — used to extend auto-bind matching).
+  set supply_re {(?m)^\s*supply[01]\s+([\w\s,]+);}
+  set net_re    {\m(?:wire|reg|logic)\M[^;]*?\m([A-Za-z_][A-Za-z0-9_]*)\M\s*[;,]}
+  set result {}
+  set seen [dict create]
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    # Collect supply names to exclude
+    set supply_names {}
+    foreach {_ grp} [regexp -all -inline -- $supply_re $txt] {
+      foreach n [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $grp] {
+        lappend supply_names [string tolower $n]
+      }
+    }
+    # Collect wire/reg/logic names
+    foreach {_ name} [regexp -all -inline -- $net_re $txt] {
+      set nl [string tolower $name]
+      if {[lsearch -exact $supply_names $nl] >= 0} { continue }
+      if {![dict exists $seen $nl]} {
+        dict set seen $nl $name
+        lappend result $name
+      }
+    }
+  }
+  return $result
+}
+% 
 % proc generate_auto_bind {top dut_files sva_files out_dir} {
   # If SVA files lack a bind statement, generate one.
   # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
@@ -216,8 +246,16 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 
   # Build port connections: for each SVA port, connect to DUT port if name
   # matches (case-insensitive), otherwise leave unconnected.
+  # Also include internal DUT nets so bare-property SVA can reference them.
   set dut_lower_map [dict create]
   foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+  set dut_nets [extract_module_nets $top $dut_files]
+  foreach n $dut_nets {
+    set nl [string tolower $n]
+    if {![dict exists $dut_lower_map $nl]} {
+      dict set dut_lower_map $nl $n
+    }
+  }
 
   set connections {}
   set unconnected {}
@@ -296,7 +334,7 @@ sv12
 % set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
 ./04729/module.v
 % set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
-./04729/sva.sv
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/sva_fixed.sv
 % 
 % set DESIGN_FILES {}
 % foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
@@ -373,11 +411,16 @@ INFO: Using TOP = binary_to_gray
 % set AUTO_BIND 0
 0
 % set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
-WARN: Could not find SVA module name for auto-bind
+INFO: Auto-generated bind: /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv
+  DUT=binary_to_gray  SVA=binary_to_gray_sva
+  Connected ports: 3
+  Unconnected SVA ports: property, ClockSynceotid, posedge, endproperty, assert, BinaryToGrayeotid, GraySynceotid, GraySynceotid_2
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv
 % if {$BIND_FILE ne ""} {
   set AUTO_BIND 1
   lappend SVA_FILES $BIND_FILE
 }
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/sva_fixed.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv
 % 
 % puts "INFO: Verification run starting"
 INFO: Verification run starting
@@ -394,11 +437,11 @@ INFO: Verification run starting
 % puts "  NO_CLOCK  : $NO_CLOCK"
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
-  AUTO_BIND : 0
+  AUTO_BIND : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
-  N_SVA     : 1
+  N_SVA     : 2
 % puts "  OUT_DIR   : $OUT_DIR"
   OUT_DIR   : /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729
 % 
@@ -423,7 +466,7 @@ analyze -sv12
 % puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
 DEBUG: DESIGN_FILES = ./04729/module.v
 % puts "DEBUG: SVA_FILES    = $SVA_FILES"
-DEBUG: SVA_FILES    = ./04729/sva.sv
+DEBUG: SVA_FILES    = /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/sva_fixed.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv
 % 
 % if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
   puts "ERROR: analyze design failed:\n$msg"
@@ -435,15 +478,8 @@ DEBUG: SVA_FILES    = ./04729/sva.sv
   puts "ERROR: analyze SVA failed:\n$msg2"
   set err 1
 }
-[-- (VERI-1482)] Analyzing Verilog file './04729/sva.sv'
-[ERROR (VERI-1116)] ./04729/sva.sv(7): 'GraySynceotid' is already declared
-[INFO (VERI-1967)] ./04729/sva.sv(5): previous declaration of 'GraySynceotid' is from here
-Summary of errors detected:
-	[ERROR (VERI-1116)] ./04729/sva.sv(7): 'GraySynceotid' is already declared
-ERROR: analyze SVA failed:
-ERROR (ENL034): 1 errors detected in the design file(s).
-
-1
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/sva_fixed.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv'
 % 
 % puts "DEBUG: Elaborating TOP='$TOP'"
 DEBUG: Elaborating TOP='binary_to_gray'
@@ -451,20 +487,357 @@ DEBUG: Elaborating TOP='binary_to_gray'
   puts "ERROR: elaborate failed:\n$emsg"
   set err 1
 }
-% 
-% # If combinational / event-driven, you can force "no clock"
-% if {!$err && $NO_CLOCK} {
+INFO (ISW003): Top module name is "binary_to_gray".
+[INFO (HIER-8002)] ./04729/module.v(14): Disabling old hierarchical reference handler
+[INFO (VERI-1018)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/sva_fixed.sv(1): compiling module 'binary_to_gray_sva'
+[INFO (VERI-1018)] ./04729/module.v(1): compiling module 'binary_to_gray'
+[INFO (VERI-8005)] ./04729/module.v(4): Unintentional Sequential element inferred for gray_out read before write using blocking assignment
+[WARN (VERI-1330)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv(4): actual bit length 4 differs from formal bit length 1 for port 'binary_in'
+[WARN (VERI-1330)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/auto_bind.sv(6): actual bit length 4 differs from formal bit length 1 for port 'gray_out'
+INFO (INL208): Elaboration synthesis summary:
+  Number of synthesized netlists          3 (1 packages)
+  Single run mode                         On
+  Pipeline                                On (2 pipelined netlists)
+  Late hierarchical reference connection  On
+  Number of analyzed Verilog modules      3 (3 synthesized)
+  Number of analyzed VHDL entities        0 (0 synthesized)
+INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
+[<embedded>] % 
+[<embedded>] % # If combinational / event-driven, you can force "no clock"
+[<embedded>] % if {!$err && $NO_CLOCK} {
   catch { clock -none }
 }
-% 
-% if {$err} {
+INFO (ICK008): Enabling clock-free environment.
+0
+[<embedded>] % 
+[<embedded>] % if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
 }
+[<embedded>] % 
+[<embedded>] % # ---- Reset -----
+[<embedded>] % set RESET_SIG ""
+[<embedded>] % set RESET_EXPR ""
+[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
+  set RESET_EXPR $::env(JG_RESET_EXPR)
+} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
+  set RESET_SIG $::env(JG_RESET)
+} else {
+  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
+}
+[<embedded>] % 
+[<embedded>] % if {$RESET_EXPR ne ""} {
+  puts "INFO: Using reset expression: $RESET_EXPR"
+  catch { reset -expression $RESET_EXPR }
+} elseif {$RESET_SIG ne ""} {
+  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
+    set RESET_EXPR "!$RESET_SIG"
+    puts "INFO: Using active-low reset expression: $RESET_EXPR"
+    catch { reset -expression $RESET_EXPR }
+  } else {
+    puts "INFO: Using reset signal: $RESET_SIG"
+    catch { reset $RESET_SIG }
+  }
+} else {
+  puts "INFO: No reset signal found; using reset -none"
+  catch { reset -none }
+}
+INFO: No reset signal found; using reset -none
+INFO (IPM031): Clearing proof results of all properties.
+0
+[<embedded>] % 
+[<embedded>] % # ---- Property discovery (bind sanity check) ----
+[<embedded>] % set ASSERTS {}
+[<embedded>] % set COVERS  {}
+[<embedded>] % catch { set ASSERTS [assert -list -silent] }
+0
+[<embedded>] % catch { set COVERS  [cover  -list -silent] }
+0
+[<embedded>] % 
+[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
+INFO: Found 4 asserts, 4 covers
+[<embedded>] % 
+[<embedded>] % # Write property names
+[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
+file41
+[<embedded>] % puts $fp "ASSERT PROPERTIES:"
+[<embedded>] % foreach a $ASSERTS { puts $fp $a }
+[<embedded>] % puts $fp ""
+[<embedded>] % puts $fp "COVER PROPERTIES:"
+[<embedded>] % foreach c $COVERS { puts $fp $c }
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
+  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
+  exit 3
+}
+[<embedded>] % 
+[<embedded>] % # ---- Prove all assertions ----
+[<embedded>] % # 300 seconds = 5 minute timeout per property
+[<embedded>] % set_prove_time_limit 300
+[<embedded>] % 
+[<embedded>] % puts "INFO: Running prove -all"
+INFO: Running prove -all
+[<embedded>] % if {[catch { prove -all } pmsg]} {
+  puts "ERROR: prove command failed:\n$pmsg"
+  exit 4
+}
+Ncustom1: Custom engine code is hT3Ng7hPPfiYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSl+CwjiTMAQA
+AMcustom2: Custom engine code is hT3Ng7hP/feYQOTDZ3qhYOwGAM51eA+J/FjkM5shLioAsqhgLR4Ft+O1BuKG6ilQ83B9tLXSmmqwm7g9AQA
+INFO (IPF036): Starting proof on task: "<embedded>", 8 properties to prove with 0 already proven/unreachable
+INFO (IRS029): Starting reset analysis: phase 1 of 4.
+INFO (IRS030): Running reset analysis: phase 2 of 4.
+INFO (IRS031): Running reset analysis: phase 3 of 4.
+INFO (IRS020): Starting the reset analysis simulation with a limit of 100 iterations (phase 4 of 4).
+INFO (IRS024): Reset iterations 0 to 3 analyzed.
+INFO (IRS018): Reset analysis simulation executed for 2 iterations. Assigned values for 0 of 4 design flops, 0 of 0 design latches, 8 of 8 internal elements.
+INFO (IRS039): Reset analysis complete.
+INFO (IPF031): Settings used for proof thread 0:
+    orchestration                 = on (auto)
+    time_limit                    = 300s
+    per_property_time_limit       = 1s * 10 ^ scan
+    engine_mode                   = auto
+    proofgrid_per_engine_max_jobs = 1
+    max engine jobs               = auto
+    proofgrid_mode                = local
+    proofgrid_restarts            = 10
+AMcustom3: Custom engine code is hT3NE7hP/2Fz2XrVSbG0RDiSlOmcEY54dTxWvdDsI3//MxFcPzdQEJVlimlZshtLUKCpt0qXHu9EQAivsvCTP5Pi2s9EBccXnc85FrzRRX45WcXC5XpA9kyHdIYmOxUqsRrN5ntdfkwHRnO7f82Dn4pCsne09HV19Yd/o8VzV0c8nka+2MMhbNDEdLGC4SmTi8oNy00Nn40QJnMevDlPY3jIAQA
+Ncustom4: Custom engine code is hT3OXrhPByJp3TrFSTLhUmMH4KVtJgmTCnNDF46yMXOKY48m4LS5nE7yBzFjA7kDuwO/GhGUpEPiky3p3wmPn3dJZHxFMsafSoObRzSC+tn7sEY0WbTdZ/FV4hL3MYH/b1CIUvXSWR4wqEoVLsmMOD4xIPT4lI1LO6ZCO7PnnWQuLwetnvKlrXx6wCW/A+x+enqslg1YPobi4wEF/EvbzOvcTYdJvl2s4H2yZg2b2ofAVN5WvhWk1HoBAA
+Ncustom5: Custom engine code is hT3NR7hPByFp3TrFSTLhUmMH4KWtJglTyV/c51BHEeZWamnJv767nE6PCak26bd3gf3XGN3rIRheufhDieCJQVISo+gNYUKhiUedBKGtsP/a18svAnlMJZudHxDFwK5ufsyoxsIyiAeSY2oi3tEuoDHr5gw42DFKAG3PqO3CEsl8Azzdt3pl5nGA1Ifv2H02eYsFzWb/nfp8PMb3F0krE/EgBcm8TD9Div8BAA
+Tricustom6: Custom engine code is hT3Nu7hP3fiYQADBZnYcglNHp9bfd7EOeniIqP/ji8sGLQu8yhsFO+wxJ+O+R0bU8g/IewXFomyos+viQnWc2xYNYmMqpo3i40O7DaZR7qfp4YqNx26KRvQ/qx0BAA
+0: Using multistage preprocessing
+0: Starting reduce
+0: Finished reduce in 0s
+0.0.PRE: Performing Proof Simplification...
+0.0.N: clocks: 2, declared: 1, disabling: 0, posedge: 2, negedge: 0, noedge: 0, bothedge: 0
+0.0.N: Proof Simplification Iteration 1	[0.00 s]
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noDeadEnd" was proven in 0.00 s.
+    Use check_assumptions -show -dead_end to show this property in the property table.
+0.0.PRE: A proof was found: No trace exists. [0.00 s]
+INFO (IPF057): 0.0.PRE: The property ":noConflict" was proven in 0.00 s.
+    Use check_assumptions -show to show this property in the property table.
+INFO (IPF047): 0.0.PRE: The cover property ":live" was covered in 1 cycles in 0.00 s.
+    Use check_assumptions -show -live to show this property in the property table.
+0.0.PRE: Proof Simplification completed in 0.00 s
+0: About to start ProofGrid in its own thread with a limit of 10000 pending notifications and a limit of 10 traces.
+0: =============================== ProofGrid start ===============================
+0: ProofGrid usable level: 8
+0: ProofGrid is starting event handling
+0.0.Hp: Proofgrid shell started at 3174600@della-h14n4(local) jg_3174422_della-h14n4_1
+0.0.N: Proofgrid shell started at 3174599@della-h14n4(local) jg_3174422_della-h14n4_1
+0.0.Hp: OS RSS memory limit : 68719476736 / 68719476736
+0.0.N: OS RSS memory limit : 68719476736 / 68719476736
+0.0.Hp: clocks: 1, declared: 1, disabling: 0, posedge: 1, negedge: 0, noedge: 0, bothedge: 0
+0.0.Hp: Trace Attempt  1	[0.00 s]
+0.0.N: Requesting engine job to stop
+0.0.Hp: Requesting engine job to terminate
+INFO (IPF144): 0: Initiating shutdown of proof [0.00 s]
+0.0.Hp: A trace with 1 cycles was found. [0.00 s]
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "binary_to_gray.auto_sva_inst._assert_1" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "binary_to_gray.auto_sva_inst._assert_1:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "binary_to_gray.auto_sva_inst._assert_2" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "binary_to_gray.auto_sva_inst._assert_2:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "binary_to_gray.auto_sva_inst._assert_3" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "binary_to_gray.auto_sva_inst._assert_3:precondition1" was covered in 1 cycles in 0.01 s.
+INFO (IPF055): 0.0.Hp: A counterexample (cex) with 1 cycles was found for the property "binary_to_gray.auto_sva_inst._assert_4" in 0.01 s.
+INFO (IPF047): 0.0.Hp: The cover property "binary_to_gray.auto_sva_inst._assert_4:precondition1" was covered in 1 cycles in 0.01 s.
+0.0.Hp: All properties determined. [0.00 s]
+0.0.Hp: Exited with Success (@ 0.00 s)
+0: ProofGrid usable level: 0
+0.0.N: Interrupted. [0.00 s]
+0.0.N: Exited with Success (@ 0.01 s)
+0.0.Ht: Proofgrid shell started at 3174613@della-h14n4(local) jg_3174422_della-h14n4_1
+0.0.Ht: Requesting engine job to terminate
+0.0.Ht: Interrupted. [0.01 s]
+0.0.Ht: Exited with Success (@ 0.08 s)
+0.0.B: Proofgrid shell started at 3174614@della-h14n4(local) jg_3174422_della-h14n4_1
+0.0.B: Requesting engine job to terminate
+0.0.B: Interrupted. [0.01 s]
+0.0.B: Exited with Success (@ 0.08 s)
+0: --------------------------------------------------------------
+ProofGrid Summary (utilization 0.85 %)
+--------------------------------------------------------------
+     engines started                               :     4
+     engine jobs started                           :     4
 
-❌ FAILED: compile/elab errors
-% INFO (IPL005): Received request to exit from the console.
-INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
+    Average time in state (seconds)
+    ------------------------------------------------------
+    Engine  Pending     Running        Dead    Utilization
+    ------------------------------------------------------
+      N        0.07        0.00        0.00        0.15 %
+     Hp        0.07        0.00        0.00        3.31 %
+     Ht        0.08        0.00        0.00        0.00 %
+      B        0.08        0.00        0.00        0.00 %
+    all        0.07        0.00        0.00        0.85 %
+
+    Total time in state (seconds)
+    -----------------------------------------
+            Pending     Running        Dead  
+    -----------------------------------------
+               0.30        0.00        0.00
+
+    Data read    : 1.47 kiB
+    Data written : 1.40 kiB
+
+0: All pending notifications were processed.
+INFO (IPF059): Completed proof on task: "<embedded>" for proof thread 0
+
+==============================================================
+SUMMARY
+==============================================================
+           Properties Considered              : 8
+                 assertions                   : 4
+                  - proven                    : 0 (0%)
+                  - bounded_proven (user)     : 0 (0%)
+                  - bounded_proven (auto)     : 0 (0%)
+                  - marked_proven             : 0 (0%)
+                  - cex                       : 4 (100%)
+                  - ar_cex                    : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+                 covers                       : 4
+                  - unreachable               : 0 (0%)
+                  - bounded_unreachable (user): 0 (0%)
+                  - covered                   : 4 (100%)
+                  - ar_covered                : 0 (0%)
+                  - undetermined              : 0 (0%)
+                  - unknown                   : 0 (0%)
+                  - error                     : 0 (0%)
+[<embedded>] % 
+[<embedded>] % # ---- Covers (best effort) ----
+[<embedded>] % catch { cover -all }
+1
+[<embedded>] % 
+[<embedded>] % # ---- Vacuity checking on proven assertions ----
+[<embedded>] % set VACUITY_TXT [file join $OUT_DIR "vacuity_results.txt"]
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/vacuity_results.txt
+[<embedded>] % set proven_props {}
+[<embedded>] % catch { set proven_props [get_property_list -include {status proven}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_vac [open $VACUITY_TXT "w"]
+file45
+[<embedded>] % puts $fp_vac "# Vacuity check results for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_vac "# Format: property_name | vacuous (yes/no/error)"
+[<embedded>] % puts $fp_vac ""
+[<embedded>] % 
+[<embedded>] % set n_vacuous 0
+0
+[<embedded>] % set n_non_vacuous 0
+0
+[<embedded>] % set n_vac_error 0
+0
+[<embedded>] % 
+[<embedded>] % if {[llength $proven_props] > 0} {
+  puts "INFO: Running vacuity check on [llength $proven_props] proven assertions"
+  foreach prop $proven_props {
+    if {[catch { check_vacuity -property $prop } vac_msg]} {
+      puts "WARNING: check_vacuity failed for $prop: $vac_msg"
+      puts $fp_vac "$prop | error"
+      incr n_vac_error
+    } else {
+      # After check_vacuity, re-query the property status
+      set vac_status ""
+      catch { set vac_status [get_property_info -prop $prop vacuity] }
+      if {$vac_status eq "" || [catch {
+        # Alternative: check if the property is now marked vacuous
+        set vac_list {}
+        catch { set vac_list [get_property_list -include {vacuity vacuous_proven}] }
+        set is_vac [expr {[lsearch -exact $vac_list $prop] >= 0}]
+      }]} {
+        set is_vac 0
+      }
+      if {$is_vac} {
+        puts $fp_vac "$prop | yes"
+        incr n_vacuous
+      } else {
+        puts $fp_vac "$prop | no"
+        incr n_non_vacuous
+      }
+    }
+  }
+} else {
+  puts "INFO: No proven assertions to check for vacuity"
+}
+INFO: No proven assertions to check for vacuity
+[<embedded>] % 
+[<embedded>] % close $fp_vac
+[<embedded>] % puts "INFO: Vacuity results: $n_vacuous vacuous, $n_non_vacuous non-vacuous, $n_vac_error errors"
+INFO: Vacuity results: 0 vacuous, 0 non-vacuous, 0 errors
+[<embedded>] % puts "INFO: Wrote $VACUITY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/vacuity_results.txt
+[<embedded>] % 
+[<embedded>] % # ---- Collect CEX details ----
+[<embedded>] % set CEX_TXT [file join $OUT_DIR "cex_details.txt"]
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/cex_details.txt
+[<embedded>] % set cex_props {}
+[<embedded>] % catch { set cex_props [get_property_list -include {status cex}] }
+0
+[<embedded>] % set ar_cex_props {}
+[<embedded>] % catch { set ar_cex_props [get_property_list -include {status ar_cex}] }
+WARNING (WPM042): No properties matched the specified filters.
+0
+[<embedded>] % 
+[<embedded>] % set fp_cex [open $CEX_TXT "w"]
+file45
+[<embedded>] % puts $fp_cex "# Counter-example details for DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp_cex "# Format: property_name | cex_type | cex_length"
+[<embedded>] % puts $fp_cex ""
+[<embedded>] % 
+[<embedded>] % foreach prop $cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | cex | $cex_len"
+}
+[<embedded>] % foreach prop $ar_cex_props {
+  set cex_len ""
+  catch { set cex_len [get_property_info -prop $prop cex_length] }
+  puts $fp_cex "$prop | ar_cex | $cex_len"
+}
+[<embedded>] % close $fp_cex
+[<embedded>] % 
+[<embedded>] % set n_cex    [llength $cex_props]
+4
+[<embedded>] % set n_ar_cex [llength $ar_cex_props]
+0
+[<embedded>] % puts "INFO: CEX properties: $n_cex cex, $n_ar_cex ar_cex"
+INFO: CEX properties: 4 cex, 0 ar_cex
+[<embedded>] % puts "INFO: Wrote $CEX_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/cex_details.txt
+[<embedded>] % 
+[<embedded>] % # ---- Write summary ----
+[<embedded>] % set fp [open $SUMMARY_TXT "w"]
+file45
+[<embedded>] % puts $fp "DESIGN_ID=$DESIGN_ID"
+[<embedded>] % puts $fp "TOP=$TOP"
+[<embedded>] % puts $fp "AUTO_BIND=$AUTO_BIND"
+[<embedded>] % puts $fp "ASSERT_COUNT=[llength $ASSERTS]"
+[<embedded>] % puts $fp "COVER_COUNT=[llength $COVERS]"
+[<embedded>] % puts $fp "CEX_COUNT=$n_cex"
+[<embedded>] % puts $fp "AR_CEX_COUNT=$n_ar_cex"
+[<embedded>] % puts $fp "VACUOUS_COUNT=$n_vacuous"
+[<embedded>] % puts $fp "NON_VACUOUS_COUNT=$n_non_vacuous"
+[<embedded>] % puts $fp "VACUITY_ERROR_COUNT=$n_vac_error"
+[<embedded>] % puts $fp "PROP_LIST=$PROP_LIST_TXT"
+[<embedded>] % puts $fp "CEX_DETAILS=$CEX_TXT"
+[<embedded>] % puts $fp "VACUITY_RESULTS=$VACUITY_TXT"
+[<embedded>] % close $fp
+[<embedded>] % 
+[<embedded>] % puts "\n✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)"
+
+✅ DONE: Proof run completed (check Jasper property table / log for PROVED/FAILED)
+[<embedded>] % puts "INFO: Wrote $SUMMARY_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/summary.txt
+[<embedded>] % puts "INFO: Wrote $PROP_LIST_TXT"
+INFO: Wrote /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/04729/property_list.txt
+[<embedded>] % exit 0
+[<embedded>] % INFO (IPL005): Received request to exit from the console.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
-INFO (IPL015): The Tcl-thread exited with status 1.
-INFO (IPL016): Exiting the analysis session with status 1.
+INFO: Waiting for proof threads to stop...
+INFO: Proof threads stopped.
+INFO (IPL018): The peak resident set memory use for this session was 0.320 GB.
+INFO (IPL015): The Tcl-thread exited with status 0.
+INFO (IPL016): Exiting the analysis session with status 0.

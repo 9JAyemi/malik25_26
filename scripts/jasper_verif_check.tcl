@@ -138,6 +138,36 @@ proc extract_module_ports {mod_name files} {
   return {}
 }
 
+proc extract_module_nets {mod_name files} {
+  # Extract internal wire/reg/logic signal names declared inside a module
+  # (not supply nets, not ports — used to extend auto-bind matching).
+  set supply_re {(?m)^\s*supply[01]\s+([\w\s,]+);}
+  set net_re    {\m(?:wire|reg|logic)\M[^;]*?\m([A-Za-z_][A-Za-z0-9_]*)\M\s*[;,]}
+  set result {}
+  set seen [dict create]
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    # Collect supply names to exclude
+    set supply_names {}
+    foreach {_ grp} [regexp -all -inline -- $supply_re $txt] {
+      foreach n [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $grp] {
+        lappend supply_names [string tolower $n]
+      }
+    }
+    # Collect wire/reg/logic names
+    foreach {_ name} [regexp -all -inline -- $net_re $txt] {
+      set nl [string tolower $name]
+      if {[lsearch -exact $supply_names $nl] >= 0} { continue }
+      if {![dict exists $seen $nl]} {
+        dict set seen $nl $name
+        lappend result $name
+      }
+    }
+  }
+  return $result
+}
+
 proc generate_auto_bind {top dut_files sva_files out_dir} {
   # If SVA files lack a bind statement, generate one.
   # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
@@ -177,8 +207,16 @@ proc generate_auto_bind {top dut_files sva_files out_dir} {
 
   # Build port connections: for each SVA port, connect to DUT port if name
   # matches (case-insensitive), otherwise leave unconnected.
+  # Also include internal DUT nets so bare-property SVA can reference them.
   set dut_lower_map [dict create]
   foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+  set dut_nets [extract_module_nets $top $dut_files]
+  foreach n $dut_nets {
+    set nl [string tolower $n]
+    if {![dict exists $dut_lower_map $nl]} {
+      dict set dut_lower_map $nl $n
+    }
+  }
 
   set connections {}
   set unconnected {}

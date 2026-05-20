@@ -177,6 +177,36 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
   return {}
 }
 % 
+% proc extract_module_nets {mod_name files} {
+  # Extract internal wire/reg/logic signal names declared inside a module
+  # (not supply nets, not ports — used to extend auto-bind matching).
+  set supply_re {(?m)^\s*supply[01]\s+([\w\s,]+);}
+  set net_re    {\m(?:wire|reg|logic)\M[^;]*?\m([A-Za-z_][A-Za-z0-9_]*)\M\s*[;,]}
+  set result {}
+  set seen [dict create]
+  foreach f $files {
+    if {![file isfile $f]} { continue }
+    set txt [strip_comments [read_file_text $f]]
+    # Collect supply names to exclude
+    set supply_names {}
+    foreach {_ grp} [regexp -all -inline -- $supply_re $txt] {
+      foreach n [regexp -all -inline {\m[A-Za-z_][A-Za-z0-9_]*\M} $grp] {
+        lappend supply_names [string tolower $n]
+      }
+    }
+    # Collect wire/reg/logic names
+    foreach {_ name} [regexp -all -inline -- $net_re $txt] {
+      set nl [string tolower $name]
+      if {[lsearch -exact $supply_names $nl] >= 0} { continue }
+      if {![dict exists $seen $nl]} {
+        dict set seen $nl $name
+        lappend result $name
+      }
+    }
+  }
+  return $result
+}
+% 
 % proc generate_auto_bind {top dut_files sva_files out_dir} {
   # If SVA files lack a bind statement, generate one.
   # Returns: path to generated bind file, or "" if bind already exists / cannot generate.
@@ -216,8 +246,16 @@ INFO: reading configuration file "/home/ab2113/.config/jasper/jaspergold.conf".
 
   # Build port connections: for each SVA port, connect to DUT port if name
   # matches (case-insensitive), otherwise leave unconnected.
+  # Also include internal DUT nets so bare-property SVA can reference them.
   set dut_lower_map [dict create]
   foreach p $dut_ports { dict set dut_lower_map [string tolower $p] $p }
+  set dut_nets [extract_module_nets $top $dut_files]
+  foreach n $dut_nets {
+    set nl [string tolower $n]
+    if {![dict exists $dut_lower_map $nl]} {
+      dict set dut_lower_map $nl $n
+    }
+  }
 
   set connections {}
   set unconnected {}
@@ -296,7 +334,7 @@ sv12
 % set DESIGN_INPUTS [split_env_list $::env(JG_DESIGN)]
 ./03133/module.v
 % set SVA_INPUTS    [split_env_list $::env(JG_SVA)]
-./03133/sva.sv
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv
 % 
 % set DESIGN_FILES {}
 % foreach p $DESIGN_INPUTS { set DESIGN_FILES [concat $DESIGN_FILES [collect_files_any $p]] }
@@ -373,11 +411,16 @@ INFO: Using TOP = min_max
 % set AUTO_BIND 0
 0
 % set BIND_FILE [generate_auto_bind $TOP $DESIGN_FILES $SVA_FILES $OUT_DIR]
-WARN: Could not find SVA module name for auto-bind
+INFO: Auto-generated bind: /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/auto_bind.sv
+  DUT=min_max  SVA=min_max_sva
+  Connected ports: 3
+  Unconnected SVA ports: bxxxxxx, clk_in_1, property, MinValideotid, posedge, endproperty, assert, MaxValideotid, MinMaxeotid
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/auto_bind.sv
 % if {$BIND_FILE ne ""} {
   set AUTO_BIND 1
   lappend SVA_FILES $BIND_FILE
 }
+/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/auto_bind.sv
 % 
 % puts "INFO: Verification run starting"
 INFO: Verification run starting
@@ -394,11 +437,11 @@ INFO: Verification run starting
 % puts "  NO_CLOCK  : $NO_CLOCK"
   NO_CLOCK  : 1
 % puts "  AUTO_BIND : $AUTO_BIND"
-  AUTO_BIND : 0
+  AUTO_BIND : 1
 % puts "  N_DESIGN  : [llength $DESIGN_FILES]"
   N_DESIGN  : 1
 % puts "  N_SVA     : [llength $SVA_FILES]"
-  N_SVA     : 1
+  N_SVA     : 2
 % puts "  OUT_DIR   : $OUT_DIR"
   OUT_DIR   : /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133
 % 
@@ -423,7 +466,7 @@ analyze -sv12
 % puts "DEBUG: DESIGN_FILES = $DESIGN_FILES"
 DEBUG: DESIGN_FILES = ./03133/module.v
 % puts "DEBUG: SVA_FILES    = $SVA_FILES"
-DEBUG: SVA_FILES    = ./03133/sva.sv
+DEBUG: SVA_FILES    = /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/auto_bind.sv
 % 
 % if {[catch {eval $analyze_opts $DESIGN_FILES} msg]} {
   puts "ERROR: analyze design failed:\n$msg"
@@ -435,7 +478,18 @@ DEBUG: SVA_FILES    = ./03133/sva.sv
   puts "ERROR: analyze SVA failed:\n$msg2"
   set err 1
 }
-[-- (VERI-1482)] Analyzing Verilog file './03133/sva.sv'
+[-- (VERI-1482)] Analyzing Verilog file '/home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv'
+[ERROR (VERI-1011)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(9): cannot index into non-array type logic for 'in'
+[ERROR (VERI-1011)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(12): cannot index into non-array type logic for 'in'
+[ERROR (VERI-1072)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(18): module 'min_max_sva' ignored due to previous errors
+Summary of errors detected:
+	[ERROR (VERI-1011)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(9): cannot index into non-array type logic for 'in'
+	[ERROR (VERI-1011)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(12): cannot index into non-array type logic for 'in'
+	[ERROR (VERI-1072)] /home/ab2113/malik25_26/inference_outputs/verification_results/adapter_vert/ids/03133/sva_fixed.sv(18): module 'min_max_sva' ignored due to previous errors
+ERROR: analyze SVA failed:
+ERROR (ENL034): 3 errors detected in the design file(s).
+
+1
 % 
 % puts "DEBUG: Elaborating TOP='$TOP'"
 DEBUG: Elaborating TOP='min_max'
@@ -443,89 +497,20 @@ DEBUG: Elaborating TOP='min_max'
   puts "ERROR: elaborate failed:\n$emsg"
   set err 1
 }
-INFO (ISW003): Top module name is "min_max".
-[INFO (VERI-1018)] ./03133/module.v(1): compiling module 'min_max'
-INFO (INL208): Elaboration synthesis summary:
-  Number of synthesized netlists          2 (1 packages)
-  Single run mode                         On
-  Pipeline                                On (1 pipelined netlists)
-  Late hierarchical reference connection  On
-  Number of analyzed Verilog modules      2 (2 synthesized)
-  Number of analyzed VHDL entities        0 (0 synthesized)
-INFO (INL003): Clearing all state information (assumes, stopats, and so forth).
-[<embedded>] % 
-[<embedded>] % # If combinational / event-driven, you can force "no clock"
-[<embedded>] % if {!$err && $NO_CLOCK} {
+% 
+% # If combinational / event-driven, you can force "no clock"
+% if {!$err && $NO_CLOCK} {
   catch { clock -none }
 }
-INFO (ICK008): Enabling clock-free environment.
-0
-[<embedded>] % 
-[<embedded>] % if {$err} {
+% 
+% if {$err} {
   puts "\n❌ FAILED: compile/elab errors"
   exit 1
 }
-[<embedded>] % 
-[<embedded>] % # ---- Reset -----
-[<embedded>] % set RESET_SIG ""
-[<embedded>] % set RESET_EXPR ""
-[<embedded>] % if {[info exists ::env(JG_RESET_EXPR)] && $::env(JG_RESET_EXPR) ne ""} {
-  set RESET_EXPR $::env(JG_RESET_EXPR)
-} elseif {[info exists ::env(JG_RESET)] && $::env(JG_RESET) ne ""} {
-  set RESET_SIG $::env(JG_RESET)
-} else {
-  set RESET_SIG [find_reset_signal $TOP $DESIGN_FILES]
-}
-[<embedded>] % 
-[<embedded>] % if {$RESET_EXPR ne ""} {
-  puts "INFO: Using reset expression: $RESET_EXPR"
-  catch { reset -expression $RESET_EXPR }
-} elseif {$RESET_SIG ne ""} {
-  if {[regexp -nocase {(_n|_b)$} $RESET_SIG]} {
-    set RESET_EXPR "!$RESET_SIG"
-    puts "INFO: Using active-low reset expression: $RESET_EXPR"
-    catch { reset -expression $RESET_EXPR }
-  } else {
-    puts "INFO: Using reset signal: $RESET_SIG"
-    catch { reset $RESET_SIG }
-  }
-} else {
-  puts "INFO: No reset signal found; using reset -none"
-  catch { reset -none }
-}
-INFO: No reset signal found; using reset -none
-INFO (IPM031): Clearing proof results of all properties.
-0
-[<embedded>] % 
-[<embedded>] % # ---- Property discovery (bind sanity check) ----
-[<embedded>] % set ASSERTS {}
-[<embedded>] % set COVERS  {}
-[<embedded>] % catch { set ASSERTS [assert -list -silent] }
-0
-[<embedded>] % catch { set COVERS  [cover  -list -silent] }
-0
-[<embedded>] % 
-[<embedded>] % puts "INFO: Found [llength $ASSERTS] asserts, [llength $COVERS] covers"
-INFO: Found 0 asserts, 0 covers
-[<embedded>] % 
-[<embedded>] % # Write property names
-[<embedded>] % set fp [open $PROP_LIST_TXT "w"]
-file41
-[<embedded>] % puts $fp "ASSERT PROPERTIES:"
-[<embedded>] % foreach a $ASSERTS { puts $fp $a }
-[<embedded>] % puts $fp ""
-[<embedded>] % puts $fp "COVER PROPERTIES:"
-[<embedded>] % foreach c $COVERS { puts $fp $c }
-[<embedded>] % close $fp
-[<embedded>] % 
-[<embedded>] % if {[llength $ASSERTS] == 0 && [llength $COVERS] == 0} {
-  puts "\n❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)"
-  exit 3
-}
 
-❌ FAILED: No properties found (bind likely didn't attach, or wrong TOP)
-[<embedded>] % INFO (IPL005): Received request to exit from the console.
+❌ FAILED: compile/elab errors
+% INFO (IPL005): Received request to exit from the console.
 INFO (IPL018): The peak resident set memory use for this session was 0.000 GB.
 INFO (IPL014): Waiting for the Tcl-thread to exit.
-INFO (IPL015): The Tcl-thread exited with status 3.
-INFO (IPL016): Exiting the analysis session with status 3.
+INFO (IPL015): The Tcl-thread exited with status 1.
+INFO (IPL016): Exiting the analysis session with status 1.

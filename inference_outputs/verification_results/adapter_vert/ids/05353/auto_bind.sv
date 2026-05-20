@@ -1,0 +1,8 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): property, ClockSynceotid, posedge, endproperty, assert, SyncRegeotid, SyncRegeotid_2, SyncRegeotid_3, SyncRegeotid_4, SyncRegeotid_5, SyncRegeotid_6, SyncRegeotid_7, SyncRegeotid_8, SyncRegeotid_9, SyncRegeotid_10, SyncRegeotid_11, SyncRegeotid_12, SyncRegeotid_13, SyncRegeotid_14, SyncRegeotid_15, SyncRegeotid_16, SyncRegeotid_17, SyncRegeotid_18, SyncRegeotid_19, SyncRegeotid_20, SyncRegeotid_21, SyncRegeotid_22, SyncRegeotid_23, SyncRegeotid_24, SyncRegeotid_25, SyncRegeotid_26, SyncRegeotid_27, SyncRegeotid_28, SyncRegeotid_29, SyncRegeotid_30, SyncRegeotid_31, SyncRegeotid_32, SyncRegeotid_33, SyncRegeotid_34, SyncRegeotid_35, SyncRegeotid_36, SyncRegeotid_37, SyncRegeotid_38, SyncRegeotid_39, SyncRegeotid_40, SyncRegeotid_41, SyncRegeotid_42, SyncRegeotid_43, SyncRegeotid_44, SyncRegeotid_45, SyncRegeotid_46, SyncRegeotid_47, SyncRegeotid_48, SyncRegeotid_49, SyncRegeotid_50, SyncRegeotid_51, SyncRegeotid_52, SyncRegeotid_53, SyncRegeotid_54, SyncRegeotid_55, SyncRegeotid_56, SyncRegeotid_57, SyncRegeotid_58, SyncRegeotid_59, SyncRegeotid_60, SyncRegeotid_61, SyncRegeotid_62, SyncRegeotid_63, SyncRegeotid_64, SyncRegeotid_65, SyncRegeotid_66, SyncRegeotid_67, SyncRegeotid_68, SyncRegeotid_69, SyncRegeotid_70, SyncRegeotid_71, SyncRegeotid_72, SyncRegeotid_73, SyncRegeotid_74, SyncRegeotid_75, SyncRegeotid_76, SyncRegeotid_77, SyncRegeotid_78, SyncRegeotid_79, SyncRegeotid_80
+bind reverse_bit_order reverse_bit_order_sva auto_sva_inst (
+    .clk(clk),
+    .in(in),
+    .reversed(reversed),
+    .shift_reg(shift_reg)
+);

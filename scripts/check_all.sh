@@ -91,7 +91,7 @@ get_vacuous_count() {
   local out_dir="$1"
   local summary="$out_dir/summary.txt"
   if [[ -f "$summary" ]]; then
-    grep -oP '(?<=VACUOUS_COUNT=)\d+' "$summary" 2>/dev/null || echo "0"
+    grep -oP '^VACUOUS_COUNT=\K\d+' "$summary" 2>/dev/null || echo "0"
   else
     echo "0"
   fi
@@ -101,7 +101,7 @@ get_non_vacuous_count() {
   local out_dir="$1"
   local summary="$out_dir/summary.txt"
   if [[ -f "$summary" ]]; then
-    grep -oP '(?<=NON_VACUOUS_COUNT=)\d+' "$summary" 2>/dev/null || echo "0"
+    grep -oP '^NON_VACUOUS_COUNT=\K\d+' "$summary" 2>/dev/null || echo "0"
   else
     echo "0"
   fi
@@ -379,10 +379,18 @@ run_verif() {
       echo "🔍 Verifying $id ..."
       rm -rf "$proj_dir"
 
+      # ── Pre-process bare SVA (adapter_vert format: no module wrapper) ──
+      local effective_sva="$sva_file"
+      local fixed_sva="$out_dir/sva_fixed.sv"
+      if python3 "$SCRIPT_DIR/fix_vert_sva.py" "$module_file" "$sva_file" "$fixed_sva" 2>&1; then
+        echo "ℹ️  $id: bare SVA converted → $fixed_sva"
+        effective_sva="$fixed_sva"
+      fi
+
       DESIGN_ID="$id" \
       JG_TOP="${JG_TOP:-}" \
       JG_DESIGN="$module_file" \
-      JG_SVA="$sva_file" \
+      JG_SVA="$effective_sva" \
       JG_STD="${JG_STD:-sv12}" \
       JG_INCDIRS="${JG_INCDIRS:-}" \
       JG_DEFINES="${JG_DEFINES:-}" \

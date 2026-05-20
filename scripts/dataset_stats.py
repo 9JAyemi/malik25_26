@@ -1734,9 +1734,10 @@ _MODEL_LABELS = {
     "adapter_all":         "Adapter\n(All Data)",
     "adapter_syntax_pass": "Adapter\n(Syntax Pass)",
     "adapter_verified":    "Adapter\n(Verified)",
+    "adapter_vert":        "Adapter\n(Vert)",
     "chatgpt_baseline":    "GPT-4o\n(Baseline)",
 }
-_MODEL_ORDER = ["base_qwen", "adapter_all", "adapter_syntax_pass", "adapter_verified", "chatgpt_baseline"]
+_MODEL_ORDER = ["base_qwen", "adapter_all", "adapter_syntax_pass", "adapter_verified", "adapter_vert", "chatgpt_baseline"]
 
 
 def generate_model_comparison_charts(model_stats: dict, out_dir: str):
