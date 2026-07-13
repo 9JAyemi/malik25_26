@@ -1,0 +1,29 @@
+{
+  "id": "00337",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.901230",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f49452c81909831876dca6bf6c6",
+  "custom_id": "karnaugh_map_4c8d00da",
+  "module_name": "karnaugh_map",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `karnaugh_map`. The module should have a 4-bit input `x` (where x[3] is the MSB) and a single output `f`. The output `f` should be high (logic 1) when the decimal value represented by the input `x` (with x[3] as the most significant bit) is one of the following: 3, 5, 7, 10, 11, 12, 13, 14, or 15. Implement the logic using a simplified sum-of-products expression derived from these minterms, using basic gate operations.\n",
+  "original_verified": true,
+  "prompt_hash": "87a0e2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.484415",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

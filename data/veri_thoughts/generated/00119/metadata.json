@@ -1,0 +1,29 @@
+{
+  "id": "00119",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.841906",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd50d881908814152b05fdea29",
+  "custom_id": "BLOCK1_86070939",
+  "module_name": "BLOCK1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `BLOCK1`. The module has the following interface:\nInputs: `PIN1`, `PIN2`, `GIN1`, `GIN2`, `PHI`\nOutputs: `POUT`, `GOUT`\n\nImplement the logic such that:\n- The output `POUT` is high only when both `PIN1` and `PIN2` are low.\n- The output `GOUT` is high unless `GIN2` is high AND at least one of `PIN2` or `GIN1` is high.\n",
+  "original_verified": true,
+  "prompt_hash": "70b933",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.396842",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

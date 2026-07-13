@@ -14,7 +14,7 @@ Usage:
     python scripts/parse_verif_properties.py <results_dir>
 
     <results_dir> should contain verif_summary.csv and per-ID subdirectories
-    with run.log files (e.g., metrex/dataset/verification_results).
+    with run.log files (e.g., runs/formal/veri_thoughts/verification).
 """
 
 import argparse

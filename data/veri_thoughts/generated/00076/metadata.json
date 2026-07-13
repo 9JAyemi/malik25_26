@@ -1,0 +1,29 @@
+{
+  "id": "00076",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.766996",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df2bc2881908f546c9d20669e6b",
+  "custom_id": "barrel_shifter_0b29883a",
+  "module_name": "barrel_shifter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\n\nWrite Verilog code for the following three modules:\n\n1.  **Module Name:** `barrel_shifter`\n    *   **Inputs:**\n        *   `A` (4-bit)\n        *   `shift_amount` (2-bit)\n        *   `shift_dir` (1-bit)\n    *   **Output:**\n        *   `Y` (4-bit)\n    *   **Functionality:** Implement a 4-bit logical barrel shifter. The input `A` should be shifted logically (zero-filled). The direction of the shift is controlled by `shift_dir` (1 for left shift, 0 for right shift). The number of positions to shift is given by `shift_amount` (0 to 3 positions).\n\n2.  **Module Name:** `decoder`\n    *   **Inputs:**\n        *   `enable` (1-bit)\n        *   `select` (2-bit)\n    *   **Output:**\n        *   `out` (16-bit)\n    *   **Functionality:** Implement a decoder. If `enable` is high, the output `out` should be a 16-bit value where only one of the four least significant bits (`out[3:0]`) is set to '1', corresponding to the value of the `select` input (e.g., if `select` is 2'b00, `out[0]` is 1; if `select` is 2'b01, `out[1]` is 1, etc.). All other bits of `out` should be '0'. If `enable` is low, the entire 16-bit output `out` should be '0'.\n\n3.  **Module Name:** `top_module`\n    *   **Inputs:**\n        *   `A` (4-bit)\n        *   `shift_amount` (2-bit)\n        *   `shift_dir` (1-bit)\n        *   `enable` (1-bit)\n        *   `select` (2-bit)\n    *   **Output:**\n        *   `out` (16-bit)\n    *   **Functionality:** This module should instantiate the `barrel_shifter` and `decoder` modules. Connect the corresponding inputs (`A`, `shift_amount`, `shift_dir` to the shifter; `enable`, `select` to the decoder). The final 16-bit output `out` should be the bitwise OR of two values:\n        *   The 16-bit output from the `decoder`.\n        *   The 4-bit output from the `barrel_shifter`, zero-extended to 16 bits by appending 12 zero bits to its right.\n\n",
+  "original_verified": true,
+  "prompt_hash": "a2f6aa",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.382751",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00310",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.825069",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3fc5cc81908e9f584e90899a59",
+  "custom_id": "v3676a0_5270f6c7",
+  "module_name": "v3676a0",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following modules, including the specified interfaces (module name, inputs, outputs, and parameters):\n\n1.  **Module `v3676a0`**:\n    *   Inputs: `input vcbab45`\n    *   Outputs: `output reg v0e28cb`\n    *   Functionality: Implement a combinational module where the output `v0e28cb` directly reflects the input `vcbab45`.\n\n2.  **Module `v053dc2`**:\n    *   Inputs: `input vf54559`, `input va4102a`\n    *   Outputs: `output reg ve8318d`\n    *   Functionality: Implement a combinational module that performs a logical OR operation on its two inputs, driving `ve8318d`.\n\n3.  **Module `vba518e`**:\n    *   Inputs: `input vcbab45`, `input v0e28cb`, `input v3ca442`\n    *   Outputs: None explicitly declared in the module header.\n    *   Functionality: Internally compute the logical AND of inputs `vcbab45` and `v3ca442`. This result should be used as the input for an instance of the `v3676a0` module. The output of this `v3676a0` instance should be connected to the `v0e28cb` input port of the `vba518e` module itself.\n\n4.  **Module `v2be0f8`**:\n    *   Parameters: `parameter vbd3217 = 0`\n    *   Inputs: `input vd53b77`, `input v27dec4`, `input vf354ee`\n    *   Outputs: `output reg v4642b6`\n    *   Functionality: This module should contain the specified, unused parameter. It should instantiate `v053dc2` and `vba518e`. The instance of `v053dc2` should take inputs `vd53b77` and `v27dec4` and its output should drive the main module output `v4642b6`. The instance of `vba518e` should take inputs `vd53b77` and `vf354ee` for its `vcbab45` and `v3ca442` ports, respectively. The `v0e28cb` port of the `vba518e` instance should be connected to an internal wire. This internal wire should not be used by any other logic within the `v2be0f8` module.\n\nStructure your answer with each module definition.\n",
+  "original_verified": true,
+  "prompt_hash": "8e9684",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.476438",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

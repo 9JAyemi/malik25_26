@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+FullAdder.auto_sva_inst.check_sum_vector
+FullAdder.auto_sva_inst.check_lsb_sum
+FullAdder.auto_sva_inst.check_bit1_sum
+FullAdder.auto_sva_inst.check_bit2_sum
+FullAdder.auto_sva_inst.check_bit3_sum
+FullAdder.auto_sva_inst.check_final_carry
+FullAdder.auto_sva_inst.check_b_zero_passthrough
+FullAdder.auto_sva_inst.check_a_zero_passthrough
+FullAdder.auto_sva_inst.check_complement_case
+
+COVER PROPERTIES:
+FullAdder.auto_sva_inst.check_b_zero_passthrough:precondition1
+FullAdder.auto_sva_inst.check_a_zero_passthrough:precondition1
+FullAdder.auto_sva_inst.check_complement_case:precondition1

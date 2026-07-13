@@ -1,0 +1,29 @@
+{
+  "id": "00018",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.651644",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de69fd88190af3908ff45b7435b",
+  "custom_id": "mux_4to1_c73847f9",
+  "module_name": "mux_4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a 4-to-1 multiplexer module named `mux_4to1`. The module should have the following interface:\n- A 4-bit input port named `in`.\n- A 2-bit input port named `sel`.\n- A 1-bit output port named `out`.\n\nThe output `out` should be the bit from the `in` vector selected by the value of `sel`. For example, if `sel` is 2'b00, `out` should be `in[0]`.\n",
+  "original_verified": true,
+  "prompt_hash": "ff304a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.364415",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

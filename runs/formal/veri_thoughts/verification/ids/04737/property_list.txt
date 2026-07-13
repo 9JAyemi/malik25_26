@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+mux_2_1.auto_sva_inst.check_select_a
+mux_2_1.auto_sva_inst.check_select_b
+mux_2_1.auto_sva_inst.check_mux_equation
+mux_2_1.auto_sva_inst.check_equal_inputs_passthrough
+
+COVER PROPERTIES:
+mux_2_1.auto_sva_inst.check_select_a:precondition1
+mux_2_1.auto_sva_inst.check_select_b:precondition1
+mux_2_1.auto_sva_inst.check_equal_inputs_passthrough:precondition1

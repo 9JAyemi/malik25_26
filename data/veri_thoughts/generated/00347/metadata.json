@@ -1,0 +1,29 @@
+{
+  "id": "00347",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.939234",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4d47688190a9b77c1d0a16f7f3",
+  "custom_id": "binary_adder_54935a3b",
+  "module_name": "binary_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_adder` that performs an 8-bit operation on two 8-bit inputs, `A` and `B`. The module should have a single-bit control input `C` and an 8-bit output `S`. When `C` is high, the module should compute the difference between `A` and `B` (`A - B`). When `C` is low, the module should compute the sum of `A` and `B` (`A + B`).\n\nSpecify the module interface as follows:\nInputs:\n- `A`: 8-bit\n- `B`: 8-bit\n- `C`: 1-bit\n\nOutput:\n- `S`: 8-bit\n",
+  "original_verified": true,
+  "prompt_hash": "85e20e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.487134",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

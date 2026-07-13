@@ -1,0 +1,29 @@
+{
+  "id": "00233",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.823080",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e16be20819095aac227406d6ada",
+  "custom_id": "comparator_0529ba97",
+  "module_name": "comparator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `comparator` that performs a greater-than comparison between two input signals. The module should have the following interface:\n\n-   Parameters:\n    -   `n`: An integer parameter representing the number of bits in the input signals, with a default value of 4.\n    -   `s`: An integer parameter indicating the comparison mode, with a default value of 0. A value of 0 signifies unsigned comparison, and a value of 1 signifies signed comparison.\n-   Inputs:\n    -   `in1`: An `n`-bit input signal.\n    -   `in2`: An `n`-bit input signal.\n-   Output:\n    -   `out`: A single-bit output signal.\n\nThe module's output `out` should be asserted (logic 1) if `in1` is strictly greater than `in2` based on the comparison mode specified by the parameter `s`. Otherwise, `out` should be deasserted (logic 0). The comparison logic for the signed mode should incorporate consideration of the sign bits of the inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "39b9cc",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 13
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.456727",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00238",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.850636",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e1929a08190b0c034d6089dee2e",
+  "custom_id": "Round_Sgf_Dec_c62d1cfa",
+  "module_name": "Round_Sgf_Dec",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `Round_Sgf_Dec`.\nThe module should have the following inputs:\n- `input wire [1:0] Data_i`\n- `input wire [1:0] Round_Type_i`\n- `input wire Sign_Result_i`\nAnd the following output:\n- `output reg Round_Flag_o`\n\nImplement combinatorial logic such that the output `Round_Flag_o` is set to 1 if either of the following conditions is true:\n1. `Sign_Result_i` is 1, `Round_Type_i` is 2'b01, AND `Data_i` is any value other than 2'b00.\n2. `Sign_Result_i` is 0, `Round_Type_i` is 2'b10, AND `Data_i` is any value other than 2'b00.\n\nIn all other cases, `Round_Flag_o` should be set to 0. Your implementation should use an `always @*` block.\n",
+  "original_verified": true,
+  "prompt_hash": "a08e2c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.458293",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

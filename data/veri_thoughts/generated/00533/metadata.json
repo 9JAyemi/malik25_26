@@ -1,0 +1,29 @@
+{
+  "id": "00533",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.510795",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e56f9688190803e2f16f4bd5577",
+  "custom_id": "arithmetic_op_7b7c716e",
+  "module_name": "arithmetic_op",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `arithmetic_op` that implements a combinational circuit performing one of four operations on two 8-bit inputs, `a` and `b`. The specific operation is determined by a 2-bit control input, `ctrl`.\n\nThe module should have the following interface:\n- Inputs:\n    - `a`: 8 bits\n    - `b`: 8 bits\n    - `ctrl`: 2 bits\n- Output:\n    - `result`: 8 bits (declared as a register type)\n\nThe functionality based on the `ctrl` input should be:\n- If `ctrl` is `2'b00`, the output `result` should be the sum of `a` and `b`.\n- If `ctrl` is `2'b01`, the output `result` should be the difference of `a` and `b`.\n- If `ctrl` is `2'b10`, the output `result` should be the bitwise AND of `a` and `b`.\n- If `ctrl` is `2'b11`, the output `result` should be the bitwise OR of `a` and `b`.\n\nEnsure your implementation correctly selects the operation based on the `ctrl` value and assigns the result to the `result` output.\n",
+  "original_verified": true,
+  "prompt_hash": "b57ffb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.897212",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

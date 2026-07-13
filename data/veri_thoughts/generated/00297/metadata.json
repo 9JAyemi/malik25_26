@@ -1,0 +1,29 @@
+{
+  "id": "00297",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.788780",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f0784819082b556dc58a65efd",
+  "custom_id": "sky130_fd_sc_lp__iso1n_46ca39a9",
+  "module_name": "sky130_fd_sc_lp__iso1n",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_lp__iso1n` that implements a power isolation cell. The module should have the following interface:\n*   Output: `X`\n*   Inputs: `A`, `SLEEP_B`\n\nThe cell should operate as follows:\nWhen the `SLEEP_B` input is high, the output `X` should follow the value of the input `A`.\nWhen the `SLEEP_B` input is low, the output `X` should be forced to a logic high, regardless of the value of `A`.\nYou may use basic logic gates to implement this functionality.\n",
+  "original_verified": true,
+  "prompt_hash": "345634",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.473600",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

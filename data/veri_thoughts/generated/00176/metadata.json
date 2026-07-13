@@ -1,0 +1,29 @@
+{
+  "id": "00176",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.629295",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfeb0608190b9fa838c412712d2",
+  "custom_id": "counter_4bit_6b0a8b79",
+  "module_name": "counter_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a 4-bit counter module in Verilog.\nThe module should be named `counter_4bit`.\nIt should have the following inputs:\n- `clk`: Clock signal.\n- `rst`: Reset signal.\n- `en`: Enable signal.\nIt should have a single output:\n- `out`: A 4-bit register that holds the current count value.\n\nThe counter should increment its `out` value by 1 on the positive edge of the `clk` signal, but only when the `en` signal is asserted (high).\nThe counter should reset its `out` value to 0 when the `rst` signal is deasserted (low). This reset should be asynchronous, meaning it takes effect immediately when `rst` goes low, regardless of the clock edge.\nImplement this module using an `always` block and appropriate sensitivity list and conditional logic.\n",
+  "original_verified": true,
+  "prompt_hash": "8df385",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.413032",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

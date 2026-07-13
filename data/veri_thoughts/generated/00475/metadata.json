@@ -1,0 +1,29 @@
+{
+  "id": "00475",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.311680",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e3f74c88190a2bea5d686199de4",
+  "custom_id": "sky130_fd_sc_ms__a31oi_76af7092",
+  "module_name": "sky130_fd_sc_ms__a31oi",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_ms__a31oi`.\nThe module should have the following inputs: `A1`, `A2`, `A3`, `B1`.\nThe module should have one output: `Y`.\n\nImplement the logic such that the output `Y` is logic '0' if input `B1` is logic '1' OR if all inputs `A1`, `A2`, and `A3` are simultaneously logic '1'. In all other cases, `Y` should be logic '1'.\n\nYour implementation should use basic gate primitives (e.g., `and`, `or`, `not`, `nand`, `nor`, `xor`, `xnor`, `buf`) rather than behavioral descriptions or continuous assignments.\n",
+  "original_verified": true,
+  "prompt_hash": "f6aefc",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.883243",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00335",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.893781",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4922b8819090b64f3888aca956",
+  "custom_id": "counter_4bit_1754a82d",
+  "module_name": "counter_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module for a 4-bit synchronous counter with reset and enable capabilities.\nThe module should be named `counter_4bit`.\nIt should have the following interface:\nInputs:\n- `clk`: Clock signal (positive edge triggered).\n- `rst`: Synchronous reset signal (active high).\n- `en`: Synchronous enable signal (active high).\nOutput:\n- `out`: A 4-bit output register holding the current count.\n\nThe counter should behave as follows:\n- On the positive edge of the `clk` signal:\n    - If the `rst` signal is high, the output `out` should be reset to 0.\n    - If the `rst` signal is low and the `en` signal is high, the output `out` should increment by 1.\n    - If the `rst` signal is low and the `en` signal is low, the output `out` should retain its current value.\n- The output `out` should be a registered output.\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "1503db",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.483546",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

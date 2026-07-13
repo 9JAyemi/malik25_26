@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=02930
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::my_logic.auto_sva_inst.check_y_is_or_of_all | error
+<embedded>::my_logic.auto_sva_inst.check_y_one_when_any_A | error
+<embedded>::my_logic.auto_sva_inst.check_y_uses_B_when_As_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_zero_only_when_all_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_one_when_B_nonzero_and_As_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_zero_when_all_inputs_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_forced_one_by_A1 | error
+<embedded>::my_logic.auto_sva_inst.check_y_forced_one_by_A2_when_A1_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_forced_one_by_A3_when_A1_A2_zero | error
+<embedded>::my_logic.auto_sva_inst.check_y_one_with_b_zero_implies_some_A_one | error

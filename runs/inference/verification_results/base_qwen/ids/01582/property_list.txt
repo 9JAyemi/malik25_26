@@ -1,0 +1,21 @@
+ASSERT PROPERTIES:
+register_4bit.auto_sva_inst.reg_change
+register_4bit.auto_sva_inst.load_behavior
+register_4bit.auto_sva_inst.reset_behavior
+register_4bit.auto_sva_inst.q_output
+register_4bit.auto_sva_inst.no_change
+register_4bit.auto_sva_inst.reset_no_change
+register_4bit.auto_sva_inst.load_no_change
+register_4bit.auto_sva_inst.data_in_no_change
+register_4bit.auto_sva_inst.clk_no_change
+register_4bit.auto_sva_inst.load_reset_no_change
+
+COVER PROPERTIES:
+register_4bit.auto_sva_inst.load_behavior:precondition1
+register_4bit.auto_sva_inst.reset_behavior:precondition1
+register_4bit.auto_sva_inst.no_change:precondition1
+register_4bit.auto_sva_inst.reset_no_change:precondition1
+register_4bit.auto_sva_inst.load_no_change:precondition1
+register_4bit.auto_sva_inst.data_in_no_change:precondition1
+register_4bit.auto_sva_inst.clk_no_change:precondition1
+register_4bit.auto_sva_inst.load_reset_no_change:precondition1

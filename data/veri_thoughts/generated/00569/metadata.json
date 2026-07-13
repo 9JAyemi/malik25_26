@@ -1,0 +1,29 @@
+{
+  "id": "00569",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.658436",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e69df3c81908a8a1a2b700f2544",
+  "custom_id": "RegisterAdd_1aa97f49",
+  "module_name": "RegisterAdd",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `RegisterAdd` with the following interface:\n\nInputs:\n- `FSM_selector_C` (1-bit)\n- `clk_IBUF_BUFG` (1-bit)\n- `AR` (1-bit)\n\nOutput:\n- `FSM_sequential_state_reg_reg` (2-bit)\n\nThe module should implement a 2-bit register (`FSM_sequential_state_reg_reg`) that updates on the positive edge of `clk_IBUF_BUFG`.\n\nThe register's behavior is controlled by the `FSM_selector_C` input:\n- If `FSM_selector_C` is high, the register is synchronously set to `2'b00`.\n- If `FSM_selector_C` is low, the register's new value is the result of adding the 1-bit input `AR` to its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "572093",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.905386",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

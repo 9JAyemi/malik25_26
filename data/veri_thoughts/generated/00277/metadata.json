@@ -1,0 +1,29 @@
+{
+  "id": "00277",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.738178",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3d27d881909dc2e8e24696f2b3",
+  "custom_id": "my__a901fcdb",
+  "module_name": "my_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `my_module`.\nThe module has the following interface:\nInputs: `A`, `SLEEP`\nOutput: `X`\n\nThe module should implement the following behavior:\nWhen the `SLEEP` input is logic high (1), the output `X` must be forced to logic low (0).\nWhen the `SLEEP` input is logic low (0), the output `X` should pass through the value of the input `A`.\n\nAdditionally, include declarations for standard supply signals: `VPWR` (supply1), `VGND` (supply0), `VPB` (supply1), and `VNB` (supply0) within the module definition.\n",
+  "original_verified": true,
+  "prompt_hash": "40732c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.469006",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

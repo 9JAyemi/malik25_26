@@ -1,0 +1,29 @@
+{
+  "id": "00047",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.706347",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65deb194c8190ae2abcf005266f0b",
+  "custom_id": "binary_counter_ca1698b2",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_counter`. The module should have the following interface:\n-   Inputs: `clk`, `reset`, `enable` (single bits)\n-   Output: `out` (4-bit register)\n\nDesign this module to implement a synchronous 4-bit binary counter. On the positive edge of the `clk` signal:\n-   If the `reset` input is high, the output `out` should be set to 0.\n-   Otherwise, if the `enable` input is high, the output `out` should increment its current value.\n-   If neither `reset` nor `enable` is high, the output `out` should retain its current value.\nThe counter should wrap around naturally when it reaches its maximum value (15).\n",
+  "original_verified": true,
+  "prompt_hash": "1f4321",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.373484",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

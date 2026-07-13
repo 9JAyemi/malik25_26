@@ -1,0 +1,29 @@
+{
+  "id": "00017",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.649661",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de69f2c81909cd59d59f7d3fcbb",
+  "custom_id": "section2_schematic_b979c2d1",
+  "module_name": "section2_schematic",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `section2_schematic`. This module has three inputs: `n63`, `Z_B`, and `n62`, and two outputs: `Len_int` and `Ren_int`.\n\nThe module should implement the following logic:\nThe output `Len_int` should be high if either input `n63` and input `Z_B` are both high, OR if all three inputs `n63`, `Z_B`, and `n62` are simultaneously low.\nThe output `Ren_int` should be high if either input `Z_B` and input `n62` are both high, OR if all three inputs `n63`, `Z_B`, and `n62` are simultaneously low.\nOtherwise, both outputs should be low.\n\nImplement this logic using basic gate primitives (AND, OR, NOT).\n",
+  "original_verified": true,
+  "prompt_hash": "ea28ff",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.363903",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

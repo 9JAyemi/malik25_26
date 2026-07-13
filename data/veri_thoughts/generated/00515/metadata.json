@@ -1,0 +1,29 @@
+{
+  "id": "00515",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.453391",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4f834081908416ac8e94add3b0",
+  "custom_id": "compare_4_fa0e9a99",
+  "module_name": "compare_4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `compare_4`.\nThe module should have the following interface:\n-   Inputs:\n    -   `v1_reg`: a 5-bit wide input.\n    -   `rd_en`: a 1-bit input.\n    -   `out`: a 1-bit input.\n    -   `comp1`: a 1-bit input.\n-   Output:\n    -   `ram_empty_fb_i_reg`: a 1-bit output.\n\nImplement the logic such that:\n1.  An intermediate signal is generated which is true if the value represented by the *lower 4 bits* of the `v1_reg` input is non-zero.\n2.  The output `ram_empty_fb_i_reg` is the logical NOT of the result of ANDing this intermediate signal with the three inputs `rd_en`, `out`, and `comp1`.\n\nYour implementation should match the behavior described.\n",
+  "original_verified": true,
+  "prompt_hash": "fc9af8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.892651",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

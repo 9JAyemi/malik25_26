@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
 Plot the relationship between assertion count and quality grade
-across all five models in inference_outputs/.
+across all five models in runs/inference/.
 
 For each model, reads:
   - verification_results/{model}/ids/{id}/summary.txt  → ASSERT_COUNT, QUALITY_GRADE
   - dataset_stats/{model}/dataset_stats.csv             → sva_asserts (regex-counted)
 
-Produces per-model and combined figures in inference_outputs/dataset_stats/_comparison/.
+Produces per-model and combined figures in reports/inference/.
 """
 
 import csv
@@ -364,7 +364,7 @@ def plot_heatmap_per_model(model_data, out_dir):
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     base_dir = os.path.dirname(script_dir)
-    io_dir = os.path.join(base_dir, "inference_outputs")
+    io_dir = os.path.join(base_dir, "runs", "inference")
 
     if not os.path.isdir(io_dir):
         print(f"ERROR: {io_dir} not found")
@@ -390,7 +390,7 @@ def main():
         print("No graded data found for any model.")
         sys.exit(1)
 
-    stats_dir = os.path.join(io_dir, "dataset_stats")
+    stats_dir = os.path.join(base_dir, "reports", "inference")
     comp_dir = os.path.join(stats_dir, "_comparison")
     os.makedirs(comp_dir, exist_ok=True)
 

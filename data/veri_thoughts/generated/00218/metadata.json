@@ -1,0 +1,29 @@
+{
+  "id": "00218",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.794499",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0b1a7081908c0c214475f34549",
+  "custom_id": "signed_multiplier_32_adf6a6db",
+  "module_name": "signed_multiplier_32",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module hierarchy for a signed multiplication system.\n\nThe system consists of three modules: `multiply`, `signed_multiplier`, and `signed_multiplier_32`.\n\nAll modules should include the following parameters:\n`parameter ID = 32'd1;`\n`parameter NUM_STAGE = 32'd1;`\n`parameter din0_WIDTH = 32'd1;`\n`parameter din1_WIDTH = 32'd1;`\n`parameter dout_WIDTH = 32'd1;`\n\nImplement the Verilog code for these three modules based on the specified interfaces and functionalities below. Pay close attention to signed arithmetic and port widths as defined by the parameters.\n\n1.  **Module: `multiply`**\n    *   This module performs the core combinatorial signed multiplication.\n    *   Interface:\n        *   Inputs: `clk`, `ce`, `a` (signed, width `din0_WIDTH`), `b` (signed, width `din1_WIDTH`).\n        *   Output: `p` (signed, width `2*dout_WIDTH`).\n    *   Functionality: The output `p` should be the signed product of inputs `a` and `b`. Note that `clk` and `ce` are part of the interface but are not used for sequential logic within this specific module.\n\n2.  **Module: `signed_multiplier`**\n    *   This module acts as a simple wrapper for the `multiply` module.\n    *   Interface:\n        *   Inputs: `clk`, `ce`, `a` (signed, width `din0_WIDTH`), `b` (signed, width `din1_WIDTH`).\n        *   Output: `p` (signed, width `2*dout_WIDTH`).\n    *   Functionality: Instantiate the `multiply` module and connect its ports appropriately to the inputs and output of this module.\n\n3.  **Module: `signed_multiplier_32`**\n    *   This is the top-level module that provides a registered output.\n    *   Interface:\n        *   Inputs: `clk`, `reset`, `ce`, `din0` (signed, width `din0_WIDTH`), `din1` (signed, width `din1_WIDTH`).\n        *   Output: `dout` (signed, width `dout_WIDTH + din0_WIDTH`).\n    *   Functionality:\n        *   Instantiate the `signed_multiplier` module to perform the core multiplication of `din0` and `din1`.\n        *   The full product from the instantiated `signed_multiplier` will have a width of `2*dout_WIDTH`.\n        *   Register the *upper `dout_WIDTH` bits* of this full product into an internal register on the positive edge of `clk` when `ce` is asserted.\n        *   On a positive edge of `reset`, the internal register should be cleared to 0.\n        *   The output `dout` should reflect the value of this internal registered result.\n\n",
+  "original_verified": true,
+  "prompt_hash": "a59f5b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.452261",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

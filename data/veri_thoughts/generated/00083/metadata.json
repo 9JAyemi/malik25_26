@@ -1,0 +1,29 @@
+{
+  "id": "00083",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.778010",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df3801c8190991a76ee2b94ce51",
+  "custom_id": "binary_counter_209c860d",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_counter`.\nThe module should have the following ports:\n*   Input `clk`\n*   Input `reset`\n*   Input `enable`\n*   Output `reg [3:0] count`\n\nImplement a 4-bit synchronous binary counter with the following functionality:\n*   The counter's state (`count`) should update only on the positive edge of the `clk` signal.\n*   A high `reset` signal should synchronously clear the counter to 0 on the next positive edge of `clk`. This condition should take precedence over the `enable` signal.\n*   When `reset` is low and `enable` is high, the counter should increment by 1 on the positive edge of `clk`.\n*   When both `reset` and `enable` are low, the counter should hold its current value.\n",
+  "original_verified": true,
+  "prompt_hash": "60510e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.385577",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

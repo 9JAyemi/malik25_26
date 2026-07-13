@@ -1,0 +1,29 @@
+{
+  "id": "00212",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.780494",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0a1c508190a910b89cf7cb924c",
+  "custom_id": "my_and4_7eb50ec1",
+  "module_name": "my_and4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `my_and4`.\nThe module should have the following interface:\n- Outputs: `X`\n- Inputs: `A`, `B`, `C`, `D`, `VPWR`, `VGND`, `VPB`, `VNB`\n\nThe module should implement a programmable logic function based on the value of the input signal `VPB`.\n- If `VPB` is logic 0, the output `X` should be the logical AND of inputs `A`, `B`, `C`, and `D`.\n- If `VPB` is logic 1, the output `X` should be the logical OR of inputs `A`, `B`, `C`, and `D`.\n\nThe inputs `VPWR`, `VGND`, and `VNB` are part of the module's defined interface but do not directly control the logical AND/OR function of `X` based on `A`, `B`, `C`, and `D` as `VPB` does.\n\nProvide the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "bdfa3d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.450184",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

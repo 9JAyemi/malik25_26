@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+adder.auto_sva_inst.check_full_sum
+adder.auto_sva_inst.check_sum_low_bits
+adder.auto_sva_inst.check_carry_matches_overflow
+adder.auto_sva_inst.check_lsb_xor
+adder.auto_sva_inst.check_zero_a_passthrough
+adder.auto_sva_inst.check_zero_b_passthrough
+adder.auto_sva_inst.check_max_plus_max
+adder.auto_sva_inst.check_carry_boundary
+
+COVER PROPERTIES:
+adder.auto_sva_inst.check_zero_a_passthrough:precondition1
+adder.auto_sva_inst.check_zero_b_passthrough:precondition1
+adder.auto_sva_inst.check_max_plus_max:precondition1
+adder.auto_sva_inst.check_carry_boundary:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00207",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.763023",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e08f8748190a07bce4e9376a632",
+  "custom_id": "shift_register_4fb24462",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `shift_register`.\nThe module has the following interface:\nInputs:\n- `clk`: Clock signal\n- `load`: Control signal\n- `serial_in`: Single-bit data input\n\nOutput:\n- `out`: A 3-bit register (`reg [2:0]`)\n\nThe module should operate synchronously on the positive edge of the `clk` signal. The 3-bit output register `out` behaves as follows:\n- When the `load` input is high, the `out` register is updated such that its value becomes the `serial_in` bit in the least significant position (`out[0]`), with the upper two bits (`out[2:1]`) being zero.\n- When the `load` input is low, the `out` register performs a left shift. The bit from `serial_in` enters the least significant position (`out[0]`), the old value of `out[0]` moves to `out[1]`, the old value of `out[1]` moves to `out[2]`, and the old value of `out[2]` is discarded.\n",
+  "original_verified": true,
+  "prompt_hash": "2c22bd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.448200",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

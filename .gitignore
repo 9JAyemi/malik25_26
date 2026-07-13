@@ -1,32 +1,36 @@
+# OS and editor artifacts
 .DS_Store
+.vscode/*.log
+.ipynb_checkpoints/
 
-# SLURM job logs
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python environments and caches
+.venv/
+venv/
+myenv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# JasperGold and SLURM transient output
 jg_check.*.err
 jg_check.*.out
-
-# JasperGold project directories
 jgproject/
-
-
-
-# Python / env artifacts
-__pycache__/
-*.pyc
-myenv/
-
-# Jasper logs
 .jasper_logs/
-
-# SLURM logs inside dataset
 **/slurm_logs/
 
-# Metadata dirs
-**/metadata/
+# Large rerunnable training state
+runs/adapters/
+**/checkpoint-*/
 
-# External repos (distillation_test)
-distillation_test/complex_designs/external/
-.env
+# External repositories imported by distillation experiments
+experiments/distillation/**/external/
 
-# Allow visual_data/ to be tracked for results
-!visual_data/
-!**/visual_data/
+# Generator scratch output; canonical samples live in data/veri_thoughts/generated
+runs/generation/**/generated_modules/
+runs/generation/**/metadata/

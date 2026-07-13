@@ -1,0 +1,29 @@
+{
+  "id": "00132",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.487754",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df4d96081909c9448059ff3a88f",
+  "custom_id": "shift_register_4bit_79031646",
+  "module_name": "shift_register_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `shift_register_4bit` that implements a 4-bit register with the following interface:\n-   Inputs: `clk` (clock), `rst` (asynchronous active-low reset), `load` (load enable), `data_in` (4-bit data input), `shift` (shift enable).\n-   Output: `data_out` (4-bit registered output).\n\nThe module should behave as follows:\n1.  When the `rst` input is low, the `data_out` register should be asynchronously reset to 0.\n2.  On the positive edge of the `clk` signal, when `rst` is high:\n    a.  If the `load` input is high, the value from `data_in` should be loaded into the `data_out` register.\n    b.  If the `load` input is low and the `shift` input is high, the contents of the `data_out` register should be shifted left by one bit. A logic '0' should be shifted into the least significant bit (LSB) position. The most significant bit (MSB) is shifted out and discarded.\n    c.  If neither `load` nor `shift` is high, the `data_out` register should retain its current value.\n\nAssume `load` has higher priority than `shift`.\n",
+  "original_verified": true,
+  "prompt_hash": "50e2f7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.400947",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

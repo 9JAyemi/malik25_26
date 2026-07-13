@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parse inference_outputs syntax and verification results to fill the model comparison table."""
+"""Parse inference syntax and verification results to fill the model comparison table."""
 
 import os
 import csv
@@ -7,7 +7,7 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Map: table row label -> inference_outputs subdirectory name
+# Map: table row label -> inference-run subdirectory name
 MODELS = {
     "Qwen2.5 (untrained)":         "base_qwen",
     "Adapter: All Data":            "adapter_all",
@@ -19,7 +19,7 @@ MODELS = {
 def parse_syntax(model_dir):
     """Return (total, pass_count, fail_count) from syntax summary.csv."""
     csv_path = os.path.join(
-        BASE_DIR, "inference_outputs", "syntax_results", model_dir, "visual_data", "summary.csv"
+        BASE_DIR, "runs", "inference", "syntax_results", model_dir, "visual_data", "summary.csv"
     )
     if not os.path.isfile(csv_path):
         return 0, 0, 0
@@ -37,7 +37,7 @@ def parse_syntax(model_dir):
 def parse_verification(model_dir):
     """Return (total_properties, proven, cex) from verification summary.txt files."""
     ids_dir = os.path.join(
-        BASE_DIR, "inference_outputs", "verification_results", model_dir, "ids"
+        BASE_DIR, "runs", "inference", "verification_results", model_dir, "ids"
     )
     if not os.path.isdir(ids_dir):
         return 0, 0, 0

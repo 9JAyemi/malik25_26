@@ -1,0 +1,29 @@
+{
+  "id": "00209",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.772398",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e090cac8190bac5ce43c085b7fd",
+  "custom_id": "top_module_e50a5fa3",
+  "module_name": "top_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for the following modules:\n\n1.  **`and_module`**: This module takes two 4-bit inputs, `in1` [3:0] and `in2` [3:0], and produces a 4-bit output `out` [3:0]. The output should be the bitwise AND of the two inputs.\n\n2.  **`or_module`**: This module takes two 4-bit inputs, `in1` [3:0] and `in2` [3:0], and produces a 4-bit output `out` [3:0]. The output should be the bitwise OR of the two inputs.\n\n3.  **`xor_module`**: This module takes two 4-bit inputs, `in1` [3:0] and `in2` [3:0], and produces a 4-bit output `out` [3:0]. The output should be the bitwise XOR of the two inputs.\n\n4.  **`top_module`**: This module has the following interface:\n    *   Inputs: `in` [99:0], `in1` [3:0], `in2` [3:0], `select`\n    *   Outputs: `out_and`, `out_or`, `out_xor`\n\n    The `top_module` should implement the following logic:\n    *   `out_and`: Compute the 100-input AND of the `in` vector. This should be done by first performing 4-input AND operations on consecutive groups of 4 bits from `in`, and then performing a reduction AND on the 25 resulting intermediate bits.\n    *   Instantiate two copies of each of the `and_module`, `or_module`, and `xor_module` using `in1` and `in2` as inputs to all instances.\n    *   Based on the value of the `select` input, determine a 4-bit intermediate value:\n        *   If `select` is high (1), the intermediate value is the bitwise AND of the outputs from the two `and_module` instances.\n        *   If `select` is low (0), the intermediate value is the bitwise OR of the outputs from the two `or_module` instances.\n    *   `out_or`: Compute the reduction OR of the 4-bit intermediate value determined by `select`.\n    *   `out_xor`: Compute the reduction XOR of the output from one of the `xor_module` instances.\n\nProvide the Verilog code for all four modules.\n",
+  "original_verified": true,
+  "prompt_hash": "81c898",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.449181",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00371",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.010702",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f59d7c88190991ddb64200be979",
+  "custom_id": "current_3356b9a1",
+  "module_name": "current",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `current`.\n\nThis module models a controllable current source/sink. It has the following interface:\n*   Input `ctrl`: A 1-bit control signal.\n*   Input `vref`: An 8-bit input representing a voltage reference.\n*   Output `isrc`: Represents the current source output.\n*   Output `isnk`: Represents the current sink output.\n\nThe module should include a parameter, let's call it `r`, representing a resistance value, with a default value of 100.\n\nImplement the following behavior:\n*   When `ctrl` is high (1), the module acts as a current source. The `isrc` output should be the result of the integer division of `vref` by the parameter `r`. The `isnk` output should be zero.\n*   When `ctrl` is low (0), the module acts as a current sink. The `isnk` output should be the result of the integer division of `vref` by the parameter `r`. The `isrc` output should be zero.\n\nEnsure your module declaration matches this signature:\n```verilog\nmodule current (\n  input ctrl,\n  input [7:0] vref,\n  output isrc,\n  output isnk\n);\n// ... module body ...\nendmodule\n```\n",
+  "original_verified": true,
+  "prompt_hash": "98487e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.493481",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

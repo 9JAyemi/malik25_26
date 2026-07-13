@@ -1,0 +1,29 @@
+{
+  "id": "00231",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.819247",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e15c01c8190afc814caec6de61c",
+  "custom_id": "shift_register_7afe0840",
+  "module_name": "shift_register",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `shift_register` with the following interface:\n\nInputs:\n- `clk`\n- `reset`\n- `shift_in`\n- `shift`\n\nOutput:\n- `data_out` (8-bit registered output)\n\nThe module should implement an 8-bit register that updates its value on the positive edge of the `clk` signal.\n\nThe module should have an asynchronous reset capability: when the `reset` input is high, the entire 8-bit register (`data_out`) should be cleared to all zeros, overriding any other operations.\n\nWhen `reset` is low, the module's behavior depends on the state of the `shift` input:\n- If `shift` is low, the module should perform a left shift operation. The value of `shift_in` should be loaded into the least significant bit (`data_out[0]`), and the existing bits should shift one position to the left (i.e., `data_out[1]` gets the old value of `data_out[0]`, `data_out[2]` gets the old value of `data_out[1]`, ..., `data_out[7]` gets the old value of `data_out[6]`).\n- If `shift` is high, the module should also perform a left shift operation on the existing bits (as described above). However, in this mode, the least significant bit (`data_out[0]`) should always be loaded with a logic '0', regardless of the `shift_in` value.\n\nImplement this logic in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "b9d1ea",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.456296",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

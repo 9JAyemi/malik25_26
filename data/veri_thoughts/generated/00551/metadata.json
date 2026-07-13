@@ -1,0 +1,29 @@
+{
+  "id": "00551",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.583874",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5eec0481908a6b87bfbb33c2e1",
+  "custom_id": "detect_0_to_1_7e517d26",
+  "module_name": "detect_0_to_1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a synchronous Verilog module named `detect_0_to_1` with the following interface:\nInputs: `clk`, `reset`, `in [31:0]`\nOutput: `out [31:0]`\n\nOn the positive edge of `clk`, if `reset` is asserted, the output `out` should be set to all zeros. Otherwise, for each bit position `i` of the 32-bit vector, the output bit `out[i]` should be set to 1 if and only if the corresponding input bit `in[i]` has transitioned from 0 to 1 since the previous clock cycle. If a bit of `in` was already 1, or remains 0, or transitions from 1 to 0, the corresponding output bit should be 0.\n",
+  "original_verified": true,
+  "prompt_hash": "a4c5a8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.901382",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

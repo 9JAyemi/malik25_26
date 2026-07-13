@@ -1,0 +1,29 @@
+{
+  "id": "00323",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.863713",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f42b4b48190a1a8721758cc1204",
+  "custom_id": "top__1521cbc8",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following module hierarchy.\n\n1.  **`top_module`**:\n    *   Inputs:\n        *   `a` [31:0]\n        *   `b` [31:0]\n        *   `select`\n    *   Output:\n        *   `result` [31:0]\n    *   Description: This module instantiates one instance each of the `subtractor`, `mux`, and `final_output` modules. It uses the `select` input to choose between two 32-bit results:\n        *   If `select` is high, the output `result` should be 31 zero bits concatenated with the 1-bit output of the instantiated `mux` module. The `mux` module's inputs `a`, `b`, `c`, and `d` should be connected to `a[0]`, `b[0]`, `a[1]`, and `b[1]` from the top-level inputs, respectively.\n        *   If `select` is low, the output `result` should be the 32-bit output of the instantiated `final_output` module. The `final_output` module's inputs should be connected as follows: `sub_out` to the output of the `subtractor` module, `select` to the top-level `select`, `a` to `a[0]`, `b` to `b[0]`, and both `c` and `d` to a constant zero value. The `subtractor` module's inputs `a` and `b` should be connected to the top-level inputs `a` and `b`, respectively.\n\n2.  **`subtractor`**:\n    *   Inputs:\n        *   `a` [31:0]\n        *   `b` [31:0]\n    *   Output:\n        *   `result` [1:0]\n    *   Description: Despite its name, this module implements a 32-bit binary adder (calculating `a + b`). The output `result` is the 2-bit least significant portion of the 32-bit sum.\n\n3.  **`mux`**:\n    *   Inputs:\n        *   `a`\n        *   `b`\n        *   `c`\n        *   `d`\n    *   Output:\n        *   `out`\n    *   Description: This module takes four 1-bit inputs and produces a single 1-bit output. The output `out` is high (`1`) if and only if (`a` is high AND `b`, `c`, `d` are low) OR (`a` is low AND `b` is high AND `c`, `d` are low). This logic can be expressed as `(a XOR b) AND (NOT c) AND (NOT d)`.\n\n4.  **`final_output`**:\n    *   Inputs:\n        *   `sub_out` [1:0]\n        *   `select`\n        *   `a`\n        *   `b`\n        *   `c`\n        *   `d`\n    *   Output:\n        *   `final_out` [31:0]\n    *   Description: This module outputs a 32-bit value based on the `select` input.\n        *   If `select` is high, the output `final_out` is 31 zero bits concatenated with the result of applying the same logic function as the `mux` module to its own `a`, `b`, `c`, and `d` inputs.\n        *   If `select` is low, the output `final_out` is 31 zero bits concatenated with the 2-bit `sub_out` input.\n\nImplement these modules in Verilog, including the necessary instantiations and connections within `top_module`.\n",
+  "original_verified": true,
+  "prompt_hash": "32e9a6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.480261",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

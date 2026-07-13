@@ -1,0 +1,29 @@
+{
+  "id": "00253",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.881259",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e22a810819093af5c3c9c7d1dce",
+  "custom_id": "two_bit_sat_counter_2545de82",
+  "module_name": "two_bit_sat_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `two_bit_sat_counter`.\nThe module should have the following interface:\n- Inputs:\n    - `count_i`: a 2-bit wide input representing the current state.\n    - `op`: a 1-bit wide input representing the operation control.\n- Output:\n    - `count`: a 2-bit wide output representing the calculated next state. This output should be combinational.\n\nThe module should implement the following logic to determine the output `count` based on the inputs `count_i` and `op`:\n- If the `op` input is high (1):\n    The output `count` should be equivalent to incrementing `count_i` by one, with saturation at the maximum 2-bit values (2'b10 and 2'b11). Specifically, if `count_i` is 2'b00, `count` is 2'b01; if `count_i` is 2'b01, `count` is 2'b10; if `count_i` is 2'b10, `count` remains 2'b10; and if `count_i` is 2'b11, `count` remains 2'b11.\n- If the `op` input is low (0):\n    The output `count` should be 2'b00 if `count_i` is 2'b00 or 2'b01. If `count_i` is 2'b10 or 2'b11, the output `count` should be equivalent to decrementing `count_i` by one. Specifically, if `count_i` is 2'b00, `count` is 2'b00; if `count_i` is 2'b01, `count` is 2'b00; if `count_i` is 2'b10, `count` is 2'b01; and if `count_i` is 2'b11, `count` is 2'b10.\n",
+  "original_verified": true,
+  "prompt_hash": "977f47",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.462671",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

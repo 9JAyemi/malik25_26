@@ -1,0 +1,29 @@
+{
+  "id": "00150",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.547405",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df6a18481909f6f7e0b29faddda",
+  "custom_id": "full_adder_16401bb4",
+  "module_name": "full_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign and implement the following modules in Verilog:\n\n1.  **Module `one_bit_adder`**:\n    *   Implement a standard 1-bit full adder using continuous assignments (`assign`).\n    *   Inputs: `A`, `B`, `CI` (1-bit each)\n    *   Outputs: `COUT`, `SUM` (1-bit each)\n\n2.  **Module `full_adder`**:\n    *   This module should instantiate the `one_bit_adder` module defined above.\n    *   Connect the inputs `A`, `B`, and `CI` of the `full_adder` module to the corresponding inputs of the instantiated `one_bit_adder`.\n    *   The `COUT` output of the `full_adder` should be directly connected to the `COUT` output of the instantiated `one_bit_adder`.\n    *   The `SUM` output of the `full_adder` should be the result of XORing the `SUM` output of the instantiated `one_bit_adder` with the `CI` input of the `full_adder` module.\n    *   Inputs: `A`, `B`, `CI` (1-bit each)\n    *   Outputs: `COUT`, `SUM` (1-bit each)\n\n3.  **Module `four_bit_adder`**:\n    *   Implement a 4-bit ripple-carry adder by instantiating four instances of the `full_adder` module defined above.\n    *   Inputs: `A` (4-bit, [3:0]), `B` (4-bit, [3:0]), `CI` (1-bit)\n    *   Outputs: `SUM` (4-bit, [3:0]), `COUT` (1-bit)\n\nEnsure the module names and port names match exactly as specified.\n",
+  "original_verified": true,
+  "prompt_hash": "92bb2d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.405815",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

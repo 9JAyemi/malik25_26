@@ -1,0 +1,29 @@
+{
+  "id": "00280",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.748307",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3d93c081908d9bbf2cc42bf45b",
+  "custom_id": "probe_decoder_85603fcb",
+  "module_name": "probe_decoder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `probe_decoder`. This module has the following interface:\nInputs:\n- `clk`: 1-bit clock signal\n- `probe0`: 64-bit data input\n- `probe1`: 64-bit data input\nOutputs:\n- `device_out`: 16-bit registered output\n- `action_out`: 48-bit registered output\n\nImplement the logic such that on the positive edge of the `clk` signal, the outputs are updated based on slices of the input probes:\n\n1.  The `device_out` should be determined by the lower 16 bits of `probe0` (`probe0[15:0]`). If `probe0[15:0]` matches any of the positive integer values from 1 through 4 (inclusive), `device_out` should be assigned that same 16-bit value. For any other value of `probe0[15:0]`, `device_out` should be assigned the default value 16'hFFFF.\n\n2.  The `action_out` should be determined by the lower 48 bits of `probe1` (`probe1[47:0]`). If `probe1[47:0]` matches any of the positive integer values from 1 through 6 (inclusive), `action_out` should be assigned that same 48-bit value. For any other value of `probe1[47:0]`, `action_out` should be assigned the default value 48'hFFFFFFFFFFFF.\n\nEnsure the outputs are registered and the logic is synthesizable.\n",
+  "original_verified": true,
+  "prompt_hash": "469988",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 12
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.469597",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

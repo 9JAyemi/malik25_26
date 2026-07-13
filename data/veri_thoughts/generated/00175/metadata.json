@@ -1,0 +1,29 @@
+{
+  "id": "00175",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.627188",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfd74a48190b58c754d176c12f9",
+  "custom_id": "FullAdder_9a0530ad",
+  "module_name": "FullAdder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog HDL code for the following two modules:\n\n1.  A module named `FullAdder` that implements a single-bit full adder. It should have the following interface:\n    *   Inputs: `a`, `b`, `cin` (all 1-bit)\n    *   Outputs: `sum`, `cout` (all 1-bit)\n    This module takes two input bits and a carry-in bit and produces their sum bit and a carry-out bit.\n\n2.  A module named `Adder4` that implements a 4-bit ripple-carry adder. It should have the following interface:\n    *   Inputs: `A`, `B` (both 4-bit vectors), `Cin` (1-bit)\n    *   Outputs: `S` (4-bit vector), `Cout` (1-bit)\n    This module takes two 4-bit binary numbers (`A` and `B`) and a carry-in bit (`Cin`), and produces their 4-bit sum (`S`) and a carry-out bit (`Cout`). You should implement this 4-bit adder by instantiating four instances of the `FullAdder` module you defined previously and connecting them appropriately to form a ripple-carry chain.\n\nYour code should include both module definitions.\n",
+  "original_verified": true,
+  "prompt_hash": "7a8452",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.412821",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

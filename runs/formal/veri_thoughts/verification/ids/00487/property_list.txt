@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+counter.auto_sva_inst.reset_clears_out
+counter.auto_sva_inst.count_up_step
+counter.auto_sva_inst.count_down_step
+counter.auto_sva_inst.up_wraps_from_f_to_0
+counter.auto_sva_inst.down_wraps_from_0_to_f
+
+COVER PROPERTIES:
+counter.auto_sva_inst.reset_clears_out:precondition1
+counter.auto_sva_inst.count_up_step:precondition1
+counter.auto_sva_inst.count_down_step:precondition1
+counter.auto_sva_inst.up_wraps_from_f_to_0:precondition1
+counter.auto_sva_inst.down_wraps_from_0_to_f:precondition1

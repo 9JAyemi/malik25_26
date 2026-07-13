@@ -1,0 +1,29 @@
+{
+  "id": "00535",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.518305",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e595ed48190a268b845a527c1b8",
+  "custom_id": "clock_gate_1_d7d75c96",
+  "module_name": "clock_gate_1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite two Verilog modules, `clock_gate_1` and `clock_gate_2`, that implement the following logic. Both modules should have the same interface: inputs `CLK`, `EN`, `TE`, and output `ENCLK`.\n\nThe output `ENCLK` should behave as follows:\n- When the `EN` input is high, `ENCLK` should follow the `CLK` input if `TE` is high, and be low (`1'b0`) if `TE` is low.\n- When the `EN` input is low, `ENCLK` should always be high (`1'b1`), regardless of the states of `CLK` or `TE`.\n",
+  "original_verified": true,
+  "prompt_hash": "d7202f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.897815",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

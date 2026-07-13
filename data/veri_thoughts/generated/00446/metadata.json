@@ -1,0 +1,29 @@
+{
+  "id": "00446",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.865310",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ec1198c819091a7fa11965fe420",
+  "custom_id": "debounce_c67183f1",
+  "module_name": "debounce",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `debounce` that filters out mechanical bounce from a push button signal. The module should operate synchronously with the rising edge of the input clock.\n\nThe module should have the following interface:\n*   Input `clk`: The clock signal.\n*   Input `PB`: The raw, potentially bouncing push button signal.\n*   Output `PB_state`: The debounced state of the push button.\n\nThe `PB_state` output should only change after the `PB` input has remained stable at a new value for a sufficient duration, effectively filtering out transient glitches caused by the mechanical switch bouncing.\n",
+  "original_verified": true,
+  "prompt_hash": "e4e548",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.876151",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

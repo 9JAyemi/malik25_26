@@ -1,0 +1,29 @@
+{
+  "id": "00433",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.807744",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eb3d2f881908791c3e022383710",
+  "custom_id": "sky130_fd_sc_ms__or4bb_b41a2237",
+  "module_name": "sky130_fd_sc_ms__or4bb",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_ms__or4bb`.\nThis module should implement a 4-input OR function. It has four inputs: two active-high inputs `A` and `B`, and two active-low inputs `C_N` and `D_N` (representing inputs C and D respectively, where C = ~C_N and D = ~D_N). The module has a single active-high output `X`.\nThe functionality should be equivalent to `X = A | B | C | D`.\nProvide a gate-level implementation using basic Verilog primitives like `nand`, `or`, `buf`.\nThe module interface must be exactly as follows:\nInputs: `A`, `B`, `C_N`, `D_N`\nOutput: `X`\n",
+  "original_verified": true,
+  "prompt_hash": "cdedb4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.872867",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

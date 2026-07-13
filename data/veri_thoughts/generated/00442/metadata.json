@@ -1,0 +1,29 @@
+{
+  "id": "00442",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.856823",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ebed2488190aa3092ce73cf7307",
+  "custom_id": "tap_point_6588672f",
+  "module_name": "tap_point",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `tap_point`.\nThe module should have the following interface:\nInputs:\n- `vin`\n- `gnd`\nOutput:\n- `tap`\n\nThe module should implement combinational logic where the output `tap` is determined by a selection between the inputs `vin` and `gnd`. The selection should be controlled by a condition derived from whether the inputs `vin` and `gnd` are equal or not. Specifically, if `vin` and `gnd` are not equal, the output `tap` should take the value of `vin`. If `vin` and `gnd` are equal, the output `tap` should take the value of `gnd`. Your implementation should achieve this selection by first computing an intermediate value based on the arithmetic difference between `vin` and `gnd`, and then using this intermediate value to control which input (`vin` or `gnd`) is assigned to `tap`.\n",
+  "original_verified": true,
+  "prompt_hash": "b89e8c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 3
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.875187",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

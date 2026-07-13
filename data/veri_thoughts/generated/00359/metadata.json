@@ -1,0 +1,29 @@
+{
+  "id": "00359",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.965023",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5494ec819097b2f865a1d6532a",
+  "custom_id": "Freq_Count_Top_7e7f76fc",
+  "module_name": "Freq_Count_Top",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `Freq_Count_Top` that measures the frequency of the input signal `ch_c`. The module should use the 50 MHz system clock `sys_clk_50m` to define a periodic measurement gate. During the active phase of this gate, the module should count the positive edges of `ch_c`. At the end of each measurement gate period, the accumulated count should be latched into the 64-bit output register `freq_reg`. The module should also incorporate an active-low reset signal, `sys_rst_n`.\n\nSpecify the module interface exactly as follows:\nInputs: `sys_clk_50m`, `ch_c`, `sys_rst_n`\nOutput: `freq_reg [63:0]`\n\nYour implementation should define the timing of the measurement gate using parameters based on the `sys_clk_50m` frequency, but avoid hardcoding specific clock cycle counts in a way that directly reveals the parameter values used in the original code. Focus on the behavior: count `ch_c` pulses during the timed gate and output the final count after the gate closes.\n",
+  "original_verified": true,
+  "prompt_hash": "c507f1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.490500",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

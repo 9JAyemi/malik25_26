@@ -1,0 +1,29 @@
+{
+  "id": "00263",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.687824",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3c38d8819088c6f51348d5b749",
+  "custom_id": "soft_clock_9e7704a4",
+  "module_name": "soft_clock",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nImplement a Verilog module named `soft_clock` with the following interface and parameter:\n\n```verilog\nmodule soft_clock\n#(parameter\n\tC_SIPIF_DWIDTH = 32\n)\n(\n\tinput                                   Bus2IP_Reset     ,\n\tinput                                   Bus2IP_Clk       ,\n\tinput                                   Bus2IP_WrCE      ,\n\tinput      [0:C_SIPIF_DWIDTH-1]         Bus2IP_Data      ,\n\tinput      [0:(C_SIPIF_DWIDTH/8)-1]     Bus2IP_BE        ,\n\t\n\toutput                                  Clk2IP_Clk       ,\n\t\n\toutput                                  Clk2Bus_WrAck    ,\n\toutput                                  Clk2Bus_Error    ,\n\toutput                                  Clk2Bus_ToutSup  \n\t\n);\n// ... your implementation here\nendmodule\n```\n\nThe module should function as a software-controlled clock gate. The output clock `Clk2IP_Clk` should be the input clock `Bus2IP_Clk` gated by an internal enable signal.\n\nThis internal enable signal is controlled by write operations on the bus interface (`Bus2IP_Clk`, `Bus2IP_Reset`, `Bus2IP_WrCE`, `Bus2IP_Data`, `Bus2IP_BE`). A command to control the clock gate is considered valid if `Bus2IP_WrCE` is asserted and the most significant byte enable bit (`Bus2IP_BE[(C_SIPIF_DWIDTH/8)-1]`) is asserted.\n\nThe command itself is encoded in the most significant 4 bits of `Bus2IP_Data` (`Bus2IP_Data[C_SIPIF_DWIDTH-4 : C_SIPIF_DWIDTH-1]`). The 4-bit value `4'b1010` should enable the clock gate, and `4'b0101` should disable it.\n\nOn `Bus2IP_Reset`, the clock gate should be enabled. If a valid command (as defined above) is received with the enable code (`4'b1010`), the gate should be enabled. If a valid command is received with the disable code (`4'b0101`), the gate should be disabled. If a valid command is received with any other 4-bit value, the gate state should remain unchanged.\n\nGenerate the `Clk2Bus_WrAck` output when a valid write command is received and the 4-bit data matches either the enable or disable code.\n\nGenerate the `Clk2Bus_Error` output when a valid write command is received, but the 4-bit data does *not* match either the enable or disable code.\n\nThe `Clk2Bus_ToutSup` output should simply reflect the state of `Bus2IP_Reset`.\n",
+  "original_verified": true,
+  "prompt_hash": "1813f8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.465321",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

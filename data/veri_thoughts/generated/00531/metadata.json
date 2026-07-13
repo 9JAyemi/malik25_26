@@ -1,0 +1,29 @@
+{
+  "id": "00531",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.504059",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e56cf708190a4134239018f5521",
+  "custom_id": "logic_circuit_6f5e6121",
+  "module_name": "logic_circuit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `logic_circuit`.\nThe module should have the following interface:\nInputs: `A1`, `A2`, `B1`, `C1`, `D1`\nOutput: `X`\n\nThe output `X` should be asserted (logic 1) if any of the following conditions are true:\n- Both input `A1` and input `A2` are asserted.\n- Input `A1` is deasserted (logic 0) and input `B1` is asserted.\n- Input `C1` is deasserted (logic 0) and input `D1` is asserted.\n\nImplement this logic using a continuous assignment.\n",
+  "original_verified": true,
+  "prompt_hash": "f68be0",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.896761",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,16 @@
+ASSERT PROPERTIES:
+or4bb.auto_sva_inst.check_functional_equivalence
+or4bb.auto_sva_inst.check_a_or_b_drives_high
+or4bb.auto_sva_inst.check_c_n_active_low
+or4bb.auto_sva_inst.check_d_n_active_low
+or4bb.auto_sva_inst.check_power_or_bulk_drives_high
+or4bb.auto_sva_inst.check_all_terms_inactive_drives_low
+or4bb.auto_sva_inst.check_x_low_implies_all_terms_inactive
+
+COVER PROPERTIES:
+or4bb.auto_sva_inst.check_a_or_b_drives_high:precondition1
+or4bb.auto_sva_inst.check_c_n_active_low:precondition1
+or4bb.auto_sva_inst.check_d_n_active_low:precondition1
+or4bb.auto_sva_inst.check_power_or_bulk_drives_high:precondition1
+or4bb.auto_sva_inst.check_all_terms_inactive_drives_low:precondition1
+or4bb.auto_sva_inst.check_x_low_implies_all_terms_inactive:precondition1

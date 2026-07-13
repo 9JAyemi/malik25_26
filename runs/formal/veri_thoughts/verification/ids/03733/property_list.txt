@@ -1,0 +1,18 @@
+ASSERT PROPERTIES:
+mutex.auto_sva_inst.check_g1_function
+mutex.auto_sva_inst.check_g2_function
+mutex.auto_sva_inst.check_grants_mutex
+mutex.auto_sva_inst.check_both_requests_low
+mutex.auto_sva_inst.check_both_requests_high
+mutex.auto_sva_inst.check_r2_only_grants_g1
+mutex.auto_sva_inst.check_r1_only_grants_g2
+mutex.auto_sva_inst.check_g1_implies_inputs
+mutex.auto_sva_inst.check_g2_implies_inputs
+
+COVER PROPERTIES:
+mutex.auto_sva_inst.check_both_requests_low:precondition1
+mutex.auto_sva_inst.check_both_requests_high:precondition1
+mutex.auto_sva_inst.check_r2_only_grants_g1:precondition1
+mutex.auto_sva_inst.check_r1_only_grants_g2:precondition1
+mutex.auto_sva_inst.check_g1_implies_inputs:precondition1
+mutex.auto_sva_inst.check_g2_implies_inputs:precondition1

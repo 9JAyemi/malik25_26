@@ -1,0 +1,33 @@
+[project]
+name = "veri2-research"
+version = "0.1.0"
+description = "Generation, formal filtering, fine-tuning, and evaluation for the Veri2 RTL-SVA dataset"
+requires-python = ">=3.10"
+dependencies = [
+  "datasets>=3.0",
+  "matplotlib>=3.9",
+  "numpy>=2.0",
+  "openai>=1.0",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+training = [
+  "accelerate>=1.0",
+  "bitsandbytes>=0.43",
+  "huggingface-hub>=0.25",
+  "peft>=0.12",
+  "torch>=2.4",
+  "transformers>=4.44",
+  "trl>=0.9",
+  "wandb>=0.18",
+]
+inference = [
+  "huggingface-hub>=0.25",
+  "torch>=2.4",
+  "vllm>=0.6",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100

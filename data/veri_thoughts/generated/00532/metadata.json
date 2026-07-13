@@ -1,0 +1,29 @@
+{
+  "id": "00532",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.507348",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e56f9c4819085ea9d08e3386c28",
+  "custom_id": "adder_subtractor_2ced2e2e",
+  "module_name": "adder_subtractor",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a synchronous Verilog module named `adder_subtractor` with the following interface:\n\n```verilog\nmodule adder_subtractor (\n  input [3:0] A,\n  input [3:0] B,\n  input sub,\n  input clk,\n  input rst,\n  output [3:0] out,\n  output cout\n);\n```\n\nThis module should operate on the positive edge of the `clk` signal and be resettable by the active-high `rst` signal.\n\nOn reset, the output sum (`out`) and carry (`cout`) should be cleared to 0.\n\nIn the absence of reset, the module should perform an arithmetic operation based on the `sub` input:\n\n*   If `sub` is logic 0, the module should compute the sum of inputs A, B, and the carry-out value from the *previous* clock cycle.\n*   If `sub` is logic 1, the module should compute the sum of the bitwise inverse of input A, the 2's complement negative of input B, and the carry-out value from the *previous* clock cycle.\n\nThe 4-bit sum and the final carry-out resulting from this computation should be stored in registers and provided as the `out` and `cout` outputs, respectively, on the next positive clock edge.\n",
+  "original_verified": true,
+  "prompt_hash": "52f5c4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.896999",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

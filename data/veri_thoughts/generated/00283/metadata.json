@@ -1,0 +1,29 @@
+{
+  "id": "00283",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.757654",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3da2d081909c21261180a988fd",
+  "custom_id": "sky130_fd_sc_lp__dfxtp_f68500ea",
+  "module_name": "sky130_fd_sc_lp__dfxtp",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_lp__dfxtp`. This module should implement a positive-edge triggered D flip-flop. The module should have the following interface:\nInputs: `D`, `CLK`, `VPB`, `VPWR`, `VGND`, `VNB`\nOutput: `Q`\n\nThe output `Q` should capture the value of the input `D` on the positive edge of the `CLK` signal. The other inputs (`VPB`, `VPWR`, `VGND`, `VNB`) are part of the standard cell interface but do not require specific logic for the basic D flip-flop behavior itself.\n",
+  "original_verified": true,
+  "prompt_hash": "080e77",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.470183",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

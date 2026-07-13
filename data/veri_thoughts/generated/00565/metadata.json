@@ -1,0 +1,29 @@
+{
+  "id": "00565",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.639235",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e671c7881908fa70a8947a79e43",
+  "custom_id": "AddressGenerator_0c45bba2",
+  "module_name": "AddressGenerator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `AddressGenerator`.\nThe module has the following interface:\nInputs:\n`clk`: clock\n`ce`: clock enable\n`Operation` [4:0]: 5-bit operation code\n`MuxCtrl` [1:0]: 2-bit multiplexer control\n`DataBus` [7:0]: 8-bit data bus input\n`T` [7:0]: 8-bit input T\n`X` [7:0]: 8-bit input X\n`Y` [7:0]: 8-bit input Y\nOutputs:\n`AX` [15:0]: 16-bit address output\n`Carry`: 1-bit carry output\n\nThe module should contain two 8-bit registers, `AL` and `AH`, which are concatenated to form the 16-bit output `AX` (`AX = {AH, AL}`). It also contains a 1-bit register `SavedCarry` which stores the carry output from the *previous* clock cycle's main addition operation.\n\nOn the positive edge of `clk`, if `ce` is high, the registers `AL`, `AH`, and `SavedCarry` are updated.\n\nA combinatorial 1-bit output `Carry` is generated from an 8-bit addition. The first operand of this addition is selected between `T` and `AL` based on `MuxCtrl[1]`. The second operand is selected between `Y` and `X` based on `MuxCtrl[0]`. The `Carry` output is the carry-out of this 8-bit addition. The sum of this addition is a potential next value for `AL` (let's call this `NewAL`).\n\nAnother value, `TmpAdd`, is calculated combinatorially. This value is the result of adding a 1-bit value to either `AL` or `AH`. The 8-bit register used in this addition is `AL` if `Operation[1]` is 0, and `AH` if `Operation[1]` is 1. The 1-bit value being added is 1 if `Operation[1]` is 0, and the value of `SavedCarry` if `Operation[1]` is 1.\n\nThe register updates are controlled by the `Operation` input:\n-   `SavedCarry` is updated with the current value of the combinatorial `Carry` output.\n-   `AL` is updated if `Operation[4]` is high. The source for `AL` is selected based on `Operation[3:2]`:\n    -   `Operation[3:2] = 2'b00`: `NewAL` (the sum calculated for the `Carry` output, excluding the carry bit itself).\n    -   `Operation[3:2] = 2'b01`: `DataBus`.\n    -   `Operation[3:2] = 2'b10`: `TmpAdd`.\n    -   `Operation[3:2] = 2'b11`: `T`.\n    If `Operation[4]` is low, `AL` retains its current value.\n-   `AH` is updated based on `Operation[1:0]`:\n    -   `Operation[1:0] = 2'b00`: `AH` retains its current value.\n    -   `Operation[1:0] = 2'b01`: `AH` is set to 0.\n    -   `Operation[1:0] = 2'b10`: `AH` is set to `TmpAdd`.\n    -   `Operation[1:0] = 2'b11`: `AH` is set to `DataBus`.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "2bf8cf",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.904570",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

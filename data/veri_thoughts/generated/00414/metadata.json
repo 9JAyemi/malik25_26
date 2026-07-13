@@ -1,0 +1,29 @@
+{
+  "id": "00414",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.750773",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e9351288190a6471f5b6e7acd65",
+  "custom_id": "decoder_4to16_018f08dd",
+  "module_name": "decoder_4to16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `decoder_4to16`.\nThe module should have the following interface:\nInputs:\n- `in`: a 256-bit wide input ([255:0])\n- `sel`: a 4-bit wide input ([3:0])\nOutput:\n- `out`: a 16-bit wide registered output (reg [15:0])\n\nThe module should implement a 4-to-16 decoder function driven by the `sel` input.\nSpecifically, when the `sel` input represents a decimal value N between 0 and 15, the `out` signal should be a 16-bit one-hot encoding where only the N-th bit is set to logic '1'. Bit 0 corresponds to the least significant bit of `out`, and bit 15 corresponds to the most significant bit.\nFor any other value of `sel` (e.g., due to unknown or high-impedance states), the `out` signal should be set to all zeros.\nNote that the `in` input is part of the specified interface but does not affect the logic determining the value of `out`.\n",
+  "original_verified": true,
+  "prompt_hash": "ab6dcd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 20
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.866023",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

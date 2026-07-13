@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+tri_buf.auto_sva_inst.check_z_low_when_te_b_low
+tri_buf.auto_sva_inst.check_z_follows_a_when_te_b_high
+tri_buf.auto_sva_inst.check_te_b_low_when_z_low
+tri_buf.auto_sva_inst.check_te_b_high_when_z_high
+tri_buf.auto_sva_inst.check_te_b_high_forces_z_low
+tri_buf.auto_sva_inst.check_te_b_low_keeps_z_high
+
+COVER PROPERTIES:
+tri_buf.auto_sva_inst.check_z_low_when_te_b_low:precondition1
+tri_buf.auto_sva_inst.check_z_follows_a_when_te_b_high:precondition1
+tri_buf.auto_sva_inst.check_te_b_low_when_z_low:precondition1
+tri_buf.auto_sva_inst.check_te_b_high_when_z_high:precondition1
+tri_buf.auto_sva_inst.check_te_b_high_forces_z_low:precondition1
+tri_buf.auto_sva_inst.check_te_b_low_keeps_z_high:precondition1

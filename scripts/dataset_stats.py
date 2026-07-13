@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Parse metrex and veri_thoughts datasets to produce statistical charts.
+Parse Veri2 and inference outputs to produce statistical charts.
 
 Usage:
     python scripts/dataset_stats.py [--base-dir <workspace_root>] [--out <output_dir>]
 
     Defaults:
-        --base-dir  .                (expects metrex/ and veri_thoughts/ subdirs)
+        --base-dir  .                (repository root)
         --out       dataset_stats    (created inside base-dir)
 
 Customisation:
@@ -184,7 +184,7 @@ def _parse_summary_txt(summary_path: str) -> dict:
 def parse_verif_summary(verif_version_dir: str) -> dict:
     """Parse verif_summary.csv (with or without header) and enrich with per-ID data.
 
-    verif_version_dir: e.g. metrex/dataset/verification_results/version_1
+    verif_version_dir: a directory containing verification result IDs
     Looks for verif_summary.csv in visual_data/ subfolder only.
     Per-ID data from ids/{ID}/summary.txt and ids/{ID}/cex_details.txt.
     """
@@ -397,7 +397,8 @@ def print_summary(records: list[dict], label: str):
 
 # ── Plotting helpers ─────────────────────────────────────────────────────────
 COLORS = {
-    "metrex": "#2196F3",
+    "dataset_a": "#2196F3",
+    "dataset_b": "#FF9800",
     "veri_thoughts": "#FF9800",
     "assert": "#4CAF50",
     "cover": "#9C27B0",
@@ -481,16 +482,16 @@ def plot_strip_comparison(data_dict, ylabel, title, out_path):
     print(f"  Saved {out_path}")
 
 
-def plot_stacked_bar_comparison(metrex_vals, vt_vals, title, out_path):
+def plot_stacked_bar_comparison(data_a, data_b, title, out_path):
     """Stacked bar chart: asserts, covers, assumes per dataset."""
     fig, ax = plt.subplots(figsize=(8, 5))
-    labels = ["metrex", "veri_thoughts"]
-    asserts = [np.mean([r["sva_asserts"] for r in metrex_vals]) if metrex_vals else 0,
-               np.mean([r["sva_asserts"] for r in vt_vals]) if vt_vals else 0]
-    covers = [np.mean([r["sva_covers"] for r in metrex_vals]) if metrex_vals else 0,
-              np.mean([r["sva_covers"] for r in vt_vals]) if vt_vals else 0]
-    assumes = [np.mean([r["sva_assumes"] for r in metrex_vals]) if metrex_vals else 0,
-               np.mean([r["sva_assumes"] for r in vt_vals]) if vt_vals else 0]
+    labels = ["dataset_a", "dataset_b"]
+    asserts = [np.mean([r["sva_asserts"] for r in data_a]) if data_a else 0,
+               np.mean([r["sva_asserts"] for r in data_b]) if data_b else 0]
+    covers = [np.mean([r["sva_covers"] for r in data_a]) if data_a else 0,
+              np.mean([r["sva_covers"] for r in data_b]) if data_b else 0]
+    assumes = [np.mean([r["sva_assumes"] for r in data_a]) if data_a else 0,
+               np.mean([r["sva_assumes"] for r in data_b]) if data_b else 0]
 
     x = np.arange(len(labels))
     width = 0.4
@@ -522,7 +523,7 @@ def plot_scatter(records, x_key, y_key, xlabel, ylabel, title, out_path, label_k
     """Scatter plot colored by dataset label."""
     fig, ax = plt.subplots(figsize=(10, 6))
     for lbl, color in COLORS.items():
-        if lbl not in ("metrex", "veri_thoughts"):
+        if lbl in ("assert", "cover", "assume"):
             continue
         subset = [r for r in records if r[label_key] == lbl]
         if not subset:
@@ -1842,13 +1843,14 @@ def generate_model_comparison_charts(model_stats: dict, out_dir: str):
     print(f"  Saved {p3}")
 
 
-def process_inference_outputs(io_dir):
-    """Process inference_outputs/ directory where subdirs are model names.
+def process_inference_outputs(io_dir, output_root=None):
+    """Process an inference-run directory where subdirs are model names.
     Structure:
         io_dir/{model}/{id}/module.v, sva.sv
         io_dir/verification_results/{model}/ids/{id}/...
         io_dir/verification_results/{model}/visual_data/
     """
+    output_root = output_root or os.path.join(io_dir, "dataset_stats")
     verif_base = os.path.join(io_dir, "verification_results")
     syntax_base = os.path.join(io_dir, "syntax_results")
 
@@ -1882,8 +1884,7 @@ def process_inference_outputs(io_dir):
 
         print_summary(records, label)
 
-        # Output to io_dir/dataset_stats/{model_name}/
-        out_dir = os.path.join(io_dir, "dataset_stats", model_name)
+        out_dir = os.path.join(output_root, model_name)
         os.makedirs(out_dir, exist_ok=True)
 
         # Write CSV
@@ -1958,7 +1959,7 @@ def process_inference_outputs(io_dir):
 
     # ── Cross-model comparison charts ────────────────────────────────────────
     print("\n\nGenerating cross-model comparison charts …")
-    comparison_dir = os.path.join(io_dir, "dataset_stats", "_comparison")
+    comparison_dir = os.path.join(output_root, "_comparison")
     os.makedirs(comparison_dir, exist_ok=True)
 
     all_model_stats = {}
@@ -1997,7 +1998,7 @@ def process_inference_outputs(io_dir):
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate statistical charts for metrex and veri_thoughts datasets."
+        description="Generate statistical charts for Veri2 inference outputs."
     )
     # Default base-dir to the parent of this script's directory (i.e. malik25_26/)
     _script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -2005,61 +2006,22 @@ def main():
 
     parser.add_argument(
         "target", nargs="?", default=None,
-        help="Optional path to a directory like inference_outputs/ to process directly. "
-             "If omitted, processes metrex and veri_thoughts under --base-dir.",
+        help="Optional inference output directory. Defaults to runs/inference.",
     )
     parser.add_argument(
         "--base-dir", "-b", default=_default_base,
-        help="Workspace root containing metrex/ and veri_thoughts/ subdirs "
+        help="Repository root "
              f"(default: {_default_base})",
     )
     args = parser.parse_args()
 
     base = os.path.abspath(args.base_dir)
 
-    if args.target:
-        target = os.path.abspath(args.target)
-        if not os.path.isdir(target):
-            print(f"ERROR: {target} is not a directory")
-            sys.exit(1)
-        # Detect layout: if target has version_X subdirs, treat as a
-        # metrex/veri_thoughts-style dataset; otherwise as inference_outputs.
-        has_versions = any(
-            d.startswith("version_") and os.path.isdir(os.path.join(target, d))
-            for d in os.listdir(target)
-        )
-        if has_versions:
-            label = os.path.basename(os.path.dirname(target)) or os.path.basename(target)
-            process_single_dataset(target, label)
-        else:
-            process_inference_outputs(target)
-    else:
-        metrex_dir = os.path.join(base, "metrex", "dataset")
-        vt_dir = os.path.join(base, "veri_thoughts", "dataset")
-        io_dir = os.path.join(base, "inference_outputs")
-
-        process_single_dataset(metrex_dir, "metrex")
-        process_single_dataset(vt_dir, "veri_thoughts")
-
-        # ── Process inference_outputs/ ──
-        if os.path.isdir(io_dir):
-            process_inference_outputs(io_dir)
-
-        # ── Combined interactive pie charts (all versions merged, one per dataset) ──
-        for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
-            combined_rows = collect_id_summaries(ddir)
-            if combined_rows:
-                html_out = os.path.join(ddir, "dataset_stats",
-                                        f"interactive_pie_per_id_{lbl}.html")
-                generate_interactive_pie_html(combined_rows, lbl, html_out)
-
-        # ── Combined interactive assertion detail charts ──
-        for ddir, lbl in [(metrex_dir, "metrex"), (vt_dir, "veri_thoughts")]:
-            prop_by_id, cex_by_id = collect_property_data(ddir)
-            if prop_by_id:
-                html_out = os.path.join(ddir, "dataset_stats",
-                                        f"interactive_assertion_detail_{lbl}.html")
-                generate_interactive_assertion_detail_html(prop_by_id, cex_by_id, lbl, html_out)
+    target = os.path.abspath(args.target) if args.target else os.path.join(base, "runs", "inference")
+    if not os.path.isdir(target):
+        print(f"ERROR: {target} is not a directory")
+        sys.exit(1)
+    process_inference_outputs(target, os.path.join(base, "reports", "inference"))
 
     print("Done!")
 

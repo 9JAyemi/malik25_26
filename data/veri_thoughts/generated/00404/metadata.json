@@ -1,0 +1,29 @@
+{
+  "id": "00404",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.722237",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e87d97881908d4ab012a2bea776",
+  "custom_id": "d_ff_with_set_clear_265447b7",
+  "module_name": "d_ff_with_set_clear",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `d_ff_with_set_clear` that implements a D flip-flop with synchronous set and clear inputs.\n\nThe module should have the following inputs:\n- `clk`: Clock signal\n- `d`: Data input\n- `set`: Synchronous set input\n- `clear`: Synchronous clear input\n\nThe module should have the following output:\n- `q`: Flip-flop output\n\nImplement the following behavior:\n- On the positive edge of the clock (`clk`), the output `q` updates.\n- The `clear` input should have the highest priority. When `clear` is asserted (high), the output `q` should be forced to 0.\n- If `clear` is not asserted, but `set` is asserted (high), the output `q` should be forced to 1.\n- If neither `clear` nor `set` is asserted, the output `q` should take the value of the `d` input.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "7e6226",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.863010",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

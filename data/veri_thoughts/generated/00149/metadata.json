@@ -1,0 +1,29 @@
+{
+  "id": "00149",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.540882",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df5ccb08190881f712fbd50129f",
+  "custom_id": "subtractor_d646704a",
+  "module_name": "subtractor",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `subtractor`.\nThe module should have the following interface:\nInputs:\n  `count_d2_reg` (9 bits wide, [8:0])\n  `S` (4 bits wide, [3:0])\n  `wr_clk` (1 bit wide)\n  `AR` (1 bit wide)\nOutput:\n  `wr_data_count` (10 bits wide, [9:0], registered)\n\nThe module should implement the following logic:\n1.  Calculate a 4-bit unsigned value, let's call it `delta`, based on the input `S`. This `delta` value should be the 4-bit result of the subtraction `10 - (S * 10)`.\n2.  Subtract this `delta` value (zero-extended to 9 bits) from the input `count_d2_reg`.\n3.  The 9-bit result of this subtraction should be zero-extended to 10 bits and stored in the output register `wr_data_count`.\n4.  The `wr_data_count` register should update on the positive edge of `wr_clk`.\n5.  The `wr_data_count` register should be asynchronously reset to `0` when the input `AR` is low.\n\nYour implementation should match the described behavior.\n",
+  "original_verified": true,
+  "prompt_hash": "7efd37",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.405620",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

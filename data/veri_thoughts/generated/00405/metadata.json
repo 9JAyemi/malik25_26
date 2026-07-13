@@ -1,0 +1,29 @@
+{
+  "id": "00405",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.725613",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e87951c8190b4b74891b744f914",
+  "custom_id": "binary_adder_34c00eb2",
+  "module_name": "binary_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `binary_adder`. This module should implement a 4-bit binary adder with a carry-in and a carry-out. The module's interface is defined by the following ports:\nInputs:\n*   `A` (4-bit)\n*   `B` (4-bit)\n*   `Cin` (1-bit)\n*   `clk` (1-bit)\n*   `rst_n` (1-bit, active-low asynchronous reset)\n\nOutputs:\n*   `S` (4-bit sum)\n*   `Cout` (1-bit carry-out)\n\nThe outputs `S` and `Cout` should be registered and updated on the positive edge of the clock input `clk`. The module must also include an active-low asynchronous reset input `rst_n` that forces both `S` and `Cout` to zero when asserted.\n",
+  "original_verified": true,
+  "prompt_hash": "e4cf9b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.863272",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

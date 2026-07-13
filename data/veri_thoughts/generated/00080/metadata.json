@@ -1,0 +1,29 @@
+{
+  "id": "00080",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.773264",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df35530819081a0100f61864eeb",
+  "custom_id": "shift_nor_034fb89f",
+  "module_name": "shift_nor",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `shift_nor` with the following ports:\nInputs:\n- `clk`: Clock signal for sequential logic.\n- `load`: Control signal for loading the internal register.\n- `ena [1:0]`: 2-bit control signal for enabling and selecting the shift direction.\n- `data [99:0]`: 100-bit data input for loading.\n- `a`: Single-bit input for the output logic.\n- `b`: Single-bit input for the output logic.\nOutput:\n- `out`: Single-bit output.\n\nThe module should implement the following behavior:\n1.  On the positive edge of the `clk` signal, a 100-bit internal register should be updated based on the `load` and `ena` inputs:\n    *   If `load` is asserted, the register should be loaded with the value from the `data` input.\n    *   If `load` is deasserted, the register should perform a circular shift operation based on the `ena` input:\n        *   When `ena` is `2'b01`, perform a circular right shift.\n        *   When `ena` is `2'b10`, perform a circular left shift.\n        *   For any other value of `ena`, the register should retain its current value.\n2.  The module's output `out` should continuously reflect the logical NOR of the single-bit inputs `a` and `b`. This output is independent of the clock and the internal register's state.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "78b065",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.384848",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

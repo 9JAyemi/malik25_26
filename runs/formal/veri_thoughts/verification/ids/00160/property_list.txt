@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+reg_module.auto_sva_inst.check_reset_clears_reg
+reg_module.auto_sva_inst.check_reset_priority_over_write
+reg_module.auto_sva_inst.check_write_updates_reg
+reg_module.auto_sva_inst.check_hold_without_write
+
+COVER PROPERTIES:
+reg_module.auto_sva_inst.check_reset_clears_reg:precondition1
+reg_module.auto_sva_inst.check_reset_priority_over_write:precondition1
+reg_module.auto_sva_inst.check_write_updates_reg:precondition1
+reg_module.auto_sva_inst.check_hold_without_write:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00430",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.796344",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eae4a74819098725f2a6a9ef1bc",
+  "custom_id": "decoder_4_to_16_5e09e683",
+  "module_name": "decoder_4_to_16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `decoder_4_to_16`. The module has an input `input [1:0] AB` and an output `output reg [15:0] Y`. The module should implement a function where the 2-bit input `AB` determines which single bit of the 16-bit output `Y` is set to logic 1, with all other bits of `Y` being 0. Specifically, if `AB` is `2'b00`, `Y[0]` should be 1. If `AB` is `2'b01`, `Y[1]` should be 1. If `AB` is `2'b10`, `Y[2]` should be 1. If `AB` is `2'b11`, `Y[3]` should be 1. For all input values of `AB`, bits `Y[4]` through `Y[15]` must be 0.\n",
+  "original_verified": true,
+  "prompt_hash": "716555",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.872007",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00321",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.860491",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f426dc48190af74129714105235",
+  "custom_id": "comparator_f55fc66b",
+  "module_name": "comparator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `comparator`. This module takes two 2-bit inputs, `A` and `B`, and produces a single-bit output, `Z`. The module should compare `A` and `B` to determine if they are equal or unequal. The comparison logic should prioritize differences in the most significant bit. If the most significant bits are different, the output `Z` should indicate inequality. If the most significant bits are the same, the comparison should proceed to the next less significant bit. If any pair of corresponding bits differ, `Z` should indicate inequality. If all corresponding bits are the same, `Z` should indicate equality. Specifically, `Z` should be 0 if the inputs `A` and `B` are equal, and 1 if they are unequal, based on this bit-prioritized comparison.\n\nThe module interface is:\nmodule comparator(\n    input [1:0] A,\n    input [1:0] B,\n    output reg Z\n);\n...\nendmodule\n",
+  "original_verified": true,
+  "prompt_hash": "c22d8a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.479817",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

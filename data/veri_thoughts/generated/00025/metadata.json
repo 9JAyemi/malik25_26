@@ -1,0 +1,29 @@
+{
+  "id": "00025",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.664675",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de6ed8c8190a566d2b2e6e369bc",
+  "custom_id": "pipelined_xor_gate_7511e1d5",
+  "module_name": "pipelined_xor_gate",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a two-stage pipelined XOR gate in Verilog. The module should be named `pipelined_xor_gate` and have the following interface:\nInputs: `a`, `b`, `clk`\nOutput: `out`\n\nThe inputs `a` and `b` should be registered on the positive edge of `clk` in the first pipeline stage. The outputs of this first stage should then be registered again on the positive edge of `clk` in the second pipeline stage. The final output `out` should be the result of the XOR operation performed on the values from the second pipeline stage registers.\n",
+  "original_verified": true,
+  "prompt_hash": "7b88b4",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.366195",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

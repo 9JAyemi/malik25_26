@@ -1,0 +1,29 @@
+{
+  "id": "00435",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.814945",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eb47dec8190b07d6e16119cc1e3",
+  "custom_id": "bitwise_or_63d65ea2",
+  "module_name": "bitwise_or",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `bitwise_or`. The module has inputs `A` (8 bits), `B` (8 bits), `enable` (1 bit), and `clk` (1 bit), and an output `result` (8 bits). The module should perform a bitwise OR operation on inputs `A` and `B`. This calculation should be prepared whenever the inputs change and `enable` is high. The final output `result` should be updated synchronously on the positive edge of the `clk` signal with the most recently computed (and enabled) OR value.\n",
+  "original_verified": true,
+  "prompt_hash": "9bf6f7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.873357",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

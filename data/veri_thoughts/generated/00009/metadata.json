@@ -1,0 +1,29 @@
+{
+  "id": "00009",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.632891",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de5b5048190b70a2bb3750a8434",
+  "custom_id": "shift_reg_034ca024",
+  "module_name": "shift_reg",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `shift_reg` with inputs `clk`, `en`, `din` and an 8-bit output `dout`. Implement a synchronous 8-bit left shift register. The register should shift its contents one position to the left on the positive edge of the `clk` signal, but only when the `en` signal is high. When shifting, the value of the `din` input should be loaded into the least significant bit (bit 0) of the register. The output `dout` should continuously reflect the current value of the internal register. The internal register should be initialized to all zeros.\n",
+  "original_verified": true,
+  "prompt_hash": "113ebe",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.361385",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

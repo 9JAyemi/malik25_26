@@ -1,0 +1,29 @@
+{
+  "id": "00082",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.776361",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df36b9c81908aa1a6deea897fdd",
+  "custom_id": "top_module_901b9cbf",
+  "module_name": "top_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following modules, ensuring the interfaces match exactly as specified:\n\n1.  **Module Name:** `and_gate`\n    *   **Interface:** `output and_out, input a, input b, input c, input d`\n    *   **Functionality:** Implement a 4-input AND gate.\n\n2.  **Module Name:** `or_gate`\n    *   **Interface:** `output or_out, input a, input b, input c, input d`\n    *   **Functionality:** Implement a 4-input OR gate.\n\n3.  **Module Name:** `xor_gate`\n    *   **Interface:** `output xor_out, input a, input b, input c, input d`\n    *   **Functionality:** Implement a 4-input XOR gate.\n\n4.  **Module Name:** `top_module`\n    *   **Interface:** `input a, input b, input sel_b1, input sel_b2, output reg out_always, output out_and, output out_or, output out_xor`\n    *   **Functionality:**\n        *   The output `out_always` should behave as a 2-to-1 multiplexer. It should select input `b` when both `sel_b1` and `sel_b2` are high, and input `a` otherwise. This output must be declared as a `reg`.\n        *   The outputs `out_and`, `out_or`, and `out_xor` should compute the 4-input AND, OR, and XOR respectively, of the inputs `a`, `b`, `sel_b1`, and `sel_b2`. These computations *must* be performed by instantiating the `and_gate`, `or_gate`, and `xor_gate` modules you define.\n\n",
+  "original_verified": true,
+  "prompt_hash": "b61cbd",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.385309",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

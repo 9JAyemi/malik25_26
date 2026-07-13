@@ -1,0 +1,29 @@
+{
+  "id": "00111",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.824233",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfbfba48190a9d1e65aa2df9e4a",
+  "custom_id": "sp_mux_4to1_sel2_7_1_1aa6c4da",
+  "module_name": "sp_mux_4to1_sel2_7_1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sp_mux_4to1_sel2_7_1`.\nThe module should implement a 4-to-1 multiplexer.\nThe module interface should be defined as follows:\nParameters:\n    ID (default 0)\n    NUM_STAGE (default 1)\n    din1_WIDTH (default 32)\n    din2_WIDTH (default 32)\n    din3_WIDTH (default 32)\n    din4_WIDTH (default 32)\n    din5_WIDTH (default 32)\n    dout_WIDTH (default 32)\nInputs:\n    din1 [6:0]\n    din2 [6:0]\n    din3 [6:0]\n    din4 [6:0]\n    din5 [1:0]\nOutput:\n    dout [6:0]\n\nThe inputs `din1`, `din2`, `din3`, and `din4` are the data inputs. The input `din5` is the 2-bit select signal. The output `dout` should reflect the selected data input. Specifically, `dout` should be `din1` when `din5` is `2'b00`, `din2` when `din5` is `2'b01`, `din3` when `din5` is `2'b10`, and `din4` when `din5` is `2'b11`.\n\nYour implementation should use continuous assignments (`assign`).\n",
+  "original_verified": true,
+  "prompt_hash": "f6ccea",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.394852",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

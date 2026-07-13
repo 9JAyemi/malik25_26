@@ -1,0 +1,14 @@
+ASSERT PROPERTIES:
+mux_2to1.auto_sva_inst.check_mux_equation
+mux_2to1.auto_sva_inst.check_select_a
+mux_2to1.auto_sva_inst.check_select_b
+mux_2to1.auto_sva_inst.check_equal_inputs
+mux_2to1.auto_sva_inst.check_follow_s
+mux_2to1.auto_sva_inst.check_follow_not_s
+
+COVER PROPERTIES:
+mux_2to1.auto_sva_inst.check_select_a:precondition1
+mux_2to1.auto_sva_inst.check_select_b:precondition1
+mux_2to1.auto_sva_inst.check_equal_inputs:precondition1
+mux_2to1.auto_sva_inst.check_follow_s:precondition1
+mux_2to1.auto_sva_inst.check_follow_not_s:precondition1

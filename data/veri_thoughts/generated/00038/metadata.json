@@ -1,0 +1,29 @@
+{
+  "id": "00038",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.689903",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de894188190b0a2476fc9648c73",
+  "custom_id": "FSM_8bce2145",
+  "module_name": "FSM",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a Mealy Finite State Machine module named `FSM`.\n\nThe module should have the following parameters with default values:\n```verilog\n  parameter n = 4, // number of input signals\n  parameter m = 2, // number of output signals\n  parameter s = 8, // number of states\n  parameter t = 12 // number of transitions\n```\n\nThe module should have the following ports:\n```verilog\n  input [n-1:0] in,\n  output reg [m-1:0] out\n```\n\nThe FSM has `s` states, requiring a state register capable of holding `s` unique values (e.g., 3 bits for 8 states).\n\nThe state transitions and output values are determined by the current state and the input `in`. The FSM logic should be implemented in an `always` block sensitive to changes in the `in` signal.\n\nThe FSM's behavior can be broadly described by two groups of states:\n1.  States 0 through 3: In these states, transitions and outputs primarily depend on the values of `in[0]`, `in[1]`, and `in[2]`.\n    *   If `in[0]` AND `in[1]` are both high, the FSM transitions to a specific next state and sets the output `out` to one particular value.\n    *   Else if `in[2]` is high, the FSM transitions to a different next state and sets `out` to another particular value.\n    *   Otherwise (if neither of the above conditions is met), the FSM transitions to a third next state and sets `out` to a default value.\n    The specific next state and output value for each condition vary depending on the current state within this group (0-3).\n\n2.  States 4 through 7: In these states, transitions and outputs primarily depend on the values of `in[0]`, `in[1]`, and `in[3]`.\n    *   If `in[1]` AND `in[3]` are both high, the FSM transitions to a specific next state and sets the output `out` to the first particular value mentioned above.\n    *   Else if `in[0]` is high, the FSM transitions to a different next state and sets `out` to the second particular value mentioned above.\n    *   Otherwise, the FSM transitions to a third next state and sets `out` to the default value mentioned above.\n    The specific next state and output value for each condition vary depending on the current state within this group (4-7).\n\nImplement the detailed state transition and output logic based on this description and the typical structure of a Mealy FSM using a `case` statement on the current state.\n",
+  "original_verified": true,
+  "prompt_hash": "95d005",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 15
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.370165",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

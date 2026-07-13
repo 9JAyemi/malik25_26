@@ -1,0 +1,29 @@
+{
+  "id": "00503",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.408169",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e48b4748190ab056bcadfb6d6cb",
+  "custom_id": "sky130_fd_sc_hd__and4_f1b272f9",
+  "module_name": "sky130_fd_sc_hd__and4",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_hd__and4`. This module should implement a 4-input logical AND function. The module should have the following interface:\n\nInputs:\n- `A`\n- `B`\n- `C`\n- `D`\n\nOutput:\n- `X`\n\nThe output `X` should represent the logical AND of the four inputs `A`, `B`, `C`, and `D`.\n",
+  "original_verified": true,
+  "prompt_hash": "249946",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.889594",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

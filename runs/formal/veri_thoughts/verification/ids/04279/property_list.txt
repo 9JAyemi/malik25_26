@@ -1,0 +1,10 @@
+ASSERT PROPERTIES:
+tri_buf.auto_sva_inst.check_out_matches_function
+tri_buf.auto_sva_inst.check_out_follows_input_when_enabled
+tri_buf.auto_sva_inst.check_out_high_when_disabled
+tri_buf.auto_sva_inst.check_low_out_requires_enabled_low_input
+
+COVER PROPERTIES:
+tri_buf.auto_sva_inst.check_out_follows_input_when_enabled:precondition1
+tri_buf.auto_sva_inst.check_out_high_when_disabled:precondition1
+tri_buf.auto_sva_inst.check_low_out_requires_enabled_low_input:precondition1

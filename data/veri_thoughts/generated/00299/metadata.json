@@ -1,0 +1,29 @@
+{
+  "id": "00299",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.793559",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3efda0819089303be1b7f28763",
+  "custom_id": "mux4_reset_add29308",
+  "module_name": "mux4_reset",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux4_reset` that implements a 4-to-1 multiplexer with an active-high reset.\n\nThe module should have the following interface:\n- Inputs:\n    - `reset`: 1-bit input.\n    - `sel`: 2-bit input for selecting one of the data inputs.\n    - `in0`: 4-bit data input.\n    - `in1`: 4-bit data input.\n    - `in2`: 4-bit data input.\n    - `in3`: 4-bit data input.\n- Output:\n    - `out`: 4-bit output.\n\nFunctionality:\n- When the `reset` input is high, the `out` should be forced to all zeros (4'b0000), regardless of the other inputs.\n- When the `reset` input is low, the module should function as a standard 4-to-1 multiplexer:\n    - If `sel` is 2'b00, `out` should be equal to `in0`.\n    - If `sel` is 2'b01, `out` should be equal to `in1`.\n    - If `sel` is 2'b10, `out` should be equal to `in2`.\n    - If `sel` is 2'b11, `out` should be equal to `in3`.\n",
+  "original_verified": true,
+  "prompt_hash": "bddfeb",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.474003",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00055",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.725528",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65deedd58819090a99d8d0291e620",
+  "custom_id": "gray_code_converter_3062ed9a",
+  "module_name": "gray_code_converter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `gray_code_converter` with the following interface:\n- Input: `data_in` (4 bits, `[3:0]`)\n- Output: `gray_out` (4 bits, `[3:0]`)\n\nThe module should implement a specific two-stage combinatorial transformation.\n\nIn the first stage, generate a 4-bit intermediate signal named `stage1_out`. The least significant bit of `stage1_out` should be the same as the least significant bit of `data_in`. For each other bit `i` (from 1 to 3), `stage1_out[i]` should be the result of XORing `data_in[i]` and `data_in[i-1]`.\n\nIn the second stage, apply the *exact same* transformation rule used in Stage 1 to the `stage1_out` signal to produce another 4-bit intermediate signal named `stage2_out`.\n\nFinally, the module's output `gray_out` should be assigned the value of `stage2_out`.\n\nUse combinatorial `always @(*)` blocks for the transformation logic.\n",
+  "original_verified": true,
+  "prompt_hash": "8a726d",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.376323",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

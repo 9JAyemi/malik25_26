@@ -1,0 +1,29 @@
+{
+  "id": "00497",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.387817",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e4626008190887aee80ca95d8fe",
+  "custom_id": "abs_difference_sum_77bd720e",
+  "module_name": "abs_difference_sum",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `abs_difference_sum`.\nThe module should have the following interface:\nInputs:\n- `input [15:0] input_a`\n- `input [15:0] input_b`\nOutput:\n- `output [15:0] output_sum`\n\nThe module should perform the following operation:\n1.  Divide each 16-bit input (`input_a` and `input_b`) into four 4-bit segments (e.g., bits [3:0], [7:4], [11:8], [15:12]).\n2.  For each of the four corresponding pairs of 4-bit segments, calculate the absolute difference between the segments.\n3.  Concatenate the four resulting 4-bit absolute differences to form the 16-bit output `output_sum`. The concatenation should place the absolute difference of the most significant segments (bits [15:12]) in the most significant bits of `output_sum` (bits [15:12]), and so on, down to the least significant segments (bits [3:0]) in the least significant bits of `output_sum` (bits [3:0]).\n",
+  "original_verified": true,
+  "prompt_hash": "baa8ee",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.888359",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

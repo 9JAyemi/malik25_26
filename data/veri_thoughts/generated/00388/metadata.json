@@ -1,0 +1,29 @@
+{
+  "id": "00388",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.677637",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e6f14448190bee250a1febce351",
+  "custom_id": "data_converter_831cfc66",
+  "module_name": "data_converter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `data_converter`. This module should have a 4-bit input named `data_in` and a 2-bit output named `data_out`. The module should convert the input value into one of four ranges, mapping each range to a unique 2-bit output value.\n\nSpecifically, the mapping should be as follows:\n- If the decimal value of `data_in` is in the range 0 to 4 (inclusive), `data_out` should represent the lowest possible 2-bit unsigned value.\n- If the decimal value of `data_in` is in the range 5 to 8 (inclusive), `data_out` should represent the second lowest possible 2-bit unsigned value.\n- If the decimal value of `data_in` is in the range 9 to 12 (inclusive), `data_out` should represent the third lowest possible 2-bit unsigned value.\n- If the decimal value of `data_in` is in the range 13 to 15 (inclusive), `data_out` should represent the highest possible 2-bit unsigned value.\n",
+  "original_verified": true,
+  "prompt_hash": "33ebb0",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.497680",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

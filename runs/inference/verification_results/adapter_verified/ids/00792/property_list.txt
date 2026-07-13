@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+xor_module.auto_sva_inst.check_xor_on_a
+xor_module.auto_sva_inst.check_xor_on_a_fall
+xor_module.auto_sva_inst.check_xor_on_b
+xor_module.auto_sva_inst.check_xor_on_b_fall
+xor_module.auto_sva_inst.check_zero_when_equal_a
+xor_module.auto_sva_inst.check_zero_when_equal_a_fall
+xor_module.auto_sva_inst.check_one_when_not_equal_a
+xor_module.auto_sva_inst.check_one_when_not_equal_a_fall
+
+COVER PROPERTIES:
+xor_module.auto_sva_inst.check_zero_when_equal_a:precondition1
+xor_module.auto_sva_inst.check_zero_when_equal_a_fall:precondition1
+xor_module.auto_sva_inst.check_one_when_not_equal_a:precondition1
+xor_module.auto_sva_inst.check_one_when_not_equal_a_fall:precondition1

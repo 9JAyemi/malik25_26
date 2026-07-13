@@ -14,17 +14,14 @@ set -euo pipefail
 #   syntax  – compile/syntax check only     (uses jasper_syntax_check.tcl)
 #   verif   – full assertion verification    (uses jasper_verif_check.tcl)
 #
-# Results are placed under <dataset_dir>/../ (the "dataset" folder):
-#   metrex/dataset/syntax_results/
-#   metrex/dataset/verification_results/
-#
 # Examples:
-#   ./scripts/check_all.sh syntax metrex/dataset/version_1
-#   ./scripts/check_all.sh verif  veri_thoughts/dataset/version_1
-#   ./scripts/check_all.sh --force verif veri_thoughts/dataset/version_2
+#   ./scripts/check_all.sh syntax data/veri_thoughts/generated
+#   ./scripts/check_all.sh verif  data/veri_thoughts/generated
+#   ./scripts/check_all.sh --force verif runs/inference/adapter_verified
 # ============================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ── Parse args ───────────────────────────────────────────────
 FORCE=0
@@ -69,9 +66,17 @@ mkdir -p "$TMPDIR"
 trap 'rm -rf "$TMPDIR"' EXIT
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-4}"
 
-# Results go under the parent of the version dir (i.e., dataset/), namespaced by version
+# Generic inputs write next to their parent, namespaced by input directory. The
+# canonical cumulative dataset writes to runs/formal/veri_thoughts.
 RESULTS_BASE="$(cd "$DATASET_DIR/.." && pwd)"
 VERSION_NAME="$(basename "$DATASET_DIR")"
+if [[ "$DATASET_DIR" == "$REPO_ROOT/data/veri_thoughts/generated" ]]; then
+  SYNTAX_RESULT_DIR="$REPO_ROOT/runs/formal/veri_thoughts/syntax"
+  VERIF_RESULT_DIR="$REPO_ROOT/runs/formal/veri_thoughts/verification"
+else
+  SYNTAX_RESULT_DIR="$RESULTS_BASE/syntax_results/$VERSION_NAME"
+  VERIF_RESULT_DIR="$RESULTS_BASE/verification_results/$VERSION_NAME"
+fi
 
 cd "$DATASET_DIR"
 
@@ -141,8 +146,8 @@ extract_reason() {
 #  SYNTAX MODE
 # ============================================================
 run_syntax() {
-  mkdir -p "$RESULTS_BASE/syntax_results/$VERSION_NAME/visual_data"
-  local SUMMARY_CSV="$RESULTS_BASE/syntax_results/$VERSION_NAME/visual_data/summary.csv"
+  mkdir -p "$SYNTAX_RESULT_DIR/visual_data"
+  local SUMMARY_CSV="$SYNTAX_RESULT_DIR/visual_data/summary.csv"
   echo "id,status" > "$SUMMARY_CSV"
 
   echo "=============================="
@@ -161,7 +166,7 @@ run_syntax() {
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
       echo "🔍 Checking $id ..."
-      local out_dir="$RESULTS_BASE/syntax_results/$VERSION_NAME/ids/$id"
+      local out_dir="$SYNTAX_RESULT_DIR/ids/$id"
       mkdir -p "$out_dir"
 
       JG_DIR="$dir" \
@@ -319,10 +324,10 @@ PYEOF
 #  VERIF MODE
 # ============================================================
 run_verif() {
-  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME/ids"
-  mkdir -p "$RESULTS_BASE/verification_results/$VERSION_NAME/visual_data"
+  mkdir -p "$VERIF_RESULT_DIR/ids"
+  mkdir -p "$VERIF_RESULT_DIR/visual_data"
 
-  local VERIF_CSV="$RESULTS_BASE/verification_results/$VERSION_NAME/visual_data/verif_summary.csv"
+  local VERIF_CSV="$VERIF_RESULT_DIR/visual_data/verif_summary.csv"
 
   echo "id,status,reason,auto_bind,vacuous,non_vacuous" > "$VERIF_CSV"
 
@@ -341,7 +346,7 @@ run_verif() {
     local sva_file="${dir%/}/sva.sv"
 
     if [[ -f "$module_file" && -f "$sva_file" ]]; then
-      local out_dir="$RESULTS_BASE/verification_results/$VERSION_NAME/ids/$id"
+      local out_dir="$VERIF_RESULT_DIR/ids/$id"
       mkdir -p "$out_dir"
       local done_marker="$out_dir/DONE"
       local proj_dir="$out_dir/jgproject"

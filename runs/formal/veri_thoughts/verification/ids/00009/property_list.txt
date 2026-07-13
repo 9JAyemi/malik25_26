@@ -1,0 +1,13 @@
+ASSERT PROPERTIES:
+shift_reg.auto_sva_inst.check_shift_on_enable
+shift_reg.auto_sva_inst.check_upper_bits_shift
+shift_reg.auto_sva_inst.check_lsb_loads_din
+shift_reg.auto_sva_inst.check_hold_when_disabled
+shift_reg.auto_sva_inst.check_change_requires_enable
+
+COVER PROPERTIES:
+shift_reg.auto_sva_inst.check_shift_on_enable:precondition1
+shift_reg.auto_sva_inst.check_upper_bits_shift:precondition1
+shift_reg.auto_sva_inst.check_lsb_loads_din:precondition1
+shift_reg.auto_sva_inst.check_hold_when_disabled:precondition1
+shift_reg.auto_sva_inst.check_change_requires_enable:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00050",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.711686",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65decd8908190939cc3a4bb63c4ed",
+  "custom_id": "XNOR3HD2X_15d5ba8e",
+  "module_name": "XNOR3HD2X",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `XNOR3HD2X` with inputs `A`, `B`, and `C`, and output `Z`. The module should implement a logic function where the output `Z` is logic high (1) if and only if an even number of the inputs are logic high (1). This includes the case where none of the inputs are logic high.\n",
+  "original_verified": true,
+  "prompt_hash": "d81f5a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.374736",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

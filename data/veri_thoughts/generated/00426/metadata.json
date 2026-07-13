@@ -1,0 +1,29 @@
+{
+  "id": "00426",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.776718",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ea4ed8c8190adb498e89be772a0",
+  "custom_id": "adder_e5d9b7ca",
+  "module_name": "adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `adder` that implements a synchronous 16-bit signed adder with an active-high synchronous reset.\n\nThe module should have the following interface:\n- Inputs:\n    - `input signed [15:0] a`\n    - `input signed [15:0] b`\n    - `input clk`\n    - `input rst`\n- Output:\n    - `output reg signed [15:0] sum`\n\nOn the positive edge of the clock (`clk`), if the reset signal (`rst`) is high, the output `sum` should be cleared to zero. Otherwise, the output `sum` should register the sum of the inputs `a` and `b`.\n",
+  "original_verified": true,
+  "prompt_hash": "e6c64c",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.870990",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

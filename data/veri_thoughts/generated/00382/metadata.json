@@ -1,0 +1,29 @@
+{
+  "id": "00382",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.055785",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5fad8881909d7e7aa60b491925",
+  "custom_id": "and_gate_58200670",
+  "module_name": "and_gate",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `and_gate` with inputs `A` and `B`, and output `X`. This module should implement a logical AND function. The implementation should utilize a built-in gate primitive. Define intermediate wires to connect the module inputs `A` and `B` to the inputs of the gate primitive. Additionally, include definitions for several wires assigned to constant logic values (0 or 1).\n",
+  "original_verified": true,
+  "prompt_hash": "df7352",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.496333",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

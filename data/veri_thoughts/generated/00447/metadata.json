@@ -1,0 +1,29 @@
+{
+  "id": "00447",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.867513",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65ec002b48190b123d1d7aa521b44",
+  "custom_id": "counter_a337c0ad",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two Verilog modules:\n\n1.  **Module Name:** `counter`\n    **Interface:** `input clk`, `input reset`, `output [3:0] count`\n    **Description:** Implement a 4-bit synchronous counter. The counter should increment its value by one on the positive edge of the `clk` signal. If the `reset` signal is asserted (high) on the positive edge of `clk`, the counter should reset its value to zero. The current count value should be available on the `count` output.\n\n2.  **Module Name:** `counter_top`\n    **Interface:** `input clk`, `input reset`, `output reg [4:0] count`\n    **Description:** This module should instantiate two instances of the `counter` module described above. Connect the `clk` and `reset` inputs of `counter_top` to the corresponding inputs of both instantiated `counter` modules. On the positive edge of the `clk` signal, the `count` output of `counter_top` should be updated with the sum of the current count values from the two instantiated `counter` modules. Ensure the output `count` is registered.\n\nWrite the Verilog code for both modules.\n",
+  "original_verified": true,
+  "prompt_hash": "41564b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.876419",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

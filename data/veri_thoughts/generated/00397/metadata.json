@@ -1,0 +1,29 @@
+{
+  "id": "00397",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.700156",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e7913c48190b725b20b5d9f9e87",
+  "custom_id": "counter_4bit_e5156678",
+  "module_name": "counter_4bit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a synchronous 4-bit counter module.\nThe module should be named `counter_4bit`.\nIt should have the following interface:\nInputs: `clk`, `reset`, `enable`\nOutput: `count` (a 4-bit register)\n\nThe counter should update its `count` value on the positive edge of the `clk` signal.\nIt should increment the `count` by one when the `enable` input is asserted.\nA high value on the `reset` input should synchronously clear the `count` to zero, overriding the enable signal.\n",
+  "original_verified": true,
+  "prompt_hash": "f6a8ec",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.500540",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

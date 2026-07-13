@@ -1,0 +1,29 @@
+{
+  "id": "00504",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.411588",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e49c38c81908d2253d998070eb8",
+  "custom_id": "sky130_fd_sc_lp__nor4bb_8db6c177",
+  "module_name": "sky130_fd_sc_lp__nor4bb",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_lp__nor4bb`. The module should have the following interface:\n\nOutputs:\n`Y`\n\nInputs:\n`A`\n`B`\n`C_N`\n`D_N`\n\nImplement the logic such that the output `Y` is high (logic 1) if and only if both inputs `A` and `B` are low (logic 0), AND both inputs `C_N` and `D_N` are high (logic 1). You should implement this logic using Verilog gate primitives (e.g., `and`, `or`, `not`, `nand`, `nor`, `buf`).\n",
+  "original_verified": true,
+  "prompt_hash": "35c9e0",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.889848",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

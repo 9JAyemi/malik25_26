@@ -1,0 +1,29 @@
+{
+  "id": "00346",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.935100",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f4d3df88190a13a43dd909d0907",
+  "custom_id": "zero_to_one_counter_e6056978",
+  "module_name": "zero_to_one_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following Verilog modules:\n\n1.  **`adder_4bit_cin_cout`**: Implement a 4-bit binary adder with a carry-in and a carry-out.\n    *   Inputs: `A` (4-bit), `B` (4-bit), `CIN` (1-bit).\n    *   Outputs: `S` (4-bit sum), `COUT` (1-bit carry-out).\n\n2.  **`zero_to_one_counter`**: Create a synchronous module operating on the positive clock edge. It has a single-bit output that follows these rules:\n    *   An active-high synchronous `reset` clears the output to 0.\n    *   If the 16-bit input `in` is equal to `16'hFFFF`, the output is set to 1.\n    *   In all other cases (when not in reset and `in` is not `16'hFFFF`), the output toggles its current value.\n    *   Inputs: `clk`, `reset` (synchronous active-high), `in` (16-bit).\n    *   Output: `out` (1-bit).\n\n3.  **`top_module`**: Connect instances of the previous two modules as follows:\n    *   Instantiate `adder_4bit_cin_cout`, connecting its `A`, `B`, and `CIN` inputs to the top-level inputs of the same names. The adder's sum output should be used internally, and its carry-out should be left unconnected.\n    *   Instantiate `zero_to_one_counter`, connecting its `clk`, `reset`, and `in` inputs to the top-level inputs of the same names.\n    *   The final 4-bit output `S` of the `top_module` should be the result of adding the 4-bit sum output from the `adder_4bit_cin_cout` instance and the single-bit output from the `zero_to_one_counter` instance.\n    *   Inputs: `clk`, `reset` (synchronous active-high), `A` (4-bit for the adder), `B` (4-bit for the adder), `CIN` (Carry-in for the adder), `in` (16-bit for the zero-to-one counter).\n    *   Output: `S` (4-bit output for the final sum).\n\nProvide the Verilog code for all three modules.\n",
+  "original_verified": true,
+  "prompt_hash": "513f98",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.486809",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

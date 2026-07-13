@@ -1,0 +1,9 @@
+ASSERT PROPERTIES:
+EX_MEM_Seg.auto_sva_inst.check_flush_clears_outputs
+EX_MEM_Seg.auto_sva_inst.check_capture_when_not_stalled
+EX_MEM_Seg.auto_sva_inst.check_hold_when_stalled
+
+COVER PROPERTIES:
+EX_MEM_Seg.auto_sva_inst.check_flush_clears_outputs:precondition1
+EX_MEM_Seg.auto_sva_inst.check_capture_when_not_stalled:precondition1
+EX_MEM_Seg.auto_sva_inst.check_hold_when_stalled:precondition1

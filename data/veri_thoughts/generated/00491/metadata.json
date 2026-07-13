@@ -1,0 +1,29 @@
+{
+  "id": "00491",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.362384",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e43735481908ed8f199267d8fb2",
+  "custom_id": "sky130_fd_sc_hd__fa_df69ad01",
+  "module_name": "sky130_fd_sc_hd__fa",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a combinational logic module named `sky130_fd_sc_hd__fa` that implements a full adder. The module should take three single-bit inputs, `A`, `B`, and `CIN` (carry-in), and produce two single-bit outputs, `SUM` and `COUT` (carry-out). The `SUM` output should represent the sum of `A`, `B`, and `CIN` modulo 2, and the `COUT` output should be 1 if two or three of the inputs (`A`, `B`, `CIN`) are 1, and 0 otherwise.\n\nIn addition to the standard logic inputs and outputs, the module interface must include the following inputs: `VPWR`, `VGND`, `VPB`, and `VNB`. While these signals are typically used for power and substrate biasing in physical implementations, your Verilog code should focus on the logical functionality of the full adder using combinational assignment statements (`assign`). Do not include any sequential logic elements or instantiate other modules.\n",
+  "original_verified": true,
+  "prompt_hash": "945b80",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.886769",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

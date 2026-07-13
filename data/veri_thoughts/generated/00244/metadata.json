@@ -1,0 +1,29 @@
+{
+  "id": "00244",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.864948",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e1c6460819081ea9a0820ded50c",
+  "custom_id": "ripple_carry_adder_75eed742",
+  "module_name": "ripple_carry_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following two Verilog modules:\n\n1.  **Module Name:** `half_adder`\n    **Interface:** `input A, B, CIN, output COUT, SUM`\n    **Functionality:** Implement a combinational circuit that takes three single-bit inputs (A, B, CIN) and produces two single-bit outputs (SUM, COUT). The outputs should represent the sum and carry-out, respectively, resulting from adding the three inputs.\n\n2.  **Module Name:** `ripple_carry_adder`\n    **Interface:** `input [3:0] A, B, input Cin, output [3:0] Sum, output Cout`\n    **Functionality:** Design a 4-bit adder module using four instances of the `half_adder` module defined above. This module should add the 4-bit inputs A and B and produce a 4-bit sum `Sum` and a carry output `Cout`. Structure the adder as a ripple-carry chain, where the carry output of stage `i` becomes the carry input for stage `i+1`.\n    **Specific Connection Requirements:**\n    *   The least significant bit (LSB) stage should process A[0] and B[0].\n    *   The most significant bit (MSB) stage should process A[3] and B[3] and generate the final `Cout`.\n    *   The external `Cin` input of the `ripple_carry_adder` module should be declared but should *not* be connected to any of the internal `half_adder` instances.\n    *   The `CIN` port of the `half_adder` instance used for the LSB stage should be left unconnected.\n\nWrite the Verilog code for both modules.\n",
+  "original_verified": true,
+  "prompt_hash": "a938a5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.459883",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00488",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.350680",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e43d1f481908a752addecbe6130",
+  "custom_id": "sky130_fd_sc_hdll__nand4bb_1b31b0cd",
+  "module_name": "sky130_fd_sc_hdll__nand4bb",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `sky130_fd_sc_hdll__nand4bb`. The module should have the following inputs: `A_N`, `B_N`, `C`, `D`, `VPWR`, `VGND`, `VPB`, `VNB`, and a single output `Y`. Implement the logic such that the output `Y` is high (`1'b1`) if and only if all four inputs `A_N`, `B_N`, `C`, and `D` are low (`1'b0`). In all other cases, the output `Y` should be low (`1'b0`). The power, ground, and body bias inputs (`VPWR`, `VGND`, `VPB`, `VNB`) are part of the module's interface but do not need specific behavioral logic implemented for them in this description.\n",
+  "original_verified": true,
+  "prompt_hash": "8232a7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.886124",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

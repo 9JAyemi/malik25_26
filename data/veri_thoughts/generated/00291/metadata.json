@@ -1,0 +1,29 @@
+{
+  "id": "00291",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.774825",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3e55ec8190a3b140105ddf77b7",
+  "custom_id": "ripple_adder_mux_7e1bb315",
+  "module_name": "ripple_adder_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for two modules:\n\n1.  **Module Name:** `ripple_adder_mux`\n    *   **Inputs:** `A` (4-bit), `B` (4-bit), `cin` (1-bit), `select` (1-bit)\n    *   **Output:** `out` (4-bit)\n    *   **Functionality:** This module should perform a 4-bit addition of the inputs `A`, `B`, and `cin`. The final output `out` should be determined by the `select` signal: if `select` is high, the output should be the result of the addition (ignoring the carry-out of the addition); otherwise, the output should be a 4-bit constant value where all bits are set to 1.\n\n2.  **Module Name:** `top_module`\n    *   **Inputs:** `A` (4-bit), `B` (4-bit), `cin` (1-bit), `select` (1-bit)\n    *   **Output:** `out` (4-bit)\n    *   **Functionality:** This module should instantiate the `ripple_adder_mux` module and connect its ports directly to the corresponding inputs and outputs of `top_module`.\n\n",
+  "original_verified": true,
+  "prompt_hash": "7843af",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.472343",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

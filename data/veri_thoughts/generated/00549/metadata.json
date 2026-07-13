@@ -1,0 +1,29 @@
+{
+  "id": "00549",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.577949",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5ec6ec8190b0b9173003547851",
+  "custom_id": "top_module_2cb3df62",
+  "module_name": "top_module",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for the following set of modules and their interconnection.\n\n1.  **Module `and_gate`**:\n    *   Inputs: `a`, `b`\n    *   Output: `out` (declared as `reg`)\n    *   Functionality: Implements a 2-input logical AND operation.\n\n2.  **Module `mux_2to1`**:\n    *   Inputs: `a`, `b`, `sel`\n    *   Output: `out` (declared as `reg`)\n    *   Functionality: Implements a 2-to-1 multiplexer. When `sel` is high, the output is `b`. When `sel` is low, the output is `a`.\n\n3.  **Module `functional_module`**:\n    *   Inputs: `and_out`, `mux_out`\n    *   Output: `final_out` (declared as `reg`)\n    *   Functionality: Implements a logical XOR operation on its two inputs.\n\n4.  **Module `top_module`**:\n    *   Inputs: `a`, `b`, `sel_b1`, `sel_b2`\n    *   Output: `out_always` (declared as `reg`)\n    *   Functionality: This module instantiates the three modules described above and connects them as follows:\n        *   An instance of `and_gate` is created. Its inputs `a` and `b` are connected to the `top_module` inputs `a` and `b` respectively. Its output `out` is connected to an internal signal named `and_out`.\n        *   An instance of `mux_2to1` is created. Its data inputs `a` and `b` are connected to the `top_module` inputs `a` and `b` respectively. Its select input `sel` is driven by the logical AND of the `top_module` inputs `sel_b1` and `sel_b2`. Its output `out` is connected to an internal signal named `mux_out`.\n        *   An instance of `functional_module` is created. Its inputs `and_out` and `mux_out` are connected to the internal signals `and_out` and `mux_out` respectively. Its output `final_out` is connected to an internal signal named `final_out`.\n        *   The `top_module` output `out_always` is assigned the value of the internal signal `final_out`.\n\nEnsure all ports and module names match the specifications exactly.\n",
+  "original_verified": true,
+  "prompt_hash": "2eb666",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.900991",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

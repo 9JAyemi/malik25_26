@@ -1,0 +1,29 @@
+{
+  "id": "00556",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.606018",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e61c5848190823b3fc81096d949",
+  "custom_id": "my__34416704",
+  "module_name": "my_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `my_module`.\nThe module has the following interface:\n- An output port named `Z`.\n- An input port named `A`.\n- An input port named `TE_B`.\n\nImplement the combinational logic such that the output `Z` behaves as follows:\n- If the input `TE_B` is logic high, the output `Z` must be logic high, regardless of the value of input `A`.\n- If the input `TE_B` is logic low, the output `Z` should have the same value as the input `A`.\n\nWrite the Verilog code for this module.\n",
+  "original_verified": true,
+  "prompt_hash": "d9da8e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.902724",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

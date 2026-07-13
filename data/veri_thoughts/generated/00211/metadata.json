@@ -1,0 +1,29 @@
+{
+  "id": "00211",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.778471",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0957ac819089c815d68a21360f",
+  "custom_id": "priority_encoder_d8c4c096",
+  "module_name": "priority_encoder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `priority_encoder` with the following interface:\n*   Input: `input [3:0] I`\n*   Output: `output reg [1:0] O`\n\nThe module should encode specific single-bit-high inputs to a 2-bit output. Specifically:\n*   If the input `I` is `4'b0001`, the output `O` should be `2'b00`.\n*   If the input `I` is `4'b0010`, the output `O` should be `2'b01`.\n*   If the input `I` is `4'b0100`, the output `O` should be `2'b10`.\n*   If the input `I` is `4'b1000`, the output `O` should be `2'b11`.\n*   For all other possible values of `I` (including zero bits high or multiple bits high), the output `O` should be `2'b00`.\n",
+  "original_verified": true,
+  "prompt_hash": "586952",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.449879",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

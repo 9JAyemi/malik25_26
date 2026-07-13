@@ -1,0 +1,29 @@
+{
+  "id": "00221",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.801204",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e0b51b0819082f8c3ff8a121200",
+  "custom_id": "binary_counter_92bc8560",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `binary_counter`. The module must have the following interface:\n\nInputs:\n- `clk`\n- `reset`\n\nOutput:\n- `count_out` (4 bits wide)\n\nThe module should implement a 4-bit binary counter that increments its value on the positive edge of the `clk` signal. The counter should also have an asynchronous, active-low `reset` signal that clears the count to zero. The current count value should be available on the `count_out` output.\n",
+  "original_verified": true,
+  "prompt_hash": "15f69b",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.453042",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

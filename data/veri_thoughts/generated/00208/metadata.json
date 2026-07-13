@@ -1,0 +1,29 @@
+{
+  "id": "00208",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.765912",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e090a28819093b731bebdec693c",
+  "custom_id": "up_down_counter_7485b2cf",
+  "module_name": "up_down_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following Verilog modules:\n\n1.  **`up_down_counter`**:\n    *   This module should implement a synchronous 4-bit up/down counter.\n    *   The counter should increment on the positive edge of the clock signal `clk` when the `up_down` input is high.\n    *   The counter should decrement on the positive edge of the clock signal `clk` when the `up_down` input is low.\n    *   The output `count` should be a 4-bit register holding the current count value.\n    *   Interface: `module up_down_counter (input clk, input up_down, output reg [3:0] count);`\n\n2.  **`binary_adder`**:\n    *   This module should implement a combinational 4-bit binary adder.\n    *   It takes two 4-bit inputs, `A` and `B`, and outputs their 4-bit sum, `sum`.\n    *   Interface: `module binary_adder (input [3:0] A, input [3:0] B, output [3:0] sum);`\n\n3.  **`shift_and_sum`**:\n    *   This is the top-level module.\n    *   It should instantiate two instances of the `up_down_counter` module. Both counters should be driven by the main module's `clk` and `up_down` inputs.\n    *   It should instantiate one instance of the `binary_adder` module. The inputs to the adder should be the outputs of the two `up_down_counter` instances.\n    *   The final 8-bit output `out` should be formed by concatenating two parts:\n        *   The upper 4 bits of `out` should be the result of a right-shift operation on input `A`, where the number of positions to shift is determined by the value of input `B`.\n        *   The lower 4 bits of `out` should be the output of the `binary_adder` instance.\n    *   Interface: `module shift_and_sum (input [3:0] A, input [3:0] B, input clk, input up_down, output [7:0] out);`\n\nWrite the Verilog code for these three modules.\n",
+  "original_verified": true,
+  "prompt_hash": "55f638",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 9
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.448729",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00378",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.047758",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f5ef04c8190af8fb421e255680c",
+  "custom_id": "decoder_4to16_0510c9f1",
+  "module_name": "decoder_4to16",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `decoder_4to16`. This module should implement a 4-to-16 decoder with an active-high enable signal. The module has the following interface:\n\n*   Inputs:\n    *   `in`: A 4-bit input (`input [3:0] in`).\n    *   `ena`: A single-bit enable signal (`input ena`).\n*   Output:\n    *   `out`: A 16-bit output (`output reg [15:0] out`).\n\nThe functionality should be as follows:\n*   If `ena` is high, the output bit corresponding to the value of `in` should be driven low, while all other bits of `out` should be high. For example, if `in` is `4'b0000`, `out[0]` should be low and `out[15:1]` should be high. If `in` is `4'b0001`, `out[1]` should be low and the rest high, and so on, up to `in` being `4'b1111` resulting in `out[15]` being low and the rest high.\n*   If `ena` is low, the entire `out` signal should be driven high, regardless of the value of `in`.\n*   Consider appropriate handling for any potential default cases (though a 4-bit input covers all 16 possibilities, including a default is good practice).\n",
+  "original_verified": true,
+  "prompt_hash": "7ed273",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.495179",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

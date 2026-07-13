@@ -1,0 +1,29 @@
+{
+  "id": "00550",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.580308",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5ed8688190a13d7f666a1eddaf",
+  "custom_id": "frequency_divider_ce99f9f5",
+  "module_name": "frequency_divider",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `frequency_divider` that divides the frequency of an input clock.\n\nThe module should have the following interface:\n-   Input `clk_in`: The input clock signal.\n-   Input `rst`: An asynchronous reset signal (active high).\n-   Output `clk_out`: The divided output clock signal.\n\nThe module should include a parameter named `div` with a default value of 10. The output clock `clk_out` should have a frequency that is `clk_in_freq / (2 * div)`. This implies that the `clk_out` signal should toggle its state every `div` cycles of the input clock `clk_in`.\n\nWhen the `rst` signal is asserted, the module should asynchronously reset its internal state and set the `clk_out` output to 0.\n",
+  "original_verified": true,
+  "prompt_hash": "1736e8",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.901183",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

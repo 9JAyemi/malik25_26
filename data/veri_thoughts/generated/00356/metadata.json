@@ -1,0 +1,29 @@
+{
+  "id": "00356",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.959747",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f51ed9481908b00b79484da2616",
+  "custom_id": "Multiplexer_2_1_parameterized1_85500988",
+  "module_name": "Multiplexer_2_1_parameterized1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `Multiplexer_2_1_parameterized1` that implements a 2-to-1 multiplexer.\n\nThe module interface should be exactly as follows:\n```verilog\nmodule Multiplexer_2_1_parameterized1\n   (ctrl,\n    D0,\n    D1,\n    S);\n  input ctrl;\n  input [0:0]D0;\n  input [0:0]D1;\n  output [0:0]S;\n  // ... rest of the module ...\nendmodule\n```\n\nThe module should select the `D0` input and connect it to the `S` output when the `ctrl` signal is logic '0'. When the `ctrl` signal is logic '1', the module should select the `D1` input and connect it to the `S` output.\n",
+  "original_verified": true,
+  "prompt_hash": "7a7320",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.489536",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

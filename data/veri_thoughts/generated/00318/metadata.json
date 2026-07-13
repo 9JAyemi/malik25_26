@@ -1,0 +1,29 @@
+{
+  "id": "00318",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.852483",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f406fb48190b82ff39245b91ce1",
+  "custom_id": "mux_4to1_case_85e48514",
+  "module_name": "mux_4to1_case",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `mux_4to1_case` that implements a 4-to-1 multiplexer.\nThe module should have the following 1-bit inputs: `a`, `b`, `c`, `d` (the data inputs) and `sel0`, `sel1` (the select inputs).\nThe module should have one 1-bit output named `out`.\nThe output `out` should be equal to the data input selected by the 2-bit value formed by concatenating the select lines as `{sel1, sel0}`. Specifically, if `{sel1, sel0}` is `2'b00`, `out` should be `a`; if `2'b01`, `out` should be `b`; if `2'b10`, `out` should be `c`; and if `2'b11`, `out` should be `d`.\nImplement the selection logic using a `case` statement within an `always` block that is sensitive to all inputs.\n",
+  "original_verified": true,
+  "prompt_hash": "2b6422",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.478551",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,11 @@
+ASSERT PROPERTIES:
+inverter.auto_sva_inst.check_op_low_when_clr_high
+inverter.auto_sva_inst.check_op_high_when_ce_and_ip_low
+inverter.auto_sva_inst.check_op_low_when_ce_and_ip_high
+inverter.auto_sva_inst.check_op_holds_when_ce_low
+
+COVER PROPERTIES:
+inverter.auto_sva_inst.check_op_low_when_clr_high:precondition1
+inverter.auto_sva_inst.check_op_high_when_ce_and_ip_low:precondition1
+inverter.auto_sva_inst.check_op_low_when_ce_and_ip_high:precondition1
+inverter.auto_sva_inst.check_op_holds_when_ce_low:precondition1

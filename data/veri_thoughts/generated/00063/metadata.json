@@ -1,0 +1,29 @@
+{
+  "id": "00063",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.742465",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df0d1ac81908c6ac7075237c388",
+  "custom_id": "binary_counter_136b238d",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `binary_counter`.\n\nThis module should implement a synchronous counter with the following interface:\nInputs:\n*   `clk`: Clock signal.\n*   `rst`: Asynchronous reset signal (active high).\n*   `max_count [15:0]`: The maximum value the counter should reach before wrapping around.\n\nOutputs:\n*   `count [15:0]`: The current value of the counter. This output should be registered.\n*   `done`: A single-bit registered output that should be asserted for one clock cycle when the counter wraps around from `max_count` back to 0.\n\nThe counter should:\n*   Reset to 0 when `rst` is high.\n*   Increment on the positive edge of `clk` when not resetting.\n*   When the counter reaches the value specified by `max_count`, it should wrap around to 0 on the next positive clock edge.\n*   The `done` signal should be asserted for one clock cycle coincident with the clock edge where the counter wraps from `max_count` to 0.\n\n",
+  "original_verified": true,
+  "prompt_hash": "d6fc0a",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.378446",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

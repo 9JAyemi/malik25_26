@@ -1,0 +1,29 @@
+{
+  "id": "00170",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.609515",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65dfb23208190ad98f37e00d535dd",
+  "custom_id": "counter_34ef8699",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `counter`. The module should have the following inputs and outputs:\nInputs: `clk`, `rst`, `enable`, `count_dir`, `dual_count`\nOutput: `count_out` (an 8-bit register)\n\nThe counter should behave as follows:\n- It should reset asynchronously to 8'h00 when `rst` is low.\n- When `rst` is high, it should operate synchronously on the positive edge of `clk`.\n- Counting should only occur when `enable` is high.\n- The counting direction is controlled by `count_dir`: count up when `count_dir` is 0, and count down when `count_dir` is 1.\n- The step size is controlled by `dual_count`: increment/decrement by 1 when `dual_count` is 0, and by 2 when `dual_count` is 1.\n- Implement wrap-around logic: when counting up from 8'hFF, the next value should be 8'h00; when counting down from 8'h00, the next value should be 8'hFF.\n",
+  "original_verified": true,
+  "prompt_hash": "7c2720",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.411419",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

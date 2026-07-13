@@ -1,0 +1,13 @@
+# Vacuity check results for DESIGN_ID=02732
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::top_module.auto_sva_inst.check_left_shift_when_A_gt_B | error
+<embedded>::top_module.auto_sva_inst.check_right_shift_when_A_lt_B | error
+<embedded>::top_module.auto_sva_inst.check_passthrough_when_A_eq_B | error
+<embedded>::top_module.auto_sva_inst.check_no_shift_behavior_left | error
+<embedded>::top_module.auto_sva_inst.check_no_shift_behavior_right | error
+<embedded>::top_module.auto_sva_inst.check_lsb_zero_after_left_shift | error
+<embedded>::top_module.auto_sva_inst.check_msb_zero_after_right_shift | error
+<embedded>::top_module.auto_sva_inst.check_left_shift_by_15 | error
+<embedded>::top_module.auto_sva_inst.check_right_shift_by_15 | error
+<embedded>::top_module.auto_sva_inst.check_right_shift_monotonic | error

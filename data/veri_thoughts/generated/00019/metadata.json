@@ -1,0 +1,29 @@
+{
+  "id": "00019",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.653385",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de6b0a88190b310f922bddb195d",
+  "custom_id": "priority_mux_35557212",
+  "module_name": "priority_mux",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `priority_mux`.\n\nThe module should have the following interface:\nInputs:\n`input [3:0] A, B, C, D`\n`input [1:0] S`\nOutputs:\n`output reg Y, Z`\n\nThe module implements a priority-based selection logic. The 4-bit inputs A, B, C, and D are considered \"active\" if their value is non-zero. The 2-bit input S determines the priority order among A, B, C, and D.\n\nThe priority order for each value of S is as follows:\n*   If S is 2'b00, the priority is A > B > C > D.\n*   If S is 2'b01, the priority is B > A > C > D.\n*   If S is 2'b10, the priority is C > A > B > D.\n*   If S is 2'b11, the priority is D > A > B > C.\n\nThe module should scan the inputs in the established priority order and find the first input that is \"active\" (non-zero). The outputs (Y, Z) are then determined by which input was the first active one:\n*   If the first active input in the priority list is A, set Y=1 and Z=0.\n*   If the first active input in the priority list is B, set Y=0 and Z=1.\n*   If the first active input in the priority list is C or D, set Y=0 and Z=0.\n*   If none of the inputs A, B, C, or D are active, set Y=0 and Z=0.\n\nImplement this logic in Verilog.\n",
+  "original_verified": true,
+  "prompt_hash": "a23fb5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 15
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.364698",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

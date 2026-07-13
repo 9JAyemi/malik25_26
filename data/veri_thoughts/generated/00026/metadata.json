@@ -1,0 +1,29 @@
+{
+  "id": "00026",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.666560",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de7984c8190931da4230768b148",
+  "custom_id": "bin2gray_652b52ac",
+  "module_name": "bin2gray",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `bin2gray` that converts a 4-bit binary input into its corresponding 4-bit Gray code output.\n\nThe module should have the following interface:\n- An input port named `bin`, which is a 4-bit wide wire.\n- An output port named `gray`, which is a 4-bit wide register (as it will be assigned within an `always` block).\n\nImplement the standard binary-to-Gray conversion logic. The design should be purely combinational.\n",
+  "original_verified": true,
+  "prompt_hash": "ae766e",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.366608",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

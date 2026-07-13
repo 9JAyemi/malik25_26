@@ -1,0 +1,29 @@
+{
+  "id": "00103",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.811821",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df7a85c819087b0ae7ea3c39677",
+  "custom_id": "ByteMuxOct_c74cc0a5",
+  "module_name": "ByteMuxOct",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `ByteMuxOct` that functions as an 8-input multiplexer for 8-bit wide data. The module should have the following interface:\n\nInputs:\n- `A_i` (8 bits)\n- `B_i` (8 bits)\n- `C_i` (8 bits)\n- `D_i` (8 bits)\n- `E_i` (8 bits)\n- `F_i` (8 bits)\n- `G_i` (8 bits)\n- `H_i` (8 bits)\n- `SAB_i` (1 bit)\n- `SC_i` (1 bit)\n- `SD_i` (1 bit)\n- `SE_i` (1 bit)\n- `SF_i` (1 bit)\n- `SG_i` (1 bit)\n- `SH_i` (1 bit)\n\nOutput:\n- `Y_o` (8 bits)\n\nThe selection of the output `Y_o` from the inputs `A_i` through `H_i` is controlled by the single-bit select signals `SAB_i` through `SH_i` based on the following priority:\n- If `SH_i` is high, `Y_o` should be `H_i`.\n- Otherwise (if `SH_i` is low), if `SG_i` is high, `Y_o` should be `G_i`.\n- Continue this priority scheme downwards through `SF_i`, `SE_i`, `SD_i`, and `SC_i`.\n- If `SC_i` is low (and all higher priority select signals `SD_i` through `SH_i` were also low), then if `SAB_i` is high, `Y_o` should be `B_i`.\n- If `SAB_i` is also low (and all other select signals `SC_i` through `SH_i` were low), then `Y_o` should default to `A_i`.\n",
+  "original_verified": true,
+  "prompt_hash": "19aeaa",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 12
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.391268",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

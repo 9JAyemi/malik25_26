@@ -1,0 +1,12 @@
+ASSERT PROPERTIES:
+counter16.auto_sva_inst.check_reset_next_zero
+counter16.auto_sva_inst.check_reset_deassert_zero_now
+counter16.auto_sva_inst.check_next_state_function
+counter16.auto_sva_inst.check_increment_when_no_reset
+counter16.auto_sva_inst.check_wrap_when_no_reset
+
+COVER PROPERTIES:
+counter16.auto_sva_inst.check_reset_next_zero:precondition1
+counter16.auto_sva_inst.check_reset_deassert_zero_now:precondition1
+counter16.auto_sva_inst.check_increment_when_no_reset:precondition1
+counter16.auto_sva_inst.check_wrap_when_no_reset:precondition1

@@ -1,0 +1,29 @@
+{
+  "id": "00030",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.674892",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de7462481909d032cedd22fb83e",
+  "custom_id": "four_bit_adder_7139d2e7",
+  "module_name": "four_bit_adder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `four_bit_adder`.\nThe module should have the following interface:\nInputs:\n`input [3:0] A`\n`input [3:0] B`\n`input CI`\nOutputs:\n`output [3:0] SUM`\n`output COUT`\n\nImplement the logic for this module using only gate primitives (`xor`, `and`, `or`).\n\nThe functionality is defined as follows:\nEach bit of the `SUM` output (`SUM[i]` for i from 0 to 3) should be the result of XORing the corresponding input bits (`A[i]`, `B[i]`) with the *global* carry-in `CI`.\nThe `COUT` output should be calculated based on the most significant bits of the inputs (`A[3]`, `B[3]`) and the *global* carry-in `CI`. Specifically, `COUT` should be the XOR of two terms: the result of XORing `A[3]`, `B[3]`, and `CI`, and the result of ANDing `A[3]`, `B[3]`, and `CI`.\n\nYour implementation should connect the gate primitives using appropriate wires to achieve this specific logic.\n",
+  "original_verified": true,
+  "prompt_hash": "54ac32",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 11
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.368074",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

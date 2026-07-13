@@ -1,0 +1,29 @@
+{
+  "id": "00557",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.609678",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e63fb948190be3fbab73d90e08e",
+  "custom_id": "sky130_fd_sc_ms__a32o_c28adb99",
+  "module_name": "sky130_fd_sc_ms__a32o",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for a module named `sky130_fd_sc_ms__a32o`.\nThis module should have the following interface:\nOutput: `X`\nInputs: `A1`, `A2`, `A3`, `B1`, `B2`\n\nThe module's output `X` should be logically high if all of the inputs `A1`, `A2`, and `A3` are high, OR if both inputs `B1` and `B2` are high. Otherwise, the output `X` should be logically low. Implement this functionality using basic gate primitives (such as `and`, `or`, `buf`).\n",
+  "original_verified": true,
+  "prompt_hash": "1838a6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.902915",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

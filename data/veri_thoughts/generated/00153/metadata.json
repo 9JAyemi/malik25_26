@@ -1,0 +1,29 @@
+{
+  "id": "00153",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.552534",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df76dc081908a38e7ff00286674",
+  "custom_id": "data_converter_99ebbcd9",
+  "module_name": "data_converter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `data_converter`. This module has a 16-bit input named `data_in` and a 4-bit output named `data_out`. The module should implement the following logic: If the least significant 4 bits of `data_in` are not equal to zero, the output `data_out` should be set to all ones (4'b1111). Otherwise, if the least significant 4 bits of `data_in` are zero, the output `data_out` should be assigned the value of the most significant 4 bits of `data_in`.\n",
+  "original_verified": true,
+  "prompt_hash": "6993bf",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.407110",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

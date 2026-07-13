@@ -1,0 +1,29 @@
+{
+  "id": "00489",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.354357",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e433e608190ab74b75dcd88bd05",
+  "custom_id": "rippleCarryAdder_4abbdfde",
+  "module_name": "rippleCarryAdder",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign Verilog modules for a 1-bit full adder and a 4-bit ripple-carry adder constructed from four instances of the 1-bit full adder.\n\nFor the 1-bit full adder, the module name must be `fullAdder` and its interface should be:\n`module fullAdder(A, B, Cin, Sum, Cout);`\nIt takes three single-bit inputs `A`, `B`, and `Cin`, and produces a single-bit sum `Sum` and a single-bit carry-out `Cout`.\n\nFor the 4-bit ripple-carry adder, the module name must be `rippleCarryAdder` and its interface should be:\n`module rippleCarryAdder(A, B, Cin, Sum, Cout);`\nIt takes two 4-bit inputs `A` and `B`, a single-bit carry-in `Cin`, and produces a 4-bit sum `Sum` and a single-bit carry-out `Cout`. This module should instantiate four `fullAdder` modules and connect them in a ripple-carry configuration.\n",
+  "original_verified": true,
+  "prompt_hash": "a2b08f",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 10
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.886332",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

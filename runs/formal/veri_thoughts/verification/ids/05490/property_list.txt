@@ -1,0 +1,15 @@
+ASSERT PROPERTIES:
+full_adder.auto_sva_inst.check_total_sum
+full_adder.auto_sva_inst.check_sum_bit0
+full_adder.auto_sva_inst.check_sum_bit1
+full_adder.auto_sva_inst.check_cout_overflow
+full_adder.auto_sva_inst.check_identity_a
+full_adder.auto_sva_inst.check_identity_b
+full_adder.auto_sva_inst.check_cin_only
+full_adder.auto_sva_inst.check_increment_overflow
+
+COVER PROPERTIES:
+full_adder.auto_sva_inst.check_identity_a:precondition1
+full_adder.auto_sva_inst.check_identity_b:precondition1
+full_adder.auto_sva_inst.check_cin_only:precondition1
+full_adder.auto_sva_inst.check_increment_overflow:precondition1

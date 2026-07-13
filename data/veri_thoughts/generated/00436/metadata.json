@@ -1,0 +1,29 @@
+{
+  "id": "00436",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.818814",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eb655148190ab5754ffd874bc2d",
+  "custom_id": "Multiplexer_AC__parameterized69_aa10606e",
+  "module_name": "Multiplexer_AC__parameterized69",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `Multiplexer_AC__parameterized69`. This module should implement a parameterized 2-to-1 multiplexer. The module should include a parameter `WIDTH` with a default value of 1.\n\nThe module's interface should be exactly:\n*   `input ctrl` (1 bit)\n*   `input [WIDTH-1:0] D0`\n*   `input [WIDTH-1:0] D1`\n*   `output [WIDTH-1:0] S`\n\nThe functionality is that the `WIDTH`-bit output `S` should be equal to the `WIDTH`-bit input `D0` when the `ctrl` signal is low (0), and equal to the `WIDTH`-bit input `D1` when the `ctrl` signal is high (1). Design the module to achieve this functionality for any positive value of `WIDTH`, considering how each individual bit of the output `S` is selected based on the corresponding bits of `D0`, `D1`, and the `ctrl` signal.\n",
+  "original_verified": true,
+  "prompt_hash": "b30c75",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.873656",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

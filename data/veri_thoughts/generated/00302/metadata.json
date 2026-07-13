@@ -1,0 +1,29 @@
+{
+  "id": "00302",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.800645",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f3f0a848190a60c5262429cb262",
+  "custom_id": "counter_a578cd64",
+  "module_name": "counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `counter`.\nThe module should have the following interface:\nInputs:\n- `clk`: Clock signal.\n- `rst`: Reset signal.\nOutput:\n- `count`: A 4-bit registered output.\n\nImplement a synchronous counter with a synchronous reset. On the positive edge of the `clk` signal, the `count` output should be updated. If the `rst` signal is high at the time of the clock edge, the `count` should be reset to 0. Otherwise, the `count` should increment.\n",
+  "original_verified": true,
+  "prompt_hash": "7a2ae7",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.474626",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

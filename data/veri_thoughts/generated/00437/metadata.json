@@ -1,0 +1,29 @@
+{
+  "id": "00437",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:38.821892",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65eb6f82c8190b167976f2e82d243",
+  "custom_id": "pipelined_circuit_5a4d4711",
+  "module_name": "pipelined_circuit",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for two modules: `pipelined_circuit` and `top_module`.\n\nThe `pipelined_circuit` module should have the following interface:\n`module pipelined_circuit(input [3:0] in, output out_and, output out_or, output out_xor);`\nThis module implements combinatorial logic structured conceptually into two stages.\nStage 1 computes the AND of the lower two bits of the input (`in[0]` and `in[1]`) and the AND of the upper two bits (`in[2]` and `in[3]`). Let's call these intermediate results A and B, respectively. Stage 1 also computes the OR of A and B, and the XOR of A and B. Let's call these intermediate results C and D, respectively.\nStage 2 takes the results from Stage 1. The `out_and` output should be the AND of A and B. The `out_or` output should be the OR of C and D. The `out_xor` output should be the XOR of C and D.\n\nThe `top_module` module should have the following interface:\n`module top_module(input [3:0] in, output out_and, output out_or, output out_xor);`\nThis module should instantiate the `pipelined_circuit` module and connect its input and output ports directly to the corresponding top-level ports.\n",
+  "original_verified": true,
+  "prompt_hash": "1016e5",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.874191",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

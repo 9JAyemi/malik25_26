@@ -1,0 +1,29 @@
+{
+  "id": "00519",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.466851",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e510df88190bd31d2b0c23bb9d9",
+  "custom_id": "RegisterAdd_6_64e19e92",
+  "module_name": "RegisterAdd_6",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `RegisterAdd_6`. This module should implement a 1-bit register (`Q_reg`) with the following characteristics:\n- It should have an asynchronous active-low reset controlled by the input `AR`.\n- It should have a synchronous write enable controlled by the input `E`. When `E` is high at the positive edge of `CLK` (and not in reset), the register should load the value of the input `O`.\n\nThe module must have the following interface:\n- Inputs: `E` (1-bit), `O` (1-bit), `CLK` (1-bit), `AR` (1-bit)\n- Output: `add_overflow_flag` (1-bit)\n\nThe output `add_overflow_flag` should be a combinational signal that is high if and only if the input `E` is high, the input `O` is high, and the current value stored in the register (`Q_reg`) is high.\n",
+  "original_verified": true,
+  "prompt_hash": "8cd416",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.893648",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

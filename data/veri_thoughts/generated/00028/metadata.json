@@ -1,0 +1,29 @@
+{
+  "id": "00028",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.671047",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65de743708190bbe599312eccb938",
+  "custom_id": "top__96c12bbd",
+  "module_name": "top_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following Verilog modules:\n\n1.  **Module:** `up_down_counter`\n    *   **Interface:**\n        ```verilog\n        input CLK,\n        input UP_DOWN,\n        input RESET,\n        input EN,\n        output [3:0] OUT\n        ```\n    *   **Functionality:** Implement a 4-bit synchronous up/down counter with an asynchronous reset. The counter should increment on the rising edge of `CLK` when `EN` and `UP_DOWN` are high, decrement when `EN` is high and `UP_DOWN` is low, and hold its value when `EN` is low. An active-high `RESET` should asynchronously clear the counter to 0.\n\n2.  **Module:** `binary_multiplier`\n    *   **Interface:**\n        ```verilog\n        input [3:0] A,\n        input [3:0] B,\n        output [7:0] OUT\n        ```\n    *   **Functionality:** Implement a combinatorial module that multiplies the two 4-bit unsigned inputs `A` and `B` and outputs the 8-bit result `OUT`.\n\n3.  **Module:** `top_module`\n    *   **Interface:**\n        ```verilog\n        input CLK,\n        input UP_DOWN,\n        input RESET,\n        input EN,\n        input select,\n        input [3:0] A,\n        input [3:0] B,\n        output [3:0] OUT1,\n        output [7:0] OUT2\n        ```\n    *   **Functionality:** Instantiate the `up_down_counter` and `binary_multiplier` modules.\n        *   Connect the `up_down_counter` inputs `CLK`, `UP_DOWN`, `RESET`, and `EN` directly to the top-level inputs with the same names. Connect the counter's `OUT` to the top-level output `OUT1`.\n        *   Connect the `binary_multiplier` inputs such that its first input receives `A` when the top-level input `select` is high, and `B` when `select` is low. Its second input should receive `B` when `select` is high, and `A` when `select` is low. Connect the multiplier's `OUT` to the top-level output `OUT2`.\n\nProvide the Verilog code for all three modules.\n",
+  "original_verified": true,
+  "prompt_hash": "04c2ad",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.367581",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

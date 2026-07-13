@@ -1,0 +1,29 @@
+{
+  "id": "00250",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.875721",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e227924819094f64f7858dee82e",
+  "custom_id": "binary_counter_57b4abcf",
+  "module_name": "binary_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite Verilog code for a 4-bit synchronous binary counter module named `binary_counter`. The module should have inputs `clk`, `rst`, and `en`, and a 4-bit output `out`.\n\nThe counter's behavior should be as follows:\n- On the positive edge of the clock (`clk`), if the synchronous reset (`rst`) is active, the output `out` should be cleared to 0.\n- If `rst` is not active and the enable signal (`en`) is active, the output `out` should increment by 1.\n- If neither `rst` nor `en` is active, the output `out` should retain its current value.\n\nEnsure the output `out` is declared appropriately to hold state.\n",
+  "original_verified": true,
+  "prompt_hash": "338145",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.461956",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

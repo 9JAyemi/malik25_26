@@ -5,9 +5,8 @@ Reads property_list.txt, cex_details.txt, and summary.txt for each ID.
 Outputs one row per passing assertion (no counter-example).
 
 Usage:
-  python generate_passing_csv.py --dataset veri_thoughts --version 2
-  python generate_passing_csv.py --dataset metrex --version 1
-  python generate_passing_csv.py --dataset inference_outputs
+  python generate_passing_csv.py --dataset veri_thoughts
+  python generate_passing_csv.py --dataset inference
 """
 
 import argparse
@@ -19,7 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE_DIR = "/home/ab2113/malik25_26"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Regex to count SVA properties
 RE_ASSERT = re.compile(r'\bassert\s+property\b', re.IGNORECASE)
@@ -28,14 +27,9 @@ RE_ASSUME = re.compile(r'\bassume\s+property\b',  re.IGNORECASE)
 
 DATASET_CONFIGS = {
     "veri_thoughts": {
-        "results_dir": "{base}/veri_thoughts/dataset/verification_results/version_{ver}/ids",
-        "sva_dir": "{base}/veri_thoughts/dataset/version_{ver}",
-        "output_csv": "{base}/veri_thoughts/dataset/verification_results/version_{ver}/visual_data/passing_assertions.csv",
-    },
-    "metrex": {
-        "results_dir": "{base}/metrex/dataset/verification_results/version_{ver}/ids",
-        "sva_dir": "{base}/metrex/dataset/version_{ver}",
-        "output_csv": "{base}/metrex/dataset/verification_results/version_{ver}/visual_data/passing_assertions.csv",
+        "results_dir": "{base}/runs/formal/veri_thoughts/verification/ids",
+        "sva_dir": "{base}/data/veri_thoughts/generated",
+        "output_csv": "{base}/runs/formal/veri_thoughts/verification/visual_data/passing_assertions.csv",
     },
 }
 
@@ -590,8 +584,8 @@ def generate_verif_id_chart(all_pass_count, cex_count, compile_fail_count,
 def generate_syntax_assertion_chart(syntax_dir, sva_dir, label):
     """Generate bar chart of assertions in syntax-passing vs syntax-failing files.
 
-    syntax_dir: e.g. inference_outputs/syntax_results/{model}
-    sva_dir:    e.g. inference_outputs/{model}  (contains {id}/sva.sv)
+    syntax_dir: e.g. runs/inference/syntax_results/{model}
+    sva_dir:    e.g. runs/inference/{model}  (contains {id}/sva.sv)
     """
     csv_path = os.path.join(syntax_dir, "visual_data", "summary.csv")
     if not os.path.isfile(csv_path):
@@ -722,14 +716,12 @@ def generate_syntax_assertion_chart(syntax_dir, sva_dir, label):
 def main():
     parser = argparse.ArgumentParser(description="Generate CSV of passing assertions")
     parser.add_argument("--dataset", required=True,
-                        choices=list(DATASET_CONFIGS.keys()) + ["inference_outputs"],
+                        choices=list(DATASET_CONFIGS.keys()) + ["inference"],
                         help="Dataset to process")
-    parser.add_argument("--version", type=int,
-                        help="Dataset version number (required for veri_thoughts/metrex)")
     args = parser.parse_args()
 
-    if args.dataset == "inference_outputs":
-        io_base = os.path.join(BASE_DIR, "inference_outputs")
+    if args.dataset == "inference":
+        io_base = os.path.join(BASE_DIR, "runs", "inference")
         verif_base = os.path.join(io_base, "verification_results")
         syntax_base = os.path.join(io_base, "syntax_results")
         if not os.path.isdir(verif_base):
@@ -747,19 +739,14 @@ def main():
             run_for_dirs(results_dir, sva_dir, output_csv, chart_label=model_name,
                          syntax_dir=model_syntax_dir if os.path.isdir(model_syntax_dir) else None)
     else:
-        if args.version is None:
-            parser.error("--version is required for veri_thoughts/metrex")
         cfg = DATASET_CONFIGS[args.dataset]
-        results_dir = cfg["results_dir"].format(base=BASE_DIR, ver=args.version)
-        sva_dir = cfg["sva_dir"].format(base=BASE_DIR, ver=args.version)
-        output_csv = cfg["output_csv"].format(base=BASE_DIR, ver=args.version)
+        results_dir = cfg["results_dir"].format(base=BASE_DIR)
+        sva_dir = cfg["sva_dir"].format(base=BASE_DIR)
+        output_csv = cfg["output_csv"].format(base=BASE_DIR)
         # Detect syntax_results dir
-        syntax_dir = os.path.join(
-            BASE_DIR, args.dataset, "dataset", "syntax_results",
-            f"version_{args.version}",
-        )
+        syntax_dir = os.path.join(BASE_DIR, "runs", "formal", "veri_thoughts", "syntax")
         run_for_dirs(results_dir, sva_dir, output_csv,
-                     chart_label=f"{args.dataset} v{args.version}",
+                     chart_label=args.dataset,
                      syntax_dir=syntax_dir if os.path.isdir(syntax_dir) else None)
 
 

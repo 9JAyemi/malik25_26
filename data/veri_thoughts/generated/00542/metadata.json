@@ -1,0 +1,29 @@
+{
+  "id": "00542",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:41.548101",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e5c0bdc8190bf51ea2196206bba",
+  "custom_id": "my__78bb5b11",
+  "module_name": "my_",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `my_module`.\nThe module must have the following exact interface:\noutput X,\ninput A1,\ninput A2,\ninput A3,\ninput B1,\ninput VPWR,\ninput VGND,\ninput VPB,\ninput VNB\n\nThe module should compute the output `X` such that `X` is asserted (high) if and only if inputs `A1`, `A2`, and `A3` are all asserted, or if input `B1` is asserted. The additional inputs (`VPWR`, `VGND`, `VPB`, `VNB`) are part of the required interface.\n\nImplement the logic using gate-level primitives or instantiations of basic logic functions.\n",
+  "original_verified": true,
+  "prompt_hash": "ebf5e2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 4
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:51.899390",
+  "regen_batch_id": "batch_69b8b99716ec8190a258064ddecf83ea"
+}

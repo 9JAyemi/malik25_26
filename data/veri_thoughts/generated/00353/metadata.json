@@ -1,0 +1,29 @@
+{
+  "id": "00353",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:26:37.954713",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65f51c8908190b1a0fe5d29c04ada",
+  "custom_id": "bcd_counter_8ae30ed2",
+  "module_name": "bcd_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign the following Verilog modules:\n\n1.  **`bcd_counter`**:\n    *   Interface: `input clk`, `input reset`, `output reg [3:0] q`\n    *   Functionality: Implement a synchronous counter that increments on the positive edge of `clk`. The counter should sequence through the values 0, 1, 2, ..., 9 and then wrap back to 0. It should reset to 0 when the `reset` input is high on the rising edge of `clk`. The reset is synchronous and active-high.\n\n2.  **`priority_encoder`**:\n    *   Interface: `input [3:0] in`, `output reg [1:0] out`\n    *   Functionality: Implement a combinational circuit. The 2-bit output `out` should be derived from the 4-bit input `in` such that `out[1]` is 1 if *any* bit in `in[3:2]` is 1, and 0 otherwise. Similarly, `out[0]` should be 1 if *any* bit in `in[1:0]` is 1, and 0 otherwise.\n\n3.  **`multiplier`**:\n    *   Interface: `input [3:0] in`, `output reg [7:0] out`\n    *   Functionality: Implement a combinational circuit that multiplies the 4-bit input value by 16, producing an 8-bit output.\n\n4.  **`top_module`**:\n    *   Interface: `input clk`, `input reset`, `output reg [3:0] ena`, `output reg [7:0] q`\n    *   Functionality: Implement a top-level module that instantiates and connects the three modules described above.\n        *   Connect the `clk` and `reset` inputs of the `top_module` to the corresponding inputs of the `bcd_counter`.\n        *   Connect the output of the `bcd_counter` to the input of the `priority_encoder`.\n        *   Connect the output of the `bcd_counter` to the input of the `multiplier`.\n        *   Connect the output of the `priority_encoder` to the `ena` output of the `top_module`.\n        *   Connect the output of the `multiplier` to the `q` output of the `top_module`.\n        *   Use wires for inter-module connections. The reset is synchronous and active-high.\n\n",
+  "original_verified": true,
+  "prompt_hash": "e46041",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 14
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.488759",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

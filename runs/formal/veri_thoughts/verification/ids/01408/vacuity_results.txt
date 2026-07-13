@@ -1,0 +1,14 @@
+# Vacuity check results for DESIGN_ID=01408
+# Format: property_name | vacuous (yes/no/error)
+
+<embedded>::shift_register.auto_sva_inst.reset_clears_next_cycle | error
+<embedded>::shift_register.auto_sva_inst.hold_zero_while_reset | error
+<embedded>::shift_register.auto_sva_inst.deassert_reset_zero_now | error
+<embedded>::shift_register.auto_sva_inst.reset_overrides_load | error
+<embedded>::shift_register.auto_sva_inst.load_captures_din_next | error
+<embedded>::shift_register.auto_sva_inst.rotate_vector_when_no_load | error
+<embedded>::shift_register.auto_sva_inst.rotate_bit3_from_prev_bit2 | error
+<embedded>::shift_register.auto_sva_inst.rotate_bit2_from_prev_bit1 | error
+<embedded>::shift_register.auto_sva_inst.rotate_bit1_from_prev_bit0 | error
+<embedded>::shift_register.auto_sva_inst.rotate_bit0_from_prev_bit3 | error
+<embedded>::shift_register.auto_sva_inst.four_rotations_return_to_original | error

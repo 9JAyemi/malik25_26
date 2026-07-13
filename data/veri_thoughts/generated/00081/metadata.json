@@ -1,0 +1,29 @@
+{
+  "id": "00081",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.774604",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df35fc4819087d0e07e89e09fbf",
+  "custom_id": "five_to_one_576bf8d4",
+  "module_name": "five_to_one",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `five_to_one`.\nThe module should have the following interface:\nInputs: `input1`, `input2`, `input3`, `input4`, `input5`\nOutput: `output1`\n\nImplement the logic such that the output `output1` is high if `input1` and `input2` are both high, OR if `input3`, `input4`, and `input5` are all high.\n",
+  "original_verified": true,
+  "prompt_hash": "5e5e54",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 6
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.385067",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

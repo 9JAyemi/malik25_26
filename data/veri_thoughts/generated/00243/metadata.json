@@ -1,0 +1,29 @@
+{
+  "id": "00243",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.863222",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e1c69f481909ce470098f71acfd",
+  "custom_id": "up_down_counter_bab3f220",
+  "module_name": "up_down_counter",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite a Verilog module named `up_down_counter`.\n\nThe module should have the following interface:\n*   Inputs: `UD` (1 bit), `RST` (1 bit), `clk` (1 bit)\n*   Outputs: `Q` (4 bits, registered), `OVF` (1 bit, registered)\n\nImplement a 4-bit synchronous up/down counter with an active-low asynchronous reset.\n*   When `RST` is low, the counter `Q` should be reset to 0 and `OVF` should be reset to 0.\n*   When `RST` is high, the counter operates on the positive edge of `clk`.\n*   If `UD` is high, the counter increments.\n*   If `UD` is low, the counter decrements.\n*   The counter should wrap around from the maximum value (4'hF) to the minimum value (4'b0) when counting up, and from the minimum value (4'b0) to the maximum value (4'hF) when counting down.\n*   The `OVF` output should be asserted (set to 1) for one clock cycle whenever the counter wraps around (either from 4'hF to 4'b0 or from 4'b0 to 4'hF). Otherwise, `OVF` should be deasserted (set to 0).\n",
+  "original_verified": true,
+  "prompt_hash": "03faa2",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:50.459683",
+  "regen_batch_id": "batch_69b8b99528f88190b241ace85097280b"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "00046",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:39.704664",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65deb1de08190b0877ecd9958db84",
+  "custom_id": "o311ai_b80eddec",
+  "module_name": "o311ai",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a digital logic module named `o311ai`. The module should have inputs `A1`, `A2`, `A3`, `B1`, `C1` and a single output `Y`. The output `Y` should be asserted (high) if and only if input `C1` is asserted, input `A3` is deasserted (low), and at least one of the following conditions is true: input `A2` is asserted, or both input `A1` and input `B1` are asserted. Implement this logic using basic logic gates (like AND, OR, NOT).\n",
+  "original_verified": true,
+  "prompt_hash": "5c0f25",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.373130",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

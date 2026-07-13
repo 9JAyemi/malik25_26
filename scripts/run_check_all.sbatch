@@ -17,10 +17,9 @@
 # Use --only to target a single subdirectory.
 #
 # Examples:
-#   sbatch scripts/run_check_all.sbatch verif  inference_outputs
-#   sbatch scripts/run_check_all.sbatch syntax inference_outputs
-#   sbatch scripts/run_check_all.sbatch --force verif inference_outputs
-#   sbatch scripts/run_check_all.sbatch --force --only base_qwen verif inference_outputs
+#   sbatch scripts/run_check_all.sbatch verif  runs/inference
+#   sbatch scripts/run_check_all.sbatch syntax runs/inference
+#   sbatch scripts/run_check_all.sbatch --force --only base_qwen verif runs/inference
 # ============================================================
 
 set -euo pipefail
@@ -48,8 +47,8 @@ if [[ $# -lt 2 ]]; then
   echo "  parent_dir   Directory containing dataset subdirectories"
   echo ""
   echo "Examples:"
-  echo "  sbatch scripts/run_check_all.sbatch verif  inference_outputs"
-  echo "  sbatch scripts/run_check_all.sbatch --only base_qwen verif inference_outputs"
+  echo "  sbatch scripts/run_check_all.sbatch verif  runs/inference"
+  echo "  sbatch scripts/run_check_all.sbatch --only base_qwen verif runs/inference"
   exit 1
 fi
 
@@ -68,9 +67,9 @@ echo "Parent dir: $PARENT_DIR"
 
 # ── Environment setup ────────────────────────────────────────
 module purge
-module load cadence/cadence_license
+module load "${CADENCE_MODULE:-cadence/cadence_license}"
 
-export JASPER_HOME=/usr/licensed/cadence-20210126/jasper_2021.03
+export JASPER_HOME="${JASPER_HOME:-/usr/licensed/cadence-20210126/jasper_2021.03}"
 export PATH="$PATH:$JASPER_HOME/bin"
 
 # Sanity checks

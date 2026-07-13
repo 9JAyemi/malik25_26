@@ -1,0 +1,29 @@
+{
+  "id": "00162",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.592607",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df7966481909acd0fa38bc9701f",
+  "custom_id": "mux4to1_f048798e",
+  "module_name": "mux4to1",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nWrite the Verilog code for a module named `mux4to1`. This module has five single-bit inputs: `I0`, `I1`, `I2`, `I3`, and `S`, and one single-bit output `O`. The module should implement the following logic: When the select input `S` is low, the output `O` should be the XOR of inputs `I0` and `I2`. When the select input `S` is high, the output `O` should be the XOR of inputs `I1` and `I3`.\n",
+  "original_verified": true,
+  "prompt_hash": "5d96d1",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 7
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.409576",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

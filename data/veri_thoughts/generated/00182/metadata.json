@@ -1,0 +1,29 @@
+{
+  "id": "00182",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.642925",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65e00eafc819091ca6904e8c47332",
+  "custom_id": "db_qp_f2a5f252",
+  "module_name": "db_qp",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a Verilog module named `db_qp`.\n\nThe module should have the following interface:\nInputs:\n*   `clk`\n*   `rst_n` (active-low reset)\n*   `cbf_4x4_i`\n*   `cbf_u_4x4_i`\n*   `cbf_v_4x4_i`\n*   `qp_left_i`\n\nOutput:\n*   `qp_flag_o`\n\nImplement the following synchronous logic:\nOn the negative edge of `rst_n`, the output `qp_flag_o` should be asynchronously reset to `1'b0`.\nOn the positive edge of `clk`, when `rst_n` is high, the output `qp_flag_o` should be updated as follows:\n*   If all three inputs `cbf_4x4_i`, `cbf_u_4x4_i`, and `cbf_v_4x4_i` are simultaneously '0', `qp_flag_o` should be updated with the current value of `qp_left_i`.\n*   In all other cases (i.e., if at least one of `cbf_4x4_i`, `cbf_u_4x4_i`, or `cbf_v_4x4_i` is '1'), `qp_flag_o` should be updated with `1'b0`.\n",
+  "original_verified": true,
+  "prompt_hash": "47b6c6",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 5
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.414569",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}

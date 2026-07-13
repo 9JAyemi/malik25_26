@@ -1,0 +1,8 @@
+// Auto-generated bind (no bind found in SVA files)
+// NOTE: Unconnected SVA ports (not in DUT): clk, check_mux_equation, assert, property, posedge, check_select_a, b0, check_select_b, b1, check_equal_inputs_passthrough
+bind mux2to1 mux2to1_sva auto_sva_inst (
+    .A(A),
+    .B(B),
+    .SEL(SEL),
+    .Y(Y)
+);

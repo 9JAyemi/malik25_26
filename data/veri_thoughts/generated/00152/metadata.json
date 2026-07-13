@@ -1,0 +1,29 @@
+{
+  "id": "00152",
+  "source_version": "version_1",
+  "verilog_file": "module.v",
+  "sva_file": "sva.sv",
+  "created_at": "2026-03-02T23:06:40.550961",
+  "source": "openai_batch",
+  "model_used": "gpt-5-2025-08-07",
+  "batch_id": "batch_req_69a65df6a28c8190955ebcf67703d5b3",
+  "custom_id": "comparator_2d743c14",
+  "module_name": "comparator",
+  "original_dataset": "wilyub/VeriThoughtsTrainSet",
+  "original_question": "\nDesign a synchronous Verilog module named `comparator` that performs a comparison between two 8-bit unsigned inputs, `A` and `B`, over a sequence of clock cycles. The module should register the inputs on the first clock edge after they are presented. On the subsequent clock edge, the comparison (`A == B`, `A > B`, `A < B`) should be performed on the registered values, and the outputs `EQ` and `GT` should be set accordingly for that single clock cycle. Specifically:\n- If the registered `A` equals the registered `B`, set `EQ` to 1 and `GT` to 0.\n- If the registered `A` is greater than the registered `B`, set `GT` to 1 and `EQ` to 0.\n- Otherwise (if registered `A` is less than registered `B`), set both `EQ` and `GT` to 0.\nOn the third clock edge following the input registration, the outputs `EQ` and `GT` should be cleared (set to 0), and the module should return to a state where it is ready to register new inputs on the next clock edge.\n\nThe module interface is as follows:\n`input [7:0] A`\n`input [7:0] B`\n`output reg EQ`\n`output reg GT`\n`input clk`\n",
+  "original_verified": true,
+  "prompt_hash": "8ac823",
+  "validation": {
+    "syntax_check": true,
+    "compiles_with_sv_linter": false,
+    "num_assertions": 8
+  },
+  "judging": {
+    "status": "unjudged",
+    "llm_scores": [],
+    "aggregate_score": null,
+    "accepted": null
+  },
+  "regenerated_at": "2026-03-17T11:30:49.406447",
+  "regen_batch_id": "batch_69b8b993ba5c8190aed7cb255f8bcd95"
+}
